@@ -29,7 +29,8 @@ function RacistEels() {
 			'can',
 			'are',
 			'has',
-			'should'
+			'should',
+			'am'
 		];
 
 		// are you prepared for a clusterfuck of oneliners?
