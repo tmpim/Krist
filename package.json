@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Lemmmy/Krist2Node",
   "dependencies": {
     "colors": "^1.1.2",
+    "crc-32": "^0.3.0",
     "express": "^4.13.3",
     "sequelize": "^3.17.1"
   },
