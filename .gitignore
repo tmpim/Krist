@@ -1,0 +1,16 @@
+# node.js
+
+logs
+.grunt
+node_modules
+.npm
+
+# JetBrains
+
+*.iml
+.idea/
+*.ipr
+*.iws
+.idea_modules/
+
+/config.js

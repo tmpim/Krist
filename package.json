@@ -1,0 +1,25 @@
+{
+  "name": "krist2node",
+  "version": "2.0.0",
+  "description": "The new Krist node written in node.js.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lemmmy/Krist2Node"
+  },
+  "author": "Lemmmy",
+  "license": "GPL-v3",
+  "bugs": {
+    "url": "https://github.com/Lemmmy/Krist2Node/issues"
+  },
+  "homepage": "https://github.com/Lemmmy/Krist2Node",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "express": "^4.13.3",
+    "mysql": "^2.10.0",
+    "sequelize": "^3.17.1"
+  }
+}
