@@ -28,7 +28,8 @@ function RacistEels() {
 			'is',
 			'can',
 			'are',
-			'has'
+			'has',
+			'should'
 		];
 
 		// are you prepared for a clusterfuck of oneliners?
@@ -44,7 +45,7 @@ function RacistEels() {
 				res.send('We don\'t know.');
 			}
 		} else {
-			res.send('Ask us a question. Disclaimer: we are partially human aided.');
+			res.send('Ask us a yes/no question. Disclaimer: we are partially human aided.');
 		}
 	};
 
