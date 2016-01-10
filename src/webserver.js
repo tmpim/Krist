@@ -54,7 +54,7 @@ module.exports = function (config, database) {
 	});
 
 	app.get('/', function(req, res) {
-		res.send('hi');
+		require('./../api/legacy.js')(app, req, res);
 	});
 
 	// Load all API endpoints
@@ -69,7 +69,7 @@ module.exports = function (config, database) {
 			}
 
 			try {
-				require('./../api/endpoints/' + file)(app);
+				require('./../api/endpoints/' + file)().setup(app);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading API endpoint `' + file + '`: ');
 				console.log('[Webserver]'.red + ' ' + error.toString());				
