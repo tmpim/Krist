@@ -64,6 +64,10 @@ module.exports = function (config, database) {
 		var endpointPath = path.join(__dirname, 'api/endpoints');
 
 		fs.readdirSync(endpointPath).forEach(function(file) {
+			if (path.extname(file).toLowerCase() !== '.js') {
+				return;
+			}
+
 			try {
 				require('./api/endpoints/' + file)(app);
 			} catch (error) {

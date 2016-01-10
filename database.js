@@ -48,6 +48,10 @@ Database.init = function() {
 		var modelsPath = path.join(__dirname, 'models');
 
 		fs.readdirSync(modelsPath).forEach(function(file) {
+			if (path.extname(file).toLowerCase() !== '.js') {
+				return;
+			}
+
 			try {
 				Database.models[file.replace(/\.[^/.]+$/, "").capitalizeFirst()] = require('./models/' + file);
 			} catch (error) {
