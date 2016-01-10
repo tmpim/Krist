@@ -61,7 +61,7 @@ module.exports = function (config, database) {
 	console.log('[Webserver]'.blue + ' Loading API endpoints');
 
 	try {
-		var endpointPath = path.join(__dirname, 'api/endpoints');
+		var endpointPath = path.join(__dirname, '../api/endpoints');
 
 		fs.readdirSync(endpointPath).forEach(function(file) {
 			if (path.extname(file).toLowerCase() !== '.js') {
@@ -69,7 +69,7 @@ module.exports = function (config, database) {
 			}
 
 			try {
-				require('./api/endpoints/' + file)(app);
+				require('./../api/endpoints/' + file)(app);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading API endpoint `' + file + '`: ');
 				console.log('[Webserver]'.red + ' ' + error.toString());				

@@ -1,4 +1,4 @@
-var	config		= require('./config.js'),
+var	config		= require('./../config.js'),
 	Sequelize	= require('sequelize'),
 	colors		= require('colors'), // *colours
 	fs			= require('fs'),
@@ -45,7 +45,7 @@ Database.init = function() {
 	console.log('[DB]'.blue + ' Loading all models');
 
 	try {
-		var modelsPath = path.join(__dirname, 'models');
+		var modelsPath = path.join(__dirname, '../models');
 
 		fs.readdirSync(modelsPath).forEach(function(file) {
 			if (path.extname(file).toLowerCase() !== '.js') {
@@ -53,7 +53,7 @@ Database.init = function() {
 			}
 
 			try {
-				Database.models[file.replace(/\.[^/.]+$/, "").capitalizeFirst()] = require('./models/' + file);
+				Database.models[file.replace(/\.[^/.]+$/, "").capitalizeFirst()] = require('./../models/' + file);
 			} catch (error) {
 				console.log('[DB]'.red + ' Error loading models `' + file + '`: ');
 				console.log('[DB]'.red + ' ' + error.toString());
