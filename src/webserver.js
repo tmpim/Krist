@@ -46,6 +46,8 @@ module.exports = function (config, database) {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.blue);
 	});
 
+	app.use(express.static('static'));
+
 	// Set global headers
 	app.all('*', function(req, res, next) {
 		res.header('Content-Type', 'application/json');

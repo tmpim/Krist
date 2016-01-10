@@ -29,8 +29,15 @@ function RacistEels() {
 			'can',
 			'are',
 			'has',
+			'have',
+			'could',
+			'would',
 			'should',
-			'am'
+			'am',
+			'do',
+			'did',
+			'will',
+			'were'
 		];
 
 		// are you prepared for a clusterfuck of oneliners?
