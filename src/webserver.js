@@ -1,9 +1,10 @@
-var express	= require('express'),
+var	config	= require('./../config.js'),
+	express	= require('express'),
 	net		= require('net'),
 	fs		= require('fs'),
 	path 	= require('path');
 
-module.exports = function (config, database) {
+module.exports = function (database) {
 	var serverSock = '';
 
 	if (typeof config.server_sock === 'undefined') {
@@ -50,13 +51,8 @@ module.exports = function (config, database) {
 
 	// Set global headers
 	app.all('*', function(req, res, next) {
-		res.header('Content-Type', 'application/json');
 		res.header('X-Robots-Tag', 'none');
 		next();
-	});
-
-	app.get('/', function(req, res) {
-		require('./../api/legacy.js')(app, req, res);
 	});
 
 	// Load all API endpoints
@@ -71,7 +67,7 @@ module.exports = function (config, database) {
 			}
 
 			try {
-				require('./../api/endpoints/' + file)().setup(app);
+				require('./../api/endpoints/' + file)(app);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading API endpoint `' + file + '`: ');
 				console.log('[Webserver]'.red + ' ' + error.toString());				
