@@ -1,9 +1,9 @@
-var utils = require('./../src/utils.js')
+var krist = require('./../src/krist.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (req.query.v2) {
-			res.send(utils.makeV2Address(req.query.v2));
+			res.send(krist.makeV2Address(req.query.v2));
 			return;
 		}
 
@@ -15,7 +15,7 @@ module.exports = function(app) {
 
 		res.json({
 			ok: true,
-			address: utils.makeV2Address(req.params.key)
+			address: krist.makeV2Address(req.params.key)
 		});
 	});
 
