@@ -15,4 +15,5 @@ node_modules
 
 /config.js
 
-data.db
+/data.db
+/data/

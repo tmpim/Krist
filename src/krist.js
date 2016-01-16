@@ -1,28 +1,77 @@
-var utils = require('./utils.js');
+var utils   = require('./utils.js'),
+	fs      = require('fs');
 
 function Krist() {}
 
-Krist.makeV2Address = function(key) {
-	var protein = ['', '', '', '', '', '', '', '', ''];
-	var v2 = 'k';
-	var stick = utils.sha256(utils.sha256(key));
+Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
 
-	for (var i = 0; i <= 9; i++) {
-		if (i < 9) {
-			protein[i] = stick.substring(0, 2);
-			stick = utils.sha256(utils.sha256(stick));
-		}
+Krist.init = function() {
+	// Check for and make the data dir
+	if (!fs.existsSync('data')) {
+		fs.mkdirSync('data', 775);
 	}
 
-	i = 0;
-	while (i <= 8) {
-		var link = parseInt(stick.substring(2 * i, 2 + (2 * i)), 16) % 9;
+	// Check for and make the work file
+	if (fs.existsSync('data/work')) {
+		fs.access('data/work', fs.W_OK, function(err) {
+			if (err) {
+				console.log('[Krist]'.red + ' Cannot access data/work file. Please check the running user/group has write perms.');
+				console.log('[Krist]'.red + ' ' + err);
+				console.log('[Krist]'.red + ' Aborting.');
 
-		if (protein[link] === "") {
-			stick = utils.sha256(stick);
+				process.exit(1);
+			}
+		});
+
+		fs.readFile('data/work', function(err, contents) {
+			if (err) {
+				console.log('[Krist]'.red + ' Critical error reading work file.');
+				console.log('[Krist]'.red + ' ' + err);
+
+				return;
+			}
+
+			Krist.work = parseInt(contents);
+		});
+	} else {
+		fs.writeFile('data/work', Krist.work, function(err) {
+			console.log('[Krist]'.red + ' Critical error writing work file.');
+			console.log('[Krist]'.red + ' ' + err);
+		});
+	}
+};
+
+Krist.getWork = function() {
+	return Krist.work;
+};
+
+Krist.setWork = function(work) {
+	Krist.work = work;
+
+	fs.writeFile('data/work', work, function(err) {
+		console.log('[Krist]'.red + ' Critical error writing work file.');
+		console.log('[Krist]'.red + ' ' + err);
+	});
+};
+
+Krist.makeV2Address = function(key) {
+	var blocks = ['', '', '', '', '', '', '', '', ''];
+	var v2 = 'k';
+	var circles = utils.sha256(utils.sha256(key));
+
+	for (var i = 0; i <= 8; i++) {
+		blocks[i] = circles.substring(0, 2);
+		circles = utils.sha256(utils.sha256(circles));
+	}
+
+	for (i = 0; i <= 8;) {
+		var dean = parseInt(circles.substring(2 * i, 2 + (2 * i)), 16) % 9;
+
+		if (blocks[dean] === "") {
+			circles = utils.sha256(circles);
 		} else {
-			v2 = v2 + utils.hexToBase64(parseInt(protein[link], 16));
-			protein[link] = "";
+			v2+=utils.hexToBase64(parseInt(blocks[dean], 16));
+			blocks[dean] = "";
 			i++;
 		}
 	}

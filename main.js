@@ -4,11 +4,13 @@ var config		= require('./config.js'),
 	colors		= require('colors'), // *colours
 
 	database	= require('./src/database.js'),
+	krist       = require('./src/krist.js'),
 	webserver   = require('./src/webserver.js');
 
 console.log('Starting ' + package.name.bold + ' ' + package.version.blue);
 
 database.init();
+krist.init();
 webserver.init();
 
 /*
