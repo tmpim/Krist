@@ -1,4 +1,4 @@
-var utils = require('./../../src/utils.js')
+var utils = require('./../src/utils.js')
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {

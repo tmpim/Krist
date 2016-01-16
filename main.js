@@ -8,8 +8,8 @@ var config		= require('./config.js'),
 
 console.log('Starting ' + package.name.bold + ' ' + package.version.blue);
 
-database.init(config);
-webserver();
+database.init();
+webserver.init();
 
 /*
 var sqlite3 = require('sqlite3').verbose();

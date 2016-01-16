@@ -23,7 +23,7 @@ Webserver.init = function() {
 		serverSock = config.server_sock;
 	}
 
-	Database.express = express();
+	Webserver.express = express();
 
 	console.log('[Webserver]'.cyan + ' Starting on socket ' + serverSock.bold);
 
@@ -36,7 +36,7 @@ Webserver.init = function() {
 				if (e.code == 'ECONNREFUSED') {
 					fs.unlinkSync(serverSock);
 
-					Database.express.listen(serverSock, function() {
+					Webserver.express.listen(serverSock, function() {
 						console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 					});
 				}
@@ -51,40 +51,40 @@ Webserver.init = function() {
 		}
 	});
 
-	Database.express.listen(serverSock, function() {
+	Webserver.express.listen(serverSock, function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
-	Database.express.use(express.static('static'));
+	Webserver.express.use(express.static('static'));
 
-	Database.express.all('*', function(req, res, next) {
+	Webserver.express.all('*', function(req, res, next) {
 		res.header('X-Robots-Tag', 'none');
 		next();
 	});
 
-	console.log('[Webserver]'.cyan + ' Loading API endpoints');
+	console.log('[Webserver]'.cyan + ' Loading route');
 
 	try {
-		var endpointPath = path.join(__dirname, '../api/endpoints');
+		var routePath = path.join(__dirname, '../routes');
 
-		fs.readdirSync(endpointPath).forEach(function(file) {
+		fs.readdirSync(routePath).forEach(function(file) {
 			if (path.extname(file).toLowerCase() !== '.js') {
 				return;
 			}
 
 			try {
-				require('./../api/endpoints/' + file)(app);
+				require('./../routes/' + file)(Webserver.express);
 			} catch (error) {
-				console.log('[Webserver]'.red + ' Error loading API endpoint `' + file + '`: ');
+				console.log('[Webserver]'.red + ' Error loading route `' + file + '`: ');
 				console.log('[Webserver]'.red + ' ' + error.toString());
 			}
 		});
 	} catch (error) {
-		console.log('[Webserver]'.red + ' Error finding API endpoints: ');
+		console.log('[Webserver]'.red + ' Error finding routes: ');
 		console.log('[Webserver]'.red + ' ' + error.toString());
 	}
 
-	Database.express.use(function(req, res) {
+	Webserver.express.use(function(req, res) {
 		res.json({
 			ok: false,
 			error: 'not_found'
