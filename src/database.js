@@ -3,18 +3,13 @@ var	config		= require('./../config.js'),
 	fs			= require('fs'),
 	path 		= require('path');
 
-function Database() {
-}
+function Database() {}
 
 module.exports = Database;
 
-Database.get = function() {
-	return Database.instance;
-}
-
 Database.getSequelize = function() {
 	return Database.sequelize;
-}
+};
 
 Database.init = function() {
 	var requiredConfigOptions = [
@@ -42,10 +37,8 @@ Database.init = function() {
 			max: 5,
 			min: 1,
 			idle: 10000
-		},
+		}
 	});
-
-	Database.models = {};
 
 	console.log('[DB]'.cyan + ' Loading all models');
 
@@ -68,4 +61,4 @@ Database.init = function() {
 		console.log('[DB]'.red + ' Error finding models: ');
 		console.log('[DB]'.red + ' ' + error.toString());
 	}
-}
+};

@@ -4,7 +4,15 @@ var	config	= require('./../config.js'),
 	fs		= require('fs'),
 	path 	= require('path');
 
-module.exports = function () {
+function Webserver() {}
+
+module.exports = Webserver;
+
+Webserver.getExpress = function() {
+	return Webserver.express;
+};
+
+Webserver.init = function() {
 	var serverSock = '';
 
 	if (typeof config.server_sock === 'undefined') {
@@ -15,20 +23,20 @@ module.exports = function () {
 		serverSock = config.server_sock;
 	}
 
-	var app = express();
+	Database.express = express();
 
 	console.log('[Webserver]'.cyan + ' Starting on socket ' + serverSock.bold);
 
 	process.on('uncaughtException', function(error) {
 		if (error.code == 'EADDRINUSE') {
 			console.warn('[Webserver]'.yellow + ' Address already in use. Checking if it is actually in use.');
-			
+
 			var clientSocket = new net.Socket();
 			clientSocket.on('error', function(e) {
 				if (e.code == 'ECONNREFUSED') {
 					fs.unlinkSync(serverSock);
 
-					app.listen(serverSock, function() {
+					Database.express.listen(serverSock, function() {
 						console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 					});
 				}
@@ -43,19 +51,17 @@ module.exports = function () {
 		}
 	});
 
-	app.listen(serverSock, function() {
+	Database.express.listen(serverSock, function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
-	app.use(express.static('static'));
+	Database.express.use(express.static('static'));
 
-	// Set global headers
-	app.all('*', function(req, res, next) {
+	Database.express.all('*', function(req, res, next) {
 		res.header('X-Robots-Tag', 'none');
 		next();
 	});
 
-	// Load all API endpoints
 	console.log('[Webserver]'.cyan + ' Loading API endpoints');
 
 	try {
@@ -70,21 +76,18 @@ module.exports = function () {
 				require('./../api/endpoints/' + file)(app);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading API endpoint `' + file + '`: ');
-				console.log('[Webserver]'.red + ' ' + error.toString());				
+				console.log('[Webserver]'.red + ' ' + error.toString());
 			}
 		});
 	} catch (error) {
 		console.log('[Webserver]'.red + ' Error finding API endpoints: ');
-		console.log('[Webserver]'.red + ' ' + error.toString());				
+		console.log('[Webserver]'.red + ' ' + error.toString());
 	}
 
-	// 404 response
-	app.use(function(req, res) {
+	Database.express.use(function(req, res) {
 		res.json({
 			ok: false,
 			error: 'not_found'
 		});
 	});
-
-	return app;
-}
+};
