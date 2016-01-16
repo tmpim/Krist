@@ -3,15 +3,14 @@ var config		= require('./config.js'),
 
 	colors		= require('colors'), // *colours
 
-	database	= require('./src/database.js'),
-	krist       = require('./src/krist.js'),
-	webserver   = require('./src/webserver.js');
+	database	= require('./src/database.js');
 
 console.log('Starting ' + package.name.bold + ' ' + package.version.blue);
 
-database.init();
-krist.init();
-webserver.init();
+database.init().then(function() {
+	require('./src/krist.js').init();
+	require('./src/webserver.js').init();
+});
 
 /*
 var sqlite3 = require('sqlite3').verbose();

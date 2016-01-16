@@ -1,4 +1,5 @@
 var utils   = require('./utils.js'),
+	schemas = require('./schemas.js'),
 	fs      = require('fs');
 
 function Krist() {}
@@ -52,6 +53,10 @@ Krist.setWork = function(work) {
 		console.log('[Krist]'.red + ' Critical error writing work file.');
 		console.log('[Krist]'.red + ' ' + err);
 	});
+};
+
+Krist.getLastBlock = function() {
+	return schemas.block.findOne({order: 'id DESC'});
 };
 
 Krist.makeV2Address = function(key) {
