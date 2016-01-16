@@ -14,3 +14,5 @@ node_modules
 .idea_modules/
 
 /config.js
+
+data.db
