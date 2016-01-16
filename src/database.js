@@ -1,6 +1,5 @@
 var	config		= require('./../config.js'),
 	Sequelize	= require('sequelize'),
-	colors		= require('colors'), // *colours
 	fs			= require('fs'),
 	path 		= require('path');
 
@@ -33,16 +32,22 @@ Database.init = function() {
 		}
 	});
 
-	console.log('[DB]'.blue + ' Connecting...');
+	console.log('[DB]'.cyan + ' Connecting...');
 
 	Database.sequelize = new Sequelize(config.database_db, config.database_user, config.database_pass, {
 		host: config.database_host,
-		dialect: config.database_dialect
+		dialect: config.database_dialect,
+		logging: false,
+		pool: {
+			max: 5,
+			min: 1,
+			idle: 10000
+		},
 	});
 
 	Database.models = {};
 
-	console.log('[DB]'.blue + ' Loading all models');
+	console.log('[DB]'.cyan + ' Loading all models');
 
 	try {
 		var modelsPath = path.join(__dirname, '../models');

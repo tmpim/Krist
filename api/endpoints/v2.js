@@ -4,7 +4,10 @@ module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (req.query.v2) {
 			res.send(utils.makeV2Address(req.query.v2));
+			return;
 		}
+
+		next();
 	});
 
 	app.get('/v2/:key', function(req, res) {

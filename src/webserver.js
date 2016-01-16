@@ -4,7 +4,7 @@ var	config	= require('./../config.js'),
 	fs		= require('fs'),
 	path 	= require('path');
 
-module.exports = function (database) {
+module.exports = function () {
 	var serverSock = '';
 
 	if (typeof config.server_sock === 'undefined') {
@@ -17,7 +17,7 @@ module.exports = function (database) {
 
 	var app = express();
 
-	console.log('[Webserver]'.blue + ' Starting on socket ' + serverSock.blue);
+	console.log('[Webserver]'.cyan + ' Starting on socket ' + serverSock.bold);
 
 	process.on('uncaughtException', function(error) {
 		if (error.code == 'EADDRINUSE') {
@@ -29,7 +29,7 @@ module.exports = function (database) {
 					fs.unlinkSync(serverSock);
 
 					app.listen(serverSock, function() {
-						console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.blue);
+						console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 					});
 				}
 			});
@@ -44,7 +44,7 @@ module.exports = function (database) {
 	});
 
 	app.listen(serverSock, function() {
-		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.blue);
+		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
 	app.use(express.static('static'));
@@ -56,7 +56,7 @@ module.exports = function (database) {
 	});
 
 	// Load all API endpoints
-	console.log('[Webserver]'.blue + ' Loading API endpoints');
+	console.log('[Webserver]'.cyan + ' Loading API endpoints');
 
 	try {
 		var endpointPath = path.join(__dirname, '../api/endpoints');
