@@ -59,6 +59,10 @@ Krist.getLastBlock = function() {
 	return schemas.block.findOne({order: 'id DESC'});
 };
 
+Krist.getMoneySupply = function() {
+	return schemas.address.sum('balance');
+};
+
 Krist.getAddress = function(address) {
 	return schemas.address.findOne({where: {address: address}});
 };

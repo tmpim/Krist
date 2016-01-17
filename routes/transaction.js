@@ -1,4 +1,5 @@
-var krist = require('./../src/krist.js');
+var krist   = require('./../src/krist.js'),
+	moment  = require('moment');
 
 module.exports = function(app) {
 	app.get('/transactions', function(req, res) {
