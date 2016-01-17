@@ -63,6 +63,10 @@ Krist.getAddress = function(address) {
 	return schemas.address.findOne({where: {address: address}});
 };
 
+Krist.getAddresses = function(limit, offset) {
+	return schemas.address.findAll({limit: limit !== 'undefined' ? parseInt(limit) : null, offset: offset !== 'undefined' ? parseInt(offset) : null});
+};
+
 Krist.getNames = function(limit, offset) {
 	return schemas.name.findAll({order: 'name', limit: limit !== 'undefined' ? parseInt(limit) : null, offset: offset !== 'undefined' ? parseInt(offset) : null});
 };
