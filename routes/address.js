@@ -16,7 +16,7 @@ module.exports = function(app) {
 		next();
 	});
 
-	app.get('/address', function(req, res) {
+	app.get('/addresses', function(req, res) {
 		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
 			res.status(400).json({
 				ok: false,
