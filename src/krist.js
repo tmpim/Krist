@@ -67,6 +67,10 @@ Krist.getNames = function(limit, offset) {
 	return schemas.name.findAll({order: 'name', limit: limit !== 'undefined' ? parseInt(limit) : null, offset: offset !== 'undefined' ? parseInt(offset) : null});
 };
 
+Krist.getNamesByOwner = function(owner) {
+	return schemas.name.findAll({order: 'name', where: {owner: owner}});
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';

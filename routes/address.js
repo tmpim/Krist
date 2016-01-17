@@ -36,5 +36,35 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/address/:address/names', function(req, res) {
+		krist.getAddress(req.params.address).then(function(address) {
+			if (address) {
+				krist.getNamesByOwner(address.address).then(function(names) {
+					var out = [];
+
+					names.forEach(function (name) {
+						out.push({
+							name: name.name,
+							owner: name.owner,
+							registered: name.registered,
+							updated: name.updated,
+							a: name.a
+						});
+					});
+
+					res.json({
+						ok: true,
+						names: out
+					});
+				});
+			} else {
+				res.status(404).json({
+					ok: false,
+					error: 'not_found'
+				});
+			}
+		});
+	});
+
 	return app;
 }

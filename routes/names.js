@@ -47,7 +47,7 @@ module.exports = function(app) {
 					owner: name.owner,
 					registered: name.registered,
 					updated: name.updated,
-					a: name.a,
+					a: name.a
 				});
 			});
 
