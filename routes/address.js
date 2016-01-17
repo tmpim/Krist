@@ -28,7 +28,7 @@ module.exports = function(app) {
 					firstseen: address.firstseen
 				});
 			} else {
-				res.json({
+				res.status(404).json({
 					ok: false,
 					error: 'not_found'
 				});
