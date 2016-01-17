@@ -54,7 +54,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/name', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit) || req.query.limit &&  req.query.limit <= 0)) {
+		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_limit'
@@ -63,7 +63,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if ((req.query.offset && isNaN(req.query.offset) || req.query.offset &&  req.query.offset <= 0)) {
+		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_offset'
@@ -94,4 +94,4 @@ module.exports = function(app) {
 	});
 
 	return app;
-}
+};

@@ -64,11 +64,11 @@ Krist.getAddress = function(address) {
 };
 
 Krist.getAddresses = function(limit, offset) {
-	return schemas.address.findAll({limit: limit !== 'undefined' ? parseInt(limit) : null, offset: offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.address.findAll({limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
 Krist.getNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'name', limit: limit !== 'undefined' ? parseInt(limit) : null, offset: offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
 Krist.getNamesByOwner = function(owner) {
@@ -77,6 +77,14 @@ Krist.getNamesByOwner = function(owner) {
 
 Krist.getNameCountByOwner = function(owner) {
 	return schemas.name.count({where: {owner: owner}});
+};
+
+Krist.getTransactions = function(limit, offset) {
+	return schemas.transaction.findAll({order: 'id DESC', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+};
+
+Krist.getTransactionsByAddress = function(address, limit, offset) {
+	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
 };
 
 Krist.makeV2Address = function(key) {
