@@ -59,6 +59,10 @@ Krist.getLastBlock = function() {
 	return schemas.block.findOne({order: 'id DESC'});
 };
 
+Krist.getAddress = function(address) {
+	return schemas.address.findOne({where: {address: address}});
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';
