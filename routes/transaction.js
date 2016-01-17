@@ -1,11 +1,6 @@
 var krist = require('./../src/krist.js');
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-
-		next();
-	});
-
 	app.get('/transactions', function(req, res) {
 		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
 			res.status(400).json({
@@ -30,6 +25,7 @@ module.exports = function(app) {
 
 			transactions.forEach(function (transaction) {
 				out.push({
+					id: transaction.id,
 					from: transaction.from,
 					to: transaction.to,
 					value: transaction.value,

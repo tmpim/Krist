@@ -1,4 +1,6 @@
-var krist = require('./../src/krist.js');
+var krist       = require('./../src/krist.js'),
+	utils       = require('./../src/utils.js'),
+	dateFormat  = require('dateformat');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -7,11 +9,60 @@ module.exports = function(app) {
 				if (address) {
 					res.send(address.balance.toString());
 				} else {
-					res.send('0');
+					res.send('Error4');
 				}
 			});
+
 			return;
 		}
+
+		if (req.query.listtx) {
+			krist.getAddress(req.query.listtx).then(function(address) {
+				if (address) {
+					krist.getTransactionsByAddress(address.address, 100).then(function(transactions) {
+						var out = '';
+
+						transactions.forEach(function (transaction) {
+							out += dateFormat(new Date(transaction.time), 'mmm dd HH:MM');
+
+							var peer = '';
+							var sign = '';
+
+							if (transaction.from.length < 10) {
+								peer = 'N/A(Mined)';
+							}
+
+							if (transaction.to.length < 10) {
+								peer = 'N/A(Names)';
+							}
+
+							if (transaction.to === address.address) {
+								sign = '+';
+							} else if (transaction.from === address.address) {
+								sign = '-';
+							}
+
+							out += peer;
+							out += sign;
+							out += utils.padDigits(transaction.value, 8);
+
+							if (typeof req.query.id !== 'undefined') {
+								out += utils.padDigits(transaction.id, 8);
+							}
+						});
+
+						out += 'end';
+
+						res.send(out);
+					});
+				} else {
+					res.send('Error4');
+				}
+			});
+
+			return;
+		}
+
 
 		next();
 	});
@@ -133,6 +184,7 @@ module.exports = function(app) {
 
 					transactions.forEach(function (transaction) {
 						out.push({
+							id: transaction.id,
 							from: transaction.from,
 							to: transaction.to,
 							value: transaction.value,
