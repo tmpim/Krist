@@ -4,13 +4,47 @@ module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.dumpnames !== 'undefined') {
 			krist.getNames().then(function(names) {
-				var out = "";
+				var out = '';
 
 				names.forEach(function(name) {
-					out += name.name + ";";
+					out += name.name + ';';
 				});
 
 				res.send(out);
+			});
+
+			return;
+		}
+
+		if (req.query.getnames) {
+			krist.getAddress(req.query.getnames).then(function(address) {
+				if (address) {
+					krist.getNameCountByOwner(address.address).then(function(names) {
+						res.send(names.toString());
+					});
+				} else {
+					res.status(404).send('0');
+				}
+			});
+
+			return;
+		}
+
+		if (req.query.listnames) {
+			krist.getAddress(req.query.listnames).then(function(address) {
+				if (address) {
+					krist.getNamesByOwner(address.address).then(function(names) {
+						var out = '';
+
+						names.forEach(function(name) {
+							out += name.name + ';';
+						});
+
+						res.send(out);
+					});
+				} else {
+					res.status(404).send('Error4');
+				}
 			});
 
 			return;

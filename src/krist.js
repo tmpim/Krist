@@ -71,6 +71,10 @@ Krist.getNamesByOwner = function(owner) {
 	return schemas.name.findAll({order: 'name', where: {owner: owner}});
 };
 
+Krist.getNameCountByOwner = function(owner) {
+	return schemas.name.count({where: {owner: owner}});
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';
