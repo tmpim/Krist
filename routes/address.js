@@ -54,6 +54,7 @@ module.exports = function(app) {
 
 					res.json({
 						ok: true,
+						count: out.length,
 						names: out
 					});
 				});

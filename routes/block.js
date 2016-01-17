@@ -13,7 +13,7 @@ module.exports = function(app) {
 		next();
 	});
 
-	app.get('/block', function(req, res) {
+	app.get('/block/last', function(req, res) {
 		krist.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
