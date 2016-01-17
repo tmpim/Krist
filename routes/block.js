@@ -1,4 +1,5 @@
-var krist = require('./../src/krist.js');
+var krist   = require('./../src/krist.js'),
+	moment  = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -20,7 +21,8 @@ module.exports = function(app) {
 				hash: block.hash,
 				short_hash: block.hash.substring(0, 12),
 				value: block.value,
-				time: block.time
+				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+				time_unix: moment(block.time).unix()
 			});
 		});
 	});

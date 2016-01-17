@@ -79,8 +79,10 @@ module.exports = function(app) {
 				out.push({
 					name: name.name,
 					owner: name.owner,
-					registered: name.registered,
-					updated: name.updated,
+					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
+					registered_unix: moment(name.registered).unix(),
+					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
+					updated_unix: moment(name.updated).unix(),
 					a: name.a
 				});
 			});

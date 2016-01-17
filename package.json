@@ -20,8 +20,8 @@
     "bluebird": "^3.1.1",
     "colors": "^1.1.2",
     "crc-32": "^0.3.0",
-    "dateformat": "^1.0.12",
     "express": "^4.13.3",
+    "moment": "^2.11.1",
     "sequelize": "^3.17.1"
   },
   "optionalDependencies": {

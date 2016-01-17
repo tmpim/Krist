@@ -29,7 +29,8 @@ module.exports = function(app) {
 					from: transaction.from,
 					to: transaction.to,
 					value: transaction.value,
-					time: transaction.time,
+					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(transaction.time).unix(),
 					name: transaction.name,
 					op: transaction.op
 				});

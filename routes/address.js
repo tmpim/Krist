@@ -1,6 +1,6 @@
-var krist       = require('./../src/krist.js'),
-	utils       = require('./../src/utils.js'),
-	dateFormat  = require('dateformat');
+var krist  = require('./../src/krist.js'),
+	utils  = require('./../src/utils.js'),
+	moment = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -23,7 +23,7 @@ module.exports = function(app) {
 						var out = '';
 
 						transactions.forEach(function (transaction) {
-							out += dateFormat(new Date(transaction.time), 'mmm dd HH:MM');
+							out += moment(transaction.time).format('mmm dd HH:MM');
 
 							var peer = '';
 							var sign = '';
@@ -95,7 +95,8 @@ module.exports = function(app) {
 					balance: address.balance,
 					totalin: address.totalin,
 					totalout: address.totalout,
-					firstseen: address.firstseen
+					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
+					firstseen_unix: moment(address.firstseen).unix()
 				});
 			});
 
@@ -117,7 +118,8 @@ module.exports = function(app) {
 					balance: address.balance,
 					totalin: address.totalin,
 					totalout: address.totalout,
-					firstseen: address.firstseen
+					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
+					firstseen_unix: moment(address.firstseen).unix()
 				});
 			});
 
@@ -138,7 +140,8 @@ module.exports = function(app) {
 					balance: address.balance,
 					totalin: address.totalin,
 					totalout: address.totalout,
-					firstseen: address.firstseen
+					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
+					firstseen_unix: moment(address.firstseen).unix()
 				});
 			} else {
 				res.status(404).json({
@@ -159,9 +162,11 @@ module.exports = function(app) {
 						out.push({
 							name: name.name,
 							owner: name.owner,
-							registered: name.registered,
-							updated: name.updated,
-							a: name.a
+							registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
+							registered_unix: moment(name.registered).unix(),
+							updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
+							updated_unix: moment(name.updated).unix(),
+							a: name
 						});
 					});
 
@@ -210,7 +215,8 @@ module.exports = function(app) {
 							from: transaction.from,
 							to: transaction.to,
 							value: transaction.value,
-							time: transaction.time,
+							time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+							time_unix: moment(transaction.time).unix(),
 							name: transaction.name,
 							op: transaction.op
 						});
