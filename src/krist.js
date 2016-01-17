@@ -67,6 +67,10 @@ Krist.getAddresses = function(limit, offset) {
 	return schemas.address.findAll({limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
+Krist.getRich = function() {
+	return schemas.address.findAll({limit: 50, order: 'balance DESC'});
+};
+
 Krist.getNames = function(limit, offset) {
 	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };

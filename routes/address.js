@@ -102,7 +102,29 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
-				names: out
+				addresses: out
+			});
+		});
+	});
+
+	app.get('/addresses/rich', function(req, res) {
+		krist.getRich().then(function(addresses) {
+			var out = [];
+
+			addresses.forEach(function(address) {
+				out.push({
+					address: address.address,
+					balance: address.balance,
+					totalin: address.totalin,
+					totalout: address.totalout,
+					firstseen: address.firstseen
+				});
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				addresses: out
 			});
 		});
 	});
