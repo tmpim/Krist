@@ -40,12 +40,27 @@ module.exports = function(app) {
 		krist.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
+				height: block.id,
 				hash: block.hash,
 				short_hash: block.hash.substring(0, 12),
 				value: block.value,
 				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
 				time_unix: moment(block.time).unix()
 			});
+		});
+	});
+
+	app.get('/block/:block', function(req, res) {
+		krist.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
+			res.json({
+				ok: true,
+				height: block.id,
+				hash: block.hash,
+				short_hash: block.hash.substring(0, 12),
+				value: block.value,
+				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+				time_unix: moment(block.time).unix()
+			})
 		});
 	});
 
