@@ -1,4 +1,5 @@
 var krist   = require('./../src/krist.js'),
+	utils   = require('./../src/utils.js'),
 	moment  = require('moment');
 
 module.exports = function(app) {
@@ -29,6 +30,51 @@ module.exports = function(app) {
 
 				res.send(block.value.toString());
 			});
+
+			return;
+		}
+
+		if (typeof req.query.blocks !== 'undefined') {
+			if (typeof req.query.low !== 'undefined') {
+				krist.getBlocksByOrder('hash ASC', 18).then(function(blocks) {
+					var out = "";
+
+					blocks.forEach(function (block) {
+						if (block.hash === null) return;
+						if (block.id === 1) return;
+
+						out += moment(block.time).format('MMM DD').toString();
+						out += utils.padDigits(block.id, 6);
+						out += block.hash.substring(0, 20);
+					});
+
+					res.send(out);
+				});
+			} else {
+				krist.getBlocks(18).then(function(blocks) {
+					var out = "";
+
+					var k = false;
+
+					blocks.forEach(function (block) {
+						if (block.hash === null) return;
+						if (block.id === 1) return;
+
+						if (!k) {
+							out += utils.padDigits(blocks[0].id, 8);
+							out += moment(blocks[0].time).format('YYYY-MM-DD').toString();
+
+							k  = true;
+						}
+
+						out += moment(block.time).format('HH:MM:ss').toString();
+						out += block.address.substring(0, 10);
+						out += block.hash.substring(0, 12);
+					});
+
+					res.send(out);
+				});
+			}
 
 			return;
 		}

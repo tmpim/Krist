@@ -21,19 +21,13 @@ config.database_dialect = 'mysql';
  */
 
 // The socket file for your server. Proxy this to nginx.
-config.server_sock  = '/var/krist/krist.sock';
+config.server_sock      = '/var/krist/krist.sock';
 
 /*
  * KRIST SPECIFIC
  */
 
-// A list of addresses to show as N/A(Burnt) in legacy calls
-config.burntAddressList = [
-	'',
-	'N\\A',
-	'C:\\Users\\Bryan\\Downloads\\miner.py',
-	'2bb037a6f'
-];
-
+// The latest version of kristwallet
+config.walletVersion    = 13;
 
 module.exports = config;

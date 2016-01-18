@@ -1,4 +1,5 @@
 var utils   = require('./utils.js'),
+	config  = require('./../config.js'),
 	schemas = require('./schemas.js'),
 	fs      = require('fs');
 
@@ -53,6 +54,10 @@ Krist.setWork = function(work) {
 		console.log('[Krist]'.red + ' Critical error writing work file.');
 		console.log('[Krist]'.red + ' ' + err);
 	});
+};
+
+Krist.getWalletVersion = function() {
+	return typeof config.walletVersion === 'number' ? config.walletVersion : 13;
 };
 
 Krist.getBlock = function(id) {
