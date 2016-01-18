@@ -50,6 +50,15 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/block/value', function(req, res) {
+		krist.getLastBlock().then(function(block) {
+			res.json({
+				ok: true,
+				base_value: krist.getBaseBlockValue(block.id)
+			})
+		});
+	});
+
 	app.get('/block/:block', function(req, res) {
 		krist.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
 			if (!block) {
@@ -69,15 +78,6 @@ module.exports = function(app) {
 				value: block.value,
 				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
 				time_unix: moment(block.time).unix()
-			})
-		});
-	});
-
-	app.get('/block/value', function(req, res) {
-		krist.getLastBlock().then(function(block) {
-			res.json({
-				ok: true,
-				base_value: krist.getBaseBlockValue(block.id)
 			})
 		});
 	});

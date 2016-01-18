@@ -45,6 +45,28 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/transaction/:transaction', function(req, res) {
+		krist.getTransaction(Math.max(parseInt(req.params.transaction), 0)).then(function(transaction) {
+			if (transaction) {
+				res.json({
+					ok: true,
+					id: transaction.id,
+					from: transaction.from,
+					to: transaction.to,
+					value: transaction.value,
+					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(transaction.time).unix(),
+					name: transaction.name,
+					op: transaction.op
+				});
+			} else {
+				res.status(404).json({
+					ok: false,
+					error: 'not_found'
+				});
+			}
+		});
+	});
 
 	return app;
 };

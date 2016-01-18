@@ -91,6 +91,10 @@ Krist.getNameCountByOwner = function(owner) {
 	return schemas.name.count({where: {owner: owner}});
 };
 
+Krist.getTransaction = function(id) {
+	return schemas.transaction.findById(id);
+};
+
 Krist.getTransactions = function(limit, offset) {
 	return schemas.transaction.findAll({order: 'id DESC', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
