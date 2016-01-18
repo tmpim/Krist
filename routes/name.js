@@ -65,6 +65,30 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (req.query.name_check) {
+			if (/[^a-zA-Z0-9]/.test(req.query.name_check)) {
+				res.send("0"); // look at Taras's code and you'll know why :^)
+
+				return;
+			}
+
+			if (req.query.name_check.length > 64 || req.query.name_check.length < 1) {
+				res.send("0");
+
+				return;
+			}
+
+			krist.getNameByName(req.query.name_check).then(function (name) {
+				if (name) {
+					res.send("0");
+				} else {
+					res.send("01");
+				}
+			});
+
+			return;
+		}
+
 		next();
 	});
 
