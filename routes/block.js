@@ -52,6 +52,15 @@ module.exports = function(app) {
 
 	app.get('/block/:block', function(req, res) {
 		krist.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
+			if (!block) {
+				res.status(404).json({
+					ok: false,
+					error: 'not_found'
+				});
+
+				return;
+			}
+
 			res.json({
 				ok: true,
 				height: block.id,
