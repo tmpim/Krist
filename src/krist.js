@@ -95,6 +95,16 @@ Krist.getTransactionsByAddress = function(address, limit, offset) {
 	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
 };
 
+Krist.getBaseBlockValue = function(blockid) {
+	var subsidy = 25;
+
+	if (blockid >= 100000) {
+		subsidy = 10;
+	}
+
+	return subsidy;
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';

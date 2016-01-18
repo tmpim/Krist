@@ -11,6 +11,14 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.getbaseblockvalue !== 'undefined') {
+			krist.getLastBlock().then(function(block) {
+				res.send(block.hash.substring(0, 12));
+			});
+
+			return;
+		}
+
 		next();
 	});
 
@@ -29,15 +37,9 @@ module.exports = function(app) {
 
 	app.get('/block/value', function(req, res) {
 		krist.getLastBlock().then(function(block) {
-			var subsidy = 25;
-
-			if (block.id >= 100000) {
-				subsidy = 10;
-			}
-
 			res.json({
 				ok: true,
-				base_value: subsidy
+				base_value: krist.getBaseBlockValue(block.id)
 			})
 		});
 	});
