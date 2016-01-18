@@ -77,6 +77,41 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/blocks/lowest', function(req, res) {
+		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
+			res.status(400).json({
+				ok: false,
+				error: 'invalid_limit'
+			});
+
+			return;
+		}
+
+		krist.getLowestBlocks(req.query.limit).then(function(blocks) {
+			var out = [];
+
+			blocks.forEach(function (block) {
+				if (block.hash === null) return;
+				if (block.height === 1) return;
+
+				out.push({
+					height: block.id,
+					hash: block.hash,
+					short_hash: block.hash.substring(0, 12),
+					value: block.value,
+					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(block.time).unix()
+				});
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				blocks: out
+			});
+		});
+	});
+
 	app.get('/block/last', function(req, res) {
 		krist.getLastBlock().then(function(block) {
 			res.json({
