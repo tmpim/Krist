@@ -27,5 +27,20 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/block/value', function(req, res) {
+		krist.getLastBlock().then(function(block) {
+			var subsidy = 25;
+
+			if (block.id >= 100000) {
+				subsidy = 10;
+			}
+
+			res.json({
+				ok: true,
+				base_value: subsidy
+			})
+		});
+	});
+
 	return app;
 }
