@@ -67,7 +67,7 @@ module.exports = function(app) {
 
 		if (req.query.name_check) {
 			if (/[^a-zA-Z0-9]/.test(req.query.name_check)) {
-				res.send("0"); // look at Taras's code and you'll know why :^)
+				res.send("0");
 
 				return;
 			}
@@ -82,7 +82,7 @@ module.exports = function(app) {
 				if (name) {
 					res.send("0");
 				} else {
-					res.send("01");
+					res.send("01"); // look at Taras's code and you'll know why :^)
 				}
 			});
 
@@ -90,6 +90,40 @@ module.exports = function(app) {
 		}
 
 		next();
+	});
+
+	app.get('/name/check/:name', function(req, res) {
+		if (/[^a-zA-Z0-9]/.test(req.params.name)) {
+			res.json({
+				ok: false,
+				error: 'name_not_alphanumeric'
+			});
+
+			return;
+		}
+
+		if (req.params.name.length > 64 || req.params.name.length < 1) {
+			res.json({
+				ok: false,
+				error: 'name_invalid_length'
+			});
+
+			return;
+		}
+
+		krist.getNameByName(req.params.name).then(function (name) {
+			if (name) {
+				res.json({
+					ok: true,
+					available: false
+				});
+			} else {
+				res.json({
+					ok: true,
+					available: true
+				});
+			}
+		});
 	});
 
 	app.get('/names', function(req, res) {
