@@ -62,7 +62,7 @@ Webserver.init = function() {
 		next();
 	});
 
-	console.log('[Webserver]'.cyan + ' Loading route');
+	console.log('[Webserver]'.cyan + ' Loading routes');
 
 	try {
 		var routePath = path.join(__dirname, '../routes');
