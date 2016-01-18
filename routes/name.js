@@ -110,5 +110,29 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/names/new', function(req, res) {
+		krist.getUnpaidNames().then(function(names) {
+			var out = [];
+
+			names.forEach(function(name) {
+				out.push({
+					name: name.name,
+					owner: name.owner,
+					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
+					registered_unix: moment(name.registered).unix(),
+					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
+					updated_unix: moment(name.updated).unix(),
+					a: name.a
+				});
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				names: out
+			});
+		});
+	});
+
 	return app;
 };
