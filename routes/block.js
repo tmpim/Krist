@@ -87,7 +87,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getLowestBlocks(req.query.limit).then(function(blocks) {
+		krist.getBlocksByOrder('hash ASC', req.query.limit).then(function(blocks) {
 			var out = [];
 
 			blocks.forEach(function (block) {

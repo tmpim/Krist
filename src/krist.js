@@ -63,8 +63,8 @@ Krist.getBlocks = function(limit, offset, asc) {
 	return schemas.block.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
-Krist.getLowestBlocks = function(limit) {
-	return schemas.block.findAll({order: 'hash ASC', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 50) : 50});
+Krist.getBlocksByOrder = function(order, limit) {
+	return schemas.block.findAll({order: order, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 50) : 50});
 };
 
 Krist.getLastBlock = function() {
