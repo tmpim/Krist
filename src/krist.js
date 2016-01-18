@@ -109,7 +109,7 @@ Krist.getUnpaidNames = function() {
 };
 
 Krist.getUnpaidNameCount = function() {
-	return schemas.name.count({order: 'id DESC', where: {unpaid: {$gt: 0}}});
+	return schemas.name.count({where: {unpaid: {$gt: 0}}});
 };
 
 Krist.getTransaction = function(id) {
