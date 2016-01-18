@@ -61,6 +61,7 @@ module.exports = function(app) {
 			blocks.forEach(function (block) {
 				out.push({
 					height: block.id,
+					address: block.address,
 					hash: block.hash,
 					short_hash: block.hash.substring(0, 12),
 					value: block.value,
@@ -92,10 +93,11 @@ module.exports = function(app) {
 
 			blocks.forEach(function (block) {
 				if (block.hash === null) return;
-				if (block.height === 1) return;
+				if (block.id === 1) return;
 
 				out.push({
 					height: block.id,
+					address: block.address,
 					hash: block.hash,
 					short_hash: block.hash.substring(0, 12),
 					value: block.value,
@@ -117,6 +119,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				height: block.id,
+				address: block.address,
 				hash: block.hash,
 				short_hash: block.hash.substring(0, 12),
 				value: block.value,
@@ -149,6 +152,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				height: block.id,
+				address: block.address,
 				hash: block.hash,
 				short_hash: block.hash.substring(0, 12),
 				value: block.value,
