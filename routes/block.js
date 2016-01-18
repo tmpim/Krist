@@ -19,6 +19,20 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (req.query.getblockvalue) {
+			krist.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
+				if (!block) {
+					res.send('50');
+
+					return;
+				}
+
+				res.send(block.value.toString());
+			});
+
+			return;
+		}
+
 		next();
 	});
 

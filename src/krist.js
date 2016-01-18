@@ -55,6 +55,10 @@ Krist.setWork = function(work) {
 	});
 };
 
+Krist.getBlock = function(id) {
+	return schemas.block.findById(id);
+};
+
 Krist.getLastBlock = function() {
 	return schemas.block.findOne({order: 'id DESC'});
 };
