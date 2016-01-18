@@ -21,7 +21,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getTransactions(req.query.limit, req.query.offset).then(function(transactions) {
+		krist.getTransactions(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(transactions) {
 			var out = [];
 
 			transactions.forEach(function (transaction) {

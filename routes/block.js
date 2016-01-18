@@ -36,6 +36,47 @@ module.exports = function(app) {
 		next();
 	});
 
+	app.get('/blocks', function(req, res) {
+		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
+			res.status(400).json({
+				ok: false,
+				error: 'invalid_limit'
+			});
+
+			return;
+		}
+
+		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
+			res.status(400).json({
+				ok: false,
+				error: 'invalid_offset'
+			});
+
+			return;
+		}
+
+		krist.getBlocks(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(blocks) {
+			var out = [];
+
+			blocks.forEach(function (block) {
+				out.push({
+					height: block.id,
+					hash: block.hash,
+					short_hash: block.hash.substring(0, 12),
+					value: block.value,
+					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(block.time).unix()
+				});
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				blocks: out
+			});
+		});
+	});
+
 	app.get('/block/last', function(req, res) {
 		krist.getLastBlock().then(function(block) {
 			res.json({

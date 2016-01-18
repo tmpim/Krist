@@ -59,6 +59,10 @@ Krist.getBlock = function(id) {
 	return schemas.block.findById(id);
 };
 
+Krist.getBlocks = function(limit, offset, asc) {
+	return schemas.block.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+};
+
 Krist.getLastBlock = function() {
 	return schemas.block.findOne({order: 'id DESC'});
 };
@@ -95,8 +99,8 @@ Krist.getTransaction = function(id) {
 	return schemas.transaction.findById(id);
 };
 
-Krist.getTransactions = function(limit, offset) {
-	return schemas.transaction.findAll({order: 'id DESC', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+Krist.getTransactions = function(limit, offset, asc) {
+	return schemas.transaction.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 100) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
 Krist.getTransactionsByAddress = function(address, limit, offset) {
