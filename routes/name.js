@@ -51,6 +51,20 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.getnewdomains !== 'undefined') {
+			krist.getUnpaidNames().then(function(names) {
+				var out = '';
+
+				names.forEach(function(name) {
+					out += name.name + ';';
+				});
+
+				res.send(out);
+			});
+
+			return;
+		}
+
 		next();
 	});
 

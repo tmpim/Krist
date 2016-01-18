@@ -104,6 +104,10 @@ Krist.getNameCountByOwner = function(owner) {
 	return schemas.name.count({where: {owner: owner}});
 };
 
+Krist.getUnpaidNames = function() {
+	return schemas.name.findAll({order: 'id DESC', where: {unpaid: {$gt: 0}}});
+};
+
 Krist.getTransaction = function(id) {
 	return schemas.transaction.findById(id);
 };
