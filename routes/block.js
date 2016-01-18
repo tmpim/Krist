@@ -13,7 +13,7 @@ module.exports = function(app) {
 
 		if (typeof req.query.getbaseblockvalue !== 'undefined') {
 			krist.getLastBlock().then(function(block) {
-				res.send(block.hash.substring(0, 12));
+				res.send(krist.getBaseBlockValue(block.id).toString());
 			});
 
 			return;

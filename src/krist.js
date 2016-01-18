@@ -99,7 +99,7 @@ Krist.getBaseBlockValue = function(blockid) {
 	var subsidy = 25;
 
 	if (blockid >= 100000) {
-		subsidy = 10;
+		subsidy = 12;
 	}
 
 	return subsidy;
