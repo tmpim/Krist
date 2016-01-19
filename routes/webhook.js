@@ -1,7 +1,8 @@
 var krist       = require('./../src/krist.js'),
 	utils       = require('./../src/utils.js'),
 	webhooks    = require('./../src/webhooks.js'),
-	moment      = require('moment');
+	moment      = require('moment'),
+	URL         = require('url-parse');
 
 module.exports = function(app) {
 	app.post('/webhook', function(req, res) {
@@ -43,7 +44,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!webhooks.isValidURL(req.query.url)) {
+		if (url = new URL(req.query.url)) {
 			res.sendStatus(400).json({
 				ok: false,
 				error: 'invalid_url'
