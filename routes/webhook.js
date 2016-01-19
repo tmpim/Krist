@@ -1,9 +1,12 @@
-var krist   = require('./../src/krist.js'),
-	utils   = require('./../src/utils.js'),
-	moment  = require('moment');
+var krist       = require('./../src/krist.js'),
+	utils       = require('./../src/utils.js'),
+	webhooks    = require('./../src/webhooks.js'),
+	moment      = require('moment');
 
 module.exports = function(app) {
 	app.post('/webhook', function(req, res) {
+		// the :nail-care: of webhooks
+
 		if (!req.query.type) {
 			res.sendStatus(400).json({
 				ok: false,
@@ -35,6 +38,15 @@ module.exports = function(app) {
 			res.sendStatus(400).json({
 				ok: false,
 				error: 'invalid_type'
+			});
+
+			return;
+		}
+
+		if (!webhooks.isValidURL(req.query.url)) {
+			res.sendStatus(400).json({
+				ok: false,
+				error: 'invalid_url'
 			});
 
 			return;

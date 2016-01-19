@@ -51,7 +51,8 @@ var Webhook = database.getSequelize().define('webhook', {
 		type: Sequelize.STRING(255),
 		validate: {
 			isUrl: true
-		}
+		},
+		unique: true
 	}
 }, {
 	timestamps: false
