@@ -44,7 +44,9 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!url = new URL(req.query.url)) {
+		var url = new URL(req.query.url);
+
+		if (!url) {
 			res.sendStatus(400).json({
 				ok: false,
 				error: 'invalid_url'
