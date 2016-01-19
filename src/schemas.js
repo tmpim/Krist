@@ -44,6 +44,19 @@ var Transaction = database.getSequelize().define('transaction', {
 	timestamps: false
 });
 
+var Webhook = database.getSequelize().define('webhook', {
+	type: Sequelize.ENUM('transaction', 'block'),
+	value: Sequelize.STRING(255),
+	url: {
+		type: Sequelize.STRING(255),
+		validate: {
+			isUrl: true
+		}
+	}
+}, {
+	timestamps: false
+});
+
 Address.sync();
 Block.sync();
 Name.sync();
