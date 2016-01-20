@@ -17,7 +17,8 @@ var Block = database.getSequelize().define('block', {
 	address: Sequelize.STRING(10),
 	nonce: Sequelize.STRING(24),
 	time: Sequelize.DATE,
-	difficulty: Sequelize.INTEGER(10).UNSIGNED
+	difficulty: Sequelize.INTEGER(10).UNSIGNED,
+	useragent: Sequelize.STRING(255)
 }, {
 	timestamps: false
 });
