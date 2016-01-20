@@ -46,14 +46,18 @@ var Transaction = database.getSequelize().define('transaction', {
 
 var Webhook = database.getSequelize().define('webhook', {
 	type: Sequelize.ENUM('transaction', 'block'),
-	value: Sequelize.STRING(255),
+	value: {
+		type: Sequelize.STRING(255),
+		allowNull: true
+	},
 	url: {
 		type: Sequelize.STRING(255),
 		validate: {
 			isUrl: true
 		},
 		unique: true
-	}
+	},
+	method: Sequelize.ENUM('get', 'post')
 }, {
 	timestamps: false
 });

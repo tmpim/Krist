@@ -1,8 +1,9 @@
-var	config	= require('./../config.js'),
-	express	= require('express'),
-	net		= require('net'),
-	fs		= require('fs'),
-	path 	= require('path');
+var	config	    = require('./../config.js'),
+	express	    = require('express'),
+	bodyParser  = require('body-parser'),
+	net		    = require('net'),
+	fs		    = require('fs'),
+	path 	    = require('path');
 
 function Webserver() {}
 
@@ -55,6 +56,7 @@ Webserver.init = function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
+	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 	Webserver.express.use(express.static('static'));
 
 	Webserver.express.all('*', function(req, res, next) {
@@ -85,7 +87,7 @@ Webserver.init = function() {
 	}
 
 	Webserver.express.use(function(req, res) {
-		res.json({
+		res.status(404).json({
 			ok: false,
 			error: 'not_found'
 		});

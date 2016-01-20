@@ -8,26 +8,17 @@ module.exports = function(app) {
 	app.post('/webhook', function(req, res) {
 		// the :nail-care: of webhooks
 
-		if (!req.query.type) {
-			res.sendStatus(400).json({
+		if (!req.body.event) {
+			res.status(400).json({
 				ok: false,
-				error: 'missing_type'
+				error: 'missing_event'
 			});
 
 			return;
 		}
 
-		if (!req.query.value) {
-			res.sendStatus(400).json({
-				ok: false,
-				error: 'missing_value'
-			});
-
-			return;
-		}
-
-		if (!req.query.url) {
-			res.sendStatus(400).json({
+		if (!req.body.url) {
+			res.status(400).json({
 				ok: false,
 				error: 'missing_url'
 			});
@@ -35,25 +26,47 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (req.query.type !== 'transaction' || req.query.type !== 'block') {
-			res.sendStatus(400).json({
+		if (!req.body.method) {
+			res.status(400).json({
 				ok: false,
-				error: 'invalid_type'
+				error: 'missing_method'
 			});
 
 			return;
 		}
 
-		var url = new URL(req.query.url);
+		if (!(/(transaction|block)/gi.exec(req.body.event))) {
+			res.status(400).json({
+				ok: false,
+				error: 'invalid_event'
+			});
+
+			return;
+		}
+
+		if (!(/(get|post)/gi.exec(req.body.method))) {
+			res.status(400).json({
+				ok: false,
+				error: 'invalid_method'
+			});
+
+			return;
+		}
+
+		var url = new URL(req.body.url);
 
 		if (!url) {
-			res.sendStatus(400).json({
+			res.status(400).json({
 				ok: false,
 				error: 'invalid_url'
 			});
 
 			return;
 		}
+
+		res.json({
+			ok: true
+		});
 	});
 
 	return app;
