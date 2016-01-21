@@ -58,7 +58,8 @@ var Webhook = database.getSequelize().define('webhook', {
 		},
 		unique: true
 	},
-	method: Sequelize.ENUM('get', 'post')
+	method: Sequelize.ENUM('get', 'post'),
+	owner: Sequelize.STRING(10)
 }, {
 	timestamps: false
 });
@@ -72,5 +73,6 @@ module.exports = {
 	address: Address,
 	block: Block,
 	name: Name,
-	transaction: Transaction
+	transaction: Transaction,
+	webhook: Webhook
 };

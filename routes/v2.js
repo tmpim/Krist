@@ -10,7 +10,7 @@ module.exports = function(app) {
 		next();
 	});
 
-	app.get('/v2/:key', function(req, res) {
+	app.all('/v2/:key', function(req, res) {
 		res.header('Content-Type', 'application/json');
 
 		res.json({
