@@ -56,6 +56,7 @@ Webserver.init = function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
+	Webserver.express.disable('etag');
 	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 	Webserver.express.use(express.static('static'));
 
