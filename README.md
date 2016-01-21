@@ -7,7 +7,6 @@ This is the official Krist 2.0 node repository. It is written in Node.js.
 - `colors`
 - `express`
 - `sequelize`
-- `crc-32`
 - `bluebird`
 - `moment`
 
