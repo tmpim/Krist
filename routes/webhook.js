@@ -6,7 +6,7 @@ var krist       = require('./../src/krist.js'),
 
 module.exports = function(app) {
 	app.post('/webhook', function(req, res) {
-		// the :nail-care: of webhooks
+		// the :nail_care: of webhooks
 
 		if (!req.body.event) {
 			res.status(400).json({
