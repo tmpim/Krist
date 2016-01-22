@@ -30,7 +30,7 @@ config.server_sock = '/var/krist/krist.sock';
 // The latest version of kristwallet
 config.walletVersion = 13;
 
-// The max amount of webhooks per domain name (includes TLD, excludes subdomain)
+// The max amount of webhooks per domain name
 config.webhooks_maxPerHost = 5;
 
 module.exports = config;
