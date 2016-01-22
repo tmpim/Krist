@@ -41,4 +41,8 @@ WebHooks.createBlockWebhook = function(owner, method, url) {
 	});
 };
 
+WebHooks.getWebhooksByOwner = function(owner) {
+	return schemas.webhook.findAll({where: {owner: owner}});
+};
+
 module.exports = WebHooks;

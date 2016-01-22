@@ -183,5 +183,56 @@ module.exports = function(app) {
 		});
 	});
 
+	app.post('/webhooks/:owner', function(req, res) {
+		if (!req.body.privatekey) {
+			res.status(401).json({
+				ok: false,
+				error: 'missing_privatekey'
+			});
+
+			return;
+		}
+
+		if (krist.makeV2Address(req.body.privatekey) !== req.params.owner) {
+			res.status(401).json({
+				ok: false,
+				error: 'auth_failed'
+			});
+
+			return;
+		}
+
+		webhooks.getWebhooksByOwner(req.params.owner).then(function(weebhooks) {
+			var out = [];
+
+			weebhooks.forEach(function (webhook) {
+				if (webhook.event === 'transaction') {
+					out.push({
+						id: webhook.id,
+						event: webhook.event,
+						addresses: webhook.value,
+						url: webhook.url,
+						method: webhook.method,
+						owner: webhook.owner
+					});
+				} else {
+					out.push({
+						id: webhook.id,
+						event: webhook.event,
+						url: webhook.url,
+						method: webhook.method,
+						owner: webhook.owner
+					});
+				}
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				webhooks: out
+			});
+		});
+	});
+
 	return app;
 };
