@@ -63,15 +63,6 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!req.body.method) {
-			res.status(400).json({
-				ok: false,
-				error: 'missing_method'
-			});
-
-			return;
-		}
-
 		if (!(/^(transaction|block)/gi.exec(req.body.event))) {
 			res.status(400).json({
 				ok: false,
@@ -81,13 +72,19 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/^(get|post)/gi.exec(req.body.method))) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_method'
-			});
+		var method = 'get';
 
-			return;
+		if (req.body.method) {
+			if (!(/^(get|post)/gi.exec(req.body.method))) {
+				res.status(400).json({
+					ok: false,
+					error: 'invalid_method'
+				});
+
+				return;
+			} else {
+				method = req.body.method.toLowerCase();
+			}
 		}
 
 		var parsedURL = url.parse(req.body.url);
@@ -115,7 +112,7 @@ module.exports = function(app) {
 				case 'transaction':
 					if (req.body.addresses) {
 						if (addressListRegex.exec(req.body.addresses)) {
-							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url, req.body.addresses).then(function(webhook) {
+							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, req.body.addresses).then(function(webhook) {
 								res.json({
 									ok: true,
 									id: webhook.id
@@ -136,7 +133,7 @@ module.exports = function(app) {
 							});
 						}
 					} else {
-						webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url, null).then(function(webhook) {
+						webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, null).then(function(webhook) {
 							res.json({
 								ok: true,
 								id: webhook.id
@@ -154,7 +151,7 @@ module.exports = function(app) {
 					break;
 
 				case 'block':
-					webhooks.createBlockWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url).then(function(webhook) {
+					webhooks.createBlockWebhook(req.body.owner.toLowerCase(), method, req.body.url).then(function(webhook) {
 						res.json({
 							ok: true,
 							id: webhook.id
