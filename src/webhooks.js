@@ -41,6 +41,10 @@ WebHooks.createBlockWebhook = function(owner, method, url) {
 	});
 };
 
+WebHooks.getWebhookById = function(id) {
+	return schemas.webhook.findById(id);
+};
+
 WebHooks.getWebhooksByOwner = function(owner) {
 	return schemas.webhook.findAll({where: {owner: owner}});
 };
