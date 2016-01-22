@@ -5,6 +5,8 @@ logs
 node_modules
 .npm
 
+npm-debug.log
+
 # JetBrains
 
 *.iml
