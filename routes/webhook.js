@@ -112,7 +112,7 @@ module.exports = function(app) {
 				case 'transaction':
 					if (req.body.addresses) {
 						if (addressListRegex.exec(req.body.addresses)) {
-							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, req.body.addresses).then(function(webhook) {
+							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, req.body.addresses.replace(/,+$/, '')).then(function(webhook) {
 								res.json({
 									ok: true,
 									id: webhook.id
