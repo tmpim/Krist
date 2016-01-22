@@ -20,4 +20,4 @@ file and change anything required, then save it to `config.js`.
 
 ## License
 
-This project is released under **GPL-v3**. More information can be found in the `LICENSE` file.
+This project is released under **GPL-3.0**. More information can be found in the `LICENSE` file.
