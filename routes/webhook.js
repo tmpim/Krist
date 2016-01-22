@@ -2,7 +2,7 @@ var krist       = require('./../src/krist.js'),
 	utils       = require('./../src/utils.js'),
 	webhooks    = require('./../src/webhooks.js'),
 	moment      = require('moment'),
-	URL         = require('url-parse');
+	url         = require('url');
 
 var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10})*)*$/i; // regex is intense
 
@@ -19,7 +19,7 @@ module.exports = function(app) {
 		// the :nail_care: of webhooks
 
 		if (!req.body.privatekey) {
-			res.status(400).json({
+			res.status(401).json({
 				ok: false,
 				error: 'missing_privatekey'
 			});
@@ -28,7 +28,7 @@ module.exports = function(app) {
 		}
 
 		if (!req.body.owner) {
-			res.status(400).json({
+			res.status(401).json({
 				ok: false,
 				error: 'missing_owner'
 			});
@@ -37,7 +37,7 @@ module.exports = function(app) {
 		}
 
 		if (krist.makeV2Address(req.body.privatekey) !== req.body.owner) {
-			res.status(403).json({
+			res.status(401).json({
 				ok: false,
 				error: 'auth_failed'
 			});
@@ -72,7 +72,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/(transaction|block)/gi.exec(req.body.event))) {
+		if (!(/^(transaction|block)/gi.exec(req.body.event))) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_event'
@@ -81,7 +81,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/(get|post)/gi.exec(req.body.method))) {
+		if (!(/^(get|post)/gi.exec(req.body.method))) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_method'
@@ -90,9 +90,9 @@ module.exports = function(app) {
 			return;
 		}
 
-		var url = new URL(req.body.url);
+		var parsedURL = url.parse(req.body.url);
 
-		if (!url) {
+		if (parsedURL.hostname === null) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_url'
@@ -101,31 +101,85 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/(transaction)/gi.exec(req.body.event))) {
-			if (req.body.addresses) {
-				if (addressListRegex.exec(req.body.addresses)) {
-					webhooks.createTransactionWebhook(req.body.method, req.body.url, req.body.addresses).then(function() {
-						res.json({
-							ok: true
-						});
-					}).catch(function() {
+		webhooks.isURLAllowed(parsedURL).then(function (allowed) {
+			if (!allowed) {
+				res.status(403).json({
+					ok: false,
+					error: 'limit_reached'
+				});
 
+				return;
+			}
+
+			switch(req.body.event.toLowerCase().trim()) {
+				case 'transaction':
+					if (req.body.addresses) {
+						if (addressListRegex.exec(req.body.addresses)) {
+							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url, req.body.addresses).then(function(webhook) {
+								res.json({
+									ok: true,
+									id: webhook.id
+								});
+							}).catch(function(error) {
+								res.status(500).json({
+									ok: false,
+									error: 'server_error'
+								});
+
+								console.error('[Client Error]'.red + ' Error creating transaction webhook with addresses');
+								console.error(error);
+							});
+						} else {
+							res.status(400).json({
+								ok: false,
+								error: 'invalid_address_list'
+							});
+						}
+					} else {
+						webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url, null).then(function(webhook) {
+							res.json({
+								ok: true,
+								id: webhook.id
+							});
+						}).catch(function(error) {
+							res.status(500).json({
+								ok: false,
+								error: 'server_error'
+							});
+
+							console.error('[Client Error]'.red + ' Error creating transaction webhook without addresses');
+							console.error(error);
+						});
+					}
+					break;
+
+				case 'block':
+					webhooks.createBlockWebhook(req.body.owner.toLowerCase(), req.body.method, req.body.url).then(function(webhook) {
+						res.json({
+							ok: true,
+							id: webhook.id
+						});
+					}).catch(function(error) {
+						res.status(500).json({
+							ok: false,
+							error: 'server_error'
+						});
+
+						console.error('[Client Error]'.red + ' Error creating block webhook');
+						console.error(error);
 					});
-				} else {
+					break;
+
+				default:
 					res.status(400).json({
 						ok: false,
-						error: 'invalid_address_list'
+						error: 'invalid_event'
 					});
-				}
-			} else {
 
+					console.error('Lem is super stupid'.red + ' ' + req.body.event);
+
+					break;
 			}
-		} else {
-
-		}
-
-		res.json({
-			ok: true
 		});
 	});
 

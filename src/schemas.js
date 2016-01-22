@@ -55,8 +55,7 @@ var Webhook = database.getSequelize().define('webhook', {
 		type: Sequelize.STRING(255),
 		validate: {
 			isUrl: true
-		},
-		unique: true
+		}
 	},
 	method: Sequelize.ENUM('get', 'post'),
 	owner: Sequelize.STRING(10)
@@ -68,6 +67,7 @@ Address.sync();
 Block.sync();
 Name.sync();
 Transaction.sync();
+Webhook.sync();
 
 module.exports = {
 	address: Address,

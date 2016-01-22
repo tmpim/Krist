@@ -1,23 +1,43 @@
 var utils   = require('./utils.js'),
 	config  = require('./../config.js'),
-	schemas = require('./schemas.js');
+	schemas = require('./schemas.js'),
+	Promise = require('bluebird'),
+	url     = require('url');
 
 function WebHooks() {}
 
-WebHooks.createTransactionWebhook = function(method, url, addresses) {
+WebHooks.isURLAllowed = function(url) {
+	return new Promise(function(resolve, reject) {
+		schemas.webhook.findAll().then(function(webhooks) {
+			var count = 0;
+
+			webhooks.forEach(function(webhook) {
+				if(url.parse(webhook.url).hostname.toLowerCase().trim() === url.hostname.toLowerCase().trim()) {
+					count++;
+				}
+			});
+
+			resolve(count < config.webhooks_maxPerHost);
+		}).catch(reject);
+	});
+};
+
+WebHooks.createTransactionWebhook = function(owner, method, url, addresses) {
 	return schemas.webhook.create({
 		event: 'transaction',
 		method: method,
 		url: decodeURI(url),
-		value: addresses
+		value: addresses,
+		owner: owner
 	});
 };
 
-WebHooks.createBlockWebhook = function(method, url) {
+WebHooks.createBlockWebhook = function(owner, method, url) {
 	return schemas.webhook.create({
 		event: 'block',
 		method: method,
-		url: decodeURI(url)
+		url: decodeURI(url),
+		owner: owner
 	});
 };
 
