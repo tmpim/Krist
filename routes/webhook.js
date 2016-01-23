@@ -63,7 +63,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/^(transaction|block)/gi.exec(req.body.event))) {
+		if (!(/^(transaction|block|name)/gi.exec(req.body.event))) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_event'
@@ -110,44 +110,68 @@ module.exports = function(app) {
 
 			switch(req.body.event.toLowerCase().trim()) {
 				case 'transaction':
-					if (req.body.addresses) {
-						if (addressListRegex.exec(req.body.addresses)) {
-							webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, req.body.addresses.replace(/,+$/, '')).then(function(webhook) {
-								res.json({
-									ok: true,
-									id: webhook.id
-								});
-							}).catch(function(error) {
-								res.status(500).json({
-									ok: false,
-									error: 'server_error'
-								});
+					var addresses = null;
 
-								console.error('[Client Error]'.red + ' Error creating transaction webhook with addresses');
-								console.error(error);
-							});
-						} else {
-							res.status(400).json({
-								ok: false,
-								error: 'invalid_address_list'
-							});
-						}
-					} else {
-						webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, null).then(function(webhook) {
-							res.json({
-								ok: true,
-								id: webhook.id
-							});
-						}).catch(function(error) {
-							res.status(500).json({
-								ok: false,
-								error: 'server_error'
-							});
-
-							console.error('[Client Error]'.red + ' Error creating transaction webhook without addresses');
-							console.error(error);
+					if (req.body.addresses && !addressListRegex.exec(req.body.addresses)) {
+						res.status(400).json({
+							ok: false,
+							error: 'invalid_address_list'
 						});
+
+						return;
 					}
+
+					if (req.body.addresses) {
+						addresses = req.body.addresses.replace(/,+$/, '');
+					}
+
+					webhooks.createTransactionWebhook(req.body.owner.toLowerCase(), method, req.body.url, addresses).then(function(webhook) {
+						res.json({
+							ok: true,
+							id: webhook.id
+						});
+					}).catch(function(error) {
+						res.status(500).json({
+							ok: false,
+							error: 'server_error'
+						});
+
+						console.error('[Client Error]'.red + ' Error creating transaction webhook');
+						console.error(error);
+					});
+					break;
+
+
+				case 'name':
+					var addresses = null;
+
+					if (req.body.addresses && !addressListRegex.exec(req.body.addresses)) {
+						res.status(400).json({
+							ok: false,
+							error: 'invalid_address_list'
+						});
+
+						return;
+					}
+
+					if (req.body.addresses) {
+						addresses = req.body.addresses.replace(/,+$/, '');
+					}
+
+					webhooks.createNameWebhook(req.body.owner.toLowerCase(), method, req.body.url, addresses).then(function(webhook) {
+						res.json({
+							ok: true,
+							id: webhook.id
+						});
+					}).catch(function(error) {
+						res.status(500).json({
+							ok: false,
+							error: 'server_error'
+						});
+
+						console.error('[Client Error]'.red + ' Error creating name webhook');
+						console.error(error);
+					});
 					break;
 
 				case 'block':
@@ -203,7 +227,7 @@ module.exports = function(app) {
 			var out = [];
 
 			weebhooks.forEach(function (webhook) {
-				if (webhook.event === 'transaction') {
+				if (webhook.event === 'transaction' || webhook.event === 'name') {
 					out.push({
 						id: webhook.id,
 						event: webhook.event,

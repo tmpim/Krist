@@ -41,6 +41,16 @@ WebHooks.createBlockWebhook = function(owner, method, url) {
 	});
 };
 
+WebHooks.createNameWebhook = function(owner, method, url, addresses) {
+	return schemas.webhook.create({
+		event: 'name',
+		method: method,
+		url: decodeURI(url),
+		value: addresses,
+		owner: owner
+	});
+};
+
 WebHooks.getWebhookById = function(id) {
 	return schemas.webhook.findById(id);
 };
