@@ -138,6 +138,10 @@ Krist.getBaseBlockValue = function(blockid) {
 	return subsidy;
 };
 
+Krist.getNameCost = function() {
+	return config.nameCost;
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';

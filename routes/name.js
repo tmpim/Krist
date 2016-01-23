@@ -17,6 +17,12 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.name_cost !== 'undefined') {
+			res.send(krist.getNameCost().toString());
+
+			return;
+		}
+
 		if (req.query.getnames) {
 			krist.getAddress(req.query.getnames).then(function(address) {
 				if (address) {
