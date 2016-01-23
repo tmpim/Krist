@@ -29,7 +29,7 @@ var Name = database.getSequelize().define('name', {
 	registered: Sequelize.DATE,
 	updated: Sequelize.DATE,
 	a: Sequelize.STRING,
-	unpaid: Sequelize.BOOLEAN
+	unpaid: Sequelize.INTEGER.UNSIGNED
 }, {
 	timestamps: false
 });

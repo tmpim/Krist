@@ -125,7 +125,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getNameByName(req.params.name).then(function (name) {
+		krist.getNameByName(req.params.name.toLowerCase()).then(function (name) {
 			if (name) {
 				res.json({
 					ok: true,
@@ -219,6 +219,69 @@ module.exports = function(app) {
 				count: out.length,
 				names: out
 			});
+		});
+	});
+
+	app.post('/name/:name', function(req, res) {
+		if (/[^a-zA-Z0-9]/.test(req.params.name)) {
+			res.status(400).json({
+				ok: false,
+				error: 'name_not_alphanumeric'
+			});
+
+			return;
+		}
+
+		if (req.params.name.length > 64 || req.params.name.length < 1) {
+			res.status(400).json({
+				ok: false,
+				error: 'name_invalid_length'
+			});
+
+			return;
+		}
+
+		if (!req.body.privatekey) {
+			res.status(400).json({
+				ok: false,
+				error: 'missing_privatekey'
+			});
+
+			return;
+		}
+
+		var desiredName = req.params.name.toLowerCase();
+
+		krist.getNameByName(desiredName).then(function(name) {
+			if (name) {
+				res.status(409).json({
+					ok: false,
+					error: 'name_taken'
+				});
+			} else {
+				krist.getAddress(krist.makeV2Address(req.body.privatekey)).then(function(address) {
+					if (!address || address.balance < krist.getNameCost()) {
+						res.status(403).json({
+							ok: false,
+							error: 'insufficient_funds',
+							funds: address.balance
+						});
+
+						return;
+					}
+
+					address.decrement({ balance: krist.getNameCost() });
+					address.increment({ totalout: krist.getNameCost() });
+
+					krist.createTransaction('name', address.address, krist.getNameCost(), desiredName);
+					krist.createName(desiredName, address.address).then(function(newName) {
+						res.json({
+							ok: true,
+							id: newName.id
+						});
+					});
+				});
+			}
 		});
 	});
 

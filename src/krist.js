@@ -142,6 +142,26 @@ Krist.getNameCost = function() {
 	return config.nameCost;
 };
 
+Krist.createTransaction = function(to, from, value, name) {
+	return schemas.transaction.create({
+		to: to,
+		from: from,
+		value: value,
+		name: name,
+		time: new Date()
+	});
+};
+
+Krist.createName = function(name, owner) {
+	return schemas.name.create({
+		name: name,
+		owner: owner,
+		registered: new Date(),
+		updated: new Date(),
+		unpaid: Krist.getNameCost()
+	});
+};
+
 Krist.makeV2Address = function(key) {
 	var blocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';
