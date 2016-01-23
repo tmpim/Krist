@@ -132,6 +132,13 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/name/cost', function(req, res) {
+		res.json({
+			ok: true,
+			name_cost: krist.getNameCost().toString()
+		});
+	});
+
 	app.get('/names', function(req, res) {
 		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
 			res.status(400).json({
