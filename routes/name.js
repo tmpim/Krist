@@ -139,6 +139,15 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/name/bonus', function(req, res) {
+		krist.getUnpaidNameCount().then(function(count) {
+			res.json({
+				ok: true,
+				name_bonus: count.toString()
+			});
+		});
+	});
+
 	app.get('/names', function(req, res) {
 		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
 			res.status(400).json({
