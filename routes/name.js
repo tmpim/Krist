@@ -23,6 +23,14 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.namebonus !== 'undefined') {
+			krist.getUnpaidNameCount().then(function(count) {
+				res.send(count.toString());
+			});
+
+			return;
+		}
+
 		if (req.query.getnames) {
 			krist.getAddress(req.query.getnames).then(function(address) {
 				if (address) {
