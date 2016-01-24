@@ -1,5 +1,6 @@
-var krist = require('./../src/krist.js'),
-	moment  = require('moment');
+var krist       = require('./../src/krist.js'),
+	webhooks    = require('./../src/webhooks.js'),
+	moment      = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -263,8 +264,7 @@ module.exports = function(app) {
 					if (!address || address.balance < krist.getNameCost()) {
 						res.status(403).json({
 							ok: false,
-							error: 'insufficient_funds',
-							funds: address.balance
+							error: 'insufficient_funds'
 						});
 
 						return;
@@ -280,6 +280,8 @@ module.exports = function(app) {
 							id: newName.id
 						});
 					});
+
+					webhooks.callNameWebhooks(desiredName, address.address);
 				});
 			}
 		});

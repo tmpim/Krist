@@ -5,10 +5,6 @@ module.exports = function(app) {
 		res.send("Connor dominates and penetrates Ryan Smith.");
 	});
 
-	app.get('/eskreme', function(req, res) {
-		res.send("Connor dominates and penetrates Ryan Smith.");
-	});
-
 	app.get('/liggy', function(req, res) {
 		res.send("<!doctype html>" +
 			"<html>" +

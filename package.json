@@ -22,6 +22,7 @@
     "colors": "^1.1.2",
     "express": "^4.13.3",
     "moment": "^2.11.1",
+    "request": "^2.67.0",
     "sequelize": "^3.17.1"
   },
   "optionalDependencies": {

@@ -21,7 +21,7 @@ Utils.hexToBase64 = function(input) {
 };
 
 Utils.padDigits = function(number, digits) {
-	return Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
+	return new Array(Math.max(digits - String(number).length + 1, 0)).join(0) + number;
 };
 
 module.exports = Utils;

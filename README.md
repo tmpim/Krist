@@ -10,6 +10,7 @@ This is the official Krist 2.0 node repository. It is written in Node.js.
 - `bluebird`
 - `moment`
 - `url-parse`
+- `request`
 
 _Note:_ `mysql` is required if you use `mysql` or `mariadb` as a Sequelize backend.
 

@@ -163,23 +163,23 @@ Krist.createName = function(name, owner) {
 };
 
 Krist.makeV2Address = function(key) {
-	var blocks = ['', '', '', '', '', '', '', '', ''];
+	var cocks = ['', '', '', '', '', '', '', '', ''];
 	var v2 = 'k';
 	var circles = utils.sha256(utils.sha256(key));
 
 	for (var i = 0; i <= 8; i++) {
-		blocks[i] = circles.substring(0, 2);
+		cocks[i] = circles.substring(0, 2);
 		circles = utils.sha256(utils.sha256(circles));
 	}
 
 	for (i = 0; i <= 8;) {
 		var dean = parseInt(circles.substring(2 * i, 2 + (2 * i)), 16) % 9;
 
-		if (blocks[dean] === "") {
+		if (cocks[dean] === "") {
 			circles = utils.sha256(circles);
 		} else {
-			v2+=utils.hexToBase64(parseInt(blocks[dean], 16));
-			blocks[dean] = "";
+			v2+=utils.hexToBase64(parseInt(cocks[dean], 16));
+			cocks[dean] = "";
 			i++;
 		}
 	}

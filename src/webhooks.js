@@ -2,7 +2,8 @@ var utils   = require('./utils.js'),
 	config  = require('./../config.js'),
 	schemas = require('./schemas.js'),
 	Promise = require('bluebird'),
-	url     = require('url');
+	url     = require('url'),
+	request = require('request');
 
 function WebHooks() {}
 
@@ -48,6 +49,36 @@ WebHooks.createNameWebhook = function(owner, method, url, addresses) {
 		url: decodeURI(url),
 		value: addresses,
 		owner: owner
+	});
+};
+
+WebHooks.callNameWebhooks = function(name, owner) {
+	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: owner }]}}}).then(function(webhooks) {
+		if (webhooks) {
+			webhooks.forEach(function(webhook) {
+				if (webhook.method.toLowerCase() === 'post') {
+					request.post(webhook.url, {
+						form: {
+							ok: true,
+							type: 'webhook',
+							event: 'name',
+							name: name,
+							owner: owner
+						}
+					});
+				} else {
+					request.get(webhook.url, {
+						qs: {
+							ok: true,
+							type: 'webhook',
+							event: 'name',
+							name: name,
+							owner: owner
+						}
+					});
+				}
+			});
+		}
 	});
 };
 
