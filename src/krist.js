@@ -181,25 +181,39 @@ Krist.submit = function(hash, address, nonce) {
 		Krist.getBlockValue().then(function(value) {
 			var time = new Date();
 
+			var oldWork = Krist.getWork();
+			var newWork = Math.round(Krist.getWork() * 0.9999);
+
+			Krist.setWork(newWork);
+
 			schemas.block.create({
 				hash: hash,
 				address: address,
 				nonce: nonce,
 				time: time,
-				difficulty: Krist.getWork(),
+				difficulty: oldWork,
 				value: value
 			});
 
-			function increment() {
-				Krist.getAddress(address).then(function(kristAddress) {
-					kristAddress.increment({ balance: value, totalin: value });
-				});
-			}
+			Krist.getAddress(address.toLowerCase()).then(function(kristAddress) {
+				if (!kristAddress) {
+					schemas.address.create({
+						address: address.toLowerCase(),
+						firstseen: time,
+						balance: value,
+						totalin: value,
+						totalout: 0
+					}).then(function(addr) {
+						resolve(newWork, addr);
+					});
 
-			schemas.address.create({
-				address: address,
-				firstseen: time
-			}).then(increment).catch(increment);
+					return;
+				}
+
+				kristAddress.increment({ balance: value, totalin: value }).then(function(addr) {
+					resolve({work: newWork, address: addr});
+				});
+			});
 
 			schemas.transaction.create({
 				to: address,
@@ -213,11 +227,6 @@ Krist.submit = function(hash, address, nonce) {
 					name.decrement({ unpaid: 1 });
 				});
 			});
-
-			var newWork = Math.round(Krist.getWork() * 0.9999);
-
-			Krist.setWork(newWork);
-			resolve(newWork);
 		});
 	});
 };

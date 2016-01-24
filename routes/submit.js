@@ -74,21 +74,23 @@ module.exports = function(app) {
 		krist.getLastBlock().then(function(lastBlock) {
 			var last = lastBlock.hash.substr(0, 12);
 			var difficulty = krist.getWork();
-			var hash = utils.sha256(req.query.address + last + req.query.nonce);
+			var hash = utils.sha256(req.body.address + last + req.body.nonce);
 
 			if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-				krist.submit(hash, req.query.address, req.query.nonce).then(function(work) {
+				krist.submit(hash, req.body.address, req.body.nonce).then(function(result) {
 					res.json({
 						ok: true,
 						success: true,
-						work: work
-					})
+						work: result.work,
+						address: result.address.address,
+						balance: result.address.balance
+					});
 				});
 			} else {
 				res.json({
 					ok: true,
 					success: false,
-					address: req.body.address,
+					address: req.body.address.toLowerCase(),
 					nonce: req.query.nonce,
 					last_hash: last
 				});
