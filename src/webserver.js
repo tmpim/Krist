@@ -56,12 +56,19 @@ Webserver.init = function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
+	Webserver.express.disable('x-powered-by');
 	Webserver.express.disable('etag');
 	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 	Webserver.express.use(express.static('static'));
 
 	Webserver.express.all('*', function(req, res, next) {
 		res.header('X-Robots-Tag', 'none');
+		res.header('Content-Type', 'application/json');
+		next();
+	});
+
+	Webserver.express.all('/', function(req, res, next) {
+		res.header('Content-Type', 'text/plain');
 		next();
 	});
 

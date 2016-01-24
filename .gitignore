@@ -19,3 +19,5 @@ npm-debug.log
 
 /data.db
 /data/
+
+/motd.txt
