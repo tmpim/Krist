@@ -6,6 +6,8 @@ module.exports = function(app) {
 	});
 
 	app.get('/liggy', function(req, res) {
+		res.header("Content-Type", "text/html");
+
 		res.send("<!doctype html>" +
 			"<html>" +
 			"<head>" +

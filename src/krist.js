@@ -37,8 +37,10 @@ Krist.init = function() {
 		});
 	} else {
 		fs.writeFile('data/work', Krist.work, function(err) {
-			console.log('[Krist]'.red + ' Critical error writing work file.');
-			console.log('[Krist]'.red + ' ' + err);
+			if (err) {
+				console.log('[Krist]'.red + ' Critical error writing work file.');
+				console.log('[Krist]'.red + ' ' + err);
+			}
 		});
 	}
 };
@@ -51,8 +53,10 @@ Krist.setWork = function(work) {
 	Krist.work = work;
 
 	fs.writeFile('data/work', work, function(err) {
-		console.log('[Krist]'.red + ' Critical error writing work file.');
-		console.log('[Krist]'.red + ' ' + err);
+		if (err) {
+			console.log('[Krist]'.red + ' Critical error writing work file.');
+			console.log('[Krist]'.red + ' ' + err);
+		}
 	});
 };
 
@@ -138,6 +142,16 @@ Krist.getBaseBlockValue = function(blockid) {
 	return subsidy;
 };
 
+Krist.getBlockValue = function() {
+	return new Promise(function(resolve, reject) {
+		Krist.getLastBlock().then(function(lastBlock) {
+			Krist.getUnpaidNameCount().then(function(count) {
+				resolve(Krist.getBaseBlockValue(lastBlock.id) + count);
+			}).catch(reject);
+		}).catch(reject);
+	});
+};
+
 Krist.getNameCost = function() {
 	return config.nameCost;
 };
@@ -159,6 +173,47 @@ Krist.createName = function(name, owner) {
 		registered: new Date(),
 		updated: new Date(),
 		unpaid: Krist.getNameCost()
+	});
+};
+
+Krist.submit = function(hash, address, nonce) {
+	Krist.getBlockValue().then(function(value) {
+		var time = new Date();
+
+		schemas.block.create({
+			hash: hash,
+			address: address,
+			nonce: nonce,
+			time: time,
+			difficulty: Krist.getWork(),
+			value: value
+		});
+
+		function increment() {
+			Krist.getAddress(address).then(function(kristAddress) {
+				kristAddress.increment({ balance: value, totalin: value });
+			});
+		}
+
+		schemas.address.create({
+			address: address,
+			firstseen: time
+		}).then(increment).catch(increment);
+
+		schemas.transaction.create({
+			to: address,
+			from: null,
+			value: value,
+			time: time
+		});
+
+		schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
+			names.forEach(function(name) {
+				name.decrement({ unpaid: 1 });
+			});
+		});
+
+		Krist.setWork(Math.round(Krist.getWork() * 0.9999));
 	});
 };
 
