@@ -1,5 +1,6 @@
 var krist   = require('./../src/krist.js'),
-	fs      = require('fs');
+	fs      = require('fs'),
+	moment  = require('moment');
 
 module.exports = function(app) {
 	app.all('/motd', function(req, res) {
@@ -13,9 +14,22 @@ module.exports = function(app) {
 				return;
 			}
 
-			res.json({
-				ok: true,
-				motd: data.toString()
+			fs.stat('motd.txt', function(err, stats) {
+				if (err) {
+					res.json({
+						ok: true,
+						motd: data.toString()
+					});
+
+					return;
+				}
+
+				res.json({
+					ok: true,
+					motd: data.toString(),
+					set: moment(stats.mtime).format('YYYY-MM-DD HH:mm:ss').toString(),
+					set_unix: moment(stats.mtime).unix()
+				});
 			});
 		});
 	});
