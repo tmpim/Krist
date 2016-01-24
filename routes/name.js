@@ -104,6 +104,52 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.name_new !== 'undefined') {
+			if (!req.query.name || !req.query.pkey) {
+				res.status(400).send('Error6');
+			}
+
+			if (/[^a-zA-Z0-9]/.test(req.query.name)) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			if (req.query.name.length > 64 || req.query.name.length < 1) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			var desiredName = req.query.name.toLowerCase();
+
+			krist.getNameByName(desiredName).then(function(name) {
+				if (name) {
+					res.status(409).send('Error5');
+				} else {
+					krist.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
+						if (!address || address.balance < krist.getNameCost()) {
+							res.status(403).send('Error1');
+
+							return;
+						}
+
+						address.decrement({ balance: krist.getNameCost() });
+						address.increment({ totalout: krist.getNameCost() });
+
+						krist.createTransaction('name', address.address, krist.getNameCost(), desiredName);
+						krist.createName(desiredName, address.address).then(function(newName) {
+							res.send('Success');
+						});
+
+						webhooks.callNameWebhooks(desiredName, address.address);
+					});
+				}
+			});
+
+			return;
+		}
+
 		next();
 	});
 
