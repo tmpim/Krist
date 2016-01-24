@@ -175,11 +175,20 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/value', function(req, res) {
+	app.get('/block/basevalue', function(req, res) {
 		krist.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
 				base_value: krist.getBaseBlockValue(block.id)
+			})
+		});
+	});
+
+	app.get('/block/value', function(req, res) {
+		krist.getBlockValue().then(function(value) {
+			res.json({
+				ok: true,
+				value: value
 			})
 		});
 	});
