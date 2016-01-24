@@ -3,7 +3,8 @@ var utils   = require('./utils.js'),
 	schemas = require('./schemas.js'),
 	Promise = require('bluebird'),
 	url     = require('url'),
-	request = require('request');
+	request = require('request'),
+	moment  = require('moment');
 
 function WebHooks() {}
 
@@ -52,30 +53,59 @@ WebHooks.createNameWebhook = function(owner, method, url, addresses) {
 	});
 };
 
-WebHooks.callNameWebhooks = function(name, owner) {
-	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: owner }]}}}).then(function(webhooks) {
+WebHooks.callNameWebhooks = function(name) {
+	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: name.owner}]}}}).then(function(webhooks) {
 		if (webhooks) {
+			var data = {
+				ok: true,
+				type: 'webhook',
+				event: 'name',
+				name: {
+					name: name.name,
+					owner: name.owner,
+					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
+					registered_unix: moment(name.registered).unix(),
+					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
+					updated_unix: moment(name.updated).unix(),
+					a: name.a
+				}
+			};
+
 			webhooks.forEach(function(webhook) {
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, {
-						form: {
-							ok: true,
-							type: 'webhook',
-							event: 'name',
-							name: name,
-							owner: owner
-						}
-					});
+					request.post(webhook.url, { form: data });
 				} else {
-					request.get(webhook.url, {
-						qs: {
-							ok: true,
-							type: 'webhook',
-							event: 'name',
-							name: name,
-							owner: owner
-						}
-					});
+					request.get(webhook.url, { qs: data });
+				}
+			});
+		}
+	});
+};
+
+WebHooks.callTransactionWebhooks = function(transaction) {
+	schemas.webhook.findAll({where: {event: 'transaction', value: {$or: [null, '', {$like: transaction.from}, {$like: transaction.to}]}}}).then(function(webhooks) {
+		if (webhooks) {
+			var data = {
+				ok: true,
+				type: 'webhook',
+				event: 'transaction',
+				transaction: {
+					id: transaction.id,
+					from: transaction.from,
+					to: transaction.to,
+					value: transaction.value,
+					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(transaction.time).unix(),
+					name: transaction.name,
+					op: transaction.op
+				}
+			};
+
+			webhooks.forEach(function(webhook) {
+				if (webhook.method.toLowerCase() === 'post') {
+					request.post(webhook.url, { form: data });
+				} else {
+					request.get(webhook.url, { qs: data });
 				}
 			});
 		}

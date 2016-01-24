@@ -42,6 +42,8 @@ module.exports = function(app) {
 				ok: false,
 				error: 'missing_address'
 			});
+
+			return;
 		}
 
 		if (!(/^(?:k[a-z0-9]{9}|[a-f0-9]{10})/i.exec(req.body.address))) {

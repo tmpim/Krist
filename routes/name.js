@@ -1,5 +1,4 @@
 var krist       = require('./../src/krist.js'),
-	webhooks    = require('./../src/webhooks.js'),
 	moment      = require('moment');
 
 module.exports = function(app) {
@@ -141,8 +140,6 @@ module.exports = function(app) {
 						krist.createName(desiredName, address.address).then(function(newName) {
 							res.send('Success');
 						});
-
-						webhooks.callNameWebhooks(desiredName, address.address);
 					});
 				}
 			});
@@ -326,8 +323,6 @@ module.exports = function(app) {
 							id: newName.id
 						});
 					});
-
-					webhooks.callNameWebhooks(desiredName, address.address);
 				});
 			}
 		});

@@ -1,7 +1,8 @@
-var utils   = require('./utils.js'),
-	config  = require('./../config.js'),
-	schemas = require('./schemas.js'),
-	fs      = require('fs');
+var utils       = require('./utils.js'),
+	config      = require('./../config.js'),
+	schemas     = require('./schemas.js'),
+	webhooks    = require('./../src/webhooks.js'),
+	fs          = require('fs');
 
 function Krist() {}
 
@@ -163,6 +164,8 @@ Krist.createTransaction = function(to, from, value, name) {
 		value: value,
 		name: name,
 		time: new Date()
+	}).then(function(transaction) {
+		webhooks.callTransactionWebhooks(transaction);
 	});
 };
 
@@ -173,6 +176,8 @@ Krist.createName = function(name, owner) {
 		registered: new Date(),
 		updated: new Date(),
 		unpaid: Krist.getNameCost()
+	}).then(function(name) {
+		webhooks.callNameWebhooks(name);
 	});
 };
 
@@ -211,16 +216,13 @@ Krist.submit = function(hash, address, nonce) {
 				}
 
 				kristAddress.increment({ balance: value, totalin: value }).then(function(addr) {
+					addr.balance += value; // sequelize is super stupid
+
 					resolve({work: newWork, address: addr});
 				});
 			});
 
-			schemas.transaction.create({
-				to: address,
-				from: null,
-				value: value,
-				time: time
-			});
+			Krist.createTransaction(address, null, value, null);
 
 			schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
 				names.forEach(function(name) {
