@@ -12,6 +12,21 @@ Krist.work = 18750; // work as of the writing of this line. this is used purely 
 Krist.init = function() {
 	console.log('[Krist]'.bold + ' Loading...');
 
+	var requiredConfigOptions = [
+		'wallet_version',
+		'name_cost',
+		'work_growthFactor',
+		'webhooks_maxPerHost'
+	];
+
+	requiredConfigOptions.forEach(function(option) {
+		if (!config[option]) {
+			console.error('[Config]'.red + ' Missing config option: ' + option);
+
+			process.exit(1);
+		}
+	});
+
 	// Check for and make the data dir
 	if (!fs.existsSync('data')) {
 		fs.mkdirSync('data', 775);
@@ -67,7 +82,7 @@ Krist.setWork = function(work) {
 };
 
 Krist.getWalletVersion = function() {
-	return typeof config.walletVersion === 'number' ? config.walletVersion : 13;
+	return typeof config.wallet_version === 'number' ? config.wallet_version : 13;
 };
 
 Krist.getBlock = function(id) {
@@ -159,7 +174,11 @@ Krist.getBlockValue = function() {
 };
 
 Krist.getNameCost = function() {
-	return config.nameCost;
+	return config.name_cost;
+};
+
+Krist.getWorkGrowthFactor = function() {
+	return config.work_growthFactor;
 };
 
 Krist.createTransaction = function(to, from, value, name) {
@@ -192,7 +211,7 @@ Krist.submit = function(hash, address, nonce) {
 			var time = new Date();
 
 			var oldWork = Krist.getWork();
-			var newWork = Math.round(Krist.getWork() * 0.9999);
+			var newWork = Math.round(Krist.getWork() * Krist.getWorkGrowthFactor());
 
 			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
 			console.log('        Current work: ' + newWork.toString().green);

@@ -24,7 +24,7 @@ Database.init = function() {
 			if (!config[option]) {
 				console.error('[Config]'.red + ' Missing config option: ' + option);
 
-				return null;
+				process.exit(1);
 			}
 		});
 

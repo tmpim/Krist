@@ -28,12 +28,15 @@ config.server_sock = '/var/krist/krist.sock';
  */
 
 // The latest version of kristwallet
-config.walletVersion = 13;
+config.wallet_version = 13;
 
 // The cost to buy a domain name
-config.nameCost = 500;
+config.name_cost = 500;
+
+// The growth factor for the work
+config.work_growthFactor = 0.9999;
 
 // The max amount of webhooks per domain name
-config.webhooks_maxPerHost = 5;
+config.webhooks_maxPerHost = 6;
 
 module.exports = config;
