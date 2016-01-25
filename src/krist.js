@@ -198,6 +198,8 @@ Krist.submit = function(hash, address, nonce) {
 				time: time,
 				difficulty: oldWork,
 				value: value
+			}).then(function(block) {
+				webhooks.callBlockWebhooks(block);
 			});
 
 			Krist.getAddress(address.toLowerCase()).then(function(kristAddress) {

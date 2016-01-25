@@ -112,6 +112,35 @@ WebHooks.callTransactionWebhooks = function(transaction) {
 	});
 };
 
+WebHooks.callBlockWebhooks = function(block) {
+	schemas.webhook.findAll({where: {event: 'block', value: {$or: [null, '', {$like: block.address}]}}}).then(function(webhooks) {
+		if (webhooks) {
+			var data = {
+				ok: true,
+				type: 'webhook',
+				event: 'block',
+				block: {
+					height: block.id,
+					address: block.address,
+					hash: block.hash,
+					short_hash: block.hash.substring(0, 12),
+					value: block.value,
+					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
+					time_unix: moment(block.time).unix()
+				}
+			};
+
+			webhooks.forEach(function(webhook) {
+				if (webhook.method.toLowerCase() === 'post') {
+					request.post(webhook.url, { form: data });
+				} else {
+					request.get(webhook.url, { qs: data });
+				}
+			});
+		}
+	});
+};
+
 WebHooks.getWebhookById = function(id) {
 	return schemas.webhook.findById(id);
 };
