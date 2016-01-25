@@ -5,7 +5,7 @@ var config		= require('./config.js'),
 
 	database	= require('./src/database.js');
 
-console.log('Starting ' + package.name.bold + ' ' + package.version.blue);
+console.log('Starting ' + package.name.bold + ' ' + package.version.blue + '...');
 
 database.init().then(function() {
 	require('./src/krist.js').init();

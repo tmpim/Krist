@@ -2,6 +2,7 @@ var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./../src/webhooks.js'),
+	moment      = require('moment'),
 	fs          = require('fs');
 
 function Krist() {}
@@ -9,6 +10,8 @@ function Krist() {}
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
 
 Krist.init = function() {
+	console.log('[Krist]'.bold + ' Loading...');
+
 	// Check for and make the data dir
 	if (!fs.existsSync('data')) {
 		fs.mkdirSync('data', 775);
@@ -35,6 +38,8 @@ Krist.init = function() {
 			}
 
 			Krist.work = parseInt(contents);
+
+			console.log('[Krist]'.bold + ' Current work: ' + Krist.work.toString().green);
 		});
 	} else {
 		fs.writeFile('data/work', Krist.work, function(err) {
@@ -188,6 +193,9 @@ Krist.submit = function(hash, address, nonce) {
 
 			var oldWork = Krist.getWork();
 			var newWork = Math.round(Krist.getWork() * 0.9999);
+
+			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
+			console.log('        Current work: ' + newWork.toString().green);
 
 			Krist.setWork(newWork);
 
