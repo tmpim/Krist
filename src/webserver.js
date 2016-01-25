@@ -59,6 +59,7 @@ Webserver.init = function() {
 	Webserver.express.disable('x-powered-by');
 	Webserver.express.disable('etag');
 	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
+	Webserver.express.use(bodyParser.json());
 	Webserver.express.use(express.static('static'));
 
 	Webserver.express.all('*', function(req, res, next) {
