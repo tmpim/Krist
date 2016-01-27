@@ -136,7 +136,7 @@ module.exports = function(app) {
 						address.decrement({ balance: krist.getNameCost() });
 						address.increment({ totalout: krist.getNameCost() });
 
-						krist.createTransaction('name', address.address, krist.getNameCost(), desiredName);
+						krist.createTransaction('name', address.address, krist.getNameCost(), desiredName, null);
 						krist.createName(desiredName, address.address).then(function(newName) {
 							res.send('Success');
 						});
@@ -316,7 +316,7 @@ module.exports = function(app) {
 					address.decrement({ balance: krist.getNameCost() });
 					address.increment({ totalout: krist.getNameCost() });
 
-					krist.createTransaction('name', address.address, krist.getNameCost(), desiredName);
+					krist.createTransaction('name', address.address, krist.getNameCost(), desiredName, null);
 					krist.createName(desiredName, address.address).then(function(newName) {
 						res.json({
 							ok: true,

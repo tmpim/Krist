@@ -185,13 +185,14 @@ Krist.getWorkGrowthFactor = function() {
 	return config.work_growthFactor;
 };
 
-Krist.createTransaction = function(to, from, value, name) {
+Krist.createTransaction = function (to, from, value, name, op) {
 	return schemas.transaction.create({
 		to: to,
 		from: from,
 		value: value,
 		name: name,
-		time: new Date()
+		time: new Date(),
+		op: op
 	}).then(function(transaction) {
 		webhooks.callTransactionWebhooks(transaction);
 	});
@@ -255,13 +256,40 @@ Krist.submit = function(hash, address, nonce) {
 				});
 			});
 
-			Krist.createTransaction(address, null, value, null);
+			Krist.createTransaction(address, null, value, null, null);
 
 			schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
 				names.forEach(function(name) {
 					name.decrement({ unpaid: 1 });
 				});
 			});
+		});
+	});
+};
+
+Krist.pushTransaction = function(sender, recipientAddr, amount, metadata) {
+	return new Promise(function(resolve, reject) {
+		Krist.getAddress(recipientAddr).then(function(recipient) {
+			var promises = [];
+
+			promises.push(sender.decrement({ balance: amount }));
+			promises.push(sender.increment({ totalout: amount }));
+
+			promises.push(Krist.createTransaction(recipient.address, sender.address, amount, null, metadata));
+
+			if (!recipient) {
+				promises.push(schemas.address.create({
+					address: recipient.toLowerCase(),
+					firstseen: new Date(),
+					balance: amount,
+					totalin: amount,
+					totalout: 0
+				}));
+			} else {
+				promises.push(recipient.increment({ balance: amount, totalout: amount }));
+			}
+
+			Promise.all(promises).then(resolve).catch(reject);
 		});
 	});
 };
