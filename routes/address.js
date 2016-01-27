@@ -23,7 +23,7 @@ module.exports = function(app) {
 						var out = '';
 
 						transactions.forEach(function (transaction) {
-							out += moment(transaction.time).format('mmm dd HH:MM');
+							out += moment(transaction.time).format('MMM DD HH:mm');
 
 							var peer = '';
 							var sign = '';

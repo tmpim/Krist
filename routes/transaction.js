@@ -1,7 +1,34 @@
 var krist   = require('./../src/krist.js'),
+	utils   = require('./../src/utils.js'),
 	moment  = require('moment');
 
 module.exports = function(app) {
+	app.get('/', function(req, res, next) {
+		if (req.query.recenttx !== 'undefined') {
+			krist.getAddress(req.query.listtx).then(function() {
+				krist.getRecentTransactions().then(function(transactions) {
+					var out = '';
+
+					transactions.forEach(function (transaction) {
+						out += moment(transaction.time).format('MMM DD HH:mm');
+
+						out += transaction.from;
+						out += transaction.to;
+
+						out += utils.padDigits(Math.abs(transaction.value), 8);
+					});
+
+					res.send(out);
+				});
+			});
+
+			return;
+		}
+
+
+		next();
+	});
+
 	app.get('/transactions', function(req, res) {
 		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
 			res.status(400).json({
