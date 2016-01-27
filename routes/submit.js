@@ -95,7 +95,8 @@ module.exports = function(app) {
 					address: req.body.address.toLowerCase(),
 					nonce: req.query.nonce,
 					last_hash: last,
-					psa: "child abuse is bad!!"
+					psa: "child abuse is bad!!",
+					schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead"
 				});
 			}
 		});
