@@ -8,7 +8,9 @@ module.exports = function(app) {
 			if (err) {
 				res.json({
 					ok: true,
-					motd: 'Welcome to Krist!'
+					motd: 'Welcome to Krist!',
+					psa: "child abuse is bad!!",
+					schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead"
 				});
 
 				return;
@@ -28,7 +30,9 @@ module.exports = function(app) {
 					ok: true,
 					motd: data.toString(),
 					set: moment(stats.mtime).format('YYYY-MM-DD HH:mm:ss').toString(),
-					set_unix: moment(stats.mtime).unix()
+					set_unix: moment(stats.mtime).unix(),
+					psa: "child abuse is bad!!",
+					schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead"
 				});
 			});
 		});
