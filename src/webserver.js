@@ -63,6 +63,7 @@ Webserver.init = function() {
 	Webserver.express.use(express.static('static'));
 
 	Webserver.express.all('*', function(req, res, next) {
+		console.log(req.query);
 		res.header('X-Robots-Tag', 'none');
 		res.header('Content-Type', 'application/json');
 		next();

@@ -9,8 +9,24 @@ module.exports = function(app) {
 				if (address) {
 					res.send(address.balance.toString());
 				} else {
-					res.send('Error4');
+					res.send('0');
 				}
+			});
+
+			return;
+		}
+
+		if (typeof req.query.richapi !== 'undefined') {
+			krist.getRich().then(function(addresses) {
+				var out = "";
+
+				addresses.forEach(function(address) {
+					out += address.address.substr(0, 10);
+					out += utils.padDigits(address.balance, 8);
+					out += moment(address.firstseen).format('DD MMM YYYY');
+				});
+
+				res.send(out);
 			});
 
 			return;
@@ -19,7 +35,8 @@ module.exports = function(app) {
 		if (req.query.listtx) {
 			krist.getAddress(req.query.listtx).then(function(address) {
 				if (address) {
-					krist.getTransactionsByAddress(address.address, 100).then(function(transactions) {
+					console.log(req.query);
+					krist.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 100).then(function(transactions) {
 						var out = '';
 
 						transactions.forEach(function (transaction) {
@@ -28,18 +45,20 @@ module.exports = function(app) {
 							var peer = '';
 							var sign = '';
 
-							if (transaction.from.length < 10) {
+							if (transaction.to === address.address) {
+								peer = transaction.from;
+								sign = '+';
+							} else if (transaction.from === address.address) {
+								peer = transaction.to;
+								sign = '-';
+							}
+
+							if (!transaction.from || transaction.from.length < 10) {
 								peer = 'N/A(Mined)';
 							}
 
-							if (transaction.to.length < 10) {
+							if (!transaction.to || transaction.to.length < 10) {
 								peer = 'N/A(Names)';
-							}
-
-							if (transaction.to === address.address) {
-								sign = '+';
-							} else if (transaction.from === address.address) {
-								sign = '-';
 							}
 
 							out += peer;
@@ -52,6 +71,8 @@ module.exports = function(app) {
 						});
 
 						out += 'end';
+
+						console.log(out);
 
 						res.send(out);
 					});
