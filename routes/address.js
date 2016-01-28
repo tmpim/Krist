@@ -35,7 +35,6 @@ module.exports = function(app) {
 		if (req.query.listtx) {
 			krist.getAddress(req.query.listtx).then(function(address) {
 				if (address) {
-					console.log(req.query);
 					krist.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 100).then(function(transactions) {
 						var out = '';
 
@@ -71,8 +70,6 @@ module.exports = function(app) {
 						});
 
 						out += 'end';
-
-						console.log(out);
 
 						res.send(out);
 					});
