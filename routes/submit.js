@@ -1,4 +1,5 @@
 var krist   = require('./../src/krist.js'),
+	blocks  = require('./../src/blocks.js'),
 	utils   = require('./../src/utils.js');
 
 module.exports = function(app) {
@@ -73,13 +74,13 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getLastBlock().then(function(lastBlock) {
+		blocks.getLastBlock().then(function(lastBlock) {
 			var last = lastBlock.hash.substr(0, 12);
 			var difficulty = krist.getWork();
 			var hash = utils.sha256(req.body.address + last + req.body.nonce);
 
 			if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-				krist.submit(hash, req.body.address, req.body.nonce).then(function(result) {
+				blocks.submit(hash, req.body.address, req.body.nonce).then(function(result) {
 					res.json({
 						ok: true,
 						success: true,
