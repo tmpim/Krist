@@ -12,7 +12,7 @@ This is the official new Krist node. It is written in Node.js.
     "request": "^2.67.0",
     "sequelize": "^3.17.1"
 
-## Dev Dependencies
+### Dev Dependencies
 
 The following packages are also required for converting the database:
 
@@ -25,6 +25,70 @@ _Note:_ The `mysql` package is required if you use `mysql` or `mariadb` as a Seq
 ## Installation
 
 Installation is fairly straight-forward. Simply clone the project and run `node main`.
+
+### Webserver Configuration
+
+This Krist node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
+configuration for how to set up the proxy in nginx. The node webserver is not designed to and should not be exposed to
+anything at all, and should additionally bind to a socket file.
+
+You will need to create a socket file first. It is recommended to create a folder as the user you run your server as
+where sockets can be privately written to. Set the sticky bit, and give the owner and group rwx perms. Do not give
+world permissions.
+
+Next, point your webserver to pass the requests at port 80 and 443 to this socket file. In nginx, this is as
+straightforward as:
+
+```
+server {
+    listen 80;
+    listen 443 ssl;
+
+    # Necessary SSL config
+
+    server_name krist.example.com;
+
+    location / {
+        proxy_pass http://unix://var/sockets/krist.sock;
+    }
+}
+```
+
+You can also use an upstream to keepalive connections, like so:
+
+
+```
+upstream krist {
+	server unix:/var/sockets/krist.sock;
+	keepalive 8;
+}
+
+server {
+    listen 80;
+    listen 443 ssl;
+
+    # Necessary SSL config
+
+    server_name krist.example.com;
+
+    location / {
+        proxy_pass http://krist;
+    }
+}
+```
+
+The upstream method is also recommended for optimal performance.
+
+Finally, make any additional changes, such as any proxy settings, upstream settings and your SSL configuration. You may
+also point your 502 and 503 pages to static/down.html. This is done in nginx like thus:
+
+```
+error_page 502 503 /down.html;
+root /var/www-kristnode/static;
+
+location /down.html {
+}
+```
 
 ## Configuration
 
