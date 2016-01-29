@@ -17,13 +17,13 @@ module.exports = function(app) {
 				return;
 			}
 
-			krist.getLastBlock().then(function(lastBlock) {
+			blocks.getLastBlock().then(function(lastBlock) {
 				var last = lastBlock.hash.substr(0, 12);
 				var difficulty = krist.getWork();
 				var hash = utils.sha256(req.query.address + last + req.query.nonce);
 
 				if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-					krist.submit(hash, req.query.address, req.query.nonce).then(function() {
+					blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
 						res.send('Block solved');
 					});
 				} else {
