@@ -1,11 +1,12 @@
 var krist   = require('./../src/krist.js'),
+	blocks  = require('./../src/blocks.js'),
 	utils   = require('./../src/utils.js'),
 	moment  = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.lastblock !== 'undefined') {
-			krist.getLastBlock().then(function(block) {
+			blocks.getLastBlock().then(function(block) {
 				res.send(block.hash.substring(0, 12));
 			});
 
@@ -13,15 +14,15 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.getbaseblockvalue !== 'undefined') {
-			krist.getLastBlock().then(function(block) {
-				res.send(krist.getBaseBlockValue(block.id).toString());
+			blocks.getLastBlock().then(function(block) {
+				res.send(blocks.getBaseBlockValue(block.id).toString());
 			});
 
 			return;
 		}
 
 		if (req.query.getblockvalue) {
-			krist.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
+			blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
 				if (!block) {
 					res.send('50');
 
@@ -36,10 +37,10 @@ module.exports = function(app) {
 
 		if (typeof req.query.blocks !== 'undefined') {
 			if (typeof req.query.low !== 'undefined') {
-				krist.getBlocksByOrder('hash ASC', 18).then(function(blocks) {
+				blocks.getBlocksByOrder('hash ASC', 18).then(function(results) {
 					var out = "";
 
-					blocks.forEach(function (block) {
+					results.forEach(function (block) {
 						if (block.hash === null) return;
 						if (block.id === 1) return;
 
@@ -51,18 +52,18 @@ module.exports = function(app) {
 					res.send(out);
 				});
 			} else {
-				krist.getBlocks(18).then(function(blocks) {
+				blocks.getBlocks(18).then(function(results) {
 					var out = "";
 
 					var k = false;
 
-					blocks.forEach(function (block) {
+					results.forEach(function (block) {
 						if (block.hash === null) return;
 						if (block.id === 1) return;
 
 						if (!k) {
-							out += utils.padDigits(blocks[0].id, 8);
-							out += moment(blocks[0].time).format('YYYY-MM-DD').toString();
+							out += utils.padDigits(results[0].id, 8);
+							out += moment(results[0].time).format('YYYY-MM-DD').toString();
 
 							k  = true;
 						}
@@ -101,10 +102,10 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getBlocks(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(blocks) {
+		blocks.getBlocks(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(results) {
 			var out = [];
 
-			blocks.forEach(function (block) {
+			results.forEach(function (block) {
 				out.push({
 					height: block.id,
 					address: block.address,
@@ -134,10 +135,10 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getBlocksByOrder('hash ASC', req.query.limit).then(function(blocks) {
+		blocks.getBlocksByOrder('hash ASC', req.query.limit).then(function(results) {
 			var out = [];
 
-			blocks.forEach(function (block) {
+			results.forEach(function (block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -161,7 +162,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/block/last', function(req, res) {
-		krist.getLastBlock().then(function(block) {
+		blocks.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
 				height: block.id,
@@ -176,16 +177,16 @@ module.exports = function(app) {
 	});
 
 	app.get('/block/basevalue', function(req, res) {
-		krist.getLastBlock().then(function(block) {
+		blocks.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
-				base_value: krist.getBaseBlockValue(block.id)
+				base_value: blocks.getBaseBlockValue(block.id)
 			})
 		});
 	});
 
 	app.get('/block/value', function(req, res) {
-		krist.getBlockValue().then(function(value) {
+		blocks.getBlockValue().then(function(value) {
 			res.json({
 				ok: true,
 				value: value
@@ -194,7 +195,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/block/:block', function(req, res) {
-		krist.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
+		blocks.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
 			if (!block) {
 				res.status(404).json({
 					ok: false,

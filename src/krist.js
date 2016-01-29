@@ -1,7 +1,7 @@
 var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
 	schemas     = require('./schemas.js'),
-	webhooks    = require('./../src/webhooks.js'),
+	webhooks    = require('./webhooks.js'),
 	moment      = require('moment'),
 	fs          = require('fs');
 
@@ -85,22 +85,6 @@ Krist.getWalletVersion = function() {
 	return typeof config.wallet_version === 'number' ? config.wallet_version : 13;
 };
 
-Krist.getBlock = function(id) {
-	return schemas.block.findById(id);
-};
-
-Krist.getBlocks = function(limit, offset, asc) {
-	return schemas.block.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
-};
-
-Krist.getBlocksByOrder = function(order, limit) {
-	return schemas.block.findAll({order: order, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50});
-};
-
-Krist.getLastBlock = function() {
-	return schemas.block.findOne({order: 'id DESC'});
-};
-
 Krist.getMoneySupply = function() {
 	return schemas.address.sum('balance');
 };
@@ -157,26 +141,6 @@ Krist.getTransactionsByAddress = function(address, limit, offset) {
 	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
 };
 
-Krist.getBaseBlockValue = function(blockid) {
-	var subsidy = 25;
-
-	if (blockid >= 100000) {
-		subsidy = 12;
-	}
-
-	return subsidy;
-};
-
-Krist.getBlockValue = function() {
-	return new Promise(function(resolve, reject) {
-		Krist.getLastBlock().then(function(lastBlock) {
-			Krist.getUnpaidNameCount().then(function(count) {
-				resolve(Krist.getBaseBlockValue(lastBlock.id) + count);
-			}).catch(reject);
-		}).catch(reject);
-	});
-};
-
 Krist.getNameCost = function() {
 	return config.name_cost;
 };
@@ -207,63 +171,6 @@ Krist.createName = function(name, owner) {
 		unpaid: Krist.getNameCost()
 	}).then(function(name) {
 		webhooks.callNameWebhooks(name);
-	});
-};
-
-Krist.submit = function(hash, address, nonce) {
-	return new Promise(function(resolve, reject) {
-		Krist.getBlockValue().then(function(value) {
-			var time = new Date();
-
-			var oldWork = Krist.getWork();
-			var newWork = Math.round(Krist.getWork() * Krist.getWorkGrowthFactor());
-
-			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
-			console.log('        Current work: ' + newWork.toString().green);
-
-			Krist.setWork(newWork);
-
-			schemas.block.create({
-				hash: hash,
-				address: address,
-				nonce: nonce,
-				time: time,
-				difficulty: oldWork,
-				value: value
-			}).then(function(block) {
-				webhooks.callBlockWebhooks(block);
-			});
-
-			Krist.getAddress(address.toLowerCase()).then(function(kristAddress) {
-				if (!kristAddress) {
-					schemas.address.create({
-						address: address.toLowerCase(),
-						firstseen: time,
-						balance: value,
-						totalin: value,
-						totalout: 0
-					}).then(function(addr) {
-						resolve(newWork, addr);
-					});
-
-					return;
-				}
-
-				kristAddress.increment({ balance: value, totalin: value }).then(function(addr) {
-					addr.balance += value; // sequelize is super stupid
-
-					resolve({work: newWork, address: addr});
-				});
-			});
-
-			Krist.createTransaction(address, null, value, null, null);
-
-			schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
-				names.forEach(function(name) {
-					name.decrement({ unpaid: 1 });
-				});
-			});
-		});
 	});
 };
 
