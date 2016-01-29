@@ -1,6 +1,6 @@
 # Krist
 
-This is the official new Krist node. It is written in Node.js.
+This is the new official Krist node. It is written in Node.js.
 
 ## Dependencies
 
@@ -56,7 +56,6 @@ server {
 
 You can also use an upstream to keepalive connections, like so:
 
-
 ```
 upstream krist {
 	server unix:/var/sockets/krist.sock;
@@ -80,7 +79,7 @@ server {
 The upstream method is also recommended for optimal performance.
 
 Finally, make any additional changes, such as any proxy settings, upstream settings and your SSL configuration. You may
-also point your 502 and 503 pages to static/down.html. This is done in nginx like thus:
+also point your 502 and 503 pages to static/down.html. This is done in nginx like this:
 
 ```
 error_page 502 503 /down.html;
