@@ -22,15 +22,15 @@
     "colors": "^1.1.2",
     "express": "^4.13.3",
     "moment": "^2.11.1",
-    "progress": "^1.1.8",
     "request": "^2.67.0",
-    "sequelize": "^3.17.1",
-    "yesno": "0.0.1"
+    "sequelize": "^3.17.1"
   },
   "optionalDependencies": {
     "mysql": "^2.10.0"
   },
   "devDependencies": {
-    "sqlite3": "^3.1.1"
+    "progress": "^1.1.8",
+    "sqlite3": "^3.1.1",
+    "yesno": "0.0.1"
   }
 }
