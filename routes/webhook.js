@@ -63,7 +63,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/^(transaction|block|name)/gi.exec(req.body.event))) {
+		if (!(/^(transaction|block|name)$/gi.exec(req.body.event))) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_event'
@@ -75,7 +75,7 @@ module.exports = function(app) {
 		var method = 'get';
 
 		if (req.body.method) {
-			if (!(/^(get|post)/gi.exec(req.body.method))) {
+			if (!(/^(get|post)$/gi.exec(req.body.method))) {
 				res.status(400).json({
 					ok: false,
 					error: 'invalid_method'
