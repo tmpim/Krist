@@ -29,8 +29,8 @@ Installation is fairly straight-forward. Simply clone the project and run `node 
 ### Webserver Configuration
 
 This Krist node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
-configuration for how to set up the proxy in nginx. The node webserver is not designed to and should not be exposed to
-the public web, and should bind to a socket file.
+configuration for how to set up the proxy in nginx. The Node.js webserver is not designed to and should not be exposed
+to the public web, and should bind to a socket file.
 
 You will need to create a socket file first. It is recommended to create a folder as the user you run your server as
 where sockets can be privately written to. Set the sticky bit, and give the owner and group rwx perms. Do not give
