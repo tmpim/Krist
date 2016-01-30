@@ -4,6 +4,7 @@ var utils       = require('./utils.js'),
 	webhooks    = require('./webhooks.js'),
 	krist       = require('./krist.js'),
 	addresses   = require('./addresses.js'),
+	names       = require('./names.js'),
 	tx          = require('./transactions.js'),
 	moment      = require('moment');
 
@@ -38,7 +39,7 @@ Blocks.getBaseBlockValue = function(blockID) {
 Blocks.getBlockValue = function() {
 	return new Promise(function(resolve, reject) {
 		Blocks.getLastBlock().then(function(lastBlock) {
-			Blocks.getUnpaidNameCount().then(function(count) {
+			names.getUnpaidNameCount().then(function(count) {
 				resolve(Blocks.getBaseBlockValue(lastBlock.id) + count);
 			}).catch(reject);
 		}).catch(reject);
