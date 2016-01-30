@@ -83,7 +83,7 @@ module.exports = function(app) {
 		}
 
 		if (req.query.name_check) {
-			if (/[^a-zA-Z0-9]/.test(req.query.name_check)) {
+			if (!/^[a-zA-Z0-9]+$/.test(req.query.name_check)) {
 				res.send("0");
 
 				return;
@@ -111,7 +111,7 @@ module.exports = function(app) {
 				res.status(400).send('Error6');
 			}
 
-			if (/[^a-zA-Z0-9]/.test(req.query.name)) {
+			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
 				res.status(400).send('Error6');
 
 				return;
@@ -154,7 +154,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/name/check/:name', function(req, res) {
-		if (/[^a-zA-Z0-9]/.test(req.params.name)) {
+		if (!/^[a-zA-Z0-9]+$/.test(req.params.name)) {
 			res.json({
 				ok: false,
 				error: 'name_not_alphanumeric'
@@ -270,7 +270,7 @@ module.exports = function(app) {
 	});
 
 	app.post('/name/:name', function(req, res) {
-		if (/[^a-zA-Z0-9]/.test(req.params.name)) {
+		if (!/^[a-zA-Z0-9]+$/.test(req.params.name)) {
 			res.status(400).json({
 				ok: false,
 				error: 'name_not_alphanumeric'
