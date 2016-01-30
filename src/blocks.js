@@ -4,6 +4,7 @@ var utils       = require('./utils.js'),
 	webhooks    = require('./webhooks.js'),
 	krist       = require('./krist.js'),
 	addresses   = require('./addresses.js'),
+	tx          = require('./transactions.js'),
 	moment      = require('moment');
 
 function Blocks() {}
@@ -90,7 +91,7 @@ Blocks.submit = function(hash, address, nonce) {
 				});
 			});
 
-			krist.createTransaction(address, null, value, null, null);
+			tx.createTransaction(address, null, value, null, null);
 
 			schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
 				names.forEach(function(name) {

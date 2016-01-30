@@ -1,5 +1,6 @@
 var krist       = require('./../src/krist.js'),
 	addresses   = require('./../src/addresses.js'),
+	tx          = require('./../src/transactions.js'),
 	utils       = require('./../src/utils.js'),
 	schemas     = require('./../src/schemas.js'),
 	moment      = require('moment');
@@ -7,7 +8,7 @@ var krist       = require('./../src/krist.js'),
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.recenttx !== 'undefined') {
-			krist.getRecentTransactions().then(function(transactions) {
+			tx.getRecentTransactions().then(function(transactions) {
 				var out = '';
 
 				transactions.forEach(function (transaction) {
@@ -78,7 +79,7 @@ module.exports = function(app) {
 					return;
 				}
 
-				krist.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+				tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
 					res.send('Success');
 				});
 			});
@@ -139,7 +140,7 @@ module.exports = function(app) {
 					return;
 				}
 
-				krist.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+				tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
 					res.send('Success');
 				});
 			});
@@ -169,7 +170,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getTransactions(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(transactions) {
+		tx.getTransactions(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(transactions) {
 			var out = [];
 
 			transactions.forEach(function (transaction) {
@@ -194,7 +195,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/transaction/:transaction', function(req, res) {
-		krist.getTransaction(Math.max(parseInt(req.params.transaction), 0)).then(function(transaction) {
+		tx.getTransaction(Math.max(parseInt(req.params.transaction), 0)).then(function(transaction) {
 			if (transaction) {
 				res.json({
 					ok: true,

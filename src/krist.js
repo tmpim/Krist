@@ -90,64 +90,8 @@ Krist.getMoneySupply = function() {
 	return schemas.address.sum('balance');
 };
 
-Krist.getTransaction = function(id) {
-	return schemas.transaction.findById(id);
-};
-
-Krist.getTransactions = function(limit, offset, asc) {
-	return schemas.transaction.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
-};
-
-Krist.getRecentTransactions = function() {
-	return schemas.transaction.findAll({order: 'id DESC', limit: 100, where: {from: {$not: ''}}});
-};
-
-Krist.getTransactionsByAddress = function(address, limit, offset) {
-	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
-};
-
 Krist.getWorkGrowthFactor = function() {
 	return config.work_growthFactor;
-};
-
-Krist.createTransaction = function (to, from, value, name, op) {
-	return schemas.transaction.create({
-		to: to,
-		from: from,
-		value: value,
-		name: name,
-		time: new Date(),
-		op: op
-	}).then(function(transaction) {
-		webhooks.callTransactionWebhooks(transaction);
-	});
-};
-
-Krist.pushTransaction = function(sender, recipientAddr, amount, metadata) {
-	return new Promise(function(resolve, reject) {
-		addresses.getAddress(recipientAddr).then(function(recipient) {
-			var promises = [];
-
-			promises.push(sender.decrement({ balance: amount }));
-			promises.push(sender.increment({ totalout: amount }));
-
-			promises.push(Krist.createTransaction(recipient.address, sender.address, amount, null, metadata));
-
-			if (!recipient) {
-				promises.push(schemas.address.create({
-					address: recipient.toLowerCase(),
-					firstseen: new Date(),
-					balance: amount,
-					totalin: amount,
-					totalout: 0
-				}));
-			} else {
-				promises.push(recipient.increment({ balance: amount, totalout: amount }));
-			}
-
-			Promise.all(promises).then(resolve).catch(reject);
-		});
-	});
 };
 
 Krist.makeV2Address = function(key) {

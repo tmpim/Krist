@@ -1,6 +1,7 @@
 var krist       = require('./../src/krist.js'),
 	addresses   = require('./../src/addresses.js'),
 	names       = require('./../src/names.js'),
+	tx          = require('./../src/transactions.js'),
 	utils       = require('./../src/utils.js'),
 	moment      = require('moment');
 
@@ -37,7 +38,7 @@ module.exports = function(app) {
 		if (req.query.listtx) {
 			addresses.getAddress(req.query.listtx).then(function(address) {
 				if (address) {
-					krist.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500).then(function(results) {
+					tx.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500).then(function(results) {
 						var out = '';
 
 						results.forEach(function (transaction) {
@@ -226,7 +227,7 @@ module.exports = function(app) {
 
 		addresses.getAddress(req.params.address).then(function(address) {
 			if (address) {
-				krist.getTransactionsByAddress(address.address, req.query.limit, req.query.offset).then(function(transactions) {
+				tx.getTransactionsByAddress(address.address, req.query.limit, req.query.offset).then(function(transactions) {
 					var out = [];
 
 					transactions.forEach(function (transaction) {

@@ -1,5 +1,6 @@
 var krist       = require('./../src/krist.js'),
 	addresses   = require('./../src/addresses.js'),
+	tx          = require('./../src/transactions.js'),
 	names       = require('./../src/names.js'),
 	moment      = require('moment');
 
@@ -138,7 +139,7 @@ module.exports = function(app) {
 						address.decrement({ balance: names.getNameCost() });
 						address.increment({ totalout: names.getNameCost() });
 
-						krist.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
+						tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
 						names.createName(desiredName, address.address).then(function(newName) {
 							res.send('Success');
 						});
@@ -318,7 +319,7 @@ module.exports = function(app) {
 					address.decrement({ balance: names.getNameCost() });
 					address.increment({ totalout: names.getNameCost() });
 
-					krist.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
+					tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
 					names.createName(desiredName, address.address).then(function(newName) {
 						res.json({
 							ok: true,
