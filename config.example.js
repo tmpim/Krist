@@ -39,4 +39,18 @@ config.work_growthFactor = 0.9999;
 // The max amount of webhooks per domain name
 config.webhooks_maxPerHost = 6;
 
+// Lefthand label for badges
+config.badge_labelLeft = 'krist';
+
+// Righthand label for badges
+config.badge_labelRight = 'verified';
+
+// Colour used as badge
+config.badge_colour = 'green';
+
+// A list of verified servers for /badge
+config.badge_verifiedServers = [
+	'example'
+];
+
 module.exports = config;

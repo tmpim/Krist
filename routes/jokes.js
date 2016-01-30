@@ -21,4 +21,6 @@ module.exports = function(app) {
 			"</body>" +
 			"</html>");
 	});
+
+	return app;
 }

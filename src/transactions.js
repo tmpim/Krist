@@ -44,11 +44,11 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 			promises.push(sender.decrement({ balance: amount }));
 			promises.push(sender.increment({ totalout: amount }));
 
-			promises.push(Transactions.createTransaction(recipient.address, sender.address, amount, null, metadata));
+			promises.push(Transactions.createTransaction(recipientAddress, sender.address, amount, null, metadata));
 
 			if (!recipient) {
 				promises.push(schemas.address.create({
-					address: recipient.toLowerCase(),
+					address: recipientAddress.toLowerCase(),
 					firstseen: new Date(),
 					balance: amount,
 					totalin: amount,

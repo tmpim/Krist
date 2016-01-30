@@ -24,7 +24,8 @@ _Note:_ The `mysql` package is required if you use `mysql` or `mariadb` as a Seq
 
 ## Installation
 
-Installation is fairly straight-forward. Simply clone the project and run `node main`.
+Installation is fairly straight-forward. Simply clone the project, run `npm install` to install the required
+dependencies and then run `node main`.
 
 ### Webserver Configuration
 
