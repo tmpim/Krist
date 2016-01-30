@@ -1,11 +1,13 @@
-var krist  = require('./../src/krist.js'),
-	utils  = require('./../src/utils.js'),
-	moment = require('moment');
+var krist       = require('./../src/krist.js'),
+	addresses   = require('./../src/addresses.js'),
+	names       = require('./../src/names.js'),
+	utils       = require('./../src/utils.js'),
+	moment      = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (req.query.getbalance) {
-			krist.getAddress(req.query.getbalance).then(function(address) {
+			addresses.getAddress(req.query.getbalance).then(function(address) {
 				if (address) {
 					res.send(address.balance.toString());
 				} else {
@@ -17,10 +19,10 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.richapi !== 'undefined') {
-			krist.getRich().then(function(addresses) {
+			addresses.getRich().then(function(results) {
 				var out = "";
 
-				addresses.forEach(function(address) {
+				results.forEach(function(address) {
 					out += address.address.substr(0, 10);
 					out += utils.padDigits(address.balance, 8);
 					out += moment(address.firstseen).format('DD MMM YYYY');
@@ -33,12 +35,12 @@ module.exports = function(app) {
 		}
 
 		if (req.query.listtx) {
-			krist.getAddress(req.query.listtx).then(function(address) {
+			addresses.getAddress(req.query.listtx).then(function(address) {
 				if (address) {
-					krist.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500).then(function(transactions) {
+					krist.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500).then(function(results) {
 						var out = '';
 
-						transactions.forEach(function (transaction) {
+						results.forEach(function (transaction) {
 							out += moment(transaction.time).format('MMM DD HH:mm');
 
 							var peer = '';
@@ -104,10 +106,10 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getAddresses(req.query.limit, req.query.offset).then(function(addresses) {
+		addresses.getAddresses(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
-			addresses.forEach(function(address) {
+			results.forEach(function(address) {
 				out.push({
 					address: address.address,
 					balance: address.balance,
@@ -127,10 +129,10 @@ module.exports = function(app) {
 	});
 
 	app.get('/addresses/rich', function(req, res) {
-		krist.getRich().then(function(addresses) {
+		addresses.getRich().then(function(results) {
 			var out = [];
 
-			addresses.forEach(function(address) {
+			results.forEach(function(address) {
 				out.push({
 					address: address.address,
 					balance: address.balance,
@@ -150,7 +152,7 @@ module.exports = function(app) {
 	});
 
 	app.get('/address/:address', function(req, res) {
-		krist.getAddress(req.params.address).then(function(address) {
+		addresses.getAddress(req.params.address).then(function(address) {
 			if (address) {
 				res.json({
 					ok: true,
@@ -171,12 +173,12 @@ module.exports = function(app) {
 	});
 
 	app.get('/address/:address/names', function(req, res) {
-		krist.getAddress(req.params.address).then(function(address) {
+		addresses.getAddress(req.params.address).then(function(address) {
 			if (address) {
-				krist.getNamesByOwner(address.address).then(function(names) {
+				names.getNamesByOwner(address.address).then(function(results) {
 					var out = [];
 
-					names.forEach(function (name) {
+					results.forEach(function (name) {
 						out.push({
 							name: name.name,
 							owner: name.owner,
@@ -222,7 +224,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getAddress(req.params.address).then(function(address) {
+		addresses.getAddress(req.params.address).then(function(address) {
 			if (address) {
 				krist.getTransactionsByAddress(address.address, req.query.limit, req.query.offset).then(function(transactions) {
 					var out = [];

@@ -1,7 +1,8 @@
-var krist   = require('./../src/krist.js'),
-	utils   = require('./../src/utils.js'),
-	schemas = require('./../src/schemas.js'),
-	moment  = require('moment');
+var krist       = require('./../src/krist.js'),
+	addresses   = require('./../src/addresses.js'),
+	utils       = require('./../src/utils.js'),
+	schemas     = require('./../src/schemas.js'),
+	moment      = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -70,7 +71,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			krist.getAddress(from).then(function(sender) {
+			addresses.getAddress(from).then(function(sender) {
 				if (!sender || sender.balance < amt) {
 					res.status(403).send("Error1");
 
@@ -131,7 +132,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			krist.getAddress(from).then(function(sender) {
+			addresses.getAddress(from).then(function(sender) {
 				if (!sender || sender.balance < amt) {
 					res.status(403).send("Error1");
 

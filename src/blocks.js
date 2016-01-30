@@ -3,6 +3,7 @@ var utils       = require('./utils.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
 	krist       = require('./krist.js'),
+	addresses   = require('./addresses.js'),
 	moment      = require('moment');
 
 function Blocks() {}
@@ -67,7 +68,7 @@ Blocks.submit = function(hash, address, nonce) {
 				webhooks.callBlockWebhooks(block);
 			});
 
-			krist.getAddress(address.toLowerCase()).then(function(kristAddress) {
+			addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
 				if (!kristAddress) {
 					schemas.address.create({
 						address: address.toLowerCase(),

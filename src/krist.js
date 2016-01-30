@@ -2,6 +2,7 @@ var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
+	addresses   = require('./addresses.js'),
 	moment      = require('moment'),
 	fs          = require('fs');
 
@@ -89,42 +90,6 @@ Krist.getMoneySupply = function() {
 	return schemas.address.sum('balance');
 };
 
-Krist.getAddress = function(address) {
-	return schemas.address.findOne({where: {address: address}});
-};
-
-Krist.getAddresses = function(limit, offset) {
-	return schemas.address.findAll({limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
-};
-
-Krist.getRich = function() {
-	return schemas.address.findAll({limit: 50, order: 'balance DESC'});
-};
-
-Krist.getNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
-};
-
-Krist.getNamesByOwner = function(owner) {
-	return schemas.name.findAll({order: 'name', where: {owner: owner}});
-};
-
-Krist.getNameCountByOwner = function(owner) {
-	return schemas.name.count({where: {owner: owner}});
-};
-
-Krist.getNameByName = function(name) {
-	return schemas.name.findOne({where: {name: name}});
-};
-
-Krist.getUnpaidNames = function() {
-	return schemas.name.findAll({order: 'id DESC', where: {unpaid: {$gt: 0}}});
-};
-
-Krist.getUnpaidNameCount = function() {
-	return schemas.name.count({where: {unpaid: {$gt: 0}}});
-};
-
 Krist.getTransaction = function(id) {
 	return schemas.transaction.findById(id);
 };
@@ -139,10 +104,6 @@ Krist.getRecentTransactions = function() {
 
 Krist.getTransactionsByAddress = function(address, limit, offset) {
 	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
-};
-
-Krist.getNameCost = function() {
-	return config.name_cost;
 };
 
 Krist.getWorkGrowthFactor = function() {
@@ -162,21 +123,9 @@ Krist.createTransaction = function (to, from, value, name, op) {
 	});
 };
 
-Krist.createName = function(name, owner) {
-	return schemas.name.create({
-		name: name,
-		owner: owner,
-		registered: new Date(),
-		updated: new Date(),
-		unpaid: Krist.getNameCost()
-	}).then(function(name) {
-		webhooks.callNameWebhooks(name);
-	});
-};
-
 Krist.pushTransaction = function(sender, recipientAddr, amount, metadata) {
 	return new Promise(function(resolve, reject) {
-		Krist.getAddress(recipientAddr).then(function(recipient) {
+		addresses.getAddress(recipientAddr).then(function(recipient) {
 			var promises = [];
 
 			promises.push(sender.decrement({ balance: amount }));

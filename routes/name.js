@@ -1,13 +1,15 @@
 var krist       = require('./../src/krist.js'),
+	addresses   = require('./../src/addresses.js'),
+	names       = require('./../src/names.js'),
 	moment      = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.dumpnames !== 'undefined') {
-			krist.getNames().then(function(names) {
+			names.getNames().then(function(results) {
 				var out = '';
 
-				names.forEach(function(name) {
+				results.forEach(function(name) {
 					out += name.name + ';';
 				});
 
@@ -18,13 +20,13 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.name_cost !== 'undefined') {
-			res.send(krist.getNameCost().toString());
+			res.send(names.getNameCost().toString());
 
 			return;
 		}
 
 		if (typeof req.query.namebonus !== 'undefined') {
-			krist.getUnpaidNameCount().then(function(count) {
+			names.getUnpaidNameCount().then(function(count) {
 				res.send(count.toString());
 			});
 
@@ -32,10 +34,10 @@ module.exports = function(app) {
 		}
 
 		if (req.query.getnames) {
-			krist.getAddress(req.query.getnames).then(function(address) {
+			addresses.getAddress(req.query.getnames).then(function(address) {
 				if (address) {
-					krist.getNameCountByOwner(address.address).then(function(names) {
-						res.send(names.toString());
+					names.getNameCountByOwner(address.address).then(function(count) {
+						res.send(count.toString());
 					});
 				} else {
 					res.status(404).send('0');
@@ -46,12 +48,12 @@ module.exports = function(app) {
 		}
 
 		if (req.query.listnames) {
-			krist.getAddress(req.query.listnames).then(function(address) {
+			addresses.getAddress(req.query.listnames).then(function(address) {
 				if (address) {
-					krist.getNamesByOwner(address.address).then(function(names) {
+					names.getNamesByOwner(address.address).then(function(results) {
 						var out = '';
 
-						names.forEach(function(name) {
+						results.forEach(function(name) {
 							out += name.name + ';';
 						});
 
@@ -66,10 +68,10 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.getnewdomains !== 'undefined') {
-			krist.getUnpaidNames().then(function(names) {
+			names.getUnpaidNames().then(function(results) {
 				var out = '';
 
-				names.forEach(function(name) {
+				results.forEach(function(name) {
 					out += name.name + ';';
 				});
 
@@ -92,7 +94,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			krist.getNameByName(req.query.name_check).then(function (name) {
+			names.getNameByName(req.query.name_check).then(function (name) {
 				if (name) {
 					res.send("0");
 				} else {
@@ -122,22 +124,22 @@ module.exports = function(app) {
 
 			var desiredName = req.query.name.toLowerCase();
 
-			krist.getNameByName(desiredName).then(function(name) {
+			names.getNameByName(desiredName).then(function(name) {
 				if (name) {
 					res.status(409).send('Error5');
 				} else {
-					krist.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
-						if (!address || address.balance < krist.getNameCost()) {
+					addresses.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
+						if (!address || address.balance < names.getNameCost()) {
 							res.status(403).send('Error1');
 
 							return;
 						}
 
-						address.decrement({ balance: krist.getNameCost() });
-						address.increment({ totalout: krist.getNameCost() });
+						address.decrement({ balance: names.getNameCost() });
+						address.increment({ totalout: names.getNameCost() });
 
-						krist.createTransaction('name', address.address, krist.getNameCost(), desiredName, null);
-						krist.createName(desiredName, address.address).then(function(newName) {
+						krist.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
+						names.createName(desiredName, address.address).then(function(newName) {
 							res.send('Success');
 						});
 					});
@@ -169,7 +171,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		krist.getNameByName(req.params.name.toLowerCase()).then(function (name) {
+		names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
 			if (name) {
 				res.json({
 					ok: true,
@@ -187,12 +189,12 @@ module.exports = function(app) {
 	app.get('/name/cost', function(req, res) {
 		res.json({
 			ok: true,
-			name_cost: krist.getNameCost().toString()
+			name_cost: names.getNameCost().toString()
 		});
 	});
 
 	app.get('/name/bonus', function(req, res) {
-		krist.getUnpaidNameCount().then(function(count) {
+		names.getUnpaidNameCount().then(function(count) {
 			res.json({
 				ok: true,
 				name_bonus: count.toString()
@@ -243,10 +245,10 @@ module.exports = function(app) {
 	});
 
 	app.get('/names/new', function(req, res) {
-		krist.getUnpaidNames().then(function(names) {
+		names.getUnpaidNames().then(function(results) {
 			var out = [];
 
-			names.forEach(function(name) {
+			results.forEach(function(name) {
 				out.push({
 					name: name.name,
 					owner: name.owner,
@@ -296,15 +298,15 @@ module.exports = function(app) {
 
 		var desiredName = req.params.name.toLowerCase();
 
-		krist.getNameByName(desiredName).then(function(name) {
+		names.getNameByName(desiredName).then(function(name) {
 			if (name) {
 				res.status(409).json({
 					ok: false,
 					error: 'name_taken'
 				});
 			} else {
-				krist.getAddress(krist.makeV2Address(req.body.privatekey)).then(function(address) {
-					if (!address || address.balance < krist.getNameCost()) {
+				addresses.getAddress(krist.makeV2Address(req.body.privatekey)).then(function(address) {
+					if (!address || address.balance < names.getNameCost()) {
 						res.status(403).json({
 							ok: false,
 							error: 'insufficient_funds'
@@ -313,11 +315,11 @@ module.exports = function(app) {
 						return;
 					}
 
-					address.decrement({ balance: krist.getNameCost() });
-					address.increment({ totalout: krist.getNameCost() });
+					address.decrement({ balance: names.getNameCost() });
+					address.increment({ totalout: names.getNameCost() });
 
-					krist.createTransaction('name', address.address, krist.getNameCost(), desiredName, null);
-					krist.createName(desiredName, address.address).then(function(newName) {
+					krist.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
+					names.createName(desiredName, address.address).then(function(newName) {
 						res.json({
 							ok: true,
 							id: newName.id
