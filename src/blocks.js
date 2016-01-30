@@ -67,37 +67,37 @@ Blocks.submit = function(hash, address, nonce) {
 				value: value
 			}).then(function(block) {
 				webhooks.callBlockWebhooks(block);
-			});
 
-			addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
-				if (!kristAddress) {
-					schemas.address.create({
-						address: address.toLowerCase(),
-						firstseen: time,
-						balance: value,
-						totalin: value,
-						totalout: 0
-					}).then(function(addr) {
-						resolve(newWork, addr);
+				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
+					if (!kristAddress) {
+						schemas.address.create({
+							address: address.toLowerCase(),
+							firstseen: time,
+							balance: value,
+							totalin: value,
+							totalout: 0
+						}).then(function(addr) {
+							resolve(newWork, addr);
+						});
+
+						return;
+					}
+
+					kristAddress.increment({ balance: value, totalin: value }).then(function(updatedAddress) {
+						updatedAddress.balance += value; // sequelize is super stupid
+
+						resolve({work: newWork, address: updatedAddress});
 					});
-
-					return;
-				}
-
-				kristAddress.increment({ balance: value, totalin: value }).then(function(updatedAddress) {
-					updatedAddress.balance += value; // sequelize is super stupid
-
-					resolve({work: newWork, address: updatedAddress});
 				});
-			});
 
-			tx.createTransaction(address, null, value, null, null);
+				tx.createTransaction(address, null, value, null, null);
 
-			schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
-				names.forEach(function(name) {
-					name.decrement({ unpaid: 1 });
+				schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
+					names.forEach(function(name) {
+						name.decrement({ unpaid: 1 });
+					});
 				});
-			});
+			}).catch(reject);
 		});
 	});
 };

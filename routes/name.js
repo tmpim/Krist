@@ -150,6 +150,34 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (typeof req.query.name_transfer !== 'undefined') {
+			if (!req.query.name || !req.query.pkey) {
+				res.status(400).send('Error6');
+			}
+
+			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			if (req.query.name.length > 64 || req.query.name.length < 1) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			var desiredName = req.query.name.toLowerCase();
+
+			names.getNameByName(desiredName).then(function(name) {
+				if (!name) {
+
+				}
+			});
+
+			return;
+		}
+
 		next();
 	});
 

@@ -13,7 +13,10 @@ var Address = database.getSequelize().define('address', {
 
 var Block = database.getSequelize().define('block', {
 	value: Sequelize.INTEGER.UNSIGNED,
-	hash: Sequelize.STRING(64),
+	hash: {
+		type: Sequelize.STRING(64),
+		unique: true
+	},
 	address: Sequelize.STRING(10),
 	nonce: Sequelize.STRING(24),
 	time: Sequelize.DATE,

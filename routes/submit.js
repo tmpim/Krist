@@ -25,7 +25,9 @@ module.exports = function(app) {
 				if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
 					blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
 						res.send('Block solved');
-					});
+					}).catch(function() {
+						res.send('Solution rejected');
+					})
 				} else {
 					res.send(req.query.address + last + req.query.nonce);
 				}
@@ -87,6 +89,11 @@ module.exports = function(app) {
 						work: result.work,
 						address: result.address.address,
 						balance: result.address.balance
+					});
+				}).catch(function() {
+					res.json({
+						ok: false,
+						error: 'solution_rejected'
 					});
 				});
 			} else {
