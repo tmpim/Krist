@@ -54,12 +54,6 @@ module.exports = function(app) {
 			var from = utils.sha256(req.query.pkey).substr(0, 10);
 			var amt = parseInt(req.query.amt);
 
-			if (from.toLowerCase() === "a5dfb396d3") {
-				res.status(403).send('Error5');
-
-				return;
-			}
-
 			if (!/^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(req.query.q.toString())) {
 				res.status(400).send('Error4');
 
