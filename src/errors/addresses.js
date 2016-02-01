@@ -2,7 +2,7 @@ var	util        = require('util'),
 	errors      = require('./errors.js');
 
 errors.ErrorAddressNotFound = function(message) {
-	KristError.call(this);
+	errors.KristError.call(this);
 	this.message = message;
 	this.errorString = 'not_found';
 }

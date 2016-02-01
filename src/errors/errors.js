@@ -9,6 +9,8 @@ errors.KristError = function(message) {
 	this.message = message;
 	this.errorString = 'unknown_error';
 	this.statusCode = 500;
+
+	this.info = {};
 }
 
 util.inherits(errors.KristError, Error);

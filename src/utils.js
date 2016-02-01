@@ -45,6 +45,12 @@ Utils.sendError = function(res, error) {
 			out.message = message;
 		}
 
+		if (error.info) {
+			for (var key in error.info) {
+				out[key] = error.info[key];
+			}
+		}
+
 		res.status(error.statusCode).json(out);
 	}
 };

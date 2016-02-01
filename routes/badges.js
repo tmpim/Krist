@@ -1,12 +1,14 @@
 var config  = require('./../config.js'),
+	utils   = require('./../src/utils.js'),
+	errors  = require('./../src/errors/errors.js'),
 	shields = require('shields-lightweight');
 
 module.exports = function(app) {
 	app.get('/badge/:server', function(req, res) {
-		var style = req.params.style ? req.params.style.toLowerCase() : 'flat';
+		var style = req.query.style ? req.query.style.toLowerCase() : 'flat';
 
 		if (!/^(plastic|flat|flat\-squared|social)$/i.test(style)) {
-			res.status(400).send("Invalid style.");
+			utils.sendError(res, new errors.ErrorInvalidParameter('style'));
 
 			return;
 		}
@@ -18,7 +20,7 @@ module.exports = function(app) {
 
 			res.send(shield);
 		} else {
-			res.status(403).send("Server not verified.");
+			utils.sendError(res, new errors.ErrorServerNotVerified());
 		}
 	});
 

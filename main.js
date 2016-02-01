@@ -3,6 +3,7 @@ var config		= require('./config.js'),
 
 	colors		= require('colors'), // *colours
 
+	errors      = require('./src/errors/errors.js'),
 	database	= require('./src/database.js');
 
 console.log('Starting ' + package.name.bold + ' ' + package.version.blue + '...');
