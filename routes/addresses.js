@@ -1,9 +1,10 @@
-var krist       = require('./../src/krist.js'),
-	addresses   = require('./../src/addresses.js'),
-	names       = require('./../src/names.js'),
-	tx          = require('./../src/transactions.js'),
-	utils       = require('./../src/utils.js'),
-	moment      = require('moment');
+var krist           = require('./../src/krist.js'),
+	addresses       = require('./../src/addresses.js'),
+	addressesAPI    = require('./../src/api/addresses.js'),
+	names           = require('./../src/names.js'),
+	tx              = require('./../src/transactions.js'),
+	utils           = require('./../src/utils.js'),
+	moment          = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -89,35 +90,17 @@ module.exports = function(app) {
 	});
 
 	app.get('/addresses', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
-			});
-
-			return;
-		}
-
-		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_offset'
-			});
-
-			return;
-		}
-
-		addresses.getAddresses(req.query.limit, req.query.offset).then(function(results) {
+		addressesAPI.getAddresses(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
 			results.forEach(function(address) {
 				out.push({
-					address: address.address,
+					address: address.address.toLowerCase(),
 					balance: address.balance,
 					totalin: address.totalin,
 					totalout: address.totalout,
-					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
-					firstseen_unix: moment(address.firstseen).unix()
+					firstseen: utils.formatDate(address.firstseen),
+					firstseen_unix: utils.formatDateUnix(address.firstseen)
 				});
 			});
 
@@ -126,21 +109,23 @@ module.exports = function(app) {
 				count: out.length,
 				addresses: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.get('/addresses/rich', function(req, res) {
-		addresses.getRich().then(function(results) {
+		addressesAPI.getRich(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
 			results.forEach(function(address) {
 				out.push({
-					address: address.address,
+					address: address.address.toLowerCase(),
 					balance: address.balance,
 					totalin: address.totalin,
 					totalout: address.totalout,
-					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
-					firstseen_unix: moment(address.firstseen).unix()
+					firstseen: utils.formatDate(address.firstseen),
+					firstseen_unix: utils.formatDateUnix(address.firstseen)
 				});
 			});
 
@@ -149,6 +134,8 @@ module.exports = function(app) {
 				count: out.length,
 				addresses: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 

@@ -41,6 +41,8 @@ Database.init = function() {
 			}
 		});
 
+		console.log('[DB]'.green + ' Connected');
+
 		resolve();
 	});
 };

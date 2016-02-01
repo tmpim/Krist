@@ -4,7 +4,8 @@ var utils       = require('./utils.js'),
 	webhooks    = require('./webhooks.js'),
 	addresses   = require('./addresses.js'),
 	moment      = require('moment'),
-	fs          = require('fs');
+	fs          = require('fs'),
+	errors      = require('./errors/errors.js');
 
 function Krist() {}
 
@@ -110,7 +111,7 @@ Krist.makeV2Address = function(key) {
 		if (cocks[dean] === "") {
 			circles = utils.sha256(circles);
 		} else {
-			v2+=utils.hexToBase64(parseInt(cocks[dean], 16));
+			v2+=utils.hexToBase36(parseInt(cocks[dean], 16));
 			cocks[dean] = "";
 			i++;
 		}
