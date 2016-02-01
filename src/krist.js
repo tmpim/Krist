@@ -119,4 +119,8 @@ Krist.makeV2Address = function(key) {
 	return v2;
 };
 
+Krist.isKristAddress = function(address) {
+	return /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(address);
+};
+
 module.exports = Krist;

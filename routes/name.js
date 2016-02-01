@@ -109,6 +109,8 @@ module.exports = function(app) {
 		if (typeof req.query.name_new !== 'undefined') {
 			if (!req.query.name || !req.query.pkey) {
 				res.status(400).send('Error6');
+
+				return;
 			}
 
 			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
@@ -140,7 +142,7 @@ module.exports = function(app) {
 						address.increment({ totalout: names.getNameCost() });
 
 						tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
-						names.createName(desiredName, address.address).then(function(newName) {
+						names.createName(desiredName, address.address).then(function() {
 							res.send('Success');
 						});
 					});
@@ -153,6 +155,8 @@ module.exports = function(app) {
 		if (typeof req.query.name_transfer !== 'undefined') {
 			if (!req.query.name || !req.query.pkey) {
 				res.status(400).send('Error6');
+
+				return;
 			}
 
 			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
@@ -167,12 +171,29 @@ module.exports = function(app) {
 				return;
 			}
 
-			var desiredName = req.query.name.toLowerCase();
+			if (!req.query.q || !krist.isKristAddress(req.query.q)) {
+				res.status(400).send('Error4');
 
-			names.getNameByName(desiredName).then(function(name) {
-				if (!name) {
+				return;
+			}
 
+			var currentOwner = krist.makeV2Address(req.query.pkey);
+
+			names.getNameByName(req.query.name.toLowerCase()).then(function(name) {
+				if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
+					res.send(req.query.name.toLowerCase());
+
+					return;
 				}
+
+				name.update({
+					owner: req.query.q.toLowerCase(),
+					updated: new Date()
+				}).then(function() {
+					res.send('Success');
+				})
+
+				tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
 			});
 
 			return;

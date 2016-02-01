@@ -60,7 +60,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			if (!/^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(req.query.q.toString())) {
+			if (!krist.isKristAddress(req.query.q.toString())) {
 				res.status(400).send('Error4');
 
 				return;
@@ -121,7 +121,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			if (!/^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(req.query.q.toString())) {
+			if (!krist.isKristAddress(req.query.q.toString())) {
 				res.status(400).send('Error4');
 
 				return;
