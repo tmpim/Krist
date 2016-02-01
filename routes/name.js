@@ -20,6 +20,18 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (req.query.a) {
+			names.getNameByName(req.query.a).then(function (name) {
+				if (name) {
+					res.send(name.a);
+				} else {
+					res.send("");
+				}
+			});
+
+			return;
+		}
+
 		if (typeof req.query.name_cost !== 'undefined') {
 			res.send(names.getNameCost().toString());
 
@@ -194,6 +206,53 @@ module.exports = function(app) {
 				})
 
 				tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
+			});
+
+			return;
+		}
+
+		if (typeof req.query.name_update !== 'undefined') {
+			if (!req.query.name || !req.query.pkey) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			if (req.query.name.length > 64 || req.query.name.length < 1) {
+				res.status(400).send('Error6');
+
+				return;
+			}
+
+			if (!req.query.ar || !/^[a-z0-9\.\/\-\$]{1,256}$/i.test(req.query.ar)) {
+				res.status(400).send('Error8');
+
+				return;
+			}
+
+			var owner = krist.makeV2Address(req.query.pkey);
+
+			names.getNameByName(req.query.name.toLowerCase()).then(function(name) {
+				if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
+					res.send(req.query.name.toLowerCase());
+
+					return;
+				}
+
+				name.update({
+					a: req.query.ar,
+					updated: new Date()
+				}).then(function() {
+					res.send('Success');
+				})
+
+				tx.createTransaction('a', owner.toLowerCase(), 0, name.name);
 			});
 
 			return;
