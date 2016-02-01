@@ -1,5 +1,6 @@
 var addresses   = require('./../addresses.js'),
-	errors      = require('./../errors/errors.js');
+	errors      = require('./../errors/errors.js'),
+	utils       = require('./../utils.js');
 
 function AddressAPI() {}
 
@@ -29,6 +30,17 @@ AddressAPI.getRich = function(limit, offset) {
 
 		addresses.getRich(limit, offset).then(resolve).catch(reject);
 	});
+};
+
+AddressAPI.addressToJSON = function(address) {
+	return {
+		address: address.address.toLowerCase(),
+		balance: address.balance,
+		totalin: address.totalin,
+		totalout: address.totalout,
+		firstseen: utils.formatDate(address.firstseen),
+		firstseen_unix: utils.formatDateUnix(address.firstseen)
+	};
 };
 
 module.exports = AddressAPI;

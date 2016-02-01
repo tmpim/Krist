@@ -94,14 +94,7 @@ module.exports = function(app) {
 			var out = [];
 
 			results.forEach(function(address) {
-				out.push({
-					address: address.address.toLowerCase(),
-					balance: address.balance,
-					totalin: address.totalin,
-					totalout: address.totalout,
-					firstseen: utils.formatDate(address.firstseen),
-					firstseen_unix: utils.formatDateUnix(address.firstseen)
-				});
+				out.push(addressesAPI.addressToJSON(address));
 			});
 
 			res.json({
@@ -119,14 +112,7 @@ module.exports = function(app) {
 			var out = [];
 
 			results.forEach(function(address) {
-				out.push({
-					address: address.address.toLowerCase(),
-					balance: address.balance,
-					totalin: address.totalin,
-					totalout: address.totalout,
-					firstseen: utils.formatDate(address.firstseen),
-					firstseen_unix: utils.formatDateUnix(address.firstseen)
-				});
+				out.push(addressesAPI.addressToJSON(address));
 			});
 
 			res.json({
@@ -144,12 +130,7 @@ module.exports = function(app) {
 			if (address) {
 				res.json({
 					ok: true,
-					address: address.address,
-					balance: address.balance,
-					totalin: address.totalin,
-					totalout: address.totalout,
-					firstseen: moment(address.firstseen).format('YYYY-MM-DD HH:mm:ss').toString(),
-					firstseen_unix: moment(address.firstseen).unix()
+					address: addressesAPI.addressToJSON(address)
 				});
 			} else {
 				res.status(404).json({

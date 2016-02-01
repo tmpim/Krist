@@ -1,6 +1,6 @@
-var	util        = require('util'),
-	fs		    = require('fs'),
-	path 	    = require('path');
+var	util    = require('util'),
+	fs      = require('fs'),
+	path    = require('path');
 
 var errors = {};
 
