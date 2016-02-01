@@ -32,6 +32,18 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (req.query.getowner) {
+			names.getNameByName(req.query.getwoenr).then(function (name) {
+				if (name) {
+					res.send(name.owner);
+				} else {
+					res.send("");
+				}
+			});
+
+			return;
+		}
+
 		if (typeof req.query.name_cost !== 'undefined') {
 			res.send(names.getNameCost().toString());
 
