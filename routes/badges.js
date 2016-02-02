@@ -8,9 +8,7 @@ module.exports = function(app) {
 		var style = req.query.style ? req.query.style.toLowerCase() : 'flat';
 
 		if (!/^(plastic|flat|flat\-squared|social)$/i.test(style)) {
-			utils.sendError(res, new errors.ErrorInvalidParameter('style'));
-
-			return;
+			return utils.sendError(res, new errors.ErrorInvalidParameter('style'));
 		}
 
 		if (config.badge_verifiedServers.indexOf(req.params.server) > -1) {

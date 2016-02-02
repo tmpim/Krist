@@ -9,15 +9,11 @@ module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.submitblock !== 'undefined') {
 			if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
-				res.status(400).send('Invalid address');
-
-				return;
+				return res.status(400).send('Invalid address');
 			}
 
 			if (!req.query.nonce || req.query.nonce.length > 12) {
-				res.status(400).send('Nonce is too large'); // idk man
-
-				return;
+				return res.status(400).send('Nonce is too large');
 			}
 
 			blocks.getLastBlock().then(function(lastBlock) {

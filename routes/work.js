@@ -3,8 +3,7 @@ var krist = require('./../src/krist.js');
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.getwork !== 'undefined') {
-			res.send(krist.getWork().toString());
-			return;
+			return res.send(krist.getWork().toString());
 		}
 
 		next();
