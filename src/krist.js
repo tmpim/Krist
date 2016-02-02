@@ -7,6 +7,10 @@ var utils       = require('./utils.js'),
 	fs          = require('fs'),
 	errors      = require('./errors/errors.js');
 
+var addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i;
+var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/i;
+var nameRegex = /^[a-z0-9]+$/i;
+
 function Krist() {}
 
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
@@ -121,11 +125,15 @@ Krist.makeV2Address = function(key) {
 };
 
 Krist.isValidKristAddress = function(address) {
-	return /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(address);
+	return addressRegex.test(address);
+};
+
+Krist.isValidKristAddressList = function(addressList) {
+	return addressListRegex.test(addressList);
 };
 
 Krist.isValidName = function(name) {
-	return /^[a-zA-Z0-9]+$/.test(name) && name.length > 0 && name.length < 65;
+	return nameRegex.test(name) && name.length > 0 && name.length < 65;
 };
 
 module.exports = Krist;
