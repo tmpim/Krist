@@ -1,6 +1,6 @@
-var config  = require('./../config.js'),
-	utils   = require('./../src/utils.js'),
-	errors  = require('./../src/errors/errors.js'),
+var config  = require('./../../config.js'),
+	utils   = require('./../utils.js'),
+	errors  = require('./../errors/errors.js'),
 	shields = require('shields-lightweight');
 
 module.exports = function(app) {

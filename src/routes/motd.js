@@ -1,4 +1,4 @@
-var krist   = require('./../src/krist.js'),
+var krist   = require('./../krist.js'),
 	fs      = require('fs'),
 	moment  = require('moment');
 

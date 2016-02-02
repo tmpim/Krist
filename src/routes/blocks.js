@@ -1,7 +1,7 @@
-var krist            = require('./../src/krist.js'),
-	blocksController = require('./../src/controllers/blocks.js'),
-	blocks           = require('./../src/blocks.js'),
-	utils            = require('./../src/utils.js'),
+var krist            = require('./../krist.js'),
+	blocksController = require('./../controllers/blocks.js'),
+	blocks           = require('./../blocks.js'),
+	utils            = require('./../utils.js'),
 	moment           = require('moment');
 
 module.exports = function(app) {

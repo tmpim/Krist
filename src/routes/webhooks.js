@@ -1,7 +1,7 @@
-var krist               = require('./../src/krist.js'),
-	utils               = require('./../src/utils.js'),
-	webhooks            = require('./../src/webhooks.js'),
-	webhooksController  = require('./../src/controllers/webhooks.js');
+var krist               = require('./../krist.js'),
+	utils               = require('./../utils.js'),
+	webhooks            = require('./../webhooks.js'),
+	webhooksController  = require('./../controllers/webhooks.js');
 
 module.exports = function(app) {
 	app.post('/webhook', function(req, res) {

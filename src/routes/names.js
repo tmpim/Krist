@@ -1,13 +1,41 @@
-var krist               = require('./../src/krist.js'),
-	utils               = require('./../src/utils.js'),
-	addresses           = require('./../src/addresses.js'),
-	tx                  = require('./../src/transactions.js'),
-	names               = require('./../src/names.js'),
-	errors              = require('./../src/errors/errors.js'),
-	namesController     = require('./../src/controllers/names.js'),
+var krist               = require('./../krist.js'),
+	utils               = require('./../utils.js'),
+	addresses           = require('./../addresses.js'),
+	tx                  = require('./../transactions.js'),
+	names               = require('./../names.js'),
+	errors              = require('./../errors/errors.js'),
+	namesController     = require('./../controllers/names.js'),
 	moment              = require('moment');
 
 module.exports = function(app) {
+	/**
+	 * @apiDefine NameGroup Names
+	 *
+	 * All Name related endpoints.
+	 */
+
+	/**
+	 * @apiDefine Name
+	 *
+	 * @apiSuccess {Object} name
+	 * @apiSuccess {String} name.name The name.
+	 * @apiSuccess {String} name.owner The address that currently owns this name.
+	 * @apiSuccess {Date} name.registered The time this name was registered.
+	 * @apiSuccess {Date} name.updated The time this name was last updated.
+	 * @apiSuccess {String} name.a The A record (or CNAME record) of this name.
+	 */
+
+	/**
+	 * @apiDefine Names
+	 *
+	 * @apiSuccess {Object[]} names
+	 * @apiSuccess {String} names.name The name.
+	 * @apiSuccess {String} names.owner The address that currently owns this name.
+	 * @apiSuccess {Date} names.registered The time this name was registered.
+	 * @apiSuccess {Date} names.updated The time this name was last updated.
+	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
+	 */
+
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.dumpnames !== 'undefined') {
 			names.getNames().then(function(results) {

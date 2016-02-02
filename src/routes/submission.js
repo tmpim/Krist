@@ -1,9 +1,9 @@
-var krist               = require('./../src/krist.js'),
-	utils               = require('./../src/utils.js'),
-	addressesController = require('./../src/controllers/addresses.js'),
-	blocksController    = require('./../src/controllers/blocks.js'),
-	blocks              = require('./../src/blocks.js'),
-	errors              = require('./../src/errors/errors.js');
+var krist               = require('./../krist.js'),
+	utils               = require('./../utils.js'),
+	addressesController = require('./../controllers/addresses.js'),
+	blocksController    = require('./../controllers/blocks.js'),
+	blocks              = require('./../blocks.js'),
+	errors              = require('./../errors/errors.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {

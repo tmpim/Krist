@@ -1,12 +1,43 @@
-var krist           = require('./../src/krist.js'),
-	addresses       = require('./../src/addresses.js'),
-	tx              = require('./../src/transactions.js'),
-	txController    = require('./../src/controllers/transactions.js'),
-	utils           = require('./../src/utils.js'),
-	schemas         = require('./../src/schemas.js'),
+var krist           = require('./../krist.js'),
+	addresses       = require('./../addresses.js'),
+	tx              = require('./../transactions.js'),
+	txController    = require('./../controllers/transactions.js'),
+	utils           = require('./../utils.js'),
 	moment          = require('moment');
 
 module.exports = function(app) {
+	/**
+	 * @apiDefine TransactionGroup Transactions
+	 *
+	 * All Transactions related endpoints.
+	 */
+
+	/**
+	 * @apiDefine Transaction
+	 *
+	 * @apiSuccess {Object} transaction
+	 * @apiSuccess {Number} transaction.id The ID of this transaction.
+	 * @apiSuccess {String} transaction.from The sender of this transaction.
+	 * @apiSuccess {String} transaction.to The recipient of this transaction.
+	 * @apiSuccess {Number} transaction.value The amount of Krist transferred in this transaction.
+	 * @apiSuccess {Date} transaction.time The time this transaction this was made.
+	 * @apiSuccess {String} transaction.name The name assosciated with this transaction, or null.
+	 * @apiSuccess {String} transaction.op Transaction metadata, or null.
+	 */
+
+	/**
+	 * @apiDefine Transactions
+	 *
+	 * @apiSuccess {Object[]} transactions
+	 * @apiSuccess {Number} transactions.id The ID of this transaction.
+	 * @apiSuccess {String} transactions.from The sender of this transaction.
+	 * @apiSuccess {String} transactions.to The recipient of this transaction.
+	 * @apiSuccess {Number} transactions.value The amount of Krist transferred in this transaction.
+	 * @apiSuccess {Date} transactions.time The time this transaction this was made.
+	 * @apiSuccess {String} transactions.name The name assosciated with this transaction, or null.
+	 * @apiSuccess {String} transactions.op Transaction metadata, or null.
+	 */
+
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.recenttx !== 'undefined') {
 			tx.getRecentTransactions().then(function(transactions) {

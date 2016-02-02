@@ -1,4 +1,4 @@
-var krist = require('./../src/krist.js');
+var krist = require('./../krist.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {

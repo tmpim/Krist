@@ -2,6 +2,11 @@
 
 This is the new official Krist node. It is written in Node.js.
 
+## API Documentation
+
+The documentation is generated with [apiDoc](http://apidocjs.com). It is automatically built by Grunt. You can find a
+live copy of the API documentation [here](http://kristtest.lemmmy.pw/docs).
+
 ## Dependencies
 
     "bluebird": "^3.2.1",
@@ -15,8 +20,9 @@ This is the new official Krist node. It is written in Node.js.
 
 ### Dev Dependencies
 
-The following packages are also required for converting the database:
-
+    "grunt": "^0.4.5",
+    "grunt-apidoc": "^0.10.1",
+    "grunt-contrib-watch": "^0.6.1",
     "progress": "^1.1.8",
     "sqlite3": "^3.1.1",
     "yesno": "0.0.1"

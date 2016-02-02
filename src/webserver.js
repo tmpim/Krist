@@ -78,7 +78,7 @@ Webserver.init = function() {
 	console.log('[Webserver]'.cyan + ' Loading routes');
 
 	try {
-		var routePath = path.join(__dirname, '../routes');
+		var routePath = path.join(__dirname, 'routes');
 
 		fs.readdirSync(routePath).forEach(function(file) {
 			if (path.extname(file).toLowerCase() !== '.js') {
@@ -86,7 +86,7 @@ Webserver.init = function() {
 			}
 
 			try {
-				require('./../routes/' + file)(Webserver.express);
+				require('./routes/' + file)(Webserver.express);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading route `' + file + '`: ');
 				console.log(error.stack);
