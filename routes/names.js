@@ -61,7 +61,7 @@ module.exports = function(app) {
 		if (req.query.getnames) {
 			addresses.getAddress(req.query.getnames).then(function(address) {
 				if (address) {
-					names.getNameCountByOwner(address.address).then(function(count) {
+					names.getNameCountByAddress(address.address).then(function(count) {
 						res.send(count.toString());
 					});
 				} else {
@@ -75,7 +75,7 @@ module.exports = function(app) {
 		if (req.query.listnames) {
 			addresses.getAddress(req.query.listnames).then(function(address) {
 				if (address) {
-					names.getNamesByOwner(address.address).then(function(results) {
+					names.getNamesByAddress(address.address).then(function(results) {
 						var out = '';
 
 						results.forEach(function(name) {

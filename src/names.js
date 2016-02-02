@@ -7,15 +7,15 @@ var utils       = require('./utils.js'),
 function Names() {}
 
 Names.getNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
-Names.getNamesByOwner = function(owner) {
-	return schemas.name.findAll({order: 'name', where: {owner: owner}});
+Names.getNamesByAddress = function(address, limit, offset) {
+	return schemas.name.findAll({order: 'name', where: {owner: address}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
 };
 
-Names.getNameCountByOwner = function(owner) {
-	return schemas.name.count({where: {owner: owner}});
+Names.getNameCountByAddress = function(address) {
+	return schemas.name.count({where: {owner: address}});
 };
 
 Names.getNameByName = function(name) {

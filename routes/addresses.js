@@ -144,32 +144,25 @@ module.exports = function(app) {
 	});
 
 	app.get('/address/:address/names', function(req, res) {
-		addresses.getAddress(req.params.address).then(function(address) {
-			if (address) {
-				names.getNamesByOwner(address.address).then(function(results) {
-					var out = [];
+		namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset).then(function(names) {
+			var out = [];
 
-					results.forEach(function (name) {
-						out.push(namesController.nameToJSON(name));
-					});
+			names.forEach(function (name) {
+				out.push(namesController.nameToJSON(name));
+			});
 
-					res.json({
-						ok: true,
-						count: out.length,
-						names: out
-					});
-				});
-			} else {
-				res.status(404).json({
-					ok: false,
-					error: 'not_found'
-				});
-			}
+			res.json({
+				ok: true,
+				count: out.length,
+				names: out
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.get('/address/:address/transactions', function(req, res) {
-		addressesController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset).then(function(transactions) {
+		txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset).then(function(transactions) {
 			var out = [];
 
 			transactions.forEach(function (transaction) {
