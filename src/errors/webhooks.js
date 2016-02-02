@@ -1,14 +1,14 @@
 var	util        = require('util'),
 	errors      = require('./errors.js');
 
-errors.ErrorRouteNotFound = function(message) {
+errors.ErrorWebhookNotFound = function(message) {
 	errors.KristError.call(this);
 	this.message = message;
 	this.statusCode = 404;
-	this.errorString = 'route_not_found';
+	this.errorString = 'webhook_not_found';
 }
 
-util.inherits(errors.ErrorRouteNotFound, errors.KristError);
+util.inherits(errors.ErrorWebhookNotFound, errors.KristError);
 
 errors.ErrorLimitReached = function(message) {
 	errors.KristError.call(this);

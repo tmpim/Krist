@@ -73,12 +73,62 @@ WebhooksController.registerWebhook = function(privatekey, owner, event, destURL,
 	});
 }
 
+WebhooksController.getWebhooksByOwner = function(privatekey, owner) {
+	return new Promise(function(resolve, reject) {
+		if (!privatekey) {
+			return reject(new errors.ErrorMissingParameter('privatekey'));
+		}
+
+		if (!owner) {
+			return reject(new errors.ErrorMissingParameter('owner'));
+		}
+
+		if (krist.makeV2Address(privatekey).toLowerCase() !== owner.toLowerCase()) {
+			return reject(new errors.ErrorAuthFailed());
+		}
+
+		webhooks.getWebhooksByOwner(owner).then(resolve).catch(reject);
+	});
+}
+
+WebhooksController.deleteWebhook = function(privatekey, owner, id) {
+	return new Promise(function(resolve, reject) {
+		if (!privatekey) {
+			return reject(new errors.ErrorMissingParameter('privatekey'));
+		}
+
+		if (!owner) {
+			return reject(new errors.ErrorMissingParameter('owner'));
+		}
+
+		if (!id) {
+			return reject(new errors.ErrorMissingParameter('id'));
+		}
+
+		if (isNaN(id)) {
+			return reject(new errors.ErrorInvalidParameter('id'));
+		}
+
+		if (krist.makeV2Address(privatekey).toLowerCase() !== owner.toLowerCase()) {
+			return reject(new errors.ErrorAuthFailed());
+		}
+
+		webhooks.getWebhookById(id).then(function(webhook) {
+			if (!webhook || webhook.owner !== owner) {
+				return reject(new errors.ErrorWebhookNotFound());
+			}
+
+			webhook.destroy().then(resolve).catch(reject);
+		}).catch(reject);
+	});
+}
+
 WebhooksController.webhookToJSON = function(webhook) {
 	if (webhook.event === 'transaction' || webhook.event === 'name') {
 		return {
 			id: webhook.id,
 			event: webhook.event,
-			addresses: webhook.value.split(','),
+			addresses: webhook.value ? webhook.value.split(',') : null,
 			url: webhook.url,
 			method: webhook.method,
 			owner: webhook.owner
