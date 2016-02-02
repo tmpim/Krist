@@ -34,7 +34,7 @@ AddressesController.getRich = function(limit, offset) {
 
 AddressesController.getAddress = function(address) {
 	return new Promise(function(resolve, reject) {
-		if (!krist.isKristAddress(address)) {
+		if (!krist.isValidKristAddress(address)) {
 			return reject(new errors.ErrorInvalidParameter('address'));
 		}
 

@@ -17,13 +17,13 @@
   },
   "homepage": "https://github.com/Lemmmy/Krist2Node",
   "dependencies": {
-    "bluebird": "^3.1.1",
+    "bluebird": "^3.2.1",
     "body-parser": "^1.14.2",
     "colors": "^1.1.2",
     "express": "^4.13.3",
     "moment": "^2.11.1",
-    "request": "^2.67.0",
-    "sequelize": "^3.17.1",
+    "request": "^2.69.0",
+    "sequelize": "^3.19.0",
     "shields-lightweight": "^0.1.0"
   },
   "optionalDependencies": {
@@ -33,31 +33,5 @@
     "progress": "^1.1.8",
     "sqlite3": "^3.1.1",
     "yesno": "0.0.1"
-  },
-  "contributors": [
-    {
-      "name": "Drew Lemmy",
-      "email": "drewlemmy@gmail.com",
-      "url": "https://github.com/Lemmmy",
-      "contributions": 104
-    },
-    {
-      "name": "apemanzilla",
-      "email": "dominic@marcuse.us",
-      "url": "https://github.com/apemanzilla",
-      "contributions": 3
-    },
-    {
-      "name": "Lignum",
-      "email": null,
-      "url": "https://github.com/Lignumm",
-      "contributions": 2
-    },
-    {
-      "name": "3d6",
-      "email": null,
-      "url": "https://github.com/BTCTaras",
-      "contributions": 2
-    }
-  ]
+  }
 }

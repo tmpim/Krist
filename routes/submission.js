@@ -49,7 +49,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (!(/^(?:k[a-z0-9]{9}|[a-f0-9]{10})/i.exec(req.body.address))) {
+		if (!krist.isValidKristAddress(req.body.address)) {
 			res.status(400).json({
 				ok: false,
 				error: 'invalid_address'

@@ -15,11 +15,11 @@ Blocks.getBlock = function(id) {
 };
 
 Blocks.getBlocks = function(limit, offset, asc) {
-	return schemas.block.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.block.findAll({order: 'id' + (asc ? '' : ' DESC'),  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getBlocksByOrder = function(order, limit, offset) {
-	return schemas.block.findAll({order: order, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.block.findAll({order: order, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getLastBlock = function() {

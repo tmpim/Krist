@@ -7,11 +7,11 @@ var utils       = require('./utils.js'),
 function Names() {}
 
 Names.getNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'name', limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.name.findAll({order: 'name', limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNamesByAddress = function(address, limit, offset) {
-	return schemas.name.findAll({order: 'name', where: {owner: address}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.name.findAll({order: 'name', where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNameCountByAddress = function(address) {
@@ -22,8 +22,8 @@ Names.getNameByName = function(name) {
 	return schemas.name.findOne({where: {name: name}});
 };
 
-Names.getUnpaidNames = function() {
-	return schemas.name.findAll({order: 'id DESC', where: {unpaid: {$gt: 0}}});
+Names.getUnpaidNames = function(limit, offset) {
+	return schemas.name.findAll({order: 'id DESC', where: {unpaid: {$gt: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getUnpaidNameCount = function() {

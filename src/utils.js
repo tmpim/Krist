@@ -54,4 +54,15 @@ Utils.sendError = function(res, error) {
 	}
 };
 
+Utils.sanitiseLimit = function(limit, def, max) {
+	def = def || 50;
+	max = max || 1000;
+
+	return typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? def : parseInt(limit), max) : def;
+};
+
+Utils.sanitiseOffset = function(offset) {
+	return typeof offset !== 'undefined' ? parseInt(offset) : null;
+};
+
 module.exports = Utils;

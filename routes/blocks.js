@@ -25,9 +25,7 @@ module.exports = function(app) {
 		if (req.query.getblockvalue) {
 			blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
 				if (!block) {
-					res.send('50');
-
-					return;
+					return res.send('50');
 				}
 
 				res.send(block.value.toString());

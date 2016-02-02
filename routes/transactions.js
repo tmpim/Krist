@@ -54,7 +54,7 @@ module.exports = function(app) {
 			var from = utils.sha256(req.query.pkey).substr(0, 10);
 			var amt = parseInt(req.query.amt);
 
-			if (!krist.isKristAddress(req.query.q.toString())) {
+			if (!krist.isValidKristAddress(req.query.q.toString())) {
 				res.status(400).send('Error4');
 
 				return;
@@ -115,7 +115,7 @@ module.exports = function(app) {
 				return;
 			}
 
-			if (!krist.isKristAddress(req.query.q.toString())) {
+			if (!krist.isValidKristAddress(req.query.q.toString())) {
 				res.status(400).send('Error4');
 
 				return;

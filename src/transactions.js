@@ -12,27 +12,31 @@ Transactions.getTransaction = function(id) {
 };
 
 Transactions.getTransactions = function(limit, offset, asc) {
-	return schemas.transaction.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.transaction.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Transactions.getRecentTransactions = function() {
-	return schemas.transaction.findAll({order: 'id DESC', limit: 100, where: {from: {$not: ''}}});
+Transactions.getRecentTransactions = function(limit, offset) {
+	return schemas.transaction.findAll({order: 'id DESC', limit: utils.sanitiseLimit(limit, 100), offset: utils.sanitiseOffset(offset), where: {from: {$not: ''}}});
 };
 
 Transactions.getTransactionsByAddress = function(address, limit, offset) {
-	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? 50 : parseInt(limit), 1000) : 50, offset: offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Transactions.createTransaction = function (to, from, value, name, op) {
-	return schemas.transaction.create({
-		to: to,
-		from: from,
-		value: value,
-		name: name,
-		time: new Date(),
-		op: op
-	}).then(function(transaction) {
-		webhooks.callTransactionWebhooks(transaction);
+	return new Promise(function(resolve, reject) {
+		schemas.transaction.create({
+			to: to,
+			from: from,
+			value: value,
+			name: name,
+			time: new Date(),
+			op: op
+		}).then(function(transaction) {
+			webhooks.callTransactionWebhooks(transaction);
+
+			resolve(transaction);
+		}).catch(reject);
 	});
 };
 

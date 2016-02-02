@@ -1,7 +1,5 @@
 var utils       = require('./utils.js'),
-	config      = require('./../config.js'),
-	schemas     = require('./schemas.js'),
-	krist       = require('./krist.js');
+	schemas     = require('./schemas.js');
 
 function Addresses() {}
 
@@ -10,7 +8,7 @@ Addresses.getAddress = function(address) {
 };
 
 Addresses.getAddresses = function(limit, offset) {
-	return schemas.address.findAll({limit: typeof limit !== 'undefined' ? parseInt(limit) : null, offset: typeof offset !== 'undefined' ? parseInt(offset) : null});
+	return schemas.address.findAll({ limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Addresses.getRich = function() {

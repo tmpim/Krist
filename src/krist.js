@@ -106,13 +106,13 @@ Krist.makeV2Address = function(key) {
 	}
 
 	for (i = 0; i <= 8;) {
-		var i = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
+		var index = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
 
-		if (chars[i] === "") {
+		if (chars[index] === "") {
 			hash = utils.sha256(hash);
 		} else {
-			prefix+=utils.hexToBase36(parseInt(chars[i], 16));
-			chars[i] = "";
+			prefix+=utils.hexToBase36(parseInt(chars[index], 16));
+			chars[index] = "";
 			i++;
 		}
 	}
@@ -120,8 +120,12 @@ Krist.makeV2Address = function(key) {
 	return prefix;
 };
 
-Krist.isKristAddress = function(address) {
+Krist.isValidKristAddress = function(address) {
 	return /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i.test(address);
+};
+
+Krist.isValidName = function(name) {
+	return /^[a-zA-Z0-9]+$/.test(name) && name.length > 0 && name.length < 65;
 };
 
 module.exports = Krist;

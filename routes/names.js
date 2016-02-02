@@ -1,8 +1,11 @@
-var krist       = require('./../src/krist.js'),
-	addresses   = require('./../src/addresses.js'),
-	tx          = require('./../src/transactions.js'),
-	names       = require('./../src/names.js'),
-	moment      = require('moment');
+var krist               = require('./../src/krist.js'),
+	utils               = require('./../src/utils.js'),
+	addresses           = require('./../src/addresses.js'),
+	tx                  = require('./../src/transactions.js'),
+	names               = require('./../src/names.js'),
+	errors              = require('./../src/errors/errors.js'),
+	namesController     = require('./../src/controllers/names.js'),
+	moment              = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -45,9 +48,7 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.name_cost !== 'undefined') {
-			res.send(names.getNameCost().toString());
-
-			return;
+			return res.send(names.getNameCost().toString());
 		}
 
 		if (typeof req.query.namebonus !== 'undefined') {
@@ -107,16 +108,8 @@ module.exports = function(app) {
 		}
 
 		if (req.query.name_check) {
-			if (!/^[a-zA-Z0-9]+$/.test(req.query.name_check)) {
-				res.send("0");
-
-				return;
-			}
-
-			if (req.query.name_check.length > 64 || req.query.name_check.length < 1) {
-				res.send("0");
-
-				return;
+			if (!krist.isValidName(req.query.name_check)) {
+				return res.send("0");
 			}
 
 			names.getNameByName(req.query.name_check).then(function (name) {
@@ -131,22 +124,8 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.name_new !== 'undefined') {
-			if (!req.query.name || !req.query.pkey) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (req.query.name.length > 64 || req.query.name.length < 1) {
-				res.status(400).send('Error6');
-
-				return;
+			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+				return res.status(400).send('Error6');
 			}
 
 			var desiredName = req.query.name.toLowerCase();
@@ -157,9 +136,7 @@ module.exports = function(app) {
 				} else {
 					addresses.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
 						if (!address || address.balance < names.getNameCost()) {
-							res.status(403).send('Error1');
-
-							return;
+							return res.status(403).send('Error1');
 						}
 
 						address.decrement({ balance: names.getNameCost() });
@@ -177,28 +154,12 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.name_transfer !== 'undefined') {
-			if (!req.query.name || !req.query.pkey) {
-				res.status(400).send('Error6');
-
-				return;
+			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+				return res.status(400).send('Error6');
 			}
 
-			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (req.query.name.length > 64 || req.query.name.length < 1) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (!req.query.q || !krist.isKristAddress(req.query.q)) {
-				res.status(400).send('Error4');
-
-				return;
+			if (!req.query.q || !krist.isValidKristAddress(req.query.q)) {
+				return res.status(400).send('Error4');
 			}
 
 			var currentOwner = krist.makeV2Address(req.query.pkey);
@@ -215,7 +176,7 @@ module.exports = function(app) {
 					updated: new Date()
 				}).then(function() {
 					res.send('Success');
-				})
+				});
 
 				tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
 			});
@@ -224,37 +185,19 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.name_update !== 'undefined') {
-			if (!req.query.name || !req.query.pkey) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (!/^[a-zA-Z0-9]+$/.test(req.query.name)) {
-				res.status(400).send('Error6');
-
-				return;
-			}
-
-			if (req.query.name.length > 64 || req.query.name.length < 1) {
-				res.status(400).send('Error6');
-
-				return;
+			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+				return res.status(400).send('Error6');
 			}
 
 			if (!req.query.ar || !/^[a-z0-9\.\/\-\$]{1,256}$/i.test(req.query.ar)) {
-				res.status(400).send('Error8');
-
-				return;
+				return res.status(400).send('Error8');
 			}
 
 			var owner = krist.makeV2Address(req.query.pkey);
 
 			names.getNameByName(req.query.name.toLowerCase()).then(function(name) {
 				if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
-					res.send(req.query.name.toLowerCase());
-
-					return;
+					return res.send(req.query.name.toLowerCase());
 				}
 
 				name.update({
@@ -262,7 +205,7 @@ module.exports = function(app) {
 					updated: new Date()
 				}).then(function() {
 					res.send('Success');
-				})
+				});
 
 				tx.createTransaction('a', owner.toLowerCase(), 0, name.name);
 			});
@@ -274,22 +217,8 @@ module.exports = function(app) {
 	});
 
 	app.get('/name/check/:name', function(req, res) {
-		if (!/^[a-zA-Z0-9]+$/.test(req.params.name)) {
-			res.json({
-				ok: false,
-				error: 'name_not_alphanumeric'
-			});
-
-			return;
-		}
-
-		if (req.params.name.length > 64 || req.params.name.length < 1) {
-			res.json({
-				ok: false,
-				error: 'name_invalid_length'
-			});
-
-			return;
+		if (!krist.isValidName(req.params.name)) {
+			return utils.sendError(res, new errors.ErrorInvalidParameter('name'));
 		}
 
 		names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
@@ -324,37 +253,11 @@ module.exports = function(app) {
 	});
 
 	app.get('/names', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && req.query.limit <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
-			});
-
-			return;
-		}
-
-		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_offset'
-			});
-
-			return;
-		}
-
-		krist.getNames(req.query.limit, req.query.offset).then(function(names) {
+		namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
-			names.forEach(function(name) {
-				out.push({
-					name: name.name,
-					owner: name.owner,
-					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
-					registered_unix: moment(name.registered).unix(),
-					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
-					updated_unix: moment(name.updated).unix(),
-					a: name.a
-				});
+			results.forEach(function(name) {
+				out.push(namesController.nameToJSON(name));
 			});
 
 			res.json({
@@ -362,23 +265,17 @@ module.exports = function(app) {
 				count: out.length,
 				names: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.get('/names/new', function(req, res) {
-		names.getUnpaidNames().then(function(results) {
+		namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
 			results.forEach(function(name) {
-				out.push({
-					name: name.name,
-					owner: name.owner,
-					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
-					registered_unix: moment(name.registered).unix(),
-					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
-					updated_unix: moment(name.updated).unix(),
-					a: name.a
-				});
+				out.push(namesController.nameToJSON(name));
 			});
 
 			res.json({
@@ -386,68 +283,18 @@ module.exports = function(app) {
 				count: out.length,
 				names: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.post('/name/:name', function(req, res) {
-		if (!/^[a-zA-Z0-9]+$/.test(req.params.name)) {
-			res.status(400).json({
-				ok: false,
-				error: 'name_not_alphanumeric'
+		namesController.registerName(req.params.name, req.body.privatekey).then(function() {
+			res.json({
+				ok: true
 			});
-
-			return;
-		}
-
-		if (req.params.name.length > 64 || req.params.name.length < 1) {
-			res.status(400).json({
-				ok: false,
-				error: 'name_invalid_length'
-			});
-
-			return;
-		}
-
-		if (!req.body.privatekey) {
-			res.status(400).json({
-				ok: false,
-				error: 'missing_privatekey'
-			});
-
-			return;
-		}
-
-		var desiredName = req.params.name.toLowerCase();
-
-		names.getNameByName(desiredName).then(function(name) {
-			if (name) {
-				res.status(409).json({
-					ok: false,
-					error: 'name_taken'
-				});
-			} else {
-				addresses.getAddress(krist.makeV2Address(req.body.privatekey)).then(function(address) {
-					if (!address || address.balance < names.getNameCost()) {
-						res.status(403).json({
-							ok: false,
-							error: 'insufficient_funds'
-						});
-
-						return;
-					}
-
-					address.decrement({ balance: names.getNameCost() });
-					address.increment({ totalout: names.getNameCost() });
-
-					tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
-					names.createName(desiredName, address.address).then(function(newName) {
-						res.json({
-							ok: true,
-							id: newName.id
-						});
-					});
-				});
-			}
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 

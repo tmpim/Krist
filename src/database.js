@@ -35,8 +35,8 @@ Database.init = function() {
 			dialect: config.database_dialect,
 			logging: false,
 			pool: {
-				max: 5,
-				min: 1,
+				max: 6,
+				min: 2,
 				idle: 10000
 			}
 		});

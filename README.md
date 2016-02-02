@@ -4,13 +4,14 @@ This is the new official Krist node. It is written in Node.js.
 
 ## Dependencies
 
-    "bluebird": "^3.1.1",
+    "bluebird": "^3.2.1",
     "body-parser": "^1.14.2",
     "colors": "^1.1.2",
     "express": "^4.13.3",
     "moment": "^2.11.1",
-    "request": "^2.67.0",
-    "sequelize": "^3.17.1"
+    "request": "^2.69.0",
+    "sequelize": "^3.19.0",
+    "shields-lightweight": "^0.1.0"
 
 ### Dev Dependencies
 
