@@ -1,11 +1,14 @@
-var krist   = require('./../src/krist.js'),
-	blocks  = require('./../src/blocks.js'),
-	utils   = require('./../src/utils.js');
+var krist               = require('./../src/krist.js'),
+	utils               = require('./../src/utils.js')
+	addressesController = require('./../src/controllers/addresses.js'),
+	blocksController    = require('./../src/controllers/blocks.js'),
+	blocks              = require('./../src/blocks.js'),
+	errors              = require('./../src/errors/errors.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.submitblock !== 'undefined') {
-			if (!req.query.address || !(/^(?:k[a-z0-9]{9}|[a-f0-9]{10})/i.exec(req.query.address))) {
+			if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
 				res.status(400).send('Invalid address');
 
 				return;
@@ -40,70 +43,22 @@ module.exports = function(app) {
 	});
 
 	app.post('/submit', function(req, res) {
-		if (!req.body.address) {
-			res.status(400).json({
-				ok: false,
-				error: 'missing_address'
+		blocksController.submitBlock(req.body.address, req.body.nonce).then(function(result) {
+			res.json({
+				ok: true,
+				success: true,
+				work: result.work,
+				address: addressesController.addressToJSON(result.address),
+				block: blocksController.blockToJSON(result.block)
 			});
-
-			return;
-		}
-
-		if (!krist.isValidKristAddress(req.body.address)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_address'
-			});
-
-			return;
-		}
-
-		if (!req.body.nonce) {
-			res.status(400).json({
-				ok: false,
-				error: 'missing_nonce'
-			});
-
-			return;
-		}
-
-		if (req.body.nonce.length > 12) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_nonce'
-			});
-
-			return;
-		}
-
-		blocks.getLastBlock().then(function(lastBlock) {
-			var last = lastBlock.hash.substr(0, 12);
-			var difficulty = krist.getWork();
-			var hash = utils.sha256(req.body.address + last + req.body.nonce);
-
-			if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-				blocks.submit(hash, req.body.address, req.body.nonce).then(function(result) {
-					res.json({
-						ok: true,
-						success: true,
-						work: result.work,
-						address: result.address.address,
-						balance: result.address.balance
-					});
-				}).catch(function() {
-					res.json({
-						ok: false,
-						error: 'solution_rejected'
-					});
-				});
-			} else {
+		}).catch(function(error) {
+			if (error instanceof errors.ErrorSolutionIncorrect) {
 				res.json({
 					ok: true,
-					success: false,
-					address: req.body.address.toLowerCase(),
-					nonce: req.query.nonce,
-					last_hash: last
+					success: false
 				});
+			} else {
+				utils.sendError(res, error);
 			}
 		});
 	});

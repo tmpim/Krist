@@ -1,4 +1,6 @@
 var blocks  = require('./../blocks.js'),
+	krist   = require('./../krist.js'),
+	utils   = require('./../utils.js'),
 	errors  = require('./../errors/errors.js');
 
 function BlocksController() {}
@@ -58,6 +60,38 @@ BlocksController.blockToJSON = function(block) {
 		value: block.value,
 		time: block.time
 	};
+};
+
+BlocksController.submitBlock = function(address, nonce) {
+	return new Promise(function(resolve, reject) {
+		if (!address) {
+			return reject(new errors.ErrorMissingParameter('address'));
+		}
+
+		if (!krist.isValidKristAddress(address)) {
+			return reject(new errors.ErrorInvalidParameter('address'));
+		}
+
+		if (!nonce) {
+			return reject(new errors.ErrorMissingParameter('nonce'));
+		}
+
+		if (nonce.length < 1 || nonce.length > 12) {
+			return reject(new errors.ErrorInvalidParameter('nonce'));
+		}
+
+		blocks.getLastBlock().then(function(lastBlock) {
+			var last = lastBlock.hash.substr(0, 12);
+			var difficulty = krist.getWork();
+			var hash = utils.sha256(address + last + nonce);
+
+			if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
+				blocks.submit(hash, address, nonce).then(resolve).catch(reject);
+			} else {
+				return reject(new errors.ErrorSolutionIncorrect());
+			}
+		}).catch(reject);
+	});
 };
 
 module.exports = BlocksController;

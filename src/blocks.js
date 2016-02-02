@@ -84,10 +84,10 @@ Blocks.submit = function(hash, address, nonce) {
 						return;
 					}
 
-					kristAddress.increment({ balance: value, totalin: value }).then(function(updatedAddress) {
-						updatedAddress.balance += value; // sequelize is super stupid
-
-						resolve({work: newWork, address: updatedAddress});
+					kristAddress.increment({ balance: value, totalin: value }).then(function() {
+						kristAddress.reload().then(function(updatedAddress) {
+							resolve({work: newWork, address: updatedAddress, block: block});
+						});
 					});
 				});
 
