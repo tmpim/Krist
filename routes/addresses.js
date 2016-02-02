@@ -1,10 +1,12 @@
-var krist           = require('./../src/krist.js'),
-	addresses       = require('./../src/addresses.js'),
-	addressesAPI    = require('./../src/api/addresses.js'),
-	names           = require('./../src/names.js'),
-	tx              = require('./../src/transactions.js'),
-	utils           = require('./../src/utils.js'),
-	moment          = require('moment');
+var krist               = require('./../src/krist.js'),
+	addresses           = require('./../src/addresses.js'),
+	addressesController = require('./../src/controllers/addresses.js'),
+	namesController     = require('./../src/controllers/names.js'),
+	txController        = require('./../src/controllers/transactions.js')
+	names               = require('./../src/names.js'),
+	tx                  = require('./../src/transactions.js'),
+	utils               = require('./../src/utils.js'),
+	moment              = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -90,11 +92,11 @@ module.exports = function(app) {
 	});
 
 	app.get('/addresses', function(req, res) {
-		addressesAPI.getAddresses(req.query.limit, req.query.offset).then(function(results) {
+		addressesController.getAddresses(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
 			results.forEach(function(address) {
-				out.push(addressesAPI.addressToJSON(address));
+				out.push(addressesController.addressToJSON(address));
 			});
 
 			res.json({
@@ -108,11 +110,11 @@ module.exports = function(app) {
 	});
 
 	app.get('/addresses/rich', function(req, res) {
-		addressesAPI.getRich(req.query.limit, req.query.offset).then(function(results) {
+		addressesController.getRich(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
 			results.forEach(function(address) {
-				out.push(addressesAPI.addressToJSON(address));
+				out.push(addressesController.addressToJSON(address));
 			});
 
 			res.json({
@@ -130,7 +132,7 @@ module.exports = function(app) {
 			if (address) {
 				res.json({
 					ok: true,
-					address: addressesAPI.addressToJSON(address)
+					address: addressesController.addressToJSON(address)
 				});
 			} else {
 				res.status(404).json({
@@ -148,15 +150,7 @@ module.exports = function(app) {
 					var out = [];
 
 					results.forEach(function (name) {
-						out.push({
-							name: name.name,
-							owner: name.owner,
-							registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
-							registered_unix: moment(name.registered).unix(),
-							updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
-							updated_unix: moment(name.updated).unix(),
-							a: name
-						});
+						out.push(namesController.nameToJSON(name));
 					});
 
 					res.json({
@@ -175,54 +169,20 @@ module.exports = function(app) {
 	});
 
 	app.get('/address/:address/transactions', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
+		addressesController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset).then(function(transactions) {
+			var out = [];
+
+			transactions.forEach(function (transaction) {
+				out.push(txController.transactionToJSON(transaction));
 			});
 
-			return;
-		}
-
-		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_offset'
+			res.json({
+				ok: true,
+				count: out.length,
+				transactions: out
 			});
-
-			return;
-		}
-
-		addresses.getAddress(req.params.address).then(function(address) {
-			if (address) {
-				tx.getTransactionsByAddress(address.address, req.query.limit, req.query.offset).then(function(transactions) {
-					var out = [];
-
-					transactions.forEach(function (transaction) {
-						out.push({
-							id: transaction.id,
-							from: transaction.from,
-							to: transaction.to,
-							value: transaction.value,
-							time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-							time_unix: moment(transaction.time).unix(),
-							name: transaction.name,
-							op: transaction.op
-						});
-					});
-
-					res.json({
-						ok: true,
-						count: out.length,
-						transactions: out
-					});
-				});
-			} else {
-				res.status(404).json({
-					ok: false,
-					error: 'not_found'
-				});
-			}
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 

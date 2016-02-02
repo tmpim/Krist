@@ -1,10 +1,11 @@
 var addresses   = require('./../addresses.js'),
+	tx          = require('./../transactions.js'),
 	errors      = require('./../errors/errors.js'),
 	utils       = require('./../utils.js');
 
-function AddressAPI() {}
+function AddressesController() {}
 
-AddressAPI.getAddresses = function(limit, offset) {
+AddressesController.getAddresses = function(limit, offset) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
@@ -18,7 +19,7 @@ AddressAPI.getAddresses = function(limit, offset) {
 	});
 };
 
-AddressAPI.getRich = function(limit, offset) {
+AddressesController.getRich = function(limit, offset) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
@@ -32,15 +33,34 @@ AddressAPI.getRich = function(limit, offset) {
 	});
 };
 
-AddressAPI.addressToJSON = function(address) {
+AddressesController.getTransactionsByAddress = function(address, limit, offset) {
+	return new Promise(function(resolve, reject) {
+		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
+			return reject(new errors.ErrorInvalidParameter('limit'));
+		}
+
+		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+			return reject(new errors.ErrorInvalidParameter('offset'));
+		}
+
+		addresses.getAddress(address).then(function(addr) {
+			if (addr) {
+				tx.getTransactionsByAddress(addr.address, limit, offset).then(resolve).catch(reject);
+			} else {
+				reject(new errors.ErrorAddressNotFound());
+			}
+		}).catch(reject);
+	});
+};
+
+AddressesController.addressToJSON = function(address) {
 	return {
 		address: address.address.toLowerCase(),
 		balance: address.balance,
 		totalin: address.totalin,
 		totalout: address.totalout,
-		firstseen: utils.formatDate(address.firstseen),
-		firstseen_unix: utils.formatDateUnix(address.firstseen)
+		firstseen: address.firstseen,
 	};
 };
 
-module.exports = AddressAPI;
+module.exports = AddressesController;

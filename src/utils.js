@@ -1,5 +1,4 @@
 var crypto = require('crypto'),
-	moment = require('moment'),
 	errors = require('./errors/errors.js');
 
 function Utils() {}
@@ -24,14 +23,6 @@ Utils.hexToBase36 = function(input) {
 
 Utils.padDigits = function(number, digits) {
 	return new Array(Math.max(digits - String(number).length + 1, 0)).join('0') + number;
-};
-
-Utils.formatDate = function(date) {
-	return moment(date).format('YYYY-MM-DD HH:mm:ss').toString();
-};
-
-Utils.formatDateUnix = function(date) {
-	return moment(date).unix();
 };
 
 Utils.sendError = function(res, error) {
