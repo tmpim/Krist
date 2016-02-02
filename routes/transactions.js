@@ -1,9 +1,10 @@
-var krist       = require('./../src/krist.js'),
-	addresses   = require('./../src/addresses.js'),
-	tx          = require('./../src/transactions.js'),
-	utils       = require('./../src/utils.js'),
-	schemas     = require('./../src/schemas.js'),
-	moment      = require('moment');
+var krist           = require('./../src/krist.js'),
+	addresses       = require('./../src/addresses.js'),
+	tx              = require('./../src/transactions.js'),
+	txController    = require('./../src/controllers/transactions.js'),
+	utils           = require('./../src/utils.js'),
+	schemas         = require('./../src/schemas.js'),
+	moment          = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -106,10 +107,10 @@ module.exports = function(app) {
 				return;
 			}
 
-			var from = krist.makeV2Address(req.query.pkey);
-			var amt = parseInt(req.query.amt);
+			var fromv2 = krist.makeV2Address(req.query.pkey);
+			var amtv2 = parseInt(req.query.amt);
 
-			if (from.toLowerCase() === "a5dfb396d3") {
+			if (fromv2.toLowerCase() === "a5dfb396d3") {
 				res.status(403).send('Error5');
 
 				return;
@@ -127,14 +128,14 @@ module.exports = function(app) {
 				return;
 			}
 
-			addresses.getAddress(from).then(function(sender) {
-				if (!sender || sender.balance < amt) {
+			addresses.getAddress(fromv2).then(function(sender) {
+				if (!sender || sender.balance < amtv2) {
 					res.status(403).send("Error1");
 
 					return;
 				}
 
-				tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+				tx.pushTransaction(sender, req.query.q.toString(), amtv2, req.query.com).then(function() {
 					res.send('Success');
 				});
 			});
@@ -146,38 +147,11 @@ module.exports = function(app) {
 	});
 
 	app.get('/transactions', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
-			});
-
-			return;
-		}
-
-		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_offset'
-			});
-
-			return;
-		}
-
-		tx.getTransactions(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(transactions) {
+		txController.getTransactions(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(transactions) {
 			var out = [];
 
 			transactions.forEach(function (transaction) {
-				out.push({
-					id: transaction.id,
-					from: transaction.from,
-					to: transaction.to,
-					value: transaction.value,
-					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(transaction.time).unix(),
-					name: transaction.name,
-					op: transaction.op
-				});
+				out.push(txController.transactionToJSON(transaction));
 			});
 
 			res.json({
@@ -185,29 +159,19 @@ module.exports = function(app) {
 				count: out.length,
 				transactions: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
-	app.get('/transaction/:transaction', function(req, res) {
-		tx.getTransaction(Math.max(parseInt(req.params.transaction), 0)).then(function(transaction) {
-			if (transaction) {
-				res.json({
-					ok: true,
-					id: transaction.id,
-					from: transaction.from,
-					to: transaction.to,
-					value: transaction.value,
-					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(transaction.time).unix(),
-					name: transaction.name,
-					op: transaction.op
-				});
-			} else {
-				res.status(404).json({
-					ok: false,
-					error: 'not_found'
-				});
-			}
+	app.get('/transaction/:id', function(req, res) {
+		txController.getBlock(req.params.id).then(function(transaction) {
+			res.json({
+				ok: true,
+				block: txController.transactionToJSON(transaction)
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
