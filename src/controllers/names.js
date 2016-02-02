@@ -63,14 +63,12 @@ NamesController.registerName = function(desiredName, privateKey) {
 		return reject(new errors.ErrorMissingParameter('privatekey'));
 	}
 
-	var desiredName = req.params.name.toLowerCase();
-
 	names.getNameByName(desiredName).then(function(name) {
 		if (name) {
 			return reject(new errors.ErrorNameTaken());
 		}
 
-		addresses.getAddress(krist.makeV2Address(req.body.privatekey)).then(function(address) {
+		addresses.getAddress(krist.makeV2Address(privateKey)).then(function(address) {
 			if (!address || address.balance < names.getNameCost()) {
 				return reject(new errors.ErrorInsufficientFunds());
 			}

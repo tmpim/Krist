@@ -6,6 +6,6 @@ errors.ErrorRouteNotFound = function(message) {
 	this.message = message;
 	this.statusCode = 404;
 	this.errorString = 'route_not_found';
-}
+};
 
 util.inherits(errors.ErrorRouteNotFound, errors.KristError);

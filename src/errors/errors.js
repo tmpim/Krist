@@ -11,7 +11,7 @@ errors.KristError = function(message) {
 	this.statusCode = 500;
 
 	this.info = {};
-}
+};
 
 util.inherits(errors.KristError, Error);
 

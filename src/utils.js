@@ -38,7 +38,9 @@ Utils.sendError = function(res, error) {
 
 		if (error.info) {
 			for (var key in error.info) {
-				out[key] = error.info[key];
+				if (error.info.hasOwnProperty(key)) {
+					out[key] = error.info[key];
+				}
 			}
 		}
 

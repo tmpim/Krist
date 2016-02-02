@@ -17,10 +17,10 @@ module.exports = function(app) {
 		krist.getMoneySupply().then(function(supply) {
 			res.json({
 				ok: true,
-				money_supply: supply,
+				money_supply: supply
 			});
 		});
 	});
 
 	return app;
-}
+};

@@ -1,5 +1,5 @@
 var krist               = require('./../src/krist.js'),
-	utils               = require('./../src/utils.js')
+	utils               = require('./../src/utils.js'),
 	addressesController = require('./../src/controllers/addresses.js'),
 	blocksController    = require('./../src/controllers/blocks.js'),
 	blocks              = require('./../src/blocks.js'),
@@ -64,4 +64,4 @@ module.exports = function(app) {
 	});
 
 	return app;
-}
+};

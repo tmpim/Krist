@@ -6,7 +6,7 @@ errors.ErrorBlockNotFound = function(message) {
 	this.message = message;
 	this.statusCode = 404;
 	this.errorString = 'block_not_found';
-}
+};
 
 util.inherits(errors.ErrorBlockNotFound, errors.KristError);
 
@@ -15,6 +15,6 @@ errors.ErrorSolutionIncorrect = function(message) {
 	this.message = message;
 	this.statusCode = 403;
 	this.errorString = 'solution_incorrect';
-}
+};
 
 util.inherits(errors.ErrorSolutionIncorrect, errors.KristError);

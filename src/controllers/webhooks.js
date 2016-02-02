@@ -71,7 +71,7 @@ WebhooksController.registerWebhook = function(privatekey, owner, event, destURL,
 			}
 		});
 	});
-}
+};
 
 WebhooksController.getWebhooksByOwner = function(privatekey, owner) {
 	return new Promise(function(resolve, reject) {
@@ -89,7 +89,7 @@ WebhooksController.getWebhooksByOwner = function(privatekey, owner) {
 
 		webhooks.getWebhooksByOwner(owner).then(resolve).catch(reject);
 	});
-}
+};
 
 WebhooksController.deleteWebhook = function(privatekey, owner, id) {
 	return new Promise(function(resolve, reject) {
@@ -121,7 +121,7 @@ WebhooksController.deleteWebhook = function(privatekey, owner, id) {
 			webhook.destroy().then(resolve).catch(reject);
 		}).catch(reject);
 	});
-}
+};
 
 WebhooksController.webhookToJSON = function(webhook) {
 	if (webhook.event === 'transaction' || webhook.event === 'name') {

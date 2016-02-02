@@ -11,7 +11,7 @@ errors.ErrorInvalidParameter = function(parameter, message) {
 	this.info = {
 		parameter: parameter
 	};
-}
+};
 
 util.inherits(errors.ErrorInvalidParameter, errors.KristError);
 
@@ -25,6 +25,6 @@ errors.ErrorMissingParameter = function(parameter, message) {
 	this.info = {
 		parameter: parameter
 	};
-}
+};
 
 util.inherits(errors.ErrorMissingParameter, errors.KristError);
