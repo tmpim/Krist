@@ -136,4 +136,8 @@ Krist.isValidName = function(name) {
 	return nameRegex.test(name) && name.length > 0 && name.length < 65;
 };
 
+Krist.isValidARecord = function(ar) {
+	return /^[a-z0-9\.\/\-\$]{1,256}$/i.test(ar);
+}
+
 module.exports = Krist;

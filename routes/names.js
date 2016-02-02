@@ -189,7 +189,7 @@ module.exports = function(app) {
 				return res.status(400).send('Error6');
 			}
 
-			if (!req.query.ar || !/^[a-z0-9\.\/\-\$]{1,256}$/i.test(req.query.ar)) {
+			if (!req.query.ar || !krist.isValidARecord(req.query.ar)) {
 				return res.status(400).send('Error8');
 			}
 
@@ -297,6 +297,31 @@ module.exports = function(app) {
 			utils.sendError(res, error);
 		});
 	});
+
+	app.post('/name/:name/transfer', function(req, res) {
+		namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
+			res.json({
+				ok: true,
+				name: name
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
+		});
+	});
+
+	function updateName(req, res) {
+		namesController.updateName(req.params.name, req.body.privatekey, req.body.a).then(function(name) {
+			res.json({
+				ok: true,
+				name: name
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
+		});
+	}
+
+	app.post('/name/:name/update', updateName);
+	app.put('/name/:name', updateName);
 
 	return app;
 };

@@ -1,5 +1,6 @@
-var krist = require('./../src/krist.js'),
-	utils = require('./../src/utils.js');
+var krist   = require('./../src/krist.js'),
+	utils   = require('./../src/utils.js'),
+	errors  = require('./../src/errors/errors.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {

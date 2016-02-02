@@ -55,12 +55,16 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
 };
 
 NamesController.registerName = function(desiredName, privateKey) {
-	if (!krist.isValidName(name)) {
-		return reject(new errors.ErrorInvalidParameter('name'));
+	if (!desiredName) {
+		return reject(new errors.ErrorMissingParameter('name'));
 	}
 
-	if (!privatekey) {
+	if (!privateKey) {
 		return reject(new errors.ErrorMissingParameter('privatekey'));
+	}
+
+	if (!krist.isValidName(name)) {
+		return reject(new errors.ErrorInvalidParameter('name'));
 	}
 
 	names.getNameByName(desiredName).then(function(name) {
@@ -84,6 +88,88 @@ NamesController.registerName = function(desiredName, privateKey) {
 			Promise.all(promises).then(resolve).catch(reject);
 		}).catch(reject);
 	}).catch(reject);
+};
+
+NamesController.transferName = function(name, privateKey, address) {
+	return new Promise(function(resolve, reject) {
+		if (!name) {
+			return reject(new errors.ErrorMissingParameter('name'));
+		}
+
+		if (!privateKey) {
+			return reject(new errors.ErrorMissingParameter('privatekey'));
+		}
+
+		if (!address) {
+			return reject(new errors.ErrorMissingParameter('address'));
+		}
+
+		if (!krist.isValidName(name)) {
+			return reject(new errors.ErrorInvalidParameter('name'));
+		}
+
+		if (!krist.isValidKristAddress(address)) {
+			return reject(new errors.ErrorInvalidParameter('address'));
+		}
+
+		names.getNameByName(name).then(function(name) {
+			if (!name) {
+				return reject(new errors.ErrorNameNotFound());
+			}
+
+			if (name.owner !== krist.makeV2Address(privateKey)) {
+				return reject(new errors.ErrorNotNameOwner());
+			}
+
+			name.update({
+				owner: address,
+				updated: new Date()
+			}).then(function() {
+				name.reload().then(resolve).catch(reject);
+			}).catch(reject);
+		}).catch(reject);
+	});
+};
+
+NamesController.updateName = function(name, privateKey, a) {
+	return new Promise(function(resolve, reject) {
+		if (!name) {
+			return reject(new errors.ErrorMissingParameter('name'));
+		}
+
+		if (!privateKey) {
+			return reject(new errors.ErrorMissingParameter('privatekey'));
+		}
+
+		if (!a) {
+			return reject(new errors.ErrorMissingParameter('a'));
+		}
+
+		if (!krist.isValidName(name)) {
+			return reject(new errors.ErrorInvalidParameter('name'));
+		}
+
+		if (!krist.isValidARecord(a)) {
+			return reject(new errors.ErrorInvalidParameter('a'));
+		}
+
+		names.getNameByName(name).then(function (name) {
+			if (!name) {
+				return reject(new errors.ErrorNameNotFound());
+			}
+
+			if (name.owner !== krist.makeV2Address(privateKey)) {
+				return reject(new errors.ErrorNotNameOwner());
+			}
+
+			name.update({
+				a: a,
+				updated: new Date()
+			}).then(function () {
+				name.reload().then(resolve).catch(reject);
+			}).catch(reject);
+		}).catch(reject);
+	});
 };
 
 NamesController.nameToJSON = function(name) {
