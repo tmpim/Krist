@@ -96,28 +96,28 @@ Krist.getWorkGrowthFactor = function() {
 };
 
 Krist.makeV2Address = function(key) {
-	var cocks = ['', '', '', '', '', '', '', '', ''];
-	var v2 = 'k';
-	var circles = utils.sha256(utils.sha256(key));
+	var chars = ['', '', '', '', '', '', '', '', ''];
+	var prefix = 'k';
+	var hash = utils.sha256(utils.sha256(key));
 
 	for (var i = 0; i <= 8; i++) {
-		cocks[i] = circles.substring(0, 2);
-		circles = utils.sha256(utils.sha256(circles));
+		chars[i] = hash.substring(0, 2);
+		hash = utils.sha256(utils.sha256(hash));
 	}
 
 	for (i = 0; i <= 8;) {
-		var dean = parseInt(circles.substring(2 * i, 2 + (2 * i)), 16) % 9;
+		var i = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
 
-		if (cocks[dean] === "") {
-			circles = utils.sha256(circles);
+		if (chars[i] === "") {
+			hash = utils.sha256(hash);
 		} else {
-			v2+=utils.hexToBase36(parseInt(cocks[dean], 16));
-			cocks[dean] = "";
+			prefix+=utils.hexToBase36(parseInt(chars[i], 16));
+			chars[i] = "";
 			i++;
 		}
 	}
 
-	return v2;
+	return prefix;
 };
 
 Krist.isKristAddress = function(address) {

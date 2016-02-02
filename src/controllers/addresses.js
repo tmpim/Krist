@@ -1,4 +1,5 @@
 var addresses   = require('./../addresses.js'),
+	krist       = require('./../krist.js'),
 	errors      = require('./../errors/errors.js');
 
 function AddressesController() {}
@@ -31,13 +32,29 @@ AddressesController.getRich = function(limit, offset) {
 	});
 };
 
+AddressesController.getAddress = function(address) {
+	return new Promise(function(resolve, reject) {
+		if (!krist.isKristAddress(address)) {
+			return reject(new errors.ErrorInvalidParameter('address'));
+		}
+
+		addresses.getAddress(address).then(function(result) {
+			if (!result) {
+				return reject(new errors.ErrorAddressNotFound());
+			}
+
+			resolve(result);
+		}).catch(reject);
+	});
+};
+
 AddressesController.addressToJSON = function(address) {
 	return {
 		address: address.address.toLowerCase(),
 		balance: address.balance,
 		totalin: address.totalin,
 		totalout: address.totalout,
-		firstseen: address.firstseen,
+		firstseen: address.firstseen
 	};
 };
 

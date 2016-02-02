@@ -1,7 +1,8 @@
-var krist   = require('./../src/krist.js'),
-	blocks  = require('./../src/blocks.js'),
-	utils   = require('./../src/utils.js'),
-	moment  = require('moment');
+var krist            = require('./../src/krist.js'),
+	blocksController = require('./../src/controllers/blocks.js'),
+	blocks           = require('./../src/blocks.js'),
+	utils            = require('./../src/utils.js'),
+	moment           = require('moment');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -84,37 +85,14 @@ module.exports = function(app) {
 	});
 
 	app.get('/blocks', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
-			});
-
-			return;
-		}
-
-		if ((req.query.offset && isNaN(req.query.offset)) || (req.query.offset && req.query.offset <= 0)) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_offset'
-			});
-
-			return;
-		}
-
-		blocks.getBlocks(req.query.limit, req.query.offset, typeof req.query.asc !== 'undefined').then(function(results) {
+		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
 
-			results.forEach(function (block) {
-				out.push({
-					height: block.id,
-					address: block.address,
-					hash: block.hash,
-					short_hash: block.hash.substring(0, 12),
-					value: block.value,
-					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(block.time).unix()
-				});
+			results.forEach(function(block) {
+				if (block.hash === null) return;
+				if (block.id === 1) return;
+
+				out.push(blocksController.blockToJSON(block));
 			});
 
 			res.json({
@@ -122,35 +100,20 @@ module.exports = function(app) {
 				count: out.length,
 				blocks: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.get('/blocks/lowest', function(req, res) {
-		if ((req.query.limit && isNaN(req.query.limit)) || (req.query.limit && (req.query.limit <= 0))) {
-			res.status(400).json({
-				ok: false,
-				error: 'invalid_limit'
-			});
-
-			return;
-		}
-
-		blocks.getBlocksByOrder('hash ASC', req.query.limit).then(function(results) {
+		blocksController.getBlocksByOrder('hash ASC', req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
 
-			results.forEach(function (block) {
+			results.forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
-				out.push({
-					height: block.id,
-					address: block.address,
-					hash: block.hash,
-					short_hash: block.hash.substring(0, 12),
-					value: block.value,
-					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(block.time).unix()
-				});
+				out.push(blocksController.blockToJSON(block));
 			});
 
 			res.json({
@@ -158,21 +121,29 @@ module.exports = function(app) {
 				count: out.length,
 				blocks: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
 	app.get('/block/last', function(req, res) {
-		blocks.getLastBlock().then(function(block) {
+		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
+			var out = [];
+
+			results.forEach(function(block) {
+				if (block.hash === null) return;
+				if (block.id === 1) return;
+
+				out.push(blocksController.blockToJSON(block));
+			});
+
 			res.json({
 				ok: true,
-				height: block.id,
-				address: block.address,
-				hash: block.hash,
-				short_hash: block.hash.substring(0, 12),
-				value: block.value,
-				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-				time_unix: moment(block.time).unix()
+				count: out.length,
+				blocks: out
 			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 
@@ -194,27 +165,14 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/:block', function(req, res) {
-		blocks.getBlock(Math.max(parseInt(req.params.block), 0)).then(function(block) {
-			if (!block) {
-				res.status(404).json({
-					ok: false,
-					error: 'not_found'
-				});
-
-				return;
-			}
-
+	app.get('/block/:height', function(req, res) {
+		blocksController.getBlock(req.params.height).then(function(block) {
 			res.json({
 				ok: true,
-				height: block.id,
-				address: block.address,
-				hash: block.hash,
-				short_hash: block.hash.substring(0, 12),
-				value: block.value,
-				time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-				time_unix: moment(block.time).unix()
-			})
+				block: blocksController.blockToJSON(block)
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 

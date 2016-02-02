@@ -43,6 +43,14 @@ Utils.sendError = function(res, error) {
 		}
 
 		res.status(error.statusCode).json(out);
+	} else {
+		res.status(500).json({
+			ok: false,
+			error: 'server_error'
+		});
+
+		console.log('[Error]'.red + ' Uncaught error.');
+		console.log(error.stack);
 	}
 };
 

@@ -1,4 +1,6 @@
 var	config	    = require('./../config.js'),
+	utils       = require('./utils.js'),
+	errors      = require('./errors/errors.js'),
 	express	    = require('express'),
 	bodyParser  = require('body-parser'),
 	net		    = require('net'),
@@ -87,18 +89,15 @@ Webserver.init = function() {
 				require('./../routes/' + file)(Webserver.express);
 			} catch (error) {
 				console.log('[Webserver]'.red + ' Error loading route `' + file + '`: ');
-				console.log('[Webserver]'.red + ' ' + error.toString());
+				console.log(error.stack);
 			}
 		});
 	} catch (error) {
 		console.log('[Webserver]'.red + ' Error finding routes: ');
-		console.log('[Webserver]'.red + ' ' + error.toString());
+		console.log(error.stack);
 	}
 
 	Webserver.express.use(function(req, res) {
-		res.status(404).json({
-			ok: false,
-			error: 'not_found'
-		});
+		utils.sendError(res, new errors.ErrorRouteNotFound());
 	});
 };

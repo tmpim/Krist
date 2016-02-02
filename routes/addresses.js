@@ -2,7 +2,7 @@ var krist               = require('./../src/krist.js'),
 	addresses           = require('./../src/addresses.js'),
 	addressesController = require('./../src/controllers/addresses.js'),
 	namesController     = require('./../src/controllers/names.js'),
-	txController        = require('./../src/controllers/transactions.js')
+	txController        = require('./../src/controllers/transactions.js'),
 	names               = require('./../src/names.js'),
 	tx                  = require('./../src/transactions.js'),
 	utils               = require('./../src/utils.js'),
@@ -128,18 +128,13 @@ module.exports = function(app) {
 	});
 
 	app.get('/address/:address', function(req, res) {
-		addresses.getAddress(req.params.address).then(function(address) {
-			if (address) {
-				res.json({
-					ok: true,
-					address: addressesController.addressToJSON(address)
-				});
-			} else {
-				res.status(404).json({
-					ok: false,
-					error: 'not_found'
-				});
-			}
+		addressesController.getAddress(req.params.address).then(function(address) {
+			res.json({
+				ok: true,
+				address: addressesController.addressToJSON(address)
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
 		});
 	});
 

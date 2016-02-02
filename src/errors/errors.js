@@ -31,12 +31,12 @@ try {
 			require('./' + file);
 		} catch (error) {
 			console.log('[Error]'.red + ' Uncaught error: `' + file + '`: ');
-			console.log('[Error]'.red + ' ' + error.toString());
+			console.log(error.stack);
 		}
 	});
 } catch (error) {
 	console.log('[Error]'.red + ' Uncaught error: ');
-	console.log('[Error]'.red + ' ' + error.toString());
+	console.log(error.stack);
 }
 
 module.exports = errors;
