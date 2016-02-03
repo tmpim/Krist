@@ -13,7 +13,7 @@ module.exports = function(app) {
 
 	/**
 	 * @api {post} /v2 Get v2 address from a private key
-	 * @apiName V2
+	 * @apiName MakeV2Address
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.0.0
 	 *

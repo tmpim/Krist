@@ -9,6 +9,21 @@ module.exports = function(app) {
 		next();
 	});
 
+	/**
+	 * @api {get} /work Get the current work
+	 * @apiName GetWork
+	 * @apiGroup MiscellaneousGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiSuccess {Number} work The current Krist work (difficulty)
+	 *
+	 * @apiSuccessExample {json} Success
+	 * HTTP/1.1 200 OK
+	 * {
+	 *     "ok": true,
+	 *     "work": 18750
+     * }
+	 */
 	app.get('/work', function(req, res) {
 		res.header('Content-Type', 'application/json');
 
