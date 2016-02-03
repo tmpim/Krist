@@ -6,9 +6,9 @@ var utils   = require('./utils.js'),
 	request = require('request'),
 	moment  = require('moment');
 
-function WebHooks() {}
+function Webhooks() {}
 
-WebHooks.isURLAllowed = function(urlParts) {
+Webhooks.isURLAllowed = function(urlParts) {
 	return new Promise(function(resolve, reject) {
 		schemas.webhook.findAll().then(function(webhooks) {
 			var count = 0;
@@ -24,7 +24,7 @@ WebHooks.isURLAllowed = function(urlParts) {
 	});
 };
 
-WebHooks.createTransactionWebhook = function(owner, method, url, addresses) {
+Webhooks.createTransactionWebhook = function(owner, method, url, addresses) {
 	return schemas.webhook.create({
 		event: 'transaction',
 		method: method,
@@ -34,7 +34,7 @@ WebHooks.createTransactionWebhook = function(owner, method, url, addresses) {
 	});
 };
 
-WebHooks.createBlockWebhook = function(owner, method, url) {
+Webhooks.createBlockWebhook = function(owner, method, url) {
 	return schemas.webhook.create({
 		event: 'block',
 		method: method,
@@ -43,7 +43,7 @@ WebHooks.createBlockWebhook = function(owner, method, url) {
 	});
 };
 
-WebHooks.createNameWebhook = function(owner, method, url, addresses) {
+Webhooks.createNameWebhook = function(owner, method, url, addresses) {
 	return schemas.webhook.create({
 		event: 'name',
 		method: method,
@@ -53,7 +53,7 @@ WebHooks.createNameWebhook = function(owner, method, url, addresses) {
 	});
 };
 
-WebHooks.callNameWebhooks = function(name) {
+Webhooks.callNameWebhooks = function(name) {
 	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: name.owner}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
@@ -82,7 +82,7 @@ WebHooks.callNameWebhooks = function(name) {
 	});
 };
 
-WebHooks.callTransactionWebhooks = function(transaction) {
+Webhooks.callTransactionWebhooks = function(transaction) {
 	schemas.webhook.findAll({where: {event: 'transaction', value: {$or: [null, '', {$like: transaction.from}, {$like: transaction.to}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
@@ -112,7 +112,7 @@ WebHooks.callTransactionWebhooks = function(transaction) {
 	});
 };
 
-WebHooks.callBlockWebhooks = function(block) {
+Webhooks.callBlockWebhooks = function(block) {
 	schemas.webhook.findAll({where: {event: 'block', value: {$or: [null, '', {$like: block.address}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
@@ -141,12 +141,16 @@ WebHooks.callBlockWebhooks = function(block) {
 	});
 };
 
-WebHooks.getWebhookById = function(id) {
+Webhooks.getWebhookById = function(id) {
 	return schemas.webhook.findById(id);
 };
 
-WebHooks.getWebhooksByOwner = function(owner) {
-	return schemas.webhook.findAll({where: {owner: owner}});
+Webhooks.getWebhooksByAddress = function(address) {
+	return schemas.webhook.findAll({where: {owner: address}});
 };
 
-module.exports = WebHooks;
+Webhooks.getWebhookCountByAddress = function(address) {
+	return schemas.webhook.count({where: {owner: address}});
+};
+
+module.exports = Webhooks;

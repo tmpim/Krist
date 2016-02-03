@@ -16,7 +16,7 @@ module.exports = function(app) {
 	});
 
 	function getWebhooksByOwner(req, res) {
-		webhooksController.getWebhooksByOwner(req.body.privatekey, req.params.owner).then(function(results) {
+		webhooksController.getWebhooksByAddress(req.body.privatekey, req.params.owner).then(function(results) {
 			var out = [];
 
 			results.forEach(function(webhook) {

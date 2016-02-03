@@ -1,4 +1,5 @@
 var webhooks    = require('./../webhooks.js'),
+	names       = require('./../names.js'),
 	errors      = require('./../errors/errors.js'),
 	krist       = require('./../krist.js'),
 	url         = require('url');
@@ -43,37 +44,45 @@ WebhooksController.registerWebhook = function(privatekey, owner, event, destURL,
 			return reject(new errors.ErrorInvalidParameter('url'));
 		}
 
-		webhooks.isURLAllowed(parsedURL).then(function (allowed) {
-			if (!allowed) {
-				return reject(new errors.ErrorLimitReached());
-			}
+		names.getNameCountByAddress(owner).then(function(nameCount) {
+			webhooks.getWebhookCountByAddress(owner).then(function(webhookCount) {
+				if (webhookCount >= nameCount) {
+					return reject(new errors.ErrorLimitReached());
+				}
 
-			switch (event.toLowerCase().trim()) {
-				case 'transaction':
-					if (addresses && !krist.isValidKristAddressList(addresses)) {
-						return reject(new errors.ErrorInvalidParameter('addresses'));
+				webhooks.isURLAllowed(parsedURL).then(function(allowed) {
+					if (!allowed) {
+						return reject(new errors.ErrorLimitReached());
 					}
 
-					webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+					switch (event.toLowerCase().trim()) {
+						case 'transaction':
+							if (addresses && !krist.isValidKristAddressList(addresses)) {
+								return reject(new errors.ErrorInvalidParameter('addresses'));
+							}
 
-					break;
-				case 'name':
-					if (addresses && !krist.isValidKristAddressList(addresses)) {
-						return reject(new errors.ErrorInvalidParameter('addresses'));
+							webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+
+							break;
+						case 'name':
+							if (addresses && !krist.isValidKristAddressList(addresses)) {
+								return reject(new errors.ErrorInvalidParameter('addresses'));
+							}
+
+							webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+
+							break;
+						case 'block':
+							webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
+							break;
 					}
-
-					webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
-
-					break;
-				case 'block':
-					webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
-					break;
-			}
+				});
+			});
 		});
 	});
 };
 
-WebhooksController.getWebhooksByOwner = function(privatekey, owner) {
+WebhooksController.getWebhooksByAddress = function(privatekey, owner) {
 	return new Promise(function(resolve, reject) {
 		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
@@ -87,7 +96,7 @@ WebhooksController.getWebhooksByOwner = function(privatekey, owner) {
 			return reject(new errors.ErrorAuthFailed());
 		}
 
-		webhooks.getWebhooksByOwner(owner).then(resolve).catch(reject);
+		webhooks.getWebhooksByAddress(owner).then(resolve).catch(reject);
 	});
 };
 
