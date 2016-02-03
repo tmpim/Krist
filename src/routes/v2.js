@@ -11,6 +11,23 @@ module.exports = function(app) {
 		next();
 	});
 
+	/**
+	 * @api {post} /v2 Get v2 address from a private key
+	 * @apiName V2
+	 * @apiGroup MiscellaneousGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (BodyParameter) {String} privatekey The private key to turn into an address
+	 *
+	 * @apiSuccess {String} address The address from the private key
+	 *
+	 * @apiSuccessExample {json} Success
+	 * HTTP/1.1 200 OK
+	 * {
+	 *     "ok": true,
+	 *     "address": "kre3w0i79j"
+     * }
+	 */
 	app.post('/v2', function(req, res) {
 		if (!req.body.privatekey) {
 			return utils.sendError(res, new errors.ErrorMissingParameter('privatekey'));

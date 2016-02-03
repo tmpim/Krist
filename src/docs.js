@@ -15,3 +15,9 @@
  *
  * A POST parameter in the request body.
  */
+
+/**
+ * @apiDefine MiscellaneousGroup Miscellaneous
+ *
+ * All other endpoints.
+ */
