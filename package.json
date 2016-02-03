@@ -21,6 +21,7 @@
     "body-parser": "^1.14.2",
     "colors": "^1.1.2",
     "express": "^4.13.3",
+    "express-rate-limit": "^2.1.0",
     "moment": "^2.11.1",
     "request": "^2.69.0",
     "sequelize": "^3.19.0",

@@ -23,6 +23,15 @@ config.database_dialect = 'mysql';
 // The socket file for your server. Proxy this to nginx.
 config.server_sock = '/var/krist/krist.sock';
 
+// Configuration of the rate limiter. See: https://github.com/nfriedly/express-rate-limit
+config.rateLimit_configuration = {
+	windowMs: 60000,
+	delayAfter: 240,
+	delayMs: 5,
+	max: 320,
+	message: 'Rate limit hit. Please try again later.'
+};
+
 /*
  * KRIST SPECIFIC
  */

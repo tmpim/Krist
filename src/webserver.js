@@ -3,6 +3,7 @@ var	config	    = require('./../config.js'),
 	errors      = require('./errors/errors.js'),
 	express	    = require('express'),
 	bodyParser  = require('body-parser'),
+	rateLimit   = require('express-rate-limit'),
 	net		    = require('net'),
 	fs		    = require('fs'),
 	path 	    = require('path');
@@ -58,11 +59,13 @@ Webserver.init = function() {
 		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
 	});
 
+	Webserver.express.enable('trust proxy');
 	Webserver.express.disable('x-powered-by');
 	Webserver.express.disable('etag');
 	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 	Webserver.express.use(bodyParser.json());
 	Webserver.express.use(express.static('static'));
+	Webserver.express.use(rateLimit(config.rateLimit_configuration));
 
 	Webserver.express.all('*', function(req, res, next) {
 		res.header('X-Robots-Tag', 'none');
