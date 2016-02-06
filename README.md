@@ -119,6 +119,6 @@ node convertdb
 is listed when running the script. You will be prompted for confirmation prior to any actions being performed to
 the database. The data.db file should remain unmodified.
 
-## License
+## Licence
 
-This project is released under **GPL-3.0**. More information can be found in the `LICENSE` file.
+This project is released under **GPL-3.0**. More information can be found in the `LICENCE` file.
