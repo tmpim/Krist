@@ -9,12 +9,26 @@ module.exports = function(app) {
 		next();
 	});
 
+	/**
+	 * @api {get} /walletversion Get latest KristWallet version
+	 * @apiName GetWalletVersio0n
+	 * @apiGroup MiscellaneousGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiSuccess {Number} wallet_version The latest KristWallet version.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "wallet_version": 14
+     * }
+	 */
 	app.get('/walletversion', function(req, res) {
 		res.header('Content-Type', 'application/json');
 
 		res.json({
-			ok: true,
-			walletversion: krist.getWalletVersion()
+			ok: true,	
+			wallet_version: krist.getWalletVersion()
 		});
 	});
 

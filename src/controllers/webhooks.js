@@ -96,7 +96,13 @@ WebhooksController.getWebhooksByAddress = function(privatekey, owner) {
 			return reject(new errors.ErrorAuthFailed());
 		}
 
-		webhooks.getWebhooksByAddress(owner).then(resolve).catch(reject);
+		addresses.getAddress(address).then(function(result) {
+			if (!result) {
+				return reject(new errors.ErrorAddressNotFound());
+			}
+
+			webhooks.getWebhooksByAddress(owner).then(resolve).catch(reject);
+		});
 	});
 };
 
@@ -136,19 +142,19 @@ WebhooksController.webhookToJSON = function(webhook) {
 	if (webhook.event === 'transaction' || webhook.event === 'name') {
 		return {
 			id: webhook.id,
+			owner: webhook.owner,
 			event: webhook.event,
-			addresses: webhook.value ? webhook.value.split(',') : null,
 			url: webhook.url,
 			method: webhook.method,
-			owner: webhook.owner
+			addresses: webhook.value ? webhook.value.split(',') : null
 		};
 	} else {
 		return {
 			id: webhook.id,
+			owner: webhook.owner,
 			event: webhook.event,
 			url: webhook.url,
-			method: webhook.method,
-			owner: webhook.owner
+			method: webhook.method
 		};
 	}
 };

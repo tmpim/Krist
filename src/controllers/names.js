@@ -55,39 +55,41 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
 };
 
 NamesController.registerName = function(desiredName, privateKey) {
-	if (!desiredName) {
-		return reject(new errors.ErrorMissingParameter('name'));
-	}
-
-	if (!privateKey) {
-		return reject(new errors.ErrorMissingParameter('privatekey'));
-	}
-
-	if (!krist.isValidName(name)) {
-		return reject(new errors.ErrorInvalidParameter('name'));
-	}
-
-	names.getNameByName(desiredName).then(function(name) {
-		if (name) {
-			return reject(new errors.ErrorNameTaken());
+	return new Promise(function(resolve, reject) {
+		if (!desiredName) {
+			return reject(new errors.ErrorMissingParameter('name'));
 		}
 
-		addresses.getAddress(krist.makeV2Address(privateKey)).then(function(address) {
-			if (!address || address.balance < names.getNameCost()) {
-				return reject(new errors.ErrorInsufficientFunds());
+		if (!privateKey) {
+			return reject(new errors.ErrorMissingParameter('privatekey'));
+		}
+
+		if (!krist.isValidName(desiredName)) {
+			return reject(new errors.ErrorInvalidParameter('name'));
+		}
+
+		names.getNameByName(desiredName).then(function (name) {
+			if (name) {
+				return reject(new errors.ErrorNameTaken());
 			}
 
-			var promises = [];
+			addresses.getAddress(krist.makeV2Address(privateKey)).then(function (address) {
+				if (!address || address.balance < names.getNameCost()) {
+					return reject(new errors.ErrorInsufficientFunds());
+				}
 
-			promises.push(address.decrement({ balance: names.getNameCost() }));
-			promises.push(address.increment({ totalout: names.getNameCost() }));
+				var promises = [];
 
-			promises.push(tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null));
-			promises.push(names.createName(desiredName, address.address));
+				promises.push(address.decrement({balance: names.getNameCost()}));
+				promises.push(address.increment({totalout: names.getNameCost()}));
 
-			Promise.all(promises).then(resolve).catch(reject);
+				promises.push(tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null));
+				promises.push(names.createName(desiredName, address.address));
+
+				Promise.all(promises).then(resolve).catch(reject);
+			}).catch(reject);
 		}).catch(reject);
-	}).catch(reject);
+	});
 };
 
 NamesController.transferName = function(name, privateKey, address) {

@@ -23,7 +23,7 @@ module.exports = function(app) {
 	 * @apiSuccess {Number} address.balance The amount of Krist currently owned by this address.
 	 * @apiSuccess {Number} address.totalin The total amount of Krist that has ever gone into this address.
 	 * @apiSuccess {Number} address.totalout The total amount of Krist that has ever gone out of this address.
-	 * @apiSuccess {Date} address.firstseen The date this address was first seen (when the first transaction to it was made)
+	 * @apiSuccess {Date} address.firstseen The date this address was first seen (when the first transaction to it was made).
 	 */
 
 	/**
@@ -34,7 +34,7 @@ module.exports = function(app) {
 	 * @apiSuccess {Number} addresses.balance The amount of Krist currently owned by this address.
 	 * @apiSuccess {Number} addresses.totalin The total amount of Krist that has ever gone into this address.
 	 * @apiSuccess {Number} addresses.totalout The total amount of Krist that has ever gone out of this address.
-	 * @apiSuccess {Date} addresses.firstseen The date this address was first seen (when the first transaction to it was made)
+	 * @apiSuccess {Date} addresses.firstseen The date this address was first seen (when the first transaction to it was made).
 	 */
 
 	app.get('/', function(req, res, next) {

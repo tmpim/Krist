@@ -20,6 +20,12 @@ BlocksController.getBlocks = function(limit, offset, asc) {
 	});
 };
 
+BlocksController.getLastBlock = function() {
+	return new Promise(function(resolve, reject) {
+		blocks.getLastBlock().then(resolve).catch(reject);
+	});
+};
+
 BlocksController.getBlocksByOrder = function(order, limit, offset) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {

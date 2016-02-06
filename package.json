@@ -43,6 +43,45 @@
   },
   "apidoc": {
     "title": "Krist",
-    "url": "http://krist.ceriat.net"
+    "url": "http://krist.ceriat.net",
+    "order": [
+      "AddressGroup",
+      "GetAddress",
+      "GetAddresses",
+      "GetRichAddresses",
+      "GetAddressTransactions",
+      "GetAddressNames",
+      "GetAddressWebhooks",
+
+      "BlockGroup",
+      "GetBlocks",
+      "GetLowestBlocks",
+      "GetLatestBlocks",
+      "GetBlock",
+      "GetLastBlock",
+      "GetBaseValue",
+      "GetValue",
+      "SubmitBlock",
+
+      "TransactionGroup",
+      "GetTransactions",
+      "GetLatestTransactions",
+      "GetTransaction",
+      "MakeTransaction",
+
+      "NameGroup",
+      "GetNames",
+      "GetNewNames",
+      "RegisterName",
+      "TransferName",
+
+      "WebhookGroup",
+      "GetWebhooks",
+      "MakeWebhook",
+      "DeleteWebhookPOST",
+      "DeleteWebhookDELETE",
+
+      "MiscellaneousGroup"
+    ]
   }
 }

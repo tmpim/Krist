@@ -5,6 +5,38 @@ var krist            = require('./../krist.js'),
 	moment           = require('moment');
 
 module.exports = function(app) {
+	/**
+	 * @apiDefine BlockGroup Blocks
+	 *
+	 * All Block related endpoints.
+	 */
+
+	/**
+	 * @apiDefine Block
+	 *
+	 * @apiSuccess {Object} block
+	 * @apiSuccess {Number} block.height The height (ID) of this block.
+	 * @apiSuccess {String} block.address The address which submitted this block.
+	 * @apiSuccess {String} block.hash The full-length SHA-256 hash of this block. The hash is calculated by the SHA-256
+	 * 						of the submitter's address, the 12-char SHA-256 of the last block, and the nonce.
+	 * @apiSuccess {String} block.short_hash The hash trimmed to 12 characters.
+	 * @apiSuccess {Number} block.value The reward value of this block.
+	 * @apiSuccess {Date} block.time The time this block was submitted.
+	 */
+
+	/**
+	 * @apiDefine Blocks
+	 *
+	 * @apiSuccess {Object[]} blocks
+	 * @apiSuccess {Number} blocks.height The height (ID) of this block.
+	 * @apiSuccess {String} blocks.address The address which submitted this block.
+	 * @apiSuccess {String} blocks.hash The full-length SHA-256 hash of this block. The hash is calculated by the SHA-256
+	 * 						of the submitter's address, the 12-char SHA-256 of the last block, and the nonce.
+	 * @apiSuccess {String} blocks.short_hash The hash trimmed to 12 characters.
+	 * @apiSuccess {Number} blocks.value The reward value of this block.
+	 * @apiSuccess {Date} blocks.time The time this block was submitted.
+	 */
+
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.lastblock !== 'undefined') {
 			blocks.getLastBlock().then(function(block) {
@@ -82,6 +114,45 @@ module.exports = function(app) {
 		next();
 	});
 
+	/**
+	 * @api {get} /blocks List all blocks
+	 * @apiName GetBlocks
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
+	 * @apiSuccess {Number} count The count of results.
+	 * @apiUse Blocks
+	 *
+	 * @apiDescription *Note*: The count may be slightly different to the limit. This is because invalid blocks are
+	 * 				   excluded from this query, and in the early days of Krist there were several invalid blocks
+	 * 				   submitted.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "count": 49,
+     *     "blocks": [
+     *         {
+     *             "height": 2,
+     *             "address": "a5dfb396d3",
+     *             "hash": "00480dc35dc111d9953e5182df7d7f404a62d2b0d71ed51a873a81d89e78fbd8",
+     *             "short_hash": "00480dc35dc1",
+     *             "value": 50,
+     *             "time": "2015-02-14T20:42:30.000Z"
+     *         },
+     *         {
+     *             "height": 3,
+     *             "address": "a5dfb396d3",
+     *             "hash": "0046a3582fed130ee18c05e7e278992678d46e311465a4af6b787f5c014640a9",
+     *             "short_hash": "0046a3582fed",
+     *             "value": 50,
+     *             "time": "2015-02-14T20:48:43.000Z"
+     *         },
+	 *  	   ...
+	 */
 	app.get('/blocks', function(req, res) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
@@ -103,6 +174,105 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {get} /blocks/latest List latest blocks
+	 * @apiName GetLatestBlocks
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
+	 * @apiSuccess {Number} count The count of results.
+	 * @apiUse Blocks
+	 *
+	 * @apiDescription *Note*: The count may be slightly different to the limit. This is because invalid blocks are
+	 * 				   excluded from this query, and in the early days of Krist there were several invalid blocks
+	 * 				   submitted.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "count": 50,
+     *     "blocks": [
+     *         {
+     *             "height": 122225,
+     *             "address": "kre3w0i79j",
+     *             "hash": "1aa36f210f2e07b666646ac7dac3ea972262a6a474419edfc058e4402d40538d",
+     *             "short_hash": "1aa36f210f2e",
+     *             "value": 12,
+     *             "time": "2016-02-02T17:55:35.000Z"
+     *         },
+     *         {
+     *             "height": 122224,
+     *             "address": "k123456789",
+     *             "hash": "000000f31b3ca2cf166d0ee669cd2ae2be6ea0fc35d1cf1e7b52811ecb358796",
+     *             "short_hash": "000000f31b3c",
+     *             "value": 12,
+     *             "time": "2016-02-01T14:18:47.000Z"
+     *         },
+	 *  	   ...
+	 */
+	app.get('/blocks/latest', function(req, res) {
+		blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
+			var out = [];
+
+			results.forEach(function(block) {
+				if (block.hash === null) return;
+				if (block.id === 1) return;
+
+				out.push(blocksController.blockToJSON(block));
+			});
+
+			res.json({
+				ok: true,
+				count: out.length,
+				blocks: out
+			});
+		}).catch(function(error) {
+			utils.sendError(res, error);
+		});
+	});
+
+	/**
+	 * @api {get} /blocks/lowest List blocks with the lowest hash
+	 * @apiName GetLowestBlocks
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
+	 * @apiSuccess {Number} count The count of results.
+	 * @apiUse Blocks
+	 *
+	 * @apiDescription *Note*: The count may be slightly different to the limit. This is because invalid blocks are
+	 * 				   excluded from this query, and in the early days of Krist there were several invalid blocks
+	 * 				   submitted.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "count": 43,
+     *     "blocks": [
+     *         {
+     *             "height": 110128,
+     *             "address": "k5ztameslf",
+     *             "hash": "000000000000fd42f2c046d9c0f99b6534c1e04a87902ebff7ed4396d1f5b4ea",
+     *             "short_hash": "000000000000",
+     *             "value": 12,
+     *             "time": "2016-01-22T00:09:17.000Z"
+     *         },
+     *         {
+     *             "height": 113253,
+     *             "address": "k5ztameslf",
+     *             "hash": "000000000001285d349f8781ac4f1d155472178e1150c0eb6a1cf4e441320f2c",
+     *             "short_hash": "000000000001",
+     *             "value": 14,
+     *             "time": "2016-01-24T22:10:49.000Z"
+     *         },
+	 *  	   ...
+	 */
 	app.get('/blocks/lowest', function(req, res) {
 		blocksController.getBlocksByOrder('hash ASC', req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
@@ -124,27 +294,60 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {get} /blocks/last Get the last block
+	 * @apiName GetLastBlock
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiUse Block
+	 *
+	 * @apiDescription *Note*: The count may be slightly different to the limit. This is because invalid blocks are
+	 * 				   excluded from this query, and in the early days of Krist there were several invalid blocks
+	 * 				   submitted.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "block": {
+     *         "height": 122225,
+     *         "address": "kre3w0i79j",
+     *         "hash": "1aa36f210f2e07b666646ac7dac3ea972262a6a474419edfc058e4402d40538d",
+     *         "short_hash": "1aa36f210f2e",
+     *         "value": 12,
+     *         "time": "2016-02-02T17:55:35.000Z"
+     *     }
+     * }
+	 */
 	app.get('/blocks/last', function(req, res) {
-		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
-			var out = [];
-
-			results.forEach(function(block) {
-				if (block.hash === null) return;
-				if (block.id === 1) return;
-
-				out.push(blocksController.blockToJSON(block));
-			});
-
+		blocksController.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
-				count: out.length,
-				blocks: out
+				block: blocksController.blockToJSON(block)
 			});
 		}).catch(function(error) {
 			utils.sendError(res, error);
 		});
 	});
 
+	/**
+	 *
+	 * @api {get} /blocks/basevalue Get the base block reward
+	 * @apiName GetBlockBaseValue
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiSuccess {Number} base_value
+	 *
+	 * @apiDescription Returns the base block reward - the amount of Krist rewarded for submitting a block excluding
+	 * 				   name rewards.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "base_value": 12 
+     * }
+	 */
 	app.get('/blocks/basevalue', function(req, res) {
 		blocks.getLastBlock().then(function(block) {
 			res.json({
@@ -154,6 +357,25 @@ module.exports = function(app) {
 		});
 	});
 
+
+	/**
+	 *
+	 * @api {get} /blocks/value Get the block reward
+	 * @apiName GetBlockValue
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiSuccess {Number} value
+	 *
+	 * @apiDescription Returns the block reward - the base value plus the amount of unpaid names (names registered in
+	 * 				   the last 500 blocks).
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "value": 14
+     * }
+	 */
 	app.get('/blocks/value', function(req, res) {
 		blocks.getBlockValue().then(function(value) {
 			res.json({
@@ -163,6 +385,29 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {get} /blocks/:height Get a block
+	 * @apiName GetBlock
+	 * @apiGroup BlockGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (URLParameter) {String} height The height of the block.
+	 *
+	 * @apiUse Block
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "block": {
+     *         "height": 5000,
+     *         "address": "b5591107c4",
+     *         "hash": "0000003797c090eb72d87a391aeedbef89957f9627aea9807870df46eb13a7e3",
+     *         "short_hash": "0000003797c0",
+     *         "value": 50,
+     *         "time": "2015-02-21T11:05:47.000Z"
+     *     }
+     * }
+	 */
 	app.get('/blocks/:height', function(req, res) {
 		blocksController.getBlock(req.params.height).then(function(block) {
 			res.json({

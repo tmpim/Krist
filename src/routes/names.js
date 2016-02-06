@@ -332,6 +332,42 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {get} /names/new List newest names
+	 * @apiName GetNewNames
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiDescription *Note*: This only returns names that are **unpaid**. An name is "paid off" after the submission
+	 * 				   of 500 blocks after its registration.
+	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
+	 * @apiSuccess {Number} count The count of results.
+	 * @apiUse Names
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "count": 50,
+     *     "names": [
+     *         {
+     *             "name": "0",
+     *             "owner": "k9qyx784k7",
+     *             "registered": "2015-05-10T20:56:37.000Z",
+     *             "updated": "2015-05-24T22:54:21.000Z",
+     *             "a": null
+     *         },
+     *         {
+     *             "name": "00",
+     *             "owner": "k9qyx784k7",
+     *             "registered": "2015-05-14T14:35:40.000Z",
+     *             "updated": "2015-05-24T22:47:56.000Z",
+     *             "a": null
+     *         },
+	 *  	   ...
+	 */
 	app.get('/names/new', function(req, res) {
 		namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
@@ -350,6 +386,39 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {post} /names/:name Register a name
+	 * @apiName RegisterName
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (URLParameter) {String} name The name you want to register.
+	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+	 *     "ok": true
+	 * }
+	 *
+	 * @apiErrorExample {json} Name Taken
+	 * {
+	 *     "ok": false,
+	 *     "error": "name_taken"
+	 * }
+	 *
+	 * @apiErrorExample {json} Insufficient Funds
+	 * {
+	 *     "ok": false,
+	 *     "error": "insufficient_funds"
+	 * }
+	 *
+	 * @apiErrorExample {json} Invalid Name
+	 * {
+	 *     "ok": false,
+	 *     "error": "invalid_parameter",
+	 *     "parameter": "name"
+	 * }
+	 */
 	app.post('/names/:name', function(req, res) {
 		namesController.registerName(req.params.name, req.body.privatekey).then(function() {
 			res.json({
@@ -360,11 +429,50 @@ module.exports = function(app) {
 		});
 	});
 
+
+	/**
+	 * @api {post} /names/:name/transfer Transfer a name
+	 * @apiName TransferName
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiDescription Transfers the name to another owner.
+	 *
+	 * @apiParam (URLParameter) {String} name The name you want to transfer.
+	 * @apiParam (BodyParameter) {String} address The address you want to transfer the name to.
+	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
+	 *
+	 * @apiUse Name
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "name": {
+     *         "name": "example",
+     *         "owner": "kre3w0i79j",
+     *         "registered": "2016-02-06T14:01:19.000Z",
+     *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "a": null,
+     *     }
+     * }
+	 *
+	 * @apiErrorExample {json} Name Not Found
+	 * {
+	 *     "ok": false,
+	 *     "error": "name_not_found"
+	 * }
+	 *
+	 * @apiErrorExample {json} Not Name Owner
+	 * {
+	 *     "ok": false,
+	 *     "error": "not_name_owner"
+	 * }
+	 */
 	app.post('/names/:name/transfer', function(req, res) {
 		namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
 			res.json({
 				ok: true,
-				name: name
+				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
 			utils.sendError(res, error);
@@ -375,14 +483,91 @@ module.exports = function(app) {
 		namesController.updateName(req.params.name, req.body.privatekey, req.body.a).then(function(name) {
 			res.json({
 				ok: true,
-				name: name
+				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
 			utils.sendError(res, error);
 		});
 	}
 
+	/**
+	 * @api {post} /names/:name/update Update the A record of a name (POST)
+	 * @apiName UpdateNamePOST
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiDescription Updates the A record of a name.
+	 *
+	 * @apiParam (URLParameter) {String} name The name you want to update.
+	 * @apiParam (BodyParameter) {String} a The A record you want to set for the name.
+	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
+	 *
+	 * @apiUse Name
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "name": {
+     *         "name": "example",
+     *         "owner": "kre3w0i79j",
+     *         "registered": "2016-02-06T14:01:19.000Z",
+     *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "a": "krist.ceriat.net",
+     *     }
+     * }
+	 *
+	 * @apiErrorExample {json} Name Not Found
+	 * {
+	 *     "ok": false,
+	 *     "error": "name_not_found"
+	 * }
+	 *
+	 * @apiErrorExample {json} Not Name Owner
+	 * {
+	 *     "ok": false,
+	 *     "error": "not_name_owner"
+	 * }
+	 */
 	app.post('/names/:name/update', updateName);
+
+	/**
+	 * @api {put} /names/:name Update the A record of a name (PUT)
+	 * @apiName UpdateNamePUT
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiDescription Updates the A record of a name.
+	 *
+	 * @apiParam (URLParameter) {String} name The name you want to update.
+	 * @apiParam (BodyParameter) {String} a The A record you want to set for the name.
+	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
+	 *
+	 * @apiUse Name
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "name": {
+     *         "name": "example",
+     *         "owner": "kre3w0i79j",
+     *         "registered": "2016-02-06T14:01:19.000Z",
+     *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "a": "krist.ceriat.net",
+     *     }
+     * }
+	 *
+	 * @apiErrorExample {json} Name Not Found
+	 * {
+	 *     "ok": false,
+	 *     "error": "name_not_found"
+	 * }
+	 *
+	 * @apiErrorExample {json} Not Name Owner
+	 * {
+	 *     "ok": false,
+	 *     "error": "not_name_owner"
+	 * }
+	 */
 	app.put('/names/:name', updateName);
 
 	return app;

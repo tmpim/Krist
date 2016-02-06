@@ -18,7 +18,6 @@ module.exports = function(app) {
 	 * @apiSuccess {Number} work The current Krist work (difficulty)
 	 *
 	 * @apiSuccessExample {json} Success
-	 * HTTP/1.1 200 OK
 	 * {
 	 *     "ok": true,
 	 *     "work": 18750

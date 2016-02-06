@@ -22,7 +22,6 @@ module.exports = function(app) {
 	 * @apiSuccess {String} address The address from the private key
 	 *
 	 * @apiSuccessExample {json} Success
-	 * HTTP/1.1 200 OK
 	 * {
 	 *     "ok": true,
 	 *     "address": "kre3w0i79j"

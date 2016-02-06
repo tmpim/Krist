@@ -104,7 +104,7 @@ TransactionsController.transactionToJSON = function(transaction) {
 		value: transaction.value,
 		time: transaction.time,
 		name: transaction.name,
-		op: transaction.op
+		metadata: transaction.op
 	};
 };
 
