@@ -13,10 +13,14 @@ live copy of the API documentation [here](http://kristtest.lemmmy.pw/docs).
     "body-parser": "^1.14.2",
     "colors": "^1.1.2",
     "express": "^4.13.3",
+    "express-rate-limit": "^2.1.0",
+    "jsonwebtoken": "^5.5.4",
     "moment": "^2.11.1",
     "request": "^2.69.0",
     "sequelize": "^3.19.0",
-    "shields-lightweight": "^0.1.0"
+    "shields-lightweight": "^0.1.0",
+    "socketio": "^1.0.0",
+    "socketio-jwt": "^4.3.4"
 
 ### Dev Dependencies
 
