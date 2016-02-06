@@ -124,7 +124,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/last', function(req, res) {
+	app.get('/blocks/last', function(req, res) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
 
@@ -145,7 +145,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/basevalue', function(req, res) {
+	app.get('/blocks/basevalue', function(req, res) {
 		blocks.getLastBlock().then(function(block) {
 			res.json({
 				ok: true,
@@ -154,7 +154,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/value', function(req, res) {
+	app.get('/blocks/value', function(req, res) {
 		blocks.getBlockValue().then(function(value) {
 			res.json({
 				ok: true,
@@ -163,7 +163,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/block/:height', function(req, res) {
+	app.get('/blocks/:height', function(req, res) {
 		blocksController.getBlock(req.params.height).then(function(block) {
 			res.json({
 				ok: true,

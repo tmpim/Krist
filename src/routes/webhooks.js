@@ -4,7 +4,7 @@ var krist               = require('./../krist.js'),
 	webhooksController  = require('./../controllers/webhooks.js');
 
 module.exports = function(app) {
-	app.post('/webhook', function(req, res) {
+	app.post('/webhooks', function(req, res) {
 		webhooksController.registerWebhook(req.body.privatekey, req.body.owner, req.body.event, req.body.url, req.body.method, req.body.addresses).then(function(webhook) {
 			res.json({
 				ok: true,
@@ -46,8 +46,8 @@ module.exports = function(app) {
 		});
 	}
 
-	app.post('/webhook/:id/delete', deleteWebhook);
-	app.delete('/webhook/:id', deleteWebhook);
+	app.post('/webhooks/:id/delete', deleteWebhook);
+	app.delete('/webhooks/:id', deleteWebhook);
 
 	return app;
 };

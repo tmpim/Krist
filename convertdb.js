@@ -83,24 +83,6 @@ function begin() {
 	});
 }
 
-/*
-
- db.serialize(function () {
- });
- */
-
-		//convertAddresses();
-
-		//convertNames();
-
-		//db.get('SELECT COUNT(*) as count FROM blocks', function (err, result) {
-		//	convertBlocks(2500, 0, result.count);
-		//});
-
-		//db.get('SELECT COUNT(*) as count FROM transactions', function (err, result) {
-		//	convertTransactions(2500, 0, result.count);
-		//});
-
 function convertAddresses() {
 	return new Promise(function(resolve, reject) {
 

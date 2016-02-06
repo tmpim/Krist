@@ -1,4 +1,5 @@
-var blocks  = require('./../blocks.js'),
+var config	= require('./../../config.js'),
+	blocks  = require('./../blocks.js'),
 	krist   = require('./../krist.js'),
 	utils   = require('./../utils.js'),
 	errors  = require('./../errors/errors.js');
@@ -76,7 +77,7 @@ BlocksController.submitBlock = function(address, nonce) {
 			return reject(new errors.ErrorMissingParameter('nonce'));
 		}
 
-		if (nonce.length < 1 || nonce.length > 12) {
+		if (nonce.length < 1 || nonce.length > config.nonce_maxSize) {
 			return reject(new errors.ErrorInvalidParameter('nonce'));
 		}
 

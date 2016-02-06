@@ -73,9 +73,9 @@ Webhooks.callNameWebhooks = function(name) {
 
 			webhooks.forEach(function(webhook) {
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data });
+					request.post(webhook.url, { form: data }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data });
+					request.get(webhook.url, { qs: data }, function(err, response, body) {});
 				}
 			});
 		}
@@ -103,9 +103,9 @@ Webhooks.callTransactionWebhooks = function(transaction) {
 
 			webhooks.forEach(function(webhook) {
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data });
+					request.post(webhook.url, { form: data }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data });
+					request.get(webhook.url, { qs: data }, function(err, response, body) {});
 				}
 			});
 		}
@@ -132,9 +132,9 @@ Webhooks.callBlockWebhooks = function(block) {
 
 			webhooks.forEach(function(webhook) {
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data });
+					request.post(webhook.url, { form: data }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data });
+					request.get(webhook.url, { qs: data }, function(err, response, body) {});
 				}
 			});
 		}

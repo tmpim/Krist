@@ -244,7 +244,7 @@ module.exports = function(app) {
 		next();
 	});
 
-	app.get('/name/check/:name', function(req, res) {
+	app.get('/names/check/:name', function(req, res) {
 		if (!krist.isValidName(req.params.name)) {
 			return utils.sendError(res, new errors.ErrorInvalidParameter('name'));
 		}
@@ -264,14 +264,14 @@ module.exports = function(app) {
 		});
 	});
 
-	app.get('/name/cost', function(req, res) {
+	app.get('/names/cost', function(req, res) {
 		res.json({
 			ok: true,
 			name_cost: names.getNameCost().toString()
 		});
 	});
 
-	app.get('/name/bonus', function(req, res) {
+	app.get('/names/bonus', function(req, res) {
 		names.getUnpaidNameCount().then(function(count) {
 			res.json({
 				ok: true,
@@ -280,6 +280,40 @@ module.exports = function(app) {
 		});
 	});
 
+
+	/**
+	 * @api {get} /names List all names
+	 * @apiName GetNames
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.0
+	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
+	 * @apiSuccess {Number} count The count of results.
+	 * @apiUse Names
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "count": 50,
+     *     "names": [
+     *         {
+     *             "name": "0",
+     *             "owner": "k9qyx784k7",
+     *             "registered": "2015-05-10T20:56:37.000Z",
+     *             "updated": "2015-05-24T22:54:21.000Z",
+     *             "a": null
+     *         },
+     *         {
+     *             "name": "00",
+     *             "owner": "k9qyx784k7",
+     *             "registered": "2015-05-14T14:35:40.000Z",
+     *             "updated": "2015-05-24T22:47:56.000Z",
+     *             "a": null
+     *         },
+	 *  	   ...
+	 */
 	app.get('/names', function(req, res) {
 		namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
@@ -316,7 +350,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/name/:name', function(req, res) {
+	app.post('/names/:name', function(req, res) {
 		namesController.registerName(req.params.name, req.body.privatekey).then(function() {
 			res.json({
 				ok: true
@@ -326,7 +360,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/name/:name/transfer', function(req, res) {
+	app.post('/names/:name/transfer', function(req, res) {
 		namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
 			res.json({
 				ok: true,
@@ -348,8 +382,8 @@ module.exports = function(app) {
 		});
 	}
 
-	app.post('/name/:name/update', updateName);
-	app.put('/name/:name', updateName);
+	app.post('/names/:name/update', updateName);
+	app.put('/names/:name', updateName);
 
 	return app;
 };

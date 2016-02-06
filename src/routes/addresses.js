@@ -132,7 +132,6 @@ module.exports = function(app) {
 	 * @apiUse Addresses
 	 *
 	 * @apiSuccessExample {json} Success
-	 *      HTTP/1.1 200 OK
 	 *      {
 	 *  	    "ok": true,
 	 *  	    "count": 50,
@@ -184,7 +183,6 @@ module.exports = function(app) {
 	 * @apiUse Addresses
 	 *
      * @apiSuccessExample {json} Success
-	 *      HTTP/1.1 200 OK
 	 *      {
 	 *          "ok": true,
 	 *          "count": 50,
@@ -224,7 +222,7 @@ module.exports = function(app) {
 	});
 
 	/**
-	 * @api {get} /address/:address Get an address
+	 * @api {get} /addresses/:address Get an address
 	 * @apiName GetAddress
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
@@ -259,7 +257,7 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-	app.get('/address/:address', function(req, res) {
+	app.get('/addresses/:address', function(req, res) {
 		addressesController.getAddress(req.params.address).then(function(address) {
 			res.json({
 				ok: true,
@@ -272,7 +270,7 @@ module.exports = function(app) {
 
 
 	/**
-	 * @api {get} /address/:address/names Get all names registered to an address
+	 * @api {get} /addresses/:address/names Get all names registered to an address
 	 * @apiName GetAddressNames
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
@@ -308,7 +306,7 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-	app.get('/address/:address/names', function(req, res) {
+	app.get('/addresses/:address/names', function(req, res) {
 		namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset).then(function(names) {
 			var out = [];
 
@@ -327,7 +325,7 @@ module.exports = function(app) {
 	});
 
 	/**
-	 * @api {get} /address/:address/transactions Get the recent transactions from an address
+	 * @api {get} /addresses/:address/transactions Get the recent transactions from an address
 	 * @apiName GetAddressTransactions
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
@@ -377,7 +375,7 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-	app.get('/address/:address/transactions', function(req, res) {
+	app.get('/addresses/:address/transactions', function(req, res) {
 		txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset).then(function(transactions) {
 			var out = [];
 

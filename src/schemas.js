@@ -1,4 +1,5 @@
 var	Sequelize	= require('sequelize'),
+	config		= require('./../config.js'),
 	database	= require('./database.js');
 
 var Address = database.getSequelize().define('address', {
@@ -18,7 +19,7 @@ var Block = database.getSequelize().define('block', {
 		unique: true
 	},
 	address: Sequelize.STRING(10),
-	nonce: Sequelize.STRING(24),
+	nonce: Sequelize.STRING(config.nonce_maxSize || 24),
 	time: Sequelize.DATE,
 	difficulty: Sequelize.INTEGER(10).UNSIGNED,
 	useragent: Sequelize.STRING(255)

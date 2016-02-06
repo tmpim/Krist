@@ -1,4 +1,5 @@
-var krist               = require('./../krist.js'),
+var config				= require('./../../config.js'),
+	krist               = require('./../krist.js'),
 	utils               = require('./../utils.js'),
 	addressesController = require('./../controllers/addresses.js'),
 	blocksController    = require('./../controllers/blocks.js'),
@@ -12,7 +13,7 @@ module.exports = function(app) {
 				return res.status(400).send('Invalid address');
 			}
 
-			if (!req.query.nonce || req.query.nonce.length > 12) {
+			if (!req.query.nonce || req.query.nonce.length > config.nonce_maxSize) {
 				return res.status(400).send('Nonce is too large');
 			}
 

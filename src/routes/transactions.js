@@ -168,7 +168,7 @@ module.exports = function(app) {
 		});
 	});
 
-	app.post('/transaction', function(req, res) {
+	app.post('/transactions', function(req, res) {
 		txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.com).then(function() {
 			res.json({
 				ok: true

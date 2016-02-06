@@ -39,6 +39,9 @@ config.rateLimit_configuration = {
 // The latest version of kristwallet
 config.wallet_version = 13;
 
+// The maximum length of a submitted nonce
+config.nonce_maxSize = 24;
+
 // The cost to buy a domain name
 config.name_cost = 500;
 
