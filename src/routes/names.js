@@ -75,7 +75,7 @@ module.exports = function(app) {
 			return;
 		}
 
-		if (typeof req.query.name_cost !== 'undefined') {
+		if (typeof req.query.nameCost !== 'undefined') {
 			return res.send(names.getNameCost().toString());
 		}
 
@@ -94,7 +94,7 @@ module.exports = function(app) {
 						res.send(count.toString());
 					});
 				} else {
-					res.status(404).send('0');
+					res.send('0');
 				}
 			});
 
@@ -114,7 +114,7 @@ module.exports = function(app) {
 						res.send(out);
 					});
 				} else {
-					res.status(404).send('Error4');
+					res.send('Error4');
 				}
 			});
 
@@ -153,18 +153,18 @@ module.exports = function(app) {
 
 		if (typeof req.query.name_new !== 'undefined') {
 			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.status(400).send('Error6');
+				return res.send('Error6');
 			}
 
 			var desiredName = req.query.name.toLowerCase();
 
 			names.getNameByName(desiredName).then(function(name) {
 				if (name) {
-					res.status(409).send('Error5');
+					res.send('Error5');
 				} else {
 					addresses.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
 						if (!address || address.balance < names.getNameCost()) {
-							return res.status(403).send('Error1');
+							return res.send('Error1');
 						}
 
 						address.decrement({ balance: names.getNameCost() });
@@ -183,11 +183,11 @@ module.exports = function(app) {
 
 		if (typeof req.query.name_transfer !== 'undefined') {
 			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.status(400).send('Error6');
+				return res.send('Error6');
 			}
 
 			if (!req.query.q || !krist.isValidKristAddress(req.query.q)) {
-				return res.status(400).send('Error4');
+				return res.send('Error4');
 			}
 
 			var currentOwner = krist.makeV2Address(req.query.pkey);
@@ -214,11 +214,11 @@ module.exports = function(app) {
 
 		if (typeof req.query.name_update !== 'undefined') {
 			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.status(400).send('Error6');
+				return res.send('Error6');
 			}
 
 			if (!req.query.ar || !krist.isValidARecord(req.query.ar)) {
-				return res.status(400).send('Error8');
+				return res.send('Error8');
 			}
 
 			var owner = krist.makeV2Address(req.query.pkey);
@@ -246,7 +246,7 @@ module.exports = function(app) {
 
 	app.get('/names/check/:name', function(req, res) {
 		if (!krist.isValidName(req.params.name)) {
-			return utils.sendError(res, new errors.ErrorInvalidParameter('name'));
+			return utils.sendError(req, res, new errors.ErrorInvalidParameter('name'));
 		}
 
 		names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
@@ -267,7 +267,7 @@ module.exports = function(app) {
 	app.get('/names/cost', function(req, res) {
 		res.json({
 			ok: true,
-			name_cost: names.getNameCost().toString()
+			nameCost: names.getNameCost().toString()
 		});
 	});
 
@@ -328,7 +328,7 @@ module.exports = function(app) {
 				names: out
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -382,7 +382,7 @@ module.exports = function(app) {
 				names: out
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -425,7 +425,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -475,7 +475,7 @@ module.exports = function(app) {
 				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -486,7 +486,7 @@ module.exports = function(app) {
 				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	}
 

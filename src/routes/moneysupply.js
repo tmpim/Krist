@@ -1,4 +1,5 @@
-var krist   = require('./../krist.js');
+var krist   = require('./../krist.js'),
+	redis	= require('./../redis.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -30,11 +31,23 @@ module.exports = function(app) {
      * }
 	 */
 	app.get('/supply', function(req, res) {
-		krist.getMoneySupply().then(function(supply) {
-			res.json({
-				ok: true,
-				money_supply: supply
-			});
+		redis.getClient().getAsync('money_supply').then(function(supply) {
+			if (supply) {
+				res.json({
+					ok: true,
+					money_supply: parseInt(supply)
+				});
+			} else {
+				krist.getMoneySupply().then(function(supply) {
+					res.json({
+						ok: true,
+						money_supply: supply
+					});
+
+					redis.getClient().set('money_supply', supply);
+					redis.getClient().expire('money_supply', 60);
+				});
+			}
 		});
 	});
 

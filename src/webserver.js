@@ -19,12 +19,12 @@ Webserver.getExpress = function() {
 Webserver.init = function() {
 	var serverSock = '';
 
-	if (typeof config.server_sock === 'undefined') {
-		console.error('[Config]'.red + ' Missing config option: server_sock');
+	if (typeof config.serverSock === 'undefined') {
+		console.error('[Config]'.red + ' Missing config option: serverSock');
 
 		return null;
 	} else {
-		serverSock = config.server_sock;
+		serverSock = config.serverSock;
 	}
 
 	Webserver.express = express();
@@ -65,7 +65,7 @@ Webserver.init = function() {
 	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 	Webserver.express.use(bodyParser.json());
 	Webserver.express.use(express.static('static'));
-	Webserver.express.use(rateLimit(config.rateLimit_configuration));
+	Webserver.express.use(rateLimit(config.rateLimitSettings));
 
 	Webserver.express.all('*', function(req, res, next) {
 		res.header('X-Robots-Tag', 'none');
@@ -101,6 +101,6 @@ Webserver.init = function() {
 	}
 
 	Webserver.express.use(function(req, res) {
-		utils.sendError(res, new errors.ErrorRouteNotFound());
+		utils.sendError(req, res, new errors.ErrorRouteNotFound());
 	});
 };

@@ -19,7 +19,7 @@ var Block = database.getSequelize().define('block', {
 		unique: true
 	},
 	address: Sequelize.STRING(10),
-	nonce: Sequelize.STRING(config.nonce_maxSize || 24),
+	nonce: Sequelize.STRING(config.nonceMaxSize || 24),
 	time: Sequelize.DATE,
 	difficulty: Sequelize.INTEGER(10).UNSIGNED,
 	useragent: Sequelize.STRING(255)

@@ -31,7 +31,7 @@ Names.getUnpaidNameCount = function() {
 };
 
 Names.getNameCost = function() {
-	return config.name_cost;
+	return config.nameCost;
 };
 
 Names.createName = function(name, owner) {

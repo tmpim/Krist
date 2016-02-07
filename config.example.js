@@ -6,25 +6,36 @@ var config = {};
 // For more information see: http://sequelize.readthedocs.org/en/latest/api/sequelize/
 
 // The hostname of your database server.
-config.database_host    = 'localhost';
+config.databaseHost    = 'localhost';
 // The name of the database
-config.database_db      = 'example';
+config.databaseDB      = 'example';
 // The user used to authenticate against the database
 config.DATABASE_USER    = 'example';
 // The password used to authenticate against the database
-config.database_pass    = 'example';
+config.databasePass    = 'example';
 // The dialect used to connect, one of: mysql, postgres, mariadb or mssql. (sqlite not supported, fuck you Taras!)
-config.database_dialect = 'mysql';
+config.databaseDialect = 'mysql';
+
+/*
+ * REDIS SETUP
+ */
+
+// The hostname of the redis server
+config.redisHost = '127.0.0.1';
+// The port used to connect to redis
+config.redisPort = 6379;
+// String to prefix to all redis keys
+config.redisPrefix = 'krist';
 
 /*
  * WEBSERVER SETUP
  */
 
 // The socket file for your server. Proxy this to nginx.
-config.server_sock = '/var/krist/krist.sock';
+config.serverSock = '/var/krist/krist.sock';
 
 // Configuration of the rate limiter. See: https://github.com/nfriedly/express-rate-limit
-config.rateLimit_configuration = {
+config.rateLimitSettings = {
 	windowMs: 60000,
 	delayAfter: 240,
 	delayMs: 5,
@@ -36,32 +47,32 @@ config.rateLimit_configuration = {
  * KRIST SPECIFIC
  */
 
-// The latest version of kristwallet
-config.wallet_version = 13;
+// The latest version of KristWallet
+config.walletVersion = 13;
 
 // The maximum length of a submitted nonce
-config.nonce_maxSize = 24;
+config.nonceMaxSize = 24;
 
 // The cost to buy a domain name
-config.name_cost = 500;
+config.nameCost = 500;
 
 // The growth factor for the work
-config.work_growthFactor = 0.9999;
+config.workGrowthFactor = 0.9999;
 
 // The max amount of webhooks per domain name
-config.webhooks_maxPerHost = 6;
+config.maxWebsocketsPerHost = 6;
 
 // Lefthand label for badges
-config.badge_labelLeft = 'krist';
+config.badgeLabelLeft = 'krist';
 
 // Righthand label for badges
-config.badge_labelRight = 'verified';
+config.badgeLabelRight = 'verified';
 
 // Colour used as badge
-config.badge_colour = 'green';
+config.badgeColour = 'green';
 
 // A list of verified servers for /badge
-config.badge_verifiedServers = [
+config.badgeVerifiedServers = [
 	'example'
 ];
 

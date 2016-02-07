@@ -25,7 +25,7 @@ Utils.padDigits = function(number, digits) {
 	return new Array(Math.max(digits - String(number).length + 1, 0)).join('0') + number;
 };
 
-Utils.sendError = function(res, error) {
+Utils.sendError = function (req, res, error) {
 	if (error instanceof errors.KristError) {
 		var out = {
 			ok: false,
@@ -44,7 +44,7 @@ Utils.sendError = function(res, error) {
 			}
 		}
 
-		res.status(error.statusCode).json(out);
+		res.status(req.query.cc !== 'undefined' ? 200 : error.statusCode).json(out);
 	} else {
 		res.status(500).json({
 			ok: false,

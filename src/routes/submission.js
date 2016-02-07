@@ -10,11 +10,11 @@ module.exports = function(app) {
 	app.get('/', function(req, res, next) {
 		if (typeof req.query.submitblock !== 'undefined') {
 			if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
-				return res.status(400).send('Invalid address');
+				return res.send('Invalid address');
 			}
 
-			if (!req.query.nonce || req.query.nonce.length > config.nonce_maxSize) {
-				return res.status(400).send('Nonce is too large');
+			if (!req.query.nonce || req.query.nonce.length > config.nonceMaxSize) {
+				return res.send('Nonce is too large');
 			}
 
 			blocks.getLastBlock().then(function(lastBlock) {
@@ -106,7 +106,7 @@ module.exports = function(app) {
 					success: false
 				});
 			} else {
-				utils.sendError(res, error);
+				utils.sendError(req, res, error);
 			}
 		});
 	});

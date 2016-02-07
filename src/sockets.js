@@ -7,7 +7,7 @@ function Sockets() {}
 module.exports = Sockets;
 
 Sockets.init = function() {
-	return new Promise(function(reslove, reject) {
+	return new Promise(function(resolve, reject) {
 
 	});
 };

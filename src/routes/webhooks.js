@@ -97,7 +97,7 @@ module.exports = function(app) {
 				webhook: webhooksController.webhookToJSON(webhook)
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -115,7 +115,7 @@ module.exports = function(app) {
 				webhooks: out
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	}
 
@@ -221,7 +221,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	}
 

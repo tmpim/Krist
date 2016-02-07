@@ -83,7 +83,7 @@ BlocksController.submitBlock = function(address, nonce) {
 			return reject(new errors.ErrorMissingParameter('nonce'));
 		}
 
-		if (nonce.length < 1 || nonce.length > config.nonce_maxSize) {
+		if (nonce.length < 1 || nonce.length > config.nonceMaxSize) {
 			return reject(new errors.ErrorInvalidParameter('nonce'));
 		}
 

@@ -11,16 +11,16 @@ module.exports = function(app) {
 
 	/**
 	 * @api {get} /walletversion Get latest KristWallet version
-	 * @apiName GetWalletVersio0n
+	 * @apiName GetWalletVersion
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiSuccess {Number} wallet_version The latest KristWallet version.
+	 * @apiSuccess {Number} walletVersion The latest KristWallet version.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
-     *     "wallet_version": 14
+     *     "walletVersion": 14
      * }
 	 */
 	app.get('/walletversion', function(req, res) {
@@ -28,7 +28,7 @@ module.exports = function(app) {
 
 		res.json({
 			ok: true,	
-			wallet_version: krist.getWalletVersion()
+			walletVersion: krist.getWalletVersion()
 		});
 	});
 

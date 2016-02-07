@@ -19,10 +19,10 @@ Krist.init = function() {
 	console.log('[Krist]'.bold + ' Loading...');
 
 	var requiredConfigOptions = [
-		'wallet_version',
-		'name_cost',
-		'work_growthFactor',
-		'webhooks_maxPerHost'
+		'walletVersion',
+		'nameCost',
+		'workGrowthFactor',
+		'maxWebsocketsPerHost'
 	];
 
 	requiredConfigOptions.forEach(function(option) {
@@ -88,7 +88,7 @@ Krist.setWork = function(work) {
 };
 
 Krist.getWalletVersion = function() {
-	return typeof config.wallet_version === 'number' ? config.wallet_version : 13;
+	return typeof config.walletVersion === 'number' ? config.walletVersion : 13;
 };
 
 Krist.getMoneySupply = function() {
@@ -96,7 +96,7 @@ Krist.getMoneySupply = function() {
 };
 
 Krist.getWorkGrowthFactor = function() {
-	return config.work_growthFactor;
+	return config.workGrowthFactor;
 };
 
 Krist.makeV2Address = function(key) {

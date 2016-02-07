@@ -14,10 +14,10 @@ Database.getSequelize = function() {
 Database.init = function() {
 	return new Promise(function(resolve) {
 		var requiredConfigOptions = [
-			'database_host',
-			'database_db',
-			'database_user',
-			'database_pass'
+			'databaseHost',
+			'databaseDB',
+			'databaseUser',
+			'databasePass'
 		];
 
 		requiredConfigOptions.forEach(function(option) {
@@ -30,9 +30,9 @@ Database.init = function() {
 
 		console.log('[DB]'.cyan + ' Connecting...');
 
-		Database.sequelize = new Sequelize(config.database_db, config.database_user, config.database_pass, {
-			host: config.database_host,
-			dialect: config.database_dialect,
+		Database.sequelize = new Sequelize(config.databaseDB, config.databaseUser, config.databasePass, {
+			host: config.databaseHost,
+			dialect: config.databaseDialect,
 			logging: false,
 			pool: {
 				max: 6,

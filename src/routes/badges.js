@@ -8,17 +8,17 @@ module.exports = function(app) {
 		var style = req.query.style ? req.query.style.toLowerCase() : 'flat';
 
 		if (!/^(plastic|flat|flat\-squared|social)$/i.test(style)) {
-			return utils.sendError(res, new errors.ErrorInvalidParameter('style'));
+			return utils.sendError(req, res, new errors.ErrorInvalidParameter('style'));
 		}
 
-		if (config.badge_verifiedServers.indexOf(req.params.server) > -1) {
+		if (config.badgeVerifiedServers.indexOf(req.params.server) > -1) {
 			res.header("Content-Type", "image/svg+xml");
 
-			var shield = shields.svg(config.badge_labelLeft, config.badge_labelRight, config.badge_colour, style);
+			var shield = shields.svg(config.badgeLabelLeft, config.badgeLabelRight, config.badgeColour, style);
 
 			res.send(shield);
 		} else {
-			utils.sendError(res, new errors.ErrorServerNotVerified());
+			utils.sendError(req, res, new errors.ErrorServerNotVerified());
 		}
 	});
 

@@ -66,35 +66,35 @@ module.exports = function(app) {
 
 		if (typeof req.query.pushtx !== 'undefined') {
 			if (!req.query.pkey) {
-				return res.status(400).send('Error6');
+				return res.send('Error6');
 			}
 
 			if (!req.query.amt || isNaN(req.query.amt)) {
-				return res.status(400).send('Error3');
+				return res.send('Error3');
 			}
 
 			if (req.query.amt < 1) {
-				return res.status(400).send('Error2');
+				return res.send('Error2');
 			}
 
 			if (!req.query.q || req.query.q.length !== 10) {
-				return res.status(400).send('Error4');
+				return res.send('Error4');
 			}
 
 			var from = utils.sha256(req.query.pkey).substr(0, 10);
 			var amt = parseInt(req.query.amt);
 
 			if (!krist.isValidKristAddress(req.query.q.toString())) {
-				return res.status(400).send('Error4');
+				return res.send('Error4');
 			}
 
 			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com)) {
-				return res.status(400).send('Error5');
+				return res.send('Error5');
 			}
 
 			addresses.getAddress(from).then(function(sender) {
 				if (!sender || sender.balance < amt) {
-					return res.status(403).send("Error1");
+					return res.send("Error1");
 				}
 
 				tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
@@ -107,23 +107,23 @@ module.exports = function(app) {
 
 		if (typeof req.query.pushtx2 !== 'undefined') {
 			if (!req.query.pkey) {
-				return res.status(400).send('Error6');
+				return res.send('Error6');
 			}
 
 			if (!req.query.amt || isNaN(req.query.amt)) {
-				return res.status(400).send('Error3');
+				return res.send('Error3');
 			}
 
 			if (req.query.amt < 1) {
-				return res.status(400).send('Error2');
+				return res.send('Error2');
 			}
 
 			if (!krist.isValidKristAddress(req.query.q.toString())) {
-				return res.status(400).send('Error4');
+				return res.send('Error4');
 			}
 
 			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com)) {
-				return res.status(400).send('Error5');
+				return res.send('Error5');
 			}
 
 			var fromv2 = krist.makeV2Address(req.query.pkey);
@@ -131,7 +131,7 @@ module.exports = function(app) {
 
 			addresses.getAddress(fromv2).then(function(sender) {
 				if (!sender || sender.balance < amtv2) {
-					return res.status(403).send("Error1");
+					return res.send("Error1");
 				}
 
 				tx.pushTransaction(sender, req.query.q.toString(), amtv2, req.query.com).then(function() {
@@ -196,7 +196,7 @@ module.exports = function(app) {
 				transactions: out
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -251,7 +251,7 @@ module.exports = function(app) {
 				transactions: out
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -286,7 +286,7 @@ module.exports = function(app) {
 				transaction: txController.transactionToJSON(transaction)
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 
@@ -320,7 +320,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(res, error);
+			utils.sendError(req, res, error);
 		});
 	});
 

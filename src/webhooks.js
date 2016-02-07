@@ -19,7 +19,7 @@ Webhooks.isURLAllowed = function(urlParts) {
 				}
 			});
 
-			resolve(count < config.webhooks_maxPerHost);
+			resolve(count < config.maxWebsocketsPerHost);
 		}).catch(reject);
 	});
 };
