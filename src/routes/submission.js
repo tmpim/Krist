@@ -106,7 +106,7 @@ module.exports = function(app) {
 					success: false
 				});
 			} else {
-				utils.sendError(req, res, error);
+				utils.sendErrorToRes(req, res, error);
 			}
 		});
 	});

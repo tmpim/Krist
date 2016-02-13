@@ -29,7 +29,7 @@ module.exports = function(app) {
 	 */
 	app.post('/v2', function(req, res) {
 		if (!req.body.privatekey) {
-			return utils.sendError(req, res, new errors.ErrorMissingParameter('privatekey'));
+			return utils.sendErrorToRes(req, res, new errors.ErrorMissingParameter('privatekey'));
 		}
 
 		res.json({

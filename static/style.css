@@ -1,0 +1,157 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	box-sizing: border-box;
+}
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+blockquote, q {
+	quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	line-height: 1;
+
+	color: #fff;
+
+	font-family: Lato;
+	font-weight: 300;
+	font-size: 20px;
+
+	background-image: -webkit-gradient(
+			linear,
+			left top,
+			right bottom,
+			color-stop(0, #58aeea),
+			color-stop(1, #37cc98)
+	);
+
+	background-image: -o-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+	background-image: -moz-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+	background-image: -webkit-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+	background-image: -ms-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+	background-image: linear-gradient(to right bottom, #58aeea 0%, #37cc98 100%);
+
+	display: flex;
+	vertical-align: middle;
+	align-items: center;
+	justify-content: center;
+}
+
+.main-container {
+	text-align: center;
+}
+
+a, a:visited, a:active {
+	color: #fff;
+
+	text-decoration: none;
+
+	transition: all 180ms ease;
+}
+
+a:hover {
+	color: rgba(255, 255, 255, 0.6);
+}
+
+h1 {
+	font-size: 8rem;
+	font-weight: 100;
+}
+
+.small {
+	font-size: 95%;
+}
+
+.warn {
+	color: rgba(255, 255, 255, 0.6);
+
+	font-size: 80%;
+}
+
+.title {
+	margin-bottom: 1.5rem;
+}
+
+.links {
+	text-align: left;
+}
+
+.links li:before {
+	content: '>';
+
+	color: rgba(255, 255, 255, 0.5);
+
+	margin-right: 0.5rem;
+
+	transition: all 180ms ease;
+}
+
+.links li:hover:before {
+	color: rgba(255, 255, 255, 0.7);
+
+	font-weight: 400;
+
+	margin-right: 0.75rem;
+}
+
+.coming-soon {
+	text-decoration: line-through;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.credits {
+	color: rgba(255, 255, 255, 0.6);
+
+	margin-top: 2rem;
+
+	font-size: 90%;
+}
+
+.credits a {
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.credits a:hover {
+	color: rgba(255, 255, 255, 0.8);
+}

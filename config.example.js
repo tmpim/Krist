@@ -31,7 +31,7 @@ config.redisPrefix = 'krist';
  * WEBSERVER SETUP
  */
 
-// The socket file for your server. Proxy this to nginx.
+// The sock file for your server. Proxy this to nginx.
 config.serverSock = '/var/krist/krist.sock';
 
 // Configuration of the rate limiter. See: https://github.com/nfriedly/express-rate-limit
@@ -42,6 +42,9 @@ config.rateLimitSettings = {
 	max: 320,
 	message: 'Rate limit hit. Please try again later.'
 };
+
+// The URL at which websockets should be connected from
+config.websocketURL = 'wss://krist.ceriat.net';
 
 /*
  * KRIST SPECIFIC
@@ -75,5 +78,8 @@ config.badgeColour = 'green';
 config.badgeVerifiedServers = [
 	'example'
 ];
+
+// Temporary while developing
+config.websocketsEnabled = true;
 
 module.exports = config;

@@ -1,6 +1,7 @@
 var webhooks    = require('./../webhooks.js'),
 	names       = require('./../names.js'),
 	errors      = require('./../errors/errors.js'),
+	addrs   	= require('./../addresses.js'),
 	krist       = require('./../krist.js'),
 	url         = require('url');
 
@@ -96,7 +97,7 @@ WebhooksController.getWebhooksByAddress = function(privatekey, owner) {
 			return reject(new errors.ErrorAuthFailed());
 		}
 
-		addresses.getAddress(address).then(function(result) {
+		addrs.getAddress(owner).then(function(result) {
 			if (!result) {
 				return reject(new errors.ErrorAddressNotFound());
 			}
@@ -146,7 +147,8 @@ WebhooksController.webhookToJSON = function(webhook) {
 			event: webhook.event,
 			url: webhook.url,
 			method: webhook.method,
-			addresses: webhook.value ? webhook.value.split(',') : null
+			addresses: webhook.value ? webhook.value.split(',') : null,
+			token: webhook.token
 		};
 	} else {
 		return {
@@ -154,7 +156,8 @@ WebhooksController.webhookToJSON = function(webhook) {
 			owner: webhook.owner,
 			event: webhook.event,
 			url: webhook.url,
-			method: webhook.method
+			method: webhook.method,
+			token: webhook.token
 		};
 	}
 };

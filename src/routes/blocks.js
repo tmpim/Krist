@@ -170,7 +170,7 @@ module.exports = function(app) {
 				blocks: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -230,7 +230,7 @@ module.exports = function(app) {
 				blocks: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -290,7 +290,7 @@ module.exports = function(app) {
 				blocks: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -326,7 +326,7 @@ module.exports = function(app) {
 				block: blocksController.blockToJSON(block)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -415,7 +415,7 @@ module.exports = function(app) {
 				block: blocksController.blockToJSON(block)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 

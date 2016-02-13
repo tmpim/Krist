@@ -7,29 +7,6 @@ This is the new official Krist node. It is written in Node.js.
 The documentation is generated with [apiDoc](http://apidocjs.com). It is automatically built by Grunt. You can find a
 live copy of the API documentation [here](http://kristtest.lemmmy.pw/docs).
 
-## Dependencies
-
-    "bluebird": "^3.2.1",
-    "body-parser": "^1.14.2",
-    "colors": "^1.1.2",
-    "express": "^4.13.3",
-    "express-rate-limit": "^2.1.0",
-    "moment": "^2.11.1",
-    "redis": "^2.4.2",
-    "request": "^2.69.0",
-    "sequelize": "^3.19.0",
-    "shields-lightweight": "^0.1.0",
-    "sockjs": "^0.3.15"
-
-### Dev Dependencies
-
-    "grunt": "^0.4.5",
-    "grunt-apidoc": "^0.10.1",
-    "grunt-contrib-watch": "^0.6.1",
-    "progress": "^1.1.8",
-    "sqlite3": "^3.1.1",
-    "yesno": "0.0.1"
-
 _Note:_ The `mysql` package is required if you use `mysql` or `mariadb` as a Sequelize backend.
 
 ## Installation
@@ -42,63 +19,6 @@ dependencies and then run `node main`.
 This Krist node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
 configuration for how to set up the proxy in nginx. The Node.js webserver is not designed to and should not be exposed
 to the public web, and should bind to a socket file.
-
-You will need to create a socket file first. It is recommended to create a folder as the user you run your server as
-where sockets can be privately written to. Set the sticky bit, and give the owner and group rwx perms. Do not give
-world permissions.
-
-Next, point your webserver to pass the requests at port 80 and 443 to this socket file. In nginx, this is as
-straightforward as:
-
-```
-server {
-    listen 80;
-    listen 443 ssl;
-
-    # Necessary SSL config
-
-    server_name krist.example.com;
-
-    location / {
-        proxy_pass http://unix://var/sockets/krist.sock;
-    }
-}
-```
-
-You can also use an upstream to keepalive connections, like so:
-
-```
-upstream krist {
-	server unix:/var/sockets/krist.sock;
-	keepalive 8;
-}
-
-server {
-    listen 80;
-    listen 443 ssl;
-
-    # Necessary SSL config
-
-    server_name krist.example.com;
-
-    location / {
-        proxy_pass http://krist;
-    }
-}
-```
-
-The upstream method is also recommended for optimal performance.
-
-Finally, make any additional changes, such as any proxy settings, upstream settings and your SSL configuration. You may
-also point your 502 and 503 pages to static/down.html. This is done in nginx like this:
-
-```
-error_page 502 503 /down.html;
-root /var/www-kristnode/static;
-
-location /down.html {
-}
-```
 
 ## Configuration
 

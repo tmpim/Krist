@@ -8,7 +8,7 @@ module.exports = function(app) {
 		var style = req.query.style ? req.query.style.toLowerCase() : 'flat';
 
 		if (!/^(plastic|flat|flat\-squared|social)$/i.test(style)) {
-			return utils.sendError(req, res, new errors.ErrorInvalidParameter('style'));
+			return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter('style'));
 		}
 
 		if (config.badgeVerifiedServers.indexOf(req.params.server) > -1) {
@@ -18,7 +18,7 @@ module.exports = function(app) {
 
 			res.send(shield);
 		} else {
-			utils.sendError(req, res, new errors.ErrorServerNotVerified());
+			utils.sendErrorToRes(req, res, new errors.ErrorServerNotVerified());
 		}
 	});
 

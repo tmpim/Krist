@@ -28,7 +28,7 @@ Database.init = function() {
 			}
 		});
 
-		console.log('[DB]'.cyan + ' Connecting...');
+		console.log('[DB]'.cyan + ' Connecting to database ' + config.databaseDB.bold + ' as user ' + config.databaseUser.bold + '...');
 
 		Database.sequelize = new Sequelize(config.databaseDB, config.databaseUser, config.databasePass, {
 			host: config.databaseHost,

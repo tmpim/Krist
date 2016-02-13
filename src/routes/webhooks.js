@@ -18,6 +18,12 @@ module.exports = function(app) {
 	 *
 	 * * `name` - A name event; called whenever somebody in the address list (or anybody if
 	 * 			the address list is unspecified) purchases a name.
+	 *
+	 * ## Validation
+	 *
+	 * When a webhook makes a request to your server, it will additionally supply a 'token' argument via the data. You
+	 * may use this to verify that the requests are actually coming from the server. The token is generated per-webhook
+	 * and can be retrieved when creating the webhook or when getting your webhook listing.
 	 */
 
 	/**
@@ -28,6 +34,7 @@ module.exports = function(app) {
 	 * @apiSuccess {String="transaction","block","name"} webhook.event The event type of this webhook.
 	 * @apiSuccess {String} webhook.url The URL this webhook calls.
 	 * @apiSuccess {String} webhook.owner The address that owns this webhook.
+	 * @apiSuccess {String} webhook.token The validation token of this webhook.
 	 * @apiSuccess {String[]} [webhook.addresses] The list of addresses whitelisted for this event. Can be null. Only
 	 * 			   appears if the webhook event type is `transaction` or `name`.
 	 * @apiSuccess {String="get","post"} [webhook.method] The HTTP method this webhook will be called with.
@@ -41,6 +48,7 @@ module.exports = function(app) {
 	 * @apiSuccess {String="transaction","block","name"} webhooks.event The event type of this webhook.
 	 * @apiSuccess {String} webhooks.url The URL this webhook calls.
 	 * @apiSuccess {String} webhooks.owner The address that owns this webhook.
+	 * @apiSuccess {String} webhooks.token The validation token of this webhook.
 	 * @apiSuccess {String[]} [webhooks.addresses] The list of addresses whitelisted for this event. Can be null. Only
 	 * 			   appears if the webhook event type is `transaction` or `name`.
 	 * @apiSuccess {String="get","post"} [webhooks.method] The HTTP method this webhook will be called with.
@@ -58,7 +66,7 @@ module.exports = function(app) {
 	 * @apiParam (BodyParameter) {String} owner Your address, used as confirmation.
 	 * @apiParam (BodyParameter) {String="transaction","block","name} event The event type of this webhook.
 	 * @apiParam (BodyParameter) {String} url The URL to call for this webhook.
-	 * @apiParam (BodyParameter) {String="get","post") [method] The HTTP method to call for this webhook.
+	 * @apiParam (BodyParameter) {String="get","post"} [method] The HTTP method to call for this webhook.
 	 * @apiParam (BodyParameter) {String) [addresses] A comma delimited list of addresses to whitelist for this event.
 	 * 			 Only valid for `transaction` or `name` events.
 	 *
@@ -97,7 +105,7 @@ module.exports = function(app) {
 				webhook: webhooksController.webhookToJSON(webhook)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -115,7 +123,7 @@ module.exports = function(app) {
 				webhooks: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	}
 
@@ -221,7 +229,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	}
 
@@ -233,6 +241,7 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (URLParameter) {String} id The ID of the webhook to delete.
 	 * @apiParam (BodyParameter) {String} privatekey The privatekey of the address which owns the webhook.
+	 * @apiParam (BodyParameter) {String} owner The address which owns the webhook. Used as confirmation.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
@@ -261,6 +270,7 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (URLParameter) {String} id The ID of the webhook to delete.
 	 * @apiParam (BodyParameter) {String} privatekey The privatekey of the address which owns the webhook.
+	 * @apiParam (BodyParameter) {String} owner The address which owns the webhook. Used as confirmation.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {

@@ -34,6 +34,8 @@ Krist.init = function() {
 	});
 
 	// Check for and make the data dir
+
+	/// WOW dont use deprecated functions lemmmmmym!
 	if (!fs.existsSync('data')) {
 		fs.mkdirSync('data', 775);
 	}
@@ -115,7 +117,7 @@ Krist.makeV2Address = function(key) {
 		if (chars[index] === "") {
 			hash = utils.sha256(hash);
 		} else {
-			prefix+=utils.hexToBase36(parseInt(chars[index], 16));
+			prefix += utils.hexToBase36(parseInt(chars[index], 16));
 			chars[index] = "";
 			i++;
 		}

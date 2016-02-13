@@ -246,7 +246,7 @@ module.exports = function(app) {
 
 	app.get('/names/check/:name', function(req, res) {
 		if (!krist.isValidName(req.params.name)) {
-			return utils.sendError(req, res, new errors.ErrorInvalidParameter('name'));
+			return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter('name'));
 		}
 
 		names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
@@ -328,7 +328,7 @@ module.exports = function(app) {
 				names: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -382,7 +382,7 @@ module.exports = function(app) {
 				names: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -425,7 +425,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -475,7 +475,7 @@ module.exports = function(app) {
 				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -486,7 +486,7 @@ module.exports = function(app) {
 				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	}
 

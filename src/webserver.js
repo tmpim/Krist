@@ -2,6 +2,7 @@ var	config	    = require('./../config.js'),
 	utils       = require('./utils.js'),
 	errors      = require('./errors/errors.js'),
 	express	    = require('express'),
+	http		= require('http'),
 	bodyParser  = require('body-parser'),
 	rateLimit   = require('express-rate-limit'),
 	net		    = require('net'),
@@ -17,90 +18,80 @@ Webserver.getExpress = function() {
 };
 
 Webserver.init = function() {
-	var serverSock = '';
+	return new Promise(function(resolve, reject) {
+		if (typeof config.serverSock === 'undefined') {
+			console.error('[Config]'.red + ' Missing config option: serverSock');
 
-	if (typeof config.serverSock === 'undefined') {
-		console.error('[Config]'.red + ' Missing config option: serverSock');
-
-		return null;
-	} else {
-		serverSock = config.serverSock;
-	}
-
-	Webserver.express = express();
-
-	console.log('[Webserver]'.cyan + ' Starting on socket ' + serverSock.bold);
-
-	process.on('uncaughtException', function(error) {
-		if (error.code == 'EADDRINUSE') {
-			console.warn('[Webserver]'.yellow + ' Address already in use. Checking if it is actually in use.');
-
-			var clientSocket = new net.Socket();
-			clientSocket.on('error', function(e) {
-				if (e.code == 'ECONNREFUSED') {
-					fs.unlinkSync(serverSock);
-
-					Webserver.express.listen(serverSock, function() {
-						console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
-					});
-				}
-			});
-
-			clientSocket.connect({path: serverSock}, function() {
-				console.error('[Webserver]'.red + ' Address already in use. Exiting.');
-				process.exit();
-			});
-		} else {
-			console.error('[Webserver]'.red + ' Error: ' + error);
+			return null;
 		}
-	});
 
-	Webserver.express.listen(serverSock, function() {
-		console.log('[Webserver]'.green + ' Server started successfully on socket ' + serverSock.bold);
-	});
+		Webserver.express = express();
+		Webserver.ws = require('express-ws')(Webserver.express);
 
-	Webserver.express.enable('trust proxy');
-	Webserver.express.disable('x-powered-by');
-	Webserver.express.disable('etag');
-	Webserver.express.use(bodyParser.urlencoded({ extended: false }));
-	Webserver.express.use(bodyParser.json());
-	Webserver.express.use(express.static('static'));
-	Webserver.express.use(rateLimit(config.rateLimitSettings));
+		console.log('[Webserver]'.cyan + ' Starting on socket ' + config.serverSock.bold);
 
-	Webserver.express.all('*', function(req, res, next) {
-		res.header('X-Robots-Tag', 'none');
-		res.header('Content-Type', 'application/json');
-		next();
-	});
+		fs.unlink(config.serverSock, function() {
+			Webserver.express.listen(config.serverSock, function() {
+				console.log('[Webserver]'.green + ' Started');
+				resolve();
+			});
 
-	Webserver.express.all('/', function(req, res, next) {
-		res.header('Content-Type', 'text/plain');
-		next();
-	});
+			Webserver.express.enable('trust proxy');
+			Webserver.express.disable('x-powered-by');
+			Webserver.express.disable('etag');
+			Webserver.express.use(express.static('static'));
+			Webserver.express.use(bodyParser.urlencoded({ extended: false }));
+			Webserver.express.use(bodyParser.json());
+			Webserver.express.use(rateLimit(config.rateLimitSettings));
 
-	console.log('[Webserver]'.cyan + ' Loading routes');
+			Webserver.express.all('*', function(req, res, next) {
+				res.header('X-Robots-Tag', 'none');
+				res.header('Content-Type', 'application/json');
+				next();
+			});
 
-	try {
-		var routePath = path.join(__dirname, 'routes');
+			Webserver.express.all('/', function(req, res, next) {
+				res.header('Content-Type', 'text/plain');
+				next();
+			});
 
-		fs.readdirSync(routePath).forEach(function(file) {
-			if (path.extname(file).toLowerCase() !== '.js') {
-				return;
-			}
+			console.log('[Webserver]'.cyan + ' Loading routes');
 
 			try {
-				require('./routes/' + file)(Webserver.express);
+				var routePath = path.join(__dirname, 'routes');
+
+				fs.readdirSync(routePath).forEach(function(file) {
+					if (path.extname(file).toLowerCase() !== '.js') {
+						return;
+					}
+
+					try {
+						require('./routes/' + file)(Webserver.express);
+					} catch (error) {
+						console.log('[Webserver]'.red + ' Error loading route `' + file + '`: ');
+						console.log(error.stack);
+					}
+				});
 			} catch (error) {
-				console.log('[Webserver]'.red + ' Error loading route `' + file + '`: ');
+				console.log('[Webserver]'.red + ' Error finding routes: ');
 				console.log(error.stack);
 			}
-		});
-	} catch (error) {
-		console.log('[Webserver]'.red + ' Error finding routes: ');
-		console.log(error.stack);
-	}
 
-	Webserver.express.use(function(req, res) {
-		utils.sendError(req, res, new errors.ErrorRouteNotFound());
+			Webserver.express.all('/', function(req, res) {
+				res.header('Content-Type', 'text/html');
+
+				fs.readFile(config.debugMode ? 'static/index_debug.html' : 'static/index_main.html', function(err, contents) {
+					if (err) {
+						return res.send("<h1>oops!!!!!!!!!!!!</h1>");
+					}
+
+					res.send(contents);
+				});
+			});
+
+			Webserver.express.use(function(req, res) {
+				utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
+			});
+		});
 	});
 };

@@ -25,7 +25,7 @@ Utils.padDigits = function(number, digits) {
 	return new Array(Math.max(digits - String(number).length + 1, 0)).join('0') + number;
 };
 
-Utils.sendError = function (req, res, error) {
+Utils.errorToJSON = function(error) {
 	if (error instanceof errors.KristError) {
 		var out = {
 			ok: false,
@@ -44,16 +44,26 @@ Utils.sendError = function (req, res, error) {
 			}
 		}
 
-		res.status(req.query.cc !== 'undefined' ? 200 : error.statusCode).json(out);
+		return out;
 	} else {
-		res.status(500).json({
-			ok: false,
-			error: 'server_error'
-		});
-
 		console.log('[Error]'.red + ' Uncaught error.');
 		console.log(error.stack);
+
+		return {
+			ok: false,
+			error: 'server_error'
+		};
 	}
+};
+
+Utils.sendErrorToRes = function (req, res, error) {
+	var errorCode = error.statusCode || 500;
+
+	if (req.query.cc !== 'undefined') {
+		errorCode = 200;
+	}
+
+	res.status(errorCode).json(Utils.errorToJSON(error));
 };
 
 Utils.sanitiseLimit = function(limit, def, max) {
@@ -65,6 +75,14 @@ Utils.sanitiseLimit = function(limit, def, max) {
 
 Utils.sanitiseOffset = function(offset) {
 	return typeof offset !== 'undefined' ? parseInt(offset) : null;
+};
+
+Utils.sendToWS = function(ws, message) {
+	ws.send(JSON.stringify(message));
+};
+
+Utils.sendErrorToWS = function(ws, error) {
+	ws.send(JSON.stringify(Utils.errorToJSON(error)));
 };
 
 module.exports = Utils;

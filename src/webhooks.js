@@ -4,7 +4,8 @@ var utils   = require('./utils.js'),
 	Promise = require('bluebird'),
 	url     = require('url'),
 	request = require('request'),
-	moment  = require('moment');
+	moment  = require('moment'),
+	hat		= require('hat');
 
 function Webhooks() {}
 
@@ -30,7 +31,8 @@ Webhooks.createTransactionWebhook = function(owner, method, url, addresses) {
 		method: method,
 		url: decodeURI(url),
 		value: addresses,
-		owner: owner
+		owner: owner,
+		token: 'tx-' + hat(64, 36)
 	});
 };
 
@@ -39,7 +41,8 @@ Webhooks.createBlockWebhook = function(owner, method, url) {
 		event: 'block',
 		method: method,
 		url: decodeURI(url),
-		owner: owner
+		owner: owner,
+		token: 'bk-' + hat(64, 36)
 	});
 };
 
@@ -49,7 +52,8 @@ Webhooks.createNameWebhook = function(owner, method, url, addresses) {
 		method: method,
 		url: decodeURI(url),
 		value: addresses,
-		owner: owner
+		owner: owner,
+		token: 'nm-' + hat(64, 36)
 	});
 };
 
@@ -72,10 +76,13 @@ Webhooks.callNameWebhooks = function(name) {
 			};
 
 			webhooks.forEach(function(webhook) {
+				var updatedData = data;
+				updatedData.token = webhook.token;
+
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data }, function(err, response, body) {});
+					request.post(webhook.url, { form: updatedData }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data }, function(err, response, body) {});
+					request.get(webhook.url, { qs: updatedData }, function(err, response, body) {});
 				}
 			});
 		}
@@ -102,10 +109,13 @@ Webhooks.callTransactionWebhooks = function(transaction) {
 			};
 
 			webhooks.forEach(function(webhook) {
+				var updatedData = data;
+				updatedData.token = webhook.token;
+
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data }, function(err, response, body) {});
+					request.post(webhook.url, { form: updatedData }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data }, function(err, response, body) {});
+					request.get(webhook.url, { qs: updatedData }, function(err, response, body) {});
 				}
 			});
 		}
@@ -131,10 +141,13 @@ Webhooks.callBlockWebhooks = function(block) {
 			};
 
 			webhooks.forEach(function(webhook) {
+				var updatedData = data;
+				updatedData.token = webhook.token;
+
 				if (webhook.method.toLowerCase() === 'post') {
-					request.post(webhook.url, { form: data }, function(err, response, body) {});
+					request.post(webhook.url, { form: updatedData }, function(err, response, body) {});
 				} else {
-					request.get(webhook.url, { qs: data }, function(err, response, body) {});
+					request.get(webhook.url, { qs: updatedData }, function(err, response, body) {});
 				}
 			});
 		}

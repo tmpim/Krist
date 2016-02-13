@@ -166,7 +166,7 @@ module.exports = function(app) {
 				addresses: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -217,7 +217,7 @@ module.exports = function(app) {
 				addresses: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -264,7 +264,7 @@ module.exports = function(app) {
 				address: addressesController.addressToJSON(address)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -320,7 +320,7 @@ module.exports = function(app) {
 				names: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -389,7 +389,7 @@ module.exports = function(app) {
 				transactions: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 

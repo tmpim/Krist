@@ -196,7 +196,7 @@ module.exports = function(app) {
 				transactions: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -251,7 +251,7 @@ module.exports = function(app) {
 				transactions: out
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -286,7 +286,7 @@ module.exports = function(app) {
 				transaction: txController.transactionToJSON(transaction)
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 
@@ -320,7 +320,7 @@ module.exports = function(app) {
 				ok: true
 			});
 		}).catch(function(error) {
-			utils.sendError(req, res, error);
+			utils.sendErrorToRes(req, res, error);
 		});
 	});
 

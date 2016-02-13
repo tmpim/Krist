@@ -55,14 +55,10 @@ var Webhook = database.getSequelize().define('webhook', {
 		type: Sequelize.STRING(255),
 		allowNull: true
 	},
-	url: {
-		type: Sequelize.STRING(255),
-		validate: {
-			isUrl: true
-		}
-	},
+	url: Sequelize.STRING(255),
 	method: Sequelize.ENUM('get', 'post'),
-	owner: Sequelize.STRING(10)
+	owner: Sequelize.STRING(10),
+	token: Sequelize.STRING(16)
 }, {
 	timestamps: false
 });
