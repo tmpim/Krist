@@ -17,7 +17,8 @@ module.exports = function(app) {
 	 * * `block` - A block event; called whenever somebody submits and solves a block.
 	 *
 	 * * `name` - A name event; called whenever somebody in the address list (or anybody if
-	 * 			the address list is unspecified) purchases a name.
+	 * 			the address list is unspecified) pu
+	 * 			rchases a name.
 	 *
 	 * ## Validation
 	 *
