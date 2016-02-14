@@ -39,6 +39,12 @@ Webserver.init = function() {
 			Webserver.express.enable('trust proxy');
 			Webserver.express.disable('x-powered-by');
 			Webserver.express.disable('etag');
+
+			Webserver.express.use(function(req, res, next) {
+				delete req.headers['content-encoding'];
+				next();
+			});
+
 			Webserver.express.use(express.static('static'));
 			Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 			Webserver.express.use(bodyParser.json());

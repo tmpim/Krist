@@ -70,6 +70,7 @@
       "GetTransaction",
       "MakeTransaction",
       "NameGroup",
+      "GetName",
       "GetNames",
       "GetNewNames",
       "RegisterName",
