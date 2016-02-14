@@ -270,7 +270,7 @@ module.exports = function(app) {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.1
 	 *
-	 * @apiSuccess {Number} cost The cost of a name
+	 * @apiSuccess {Number} name_cost The cost of a name
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
@@ -294,7 +294,7 @@ module.exports = function(app) {
 	 * @apiDescription Returns the amount of KST that is currently added to the base block reward. Essentially, this is
 	 * the count of names registered in the last 500 blocks.
 	 *
-	 * @apiSuccess {Number} cost The name bonus.
+	 * @apiSuccess {Number} name_bonus The name bonus.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
