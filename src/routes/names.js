@@ -264,13 +264,44 @@ module.exports = function(app) {
 		});
 	});
 
+	/**
+	 * @api {get} /names/cost Get the cost of a name
+	 * @apiName GetNameCost
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.1
+	 *
+	 * @apiSuccess {Number} cost The cost of a name
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+	 *     "ok": true,
+	 *     "name_cost": 500
+     * }
+	 */
 	app.get('/names/cost', function(req, res) {
 		res.json({
 			ok: true,
-			nameCost: names.getNameCost().toString()
+			name_cost: names.getNameCost().toString()
 		});
 	});
 
+	/**
+	 * @api {get} /names/bonus Get the name bonus
+	 * @apiName GetNameBonus
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.1
+	 *
+	 * @apiDescription Returns the amount of KST that is currently added to the base block reward. Essentially, this is
+	 * the count of names registered in the last 500 blocks.
+	 *
+	 * @apiSuccess {Number} cost The name bonus.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+	 *     "ok": true,
+	 *     "name_bonus": 12
+     * }
+	 */
 	app.get('/names/bonus', function(req, res) {
 		names.getUnpaidNameCount().then(function(count) {
 			res.json({

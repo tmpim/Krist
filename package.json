@@ -1,6 +1,6 @@
 {
   "name": "Krist",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
   "scripts": {
@@ -73,6 +73,8 @@
       "GetName",
       "GetNames",
       "GetNewNames",
+      "GetNameCost",
+      "GetNameBonus",
       "RegisterName",
       "TransferName",
       "WebhookGroup",
