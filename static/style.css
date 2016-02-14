@@ -143,7 +143,7 @@ h3 {
 	transition: all 180ms ease;
 }
 
-.links li:hover:before {
+.links li:not(.disabled):hover:before {
 	color: rgba(255, 255, 255, 0.7);
 
 	font-weight: 400;
