@@ -5,7 +5,7 @@ This is the new official Krist node. It is written in Node.js.
 ## API Documentation
 
 The documentation is generated with [apiDoc](http://apidocjs.com). It is automatically built by Grunt. You can find a
-live copy of the API documentation [here](http://kristtest.lemmmy.pw/docs).
+live copy of the API documentation [here](http://krist.ceriat.net/docs).
 
 _Note:_ The `mysql` package is required if you use `mysql` or `mariadb` as a Sequelize backend.
 
