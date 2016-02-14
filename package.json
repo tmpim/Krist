@@ -1,5 +1,5 @@
 {
-  "name": "krist2node",
+  "name": "Krist",
   "version": "2.0.0",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lemmmy/Krist2Node"
+    "url": "https://github.com/Lemmmy/Krist"
   },
   "author": "Lemmmy",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Lemmmy/Krist2Node/issues"
+    "url": "https://github.com/Lemmmy/Krist/issues"
   },
-  "homepage": "https://github.com/Lemmmy/Krist2Node",
+  "homepage": "https://github.com/Lemmmy/Krist",
   "dependencies": {
     "bluebird": "^3.2.1",
     "body-parser": "^1.14.2",
