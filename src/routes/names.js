@@ -281,7 +281,7 @@ module.exports = function(app) {
 	app.get('/names/cost', function(req, res) {
 		res.json({
 			ok: true,
-			name_cost: names.getNameCost().toString()
+			name_cost: names.getNameCost()
 		});
 	});
 
@@ -306,7 +306,7 @@ module.exports = function(app) {
 		names.getUnpaidNameCount().then(function(count) {
 			res.json({
 				ok: true,
-				name_bonus: count.toString()
+				name_bonus: count
 			});
 		});
 	});
