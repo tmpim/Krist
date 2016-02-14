@@ -17,6 +17,13 @@
  */
 
 /**
+ * @apiDefine WebsocketParameter Websocket Message Parameter
+ *
+ * A parameter encoded in JSON in the websocket message.
+ */
+
+
+/**
  * @apiDefine MiscellaneousGroup Miscellaneous
  *
  * All other endpoints.

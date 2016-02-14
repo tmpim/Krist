@@ -1,3 +1,6 @@
+var fs 		= require('fs'),
+	path 	= require('path');
+
 function Websockets() {
 	this.websockets = [];
 }
@@ -33,3 +36,25 @@ Websockets.broadcast = function(message) {
 }
 
 module.exports = Websockets;
+
+console.log('[Websockets]'.cyan + ' Loading routes');
+
+try {
+	var routePath = path.join(__dirname, 'websocket_routes');
+
+	fs.readdirSync(routePath).forEach(function(file) {
+		if (path.extname(file).toLowerCase() !== '.js') {
+			return;
+		}
+
+		try {
+			require('./websocket_routes/' + file)(module.exports);
+		} catch (error) {
+			console.log('[Websockets]'.red + ' Error loading route `' + file + '`: ');
+			console.log(error.stack);
+		}
+	});
+} catch (error) {
+	console.log('[Websockets]'.red + ' Error finding routes: ');
+	console.log(error.stack);
+}

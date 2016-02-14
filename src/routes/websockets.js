@@ -60,6 +60,20 @@ module.exports = function(app) {
 	 * You can also upgrade from a guest session to an authed session using the method `upgrade`. See the websocket
 	 * documentation for further information.
 	 *
+	 * ## Requests and responses
+	 *
+	 * The websockets follow a specific request-response subprotocol. Messages sent to a websocket must always be in
+	 * a valid JSON format (prettified/minified does not matter), and must supply an `id` and `type` parameter.
+	 *
+	 * `id` should be unique. When the server responds to you message, it will respond back with the same ID. This is
+	 * so that you know which messages the server is responding to.
+	 *
+	 * `type` must be any valid message type specified in the documentation below.
+	 *
+	 * ## Examples
+	 *
+	 *
+	 *
 	 * @apiParam (BodyParameter) {String} [privatekey] The privatekey to authenticate with.
 	 *
 	 * @apiSuccess {String} url The address to connect to

@@ -24,8 +24,6 @@ module.exports = function(app) {
      * }
 	 */
 	app.get('/work', function(req, res) {
-		res.header('Content-Type', 'application/json');
-
 		res.json({
 			ok: true,
 			work: krist.getWork()
