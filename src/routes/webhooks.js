@@ -65,7 +65,7 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (BodyParameter) {String} privatekey The privatekey of your address.
 	 * @apiParam (BodyParameter) {String} owner Your address, used as confirmation.
-	 * @apiParam (BodyParameter) {String="transaction","block","name} event The event type of this webhook.
+	 * @apiParam (BodyParameter) {String="transaction","block","name"} event The event type of this webhook.
 	 * @apiParam (BodyParameter) {String} url The URL to call for this webhook.
 	 * @apiParam (BodyParameter) {String="get","post"} [method] The HTTP method to call for this webhook.
 	 * @apiParam (BodyParameter) {String) [addresses] A comma delimited list of addresses to whitelist for this event.
