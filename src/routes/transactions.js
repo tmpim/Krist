@@ -315,9 +315,10 @@ module.exports = function(app) {
      * }
 	 */
 	app.post('/transactions', function(req, res) {
-		txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata).then(function() {
+		txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata).then(function(transaction) {
 			res.json({
-				ok: true
+				ok: true,
+				transaction: txController.transactionToJSON(transaction)
 			});
 		}).catch(function(error) {
 			utils.sendErrorToRes(req, res, error);

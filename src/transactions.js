@@ -62,7 +62,9 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 				promises.push(recipient.increment({ balance: amount, totalout: amount }));
 			}
 
-			Promise.all(promises).then(resolve).catch(reject);
+			Promise.all(promises).then(function(results) {
+				resolve(results[2]);
+			}).catch(reject);
 		});
 	});
 };
