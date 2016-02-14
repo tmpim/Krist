@@ -81,7 +81,9 @@
       "DeleteWebhookPOST",
       "DeleteWebhookDELETE",
       "MiscellaneousGroup",
-      "WebsocketGroup"
+      "WebsocketGroup",
+      "WebsocketStart",
+      "WSGetWork"
     ]
   }
 }

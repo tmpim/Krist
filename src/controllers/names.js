@@ -12,7 +12,7 @@ NamesController.getNames = function(limit, offset) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
@@ -42,7 +42,7 @@ NamesController.getUnpaidNames = function(limit, offset) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
@@ -56,7 +56,7 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 

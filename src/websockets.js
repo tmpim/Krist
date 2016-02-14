@@ -14,8 +14,8 @@ function Websocket(socket, token, auth) {
 	this.isGuest = auth === "guest";
 }
 
-Websockets.addMessageHandler = function(handler) {
-	this.messageHandlers.push(handler);
+Websockets.addMessageHandler = function(type, handler) {
+	this.messageHandlers[type] = handler;
 };
 
 Websockets.addWebsocket = function(socket, token, auth) {

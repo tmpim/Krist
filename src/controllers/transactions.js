@@ -11,7 +11,7 @@ TransactionsController.getTransactions = function(limit, offset, asc) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
@@ -25,7 +25,7 @@ TransactionsController.getTransactionsByAddress = function(address, limit, offse
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 

@@ -12,7 +12,7 @@ BlocksController.getBlocks = function(limit, offset, asc) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
@@ -32,7 +32,7 @@ BlocksController.getBlocksByOrder = function(order, limit, offset) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
 		}
 
-		if ((offset && isNaN(offset)) || (offset && offset <= 0)) {
+		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
