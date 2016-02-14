@@ -3,6 +3,7 @@ var fs 		= require('fs'),
 
 function Websockets() {
 	this.websockets = [];
+	this.messageHandlers = [];
 }
 
 function Websocket(socket, token, auth) {
@@ -12,6 +13,10 @@ function Websocket(socket, token, auth) {
 
 	this.isGuest = auth === "guest";
 }
+
+Websockets.addMessageHandler = function(handler) {
+	this.messageHandlers.push(handler);
+};
 
 Websockets.addWebsocket = function(socket, token, auth) {
 	var ws = new Websocket(socket, token, auth);
@@ -26,14 +31,14 @@ Websockets.addWebsocket = function(socket, token, auth) {
 		}
 	});
 
-	this.websockets.push();
-}
+	this.websockets.push(ws);
+};
 
 Websockets.broadcast = function(message) {
 	this.websockets.forEach(function(websocket) {
 		websocket.send(message);
 	});
-}
+};
 
 module.exports = Websockets;
 

@@ -280,7 +280,6 @@ module.exports = function(app) {
 		});
 	});
 
-
 	/**
 	 * @api {get} /names List all names
 	 * @apiName GetNames
@@ -380,6 +379,39 @@ module.exports = function(app) {
 				ok: true,
 				count: out.length,
 				names: out
+			});
+		}).catch(function(error) {
+			utils.sendErrorToRes(req, res, error);
+		});
+	});
+
+	/**
+	 * @api {get} /names/:name Get a name
+	 * @apiName GetName
+	 * @apiGroup NameGroup
+	 * @apiVersion 2.0.1
+	 *
+	 * @apiParam (URLParameter) name The name to get.
+	 *
+	 * @apiUse Name
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+     *     "ok": true,
+     *     "name": {
+     *         "name": "00",
+     *         "owner": "k9qyx784k7",
+     *         "registered": "2015-05-14T14:35:40.000Z",
+     *         "updated": "2015-05-24T22:47:56.000Z",
+     *         "a": null
+     *     }
+     * }
+	 */
+	app.get('/names/:name', function(req, res) {
+		namesController.getName(req.params.name).then(function(name) {
+			res.json({
+				ok: true,
+				name: namesController.nameToJSON(name)
 			});
 		}).catch(function(error) {
 			utils.sendErrorToRes(req, res, error);

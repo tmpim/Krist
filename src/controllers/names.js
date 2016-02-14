@@ -20,6 +20,22 @@ NamesController.getNames = function(limit, offset) {
 	});
 };
 
+NamesController.getName = function(name) {
+	return new Promise(function(resolve, reject) {
+		if (!krist.isValidName(name)) {
+			return reject(new errors.ErrorInvalidParameter('name'));
+		}
+
+		names.getNameByName(name).then(function(name) {
+			if (name) {
+				resolve(name);
+			} else {
+				reject(new errors.ErrorNameNotFound());
+			}
+		}).catch(reject);
+	});
+};
+
 NamesController.getUnpaidNames = function(limit, offset) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
