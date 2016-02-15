@@ -65,7 +65,8 @@ BlocksController.blockToJSON = function(block) {
 		hash: block.hash,
 		short_hash: block.hash.substring(0, 12),
 		value: block.value,
-		time: block.time
+		time: block.time,
+		difficulty: block.difficulty
 	};
 };
 

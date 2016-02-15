@@ -21,6 +21,7 @@ module.exports = function(app) {
 	 * 						of the submitter's address, the 12-char SHA-256 of the last block, and the nonce.
 	 * @apiSuccess {String} block.short_hash The hash trimmed to 12 characters.
 	 * @apiSuccess {Number} block.value The reward value of this block.
+	 * @apiSuccess {Number} block.difficulty The difficulty at the time the block was mined.
 	 * @apiSuccess {Date} block.time The time this block was submitted.
 	 */
 
@@ -34,6 +35,7 @@ module.exports = function(app) {
 	 * 						of the submitter's address, the 12-char SHA-256 of the last block, and the nonce.
 	 * @apiSuccess {String} blocks.short_hash The hash trimmed to 12 characters.
 	 * @apiSuccess {Number} blocks.value The reward value of this block.
+	 * @apiSuccess {Number} blocks.difficulty The difficulty at the time the block was mined.
 	 * @apiSuccess {Date} blocks.time The time this block was submitted.
 	 */
 
