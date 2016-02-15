@@ -66,10 +66,6 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.pushtx !== 'undefined') {
-			if (!req.query.pkey) {
-				return res.send('Error6');
-			}
-
 			if (!req.query.amt || isNaN(req.query.amt)) {
 				return res.send('Error3');
 			}
@@ -125,10 +121,6 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.pushtx2 !== 'undefined') {
-			if (!req.query.pkey) {
-				return res.send('Error6');
-			}
-
 			if (!req.query.amt || isNaN(req.query.amt)) {
 				return res.send('Error3');
 			}

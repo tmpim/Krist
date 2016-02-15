@@ -4,6 +4,7 @@ var	config	    = require('./../config.js'),
 	express	    = require('express'),
 	http		= require('http'),
 	bodyParser  = require('body-parser'),
+	swig		= require('swig'),
 	rateLimit   = require('express-rate-limit'),
 	net		    = require('net'),
 	fs		    = require('fs'),
@@ -46,8 +47,14 @@ Webserver.init = function() {
 			});
 
 			Webserver.express.use(express.static('static'));
+
+			Webserver.express.set('views', path.join(__dirname, '../views'));
+			Webserver.express.set('view engine', 'swig');
+			Webserver.express.engine('.swig', swig.renderFile);
+
 			Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 			Webserver.express.use(bodyParser.json());
+
 			Webserver.express.use(rateLimit(config.rateLimitSettings));
 
 			Webserver.express.all('*', function(req, res, next) {
@@ -83,20 +90,22 @@ Webserver.init = function() {
 				console.log(error.stack);
 			}
 
-			Webserver.express.all('/', function(req, res) {
+			Webserver.express.get('/', function(req, res) {
 				res.header('Content-Type', 'text/html');
 
-				fs.readFile(config.debugMode ? 'static/index_debug.html' : 'static/index_main.html', function(err, contents) {
-					if (err) {
-						return res.send("<h1>oops!!!!!!!!!!!!</h1>");
-					}
-
-					res.send(contents);
+				res.render('index', {
+					debug: config.debugMode
 				});
 			});
 
 			Webserver.express.use(function(req, res) {
-				utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
+				if (req.xhr || req.accepts('json')) {
+					utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
+				} else {
+					res.header('Content-Type', 'text/html');
+
+					res.render('error_404');
+				}
 			});
 		});
 	});
