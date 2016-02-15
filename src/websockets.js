@@ -40,6 +40,10 @@ Websockets.broadcast = function(message) {
 	});
 };
 
+Websockets.sendResponse = function(ws, message) {
+	ws.send(JSON.stringify(message));
+};
+
 module.exports = Websockets;
 
 console.log('[Websockets]'.cyan + ' Loading routes');

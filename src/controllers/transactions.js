@@ -1,6 +1,7 @@
 var transactions    = require('./../transactions.js'),
 	addresses       = require('./../addresses.js'),
 	krist           = require('./../krist.js'),
+	names			= require('./../names.js'),
 	errors          = require('./../errors/errors.js');
 
 function TransactionsController() {}
@@ -71,8 +72,17 @@ TransactionsController.makeTransaction = function(privateKey, to, amount, com) {
 			return reject(new errors.ErrorMissingParameter('amount'));
 		}
 
-		if (!krist.isValidKristAddress(to)) {
-			return reject(new errors.ErrorInvalidParameter('to'));
+		var isName = /\.kst$/i.test(to);
+		var toName = isName ? to.replace(/\.kst$/i, "") : "";
+
+		if (isName) {
+			if (!krist.isValidName(toName)) {
+				return reject(new errors.ErrorInvalidParameter('to'));
+			}
+		} else {
+			if (!krist.isValidKristAddress(to)) {
+				return reject(new errors.ErrorInvalidParameter('to'));
+			}
 		}
 
 		if (isNaN(amount) || amount < 1) {
@@ -86,13 +96,27 @@ TransactionsController.makeTransaction = function(privateKey, to, amount, com) {
 		var from = krist.makeV2Address(privateKey);
 		amount = parseInt(amount);
 
-		addresses.getAddress(from).then(function(sender) {
-			if (!sender || sender.balance < amount) {
-				return reject(new errors.ErrorInsufficientFunds());
-			}
+		function send(recipient) {
+			addresses.getAddress(from).then(function(sender) {
+				if (!sender || sender.balance < amount) {
+					return reject(new errors.ErrorInsufficientFunds());
+				}
 
-			transactions.pushTransaction(sender, to, amount, com).then(resolve).catch(reject);
-		});
+				transactions.pushTransaction(sender, recipient, amount, com).then(resolve).catch(reject);
+			});
+		}
+
+		if (toName) {
+			names.getNameByName(toName).then(function(name) {
+				if (!name) {
+					return reject(new errors.ErrorNameNotFound());
+				}
+
+				send(name.owner);
+			}).catch(reject);
+		} else {
+			send(to);
+		}
 	});
 };
 

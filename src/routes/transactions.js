@@ -1,5 +1,6 @@
 var krist           = require('./../krist.js'),
 	addresses       = require('./../addresses.js'),
+	names			= require('./../names.js'),
 	tx              = require('./../transactions.js'),
 	txController    = require('./../controllers/transactions.js'),
 	utils           = require('./../utils.js'),
@@ -77,30 +78,48 @@ module.exports = function(app) {
 				return res.send('Error2');
 			}
 
-			if (!req.query.q || req.query.q.length !== 10) {
-				return res.send('Error4');
-			}
-
 			var from = utils.sha256(req.query.pkey).substr(0, 10);
 			var amt = parseInt(req.query.amt);
 
-			if (!krist.isValidKristAddress(req.query.q.toString())) {
-				return res.send('Error4');
-			}
-
-			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com)) {
+			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
 				return res.send('Error5');
 			}
 
-			addresses.getAddress(from).then(function(sender) {
-				if (!sender || sender.balance < amt) {
-					return res.send("Error1");
+			if (/\.kst$/i.test(req.query.q)) {
+				if (!krist.isValidName(req.query.q)) {
+					return res.send('Error4');
 				}
 
-				tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
-					res.send('Success');
+				names.getNameByName(req.query.q).then(function(name) {
+					if (!name) {
+						return res.send("Name not found");
+					}
+
+					addresses.getAddress(from).then(function(sender) {
+						if (!sender || sender.balance < amt) {
+							return res.send("Error1");
+						}
+
+						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function() {
+							res.send('Success');
+						});
+					});
 				});
-			});
+			} else {
+				if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+					return res.send('Error4');
+				}
+
+				addresses.getAddress(from).then(function(sender) {
+					if (!sender || sender.balance < amt) {
+						return res.send("Error1");
+					}
+
+					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+						res.send('Success');
+					});
+				});
+			}
 
 			return;
 		}
@@ -118,26 +137,50 @@ module.exports = function(app) {
 				return res.send('Error2');
 			}
 
-			if (!krist.isValidKristAddress(req.query.q.toString())) {
-				return res.send('Error4');
-			}
+			from = krist.makeV2Address(req.query.pkey); // the javascript scope is weird; this is a duplicate declaration
+			amt = parseInt(req.query.amt);
 
-			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com)) {
+			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
 				return res.send('Error5');
 			}
 
-			var fromv2 = krist.makeV2Address(req.query.pkey);
-			var amtv2 = parseInt(req.query.amt);
+			if (/\.kst$/i.test(req.query.q)) {
+				var qname = req.query.q.replace(/\.kst$/i, "");
 
-			addresses.getAddress(fromv2).then(function(sender) {
-				if (!sender || sender.balance < amtv2) {
-					return res.send("Error1");
+				if (!krist.isValidName(qname)) {
+					return res.send('Error4');
 				}
 
-				tx.pushTransaction(sender, req.query.q.toString(), amtv2, req.query.com).then(function() {
-					res.send('Success');
+				names.getNameByName(qname).then(function(name) {
+					if (!name) {
+						return res.send("Name not found");
+					}
+
+					addresses.getAddress(from).then(function(sender) {
+						if (!sender || sender.balance < amt) {
+							return res.send("Error1");
+						}
+
+						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function() {
+							res.send('Success');
+						});
+					});
 				});
-			});
+			} else {
+				if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+					return res.send('Error4');
+				}
+
+				addresses.getAddress(from).then(function(sender) {
+					if (!sender || sender.balance < amt) {
+						return res.send("Error1");
+					}
+
+					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+						res.send('Success');
+					});
+				});
+			}
 
 			return;
 		}
