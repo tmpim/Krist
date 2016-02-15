@@ -23,16 +23,18 @@
 
     <div class="git-commits">
         {% for commit in commits  %}
-        <div class="commit">
-            <div class="commit-bar"></div>
-            <div class="commit-info">
-                <span class="message" title="{{ commit.body|escape }}">{{ commit.subject|escape }}</span>
-                <div class="author">
-                    <span class="author-name">{{ commit.authorName|escape }}</span> -
-                    <span class="date">{{ commit.authorDateRel|escape }}</span>
-                </div>
+        <a href="https://github.com/Lemmmy/Krist/commit/{{ commit.hash|escape }}">
+            <div class="commit">
+                    <div class="commit-bar"></div>
+                    <div class="commit-info">
+                        <span class="message" title="{{ commit.body|escape }}">{{ commit.subject|escape }}</span>
+                        <div class="author">
+                            <span class="author-name">{{ commit.authorName|escape }}</span> -
+                            <span class="date">{{ commit.authorDateRel|escape }}</span>
+                        </div>
+                    </div>
             </div>
-        </div>
+        </a>
         {% endfor %}
     </div>
 </section>

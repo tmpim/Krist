@@ -191,11 +191,19 @@ p:last-child {
 	padding: 0.25rem;
 	font-size: 16px;
 	font-weight: 400;
+	border-radius: 2px;
 }
 
 .git-commits .commit {
 	vertical-align: middle;
 	padding: 0.2rem;
+	border-radius: 2px;
+
+	transition: all 180ms ease;
+}
+
+.git-commits .commit:hover {
+	background: rgba(255, 255, 255, 0.2);
 }
 
 .git-commits .commit .commit-bar {
@@ -210,6 +218,10 @@ p:last-child {
 	display: table-cell;
 
 	padding: 0.2rem 0.2rem 0.2rem 0.4rem;
+}
+
+.git-commits .commit .commit-info .message {
+	color: #fff !important;
 }
 
 .git-commits .commit .author {

@@ -104,6 +104,7 @@ Webserver.init = function() {
 					fields: [
 						'subject',
 						'body',
+						'hash',
 						'authorName',
 						'authorDateRel'
 					]
