@@ -99,10 +99,18 @@ Webserver.init = function() {
 				res.header('Content-Type', 'text/html');
 
 				gitlog({
-					repo: path.join(__dirname, '../../'),
-					number: 5
+					repo: path.join(__dirname, '../'),
+					number: 5,
+					fields: [
+						'subject',
+						'body',
+						'authorName',
+						'authorDateRel'
+					]
 				}, function(error, commits) {
 					if (error) {
+						console.log(error);
+
 						return res.render('error');
 					}
 

@@ -8,14 +8,14 @@ dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed,
-figure, figcaption, footer, header, hgroup, main,
+figure, figcaption, footer, header, main,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
 	padding: 0;
 	border: 0;
-	font-size: 100%;
 	font: inherit;
+	font-size: 100%;
 	vertical-align: baseline;
 	box-sizing: border-box;
 }
@@ -35,7 +35,6 @@ blockquote, q {
 
 blockquote:before, blockquote:after,
 q:before, q:after {
-	content: '';
 	content: none;
 }
 
@@ -55,7 +54,7 @@ body {
 
 	color: #fff;
 
-	font-family: Lato;
+	font-family: 'Lato', sans-serif;
 	font-weight: 300;
 	font-size: 20px;
 
@@ -85,9 +84,9 @@ header {
 }
 
 header h1 {
+	font-family: 'Alegreya Sans', sans-serif;
 	font-size: 8rem;
 	font-weight: 100;
-	font-family: 'Alegreya Sans';
 }
 
 main {
@@ -102,20 +101,8 @@ main section {
 	padding: 1rem 4rem 1rem 1rem;
 }
 
-footer {
-	color: rgba(255, 255, 255, 0.6);
-
-	padding: 0 3rem 3rem 3rem;
-
-	font-size: 90%;
-}
-
-footer a {
-	color: rgba(255, 255, 255, 0.8);
-}
-
-footer a:hover {
-	color: rgba(255, 255, 255, 0.8);
+section#left {
+	min-width: 350px;
 }
 
 a, a:visited, a:active {
@@ -139,14 +126,18 @@ h3 {
 	text-align: left;
 }
 
-.small {
-	font-size: 95%;
+p {
+	margin-bottom: 0.25em;
 }
 
-.warn {
-	color: rgba(255, 255, 255, 0.6);
+p:last-child {
+	margin-bottom: 0;
+}
 
-	font-size: 80%;
+.small {
+	font-size: 90%;
+
+	color: rgba(255, 255, 255, 0.6);
 }
 
 .links {
@@ -192,4 +183,41 @@ h3 {
 .coming-soon {
 	text-decoration: line-through;
 	color: rgba(255, 255, 255, 0.8);
+}
+
+.git-commits {
+	background: rgba(255, 255, 255, 0.2);
+	text-align: left;
+	padding: 0.25rem;
+	font-size: 16px;
+	font-weight: 400;
+}
+
+.git-commits .commit {
+	vertical-align: middle;
+	padding: 0.2rem;
+}
+
+.git-commits .commit .commit-bar {
+	display: table-cell;
+	width: 4px;
+	border-radius: 2px;
+	background: rgba(255, 255, 255, 0.6);
+	content: '';
+}
+
+.git-commits .commit .commit-info {
+	display: table-cell;
+
+	padding: 0.2rem 0.2rem 0.2rem 0.4rem;
+}
+
+.git-commits .commit .author {
+	font-weight: 300;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.github-icon {
+	display: inline-block;
+	margin-left: 0.25em;
 }
