@@ -68,7 +68,7 @@ module.exports = function(app) {
 
 		if (typeof req.query.blocks !== 'undefined') {
 			if (typeof req.query.low !== 'undefined') {
-				blocks.getBlocksByOrder('hash ASC', 18).then(function(results) {
+				blocks.getBlocksByOrder('hash ASC', 50).then(function(results) {
 					var out = "";
 
 					results.forEach(function (block) {
@@ -83,7 +83,7 @@ module.exports = function(app) {
 					res.send(out);
 				});
 			} else {
-				blocks.getBlocks(18).then(function(results) {
+				blocks.getBlocks(50).then(function(results) {
 					var out = "";
 
 					var k = false;

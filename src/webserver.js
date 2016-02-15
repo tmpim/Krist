@@ -7,6 +7,7 @@ var	config	    = require('./../config.js'),
 	swig		= require('swig'),
 	rateLimit   = require('express-rate-limit'),
 	net		    = require('net'),
+	gitlog 		= require('gitlog'),
 	fs		    = require('fs'),
 	path 	    = require('path');
 
@@ -52,6 +53,10 @@ Webserver.init = function() {
 			Webserver.express.set('view engine', 'swig');
 			Webserver.express.engine('.swig', swig.renderFile);
 
+			swig.setDefaults({
+				debug: config.debugMode
+			});
+
 			Webserver.express.use(bodyParser.urlencoded({ extended: false }));
 			Webserver.express.use(bodyParser.json());
 
@@ -93,8 +98,17 @@ Webserver.init = function() {
 			Webserver.express.get('/', function(req, res) {
 				res.header('Content-Type', 'text/html');
 
-				res.render('index', {
-					debug: config.debugMode
+				gitlog({
+					repo: path.join(__dirname, '../../'),
+					number: 5
+				}, function(error, commits) {
+					if (error) {
+						return res.render('error');
+					}
+
+					res.render('index', {
+						commits: commits
+					});
 				});
 			});
 
