@@ -54,7 +54,6 @@ Blocks.submit = function(hash, address, nonce) {
 			var newWork = Math.floor(krist.getWork() * krist.getWorkGrowthFactor());
 
 			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
-			console.log('        Current work: ' + newWork.toString().green);
 
 			krist.setWork(newWork);
 
@@ -75,6 +74,8 @@ Blocks.submit = function(hash, address, nonce) {
 					new_work: newWork
 				});
 
+				console.log('        New work: ' + newWork.toLocaleString().green);
+
 				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
 					if (!kristAddress) {
 						schemas.address.create({
@@ -84,7 +85,8 @@ Blocks.submit = function(hash, address, nonce) {
 							totalin: value,
 							totalout: 0
 						}).then(function(addr) {
-							resolve(newWork, addr);
+							console.log('        ' + addr.address.bold + '\'s balance: ' + addr.balance.toLocaleString().green + ' KST');
+							resolve({work: newWork, address: addr, block: block});
 						});
 
 						return;
@@ -92,6 +94,7 @@ Blocks.submit = function(hash, address, nonce) {
 
 					kristAddress.increment({ balance: value, totalin: value }).then(function() {
 						kristAddress.reload().then(function(updatedAddress) {
+							console.log('        ' + updatedAddress.address.bold + '\'s balance: ' + updatedAddress.balance.toLocaleString().green + ' KST');
 							resolve({work: newWork, address: updatedAddress, block: block});
 						});
 					});
