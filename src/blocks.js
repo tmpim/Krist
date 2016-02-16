@@ -51,7 +51,7 @@ Blocks.submit = function(hash, address, nonce) {
 			var time = new Date();
 
 			var oldWork = krist.getWork();
-			var newWork = Math.round(krist.getWork() * krist.getWorkGrowthFactor());
+			var newWork = Math.floor(krist.getWork() * krist.getWorkGrowthFactor());
 
 			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
 			console.log('        Current work: ' + newWork.toString().green);
@@ -72,7 +72,7 @@ Blocks.submit = function(hash, address, nonce) {
 					type: 'event',
 					event: 'block',
 					block: Blocks.blockToJSON(block),
-					new_work: Nath.round(newWork)
+					new_work: newWork
 				});
 
 				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
