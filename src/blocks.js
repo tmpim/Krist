@@ -72,7 +72,7 @@ Blocks.submit = function(hash, address, nonce) {
 					type: 'event',
 					event: 'block',
 					block: Blocks.blockToJSON(block),
-					new_work: math.round(newWork)
+					new_work: Nath.round(newWork)
 				});
 
 				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
