@@ -162,16 +162,23 @@ module.exports = function(app) {
 				if (name) {
 					res.send('Error5');
 				} else {
-					addresses.getAddress(krist.makeV2Address(req.query.pkey)).then(function(address) {
-						if (!address || address.balance < names.getNameCost()) {
+					addresses.verify(krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
+						var authed = results.authed;
+						var address = results.address;
+
+						if (!authed) {
+							return res.send('Access denied');
+						}
+
+						if (address.balance < names.getNameCost()) {
 							return res.send('Error1');
 						}
 
-						address.decrement({ balance: names.getNameCost() });
-						address.increment({ totalout: names.getNameCost() });
+						address.decrement({balance: names.getNameCost()});
+						address.increment({totalout: names.getNameCost()});
 
 						tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
-						names.createName(desiredName, address.address).then(function() {
+						names.createName(desiredName, address.address).then(function () {
 							res.send('Success');
 						});
 					});
@@ -192,21 +199,29 @@ module.exports = function(app) {
 
 			var currentOwner = krist.makeV2Address(req.query.pkey);
 
-			names.getNameByName(req.query.name.toLowerCase()).then(function(name) {
-				if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
-					res.send(req.query.name.toLowerCase());
+			addresses.verify(currentOwner, req.query.pkey).then(function(results) {
+				var authed = results.authed;
 
-					return;
+				if (!authed) {
+					return res.send('Access denied');
 				}
 
-				name.update({
-					owner: req.query.q.toLowerCase(),
-					updated: new Date()
-				}).then(function() {
-					res.send('Success');
-				});
+				names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
+					if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
+						res.send(req.query.name.toLowerCase());
 
-				tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
+						return;
+					}
+
+					name.update({
+						owner: req.query.q.toLowerCase(),
+						updated: new Date()
+					}).then(function () {
+						res.send('Success');
+					});
+
+					tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
+				});
 			});
 
 			return;
@@ -223,19 +238,27 @@ module.exports = function(app) {
 
 			var owner = krist.makeV2Address(req.query.pkey);
 
-			names.getNameByName(req.query.name.toLowerCase()).then(function(name) {
-				if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
-					return res.send(req.query.name.toLowerCase());
+			addresses.verify(owner, req.query.pkey).then(function(results) {
+				var authed = results.authed;
+
+				if (!authed) {
+					return res.send('Access denied');
 				}
 
-				name.update({
-					a: req.query.ar,
-					updated: new Date()
-				}).then(function() {
-					res.send('Success');
-				});
+				names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
+					if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
+						return res.send(req.query.name.toLowerCase());
+					}
 
-				tx.createTransaction('a', owner.toLowerCase(), 0, name.name);
+					name.update({
+						a: req.query.ar,
+						updated: new Date()
+					}).then(function () {
+						res.send('Success');
+					});
+
+					tx.createTransaction('a', owner.toLowerCase(), 0, name.name);
+				});
 			});
 
 			return;

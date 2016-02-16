@@ -45,41 +45,49 @@ WebhooksController.registerWebhook = function(privatekey, owner, event, destURL,
 			return reject(new errors.ErrorInvalidParameter('url'));
 		}
 
-		names.getNameCountByAddress(owner).then(function(nameCount) {
-			webhooks.getWebhookCountByAddress(owner).then(function(webhookCount) {
-				if (webhookCount >= nameCount) {
-					return reject(new errors.ErrorLimitReached());
-				}
+		addrs.verify(owner, privatekey).then(function(results) {
+			var authed = results.authed;
 
-				webhooks.isURLAllowed(parsedURL).then(function(allowed) {
-					if (!allowed) {
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
+			}
+
+			names.getNameCountByAddress(owner).then(function (nameCount) {
+				webhooks.getWebhookCountByAddress(owner).then(function (webhookCount) {
+					if (webhookCount >= nameCount) {
 						return reject(new errors.ErrorLimitReached());
 					}
 
-					switch (event.toLowerCase().trim()) {
-						case 'transaction':
-							if (addresses && !krist.isValidKristAddressList(addresses)) {
-								return reject(new errors.ErrorInvalidParameter('addresses'));
-							}
+					webhooks.isURLAllowed(parsedURL).then(function (allowed) {
+						if (!allowed) {
+							return reject(new errors.ErrorLimitReached());
+						}
 
-							webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+						switch (event.toLowerCase().trim()) {
+							case 'transaction':
+								if (addresses && !krist.isValidKristAddressList(addresses)) {
+									return reject(new errors.ErrorInvalidParameter('addresses'));
+								}
 
-							break;
-						case 'name':
-							if (addresses && !krist.isValidKristAddressList(addresses)) {
-								return reject(new errors.ErrorInvalidParameter('addresses'));
-							}
+								webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
 
-							webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+								break;
+							case 'name':
+								if (addresses && !krist.isValidKristAddressList(addresses)) {
+									return reject(new errors.ErrorInvalidParameter('addresses'));
+								}
 
-							break;
-						case 'block':
-							webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
-							break;
-					}
+								webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+
+								break;
+							case 'block':
+								webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
+								break;
+						}
+					});
 				});
 			});
-		});
+		}).catch(reject);
 	});
 };
 
@@ -97,13 +105,15 @@ WebhooksController.getWebhooksByAddress = function(privatekey, owner) {
 			return reject(new errors.ErrorAuthFailed());
 		}
 
-		addrs.getAddress(owner).then(function(result) {
-			if (!result) {
-				return reject(new errors.ErrorAddressNotFound());
+		addrs.verify(owner, privatekey).then(function(results) {
+			var authed = results.authed;
+
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
 			}
 
 			webhooks.getWebhooksByAddress(owner).then(resolve).catch(reject);
-		});
+		}).catch(reject);
 	});
 };
 
@@ -129,12 +139,20 @@ WebhooksController.deleteWebhook = function(privatekey, owner, id) {
 			return reject(new errors.ErrorAuthFailed());
 		}
 
-		webhooks.getWebhookById(id).then(function(webhook) {
-			if (!webhook || webhook.owner !== owner) {
-				return reject(new errors.ErrorWebhookNotFound());
+		addrs.verify(owner, privatekey).then(function(results) {
+			var authed = results.authed;
+
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
 			}
 
-			webhook.destroy().then(resolve).catch(reject);
+			webhooks.getWebhookById(id).then(function (webhook) {
+				if (!webhook || webhook.owner !== owner) {
+					return reject(new errors.ErrorWebhookNotFound());
+				}
+
+				webhook.destroy().then(resolve).catch(reject);
+			}).catch(reject);
 		}).catch(reject);
 	});
 };

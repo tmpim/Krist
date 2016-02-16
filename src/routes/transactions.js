@@ -81,17 +81,24 @@ module.exports = function(app) {
 				return res.send('Error5');
 			}
 
-			if (/\.kst$/i.test(req.query.q)) {
-				if (!krist.isValidName(req.query.q)) {
-					return res.send('Error4');
+			addresses.verify(from, req.query.pkey).then(function(results) {
+				var authed = results.authed;
+				var sender = results.address;
+
+				if (!authed) {
+					return res.send('Access denied');
 				}
 
-				names.getNameByName(req.query.q).then(function(name) {
-					if (!name) {
-						return res.send("Name not found");
+				if (/\.kst$/i.test(req.query.q)) {
+					if (!krist.isValidName(req.query.q)) {
+						return res.send('Error4');
 					}
 
-					addresses.getAddress(from).then(function(sender) {
+					names.getNameByName(req.query.q).then(function(name) {
+						if (!name) {
+							return res.send("Name not found");
+						}
+
 						if (!sender || sender.balance < amt) {
 							return res.send("Error1");
 						}
@@ -100,13 +107,11 @@ module.exports = function(app) {
 							res.send('Success');
 						});
 					});
-				});
-			} else {
-				if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-					return res.send('Error4');
-				}
+				} else {
+					if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+						return res.send('Error4');
+					}
 
-				addresses.getAddress(from).then(function(sender) {
 					if (!sender || sender.balance < amt) {
 						return res.send("Error1");
 					}
@@ -114,8 +119,8 @@ module.exports = function(app) {
 					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
 						res.send('Success');
 					});
-				});
-			}
+				}
+			});
 
 			return;
 		}
@@ -136,43 +141,48 @@ module.exports = function(app) {
 				return res.send('Error5');
 			}
 
-			if (/\.kst$/i.test(req.query.q)) {
-				var qname = req.query.q.replace(/\.kst$/i, "");
+			addresses.verify(from, req.query.pkey).then(function(results) {
+				var authed = results.authed;
+				var sender = results.address;
 
-				if (!krist.isValidName(qname)) {
-					return res.send('Error4');
+				if (!authed) {
+					return res.send('Access denied');
 				}
 
-				names.getNameByName(qname).then(function(name) {
-					if (!name) {
-						return res.send("Name not found");
+				if (/\.kst$/i.test(req.query.q)) {
+					var qname = req.query.q.replace(/\.kst$/i, "");
+
+					if (!krist.isValidName(qname)) {
+						return res.send('Error4');
 					}
 
-					addresses.getAddress(from).then(function(sender) {
+					names.getNameByName(qname).then(function (name) {
+						if (!name) {
+							return res.send("Name not found");
+						}
+
 						if (!sender || sender.balance < amt) {
 							return res.send("Error1");
 						}
 
-						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function() {
+						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function () {
 							res.send('Success');
 						});
 					});
-				});
-			} else {
-				if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-					return res.send('Error4');
-				}
+				} else {
+					if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+						return res.send('Error4');
+					}
 
-				addresses.getAddress(from).then(function(sender) {
 					if (!sender || sender.balance < amt) {
 						return res.send("Error1");
 					}
 
-					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function () {
 						res.send('Success');
 					});
-				});
-			}
+				}
+			});
 
 			return;
 		}

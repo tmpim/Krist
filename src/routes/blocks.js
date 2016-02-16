@@ -95,13 +95,13 @@ module.exports = function(app) {
 						if (block.id === 1) return;
 
 						if (!k) {
-							out += utils.padDigits(results[0].id, 8);
-							out += moment(results[0].time).format('YYYY-MM-DD').toString();
+							out += utils.padDigits(block.id, 8); 
+							out += moment(block.time).format('YYYY-MM-DD').toString();
 
 							k  = true;
 						}
 
-						out += moment(block.time).format('HH:MM:ss').toString();
+						out += moment(block.time).format('HH:mm:ss').toString();
 						out += block.address.substring(0, 10);
 						out += block.hash.substring(0, 12);
 					});

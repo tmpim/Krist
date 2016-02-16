@@ -7,7 +7,11 @@ var Address = database.getSequelize().define('address', {
 	balance: Sequelize.INTEGER.UNSIGNED,
 	totalin: Sequelize.INTEGER.UNSIGNED,
 	totalout: Sequelize.INTEGER.UNSIGNED,
-	firstseen: Sequelize.DATE
+	firstseen: Sequelize.DATE,
+	privatekey: {
+		type: Sequelize.STRING(64),
+		allowNull: true
+	}
 }, {
 	timestamps: false
 });

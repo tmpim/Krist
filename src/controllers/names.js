@@ -70,13 +70,13 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
 	});
 };
 
-NamesController.registerName = function(desiredName, privateKey) {
+NamesController.registerName = function(desiredName, privatekey) {
 	return new Promise(function(resolve, reject) {
 		if (!desiredName) {
 			return reject(new errors.ErrorMissingParameter('name'));
 		}
 
-		if (!privateKey) {
+		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
 		}
 
@@ -84,13 +84,20 @@ NamesController.registerName = function(desiredName, privateKey) {
 			return reject(new errors.ErrorInvalidParameter('name'));
 		}
 
-		names.getNameByName(desiredName).then(function (name) {
-			if (name) {
-				return reject(new errors.ErrorNameTaken());
+		addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
+			var authed = results.authed;
+			var address = results.address;
+
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
 			}
 
-			addresses.getAddress(krist.makeV2Address(privateKey)).then(function (address) {
-				if (!address || address.balance < names.getNameCost()) {
+			names.getNameByName(desiredName).then(function (name) {
+				if (name) {
+					return reject(new errors.ErrorNameTaken());
+				}
+
+				if (address.balance < names.getNameCost()) {
 					return reject(new errors.ErrorInsufficientFunds());
 				}
 
@@ -108,13 +115,13 @@ NamesController.registerName = function(desiredName, privateKey) {
 	});
 };
 
-NamesController.transferName = function(name, privateKey, address) {
+NamesController.transferName = function(name, privatekey, address) {
 	return new Promise(function(resolve, reject) {
 		if (!name) {
 			return reject(new errors.ErrorMissingParameter('name'));
 		}
 
-		if (!privateKey) {
+		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
 		}
 
@@ -130,32 +137,40 @@ NamesController.transferName = function(name, privateKey, address) {
 			return reject(new errors.ErrorInvalidParameter('address'));
 		}
 
-		names.getNameByName(name).then(function(name) {
-			if (!name) {
-				return reject(new errors.ErrorNameNotFound());
+		addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
+			var authed = results.authed;
+
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
 			}
 
-			if (name.owner !== krist.makeV2Address(privateKey)) {
-				return reject(new errors.ErrorNotNameOwner());
-			}
+			names.getNameByName(name).then(function (name) {
+				if (!name) {
+					return reject(new errors.ErrorNameNotFound());
+				}
 
-			name.update({
-				owner: address,
-				updated: new Date()
-			}).then(function() {
-				name.reload().then(resolve).catch(reject);
+				if (name.owner !== krist.makeV2Address(privatekey)) {
+					return reject(new errors.ErrorNotNameOwner());
+				}
+
+				name.update({
+					owner: address,
+					updated: new Date()
+				}).then(function () {
+					name.reload().then(resolve).catch(reject);
+				}).catch(reject);
 			}).catch(reject);
-		}).catch(reject);
+		});
 	});
 };
 
-NamesController.updateName = function(name, privateKey, a) {
+NamesController.updateName = function(name, privatekey, a) {
 	return new Promise(function(resolve, reject) {
 		if (!name) {
 			return reject(new errors.ErrorMissingParameter('name'));
 		}
 
-		if (!privateKey) {
+		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
 		}
 
@@ -171,22 +186,30 @@ NamesController.updateName = function(name, privateKey, a) {
 			return reject(new errors.ErrorInvalidParameter('a'));
 		}
 
-		names.getNameByName(name).then(function (name) {
-			if (!name) {
-				return reject(new errors.ErrorNameNotFound());
-			}
 
-			if (name.owner !== krist.makeV2Address(privateKey)) {
-				return reject(new errors.ErrorNotNameOwner());
-			}
+		addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
+			var authed = results.authed;
 
-			name.update({
-				a: a,
-				updated: new Date()
-			}).then(function () {
-				name.reload().then(resolve).catch(reject);
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
+			}
+			names.getNameByName(name).then(function (name) {
+				if (!name) {
+					return reject(new errors.ErrorNameNotFound());
+				}
+
+				if (name.owner !== krist.makeV2Address(privatekey)) {
+					return reject(new errors.ErrorNotNameOwner());
+				}
+
+				name.update({
+					a: a,
+					updated: new Date()
+				}).then(function () {
+					name.reload().then(resolve).catch(reject);
+				}).catch(reject);
 			}).catch(reject);
-		}).catch(reject);
+		});
 	});
 };
 

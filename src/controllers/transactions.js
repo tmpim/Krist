@@ -58,9 +58,9 @@ TransactionsController.getTransaction = function(id) {
 	});
 };
 
-TransactionsController.makeTransaction = function(privateKey, to, amount, com) {
+TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 	return new Promise(function(resolve, reject) {
-		if (!privateKey) {
+		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
 		}
 
@@ -93,30 +93,34 @@ TransactionsController.makeTransaction = function(privateKey, to, amount, com) {
 			return reject(new errors.ErrorInvalidParameter('com'));
 		}
 
-		var from = krist.makeV2Address(privateKey);
+		var from = krist.makeV2Address(privatekey);
 		amount = parseInt(amount);
 
-		function send(recipient) {
-			addresses.getAddress(from).then(function(sender) {
-				if (!sender || sender.balance < amount) {
-					return reject(new errors.ErrorInsufficientFunds());
-				}
+		addresses.verify(from, privatekey).then(function(results) {
+			var authed = results.authed;
+			var sender = results.address;
 
-				transactions.pushTransaction(sender, recipient, amount, com).then(resolve).catch(reject);
-			});
-		}
+			if (!authed) {
+				return reject(new errors.ErrorAuthFailed());
+			}
 
-		if (toName) {
-			names.getNameByName(toName).then(function(name) {
-				if (!name) {
-					return reject(new errors.ErrorNameNotFound());
-				}
+			if (!sender || sender.balance < amount) {
+				return reject(new errors.ErrorInsufficientFunds());
+			}
 
-				send(name.owner);
-			}).catch(reject);
-		} else {
-			send(to);
-		}
+			if (toName) {
+				names.getNameByName(toName).then(function (name) {
+					if (!name) {
+						return reject(new errors.ErrorNameNotFound());
+					}
+
+					transactions.pushTransaction(sender, name.owner, amount, com).then(resolve).catch(reject);
+				}).catch(reject);
+			} else {
+
+				transactions.pushTransaction(sender, to, amount, com).then(resolve).catch(reject);
+			}
+		});
 	});
 };
 

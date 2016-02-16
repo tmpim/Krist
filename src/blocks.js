@@ -32,13 +32,7 @@ Blocks.getLastBlock = function() {
 };
 
 Blocks.getBaseBlockValue = function(blockID) {
-	var subsidy = 25;
-
-	if (blockID >= 100000) {
-		subsidy = 12;
-	}
-
-	return subsidy;
+	return blockID >= 100000 ? 12 : 25;
 };
 
 Blocks.getBlockValue = function() {
@@ -57,7 +51,7 @@ Blocks.submit = function(hash, address, nonce) {
 			var time = new Date();
 
 			var oldWork = krist.getWork();
-			var newWork = Math.round(krist.getWork() * krist.getWorkGrowthFactor());
+			var newWork = math.round(krist.getWork() * krist.getWorkGrowthFactor());
 
 			console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
 			console.log('        Current work: ' + newWork.toString().green);
@@ -72,17 +66,14 @@ Blocks.submit = function(hash, address, nonce) {
 				difficulty: oldWork,
 				value: value
 			}).then(function(block) {
-				webhooks.callBlockWebhooks(block);
+				webhooks.callBlockWebhooks(block, newWork);
 
-				try {
-					websockets.broadcast({
-						type: 'event',
-						event: 'block',
-						block: Blocks.blockToJSON(block)
-					});
-				} catch (e) {
-					console.log(e.stack);
-				}
+				websockets.broadcast({
+					type: 'event',
+					event: 'block',
+					block: Blocks.blockToJSON(block),
+					new_work: math.round(newWork)
+				});
 
 				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
 					if (!kristAddress) {

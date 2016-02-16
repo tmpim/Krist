@@ -110,14 +110,15 @@ Webhooks.callTransactionWebhooks = function(transaction) {
 	});
 };
 
-Webhooks.callBlockWebhooks = function(block) {
+Webhooks.callBlockWebhooks = function(block, newWork) {
 	schemas.webhook.findAll({where: {event: 'block', value: {$or: [null, '', {$like: block.address}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
 				ok: true,
 				type: 'webhook',
 				event: 'block',
-				block: blocks.blockToJSON(block)
+				block: blocks.blockToJSON(block),
+				new_work: newWork
 			};
 
 			webhooks.forEach(function(webhook) {
