@@ -121,15 +121,7 @@ TransactionsController.makeTransaction = function(privateKey, to, amount, com) {
 };
 
 TransactionsController.transactionToJSON = function(transaction) {
-	return {
-		id: transaction.id,
-		from: transaction.from,
-		to: transaction.to,
-		value: transaction.value,
-		time: transaction.time,
-		name: transaction.name,
-		metadata: transaction.op
-	};
+	return transactions.transactionToJSON(transaction);
 };
 
 module.exports = TransactionsController;

@@ -46,4 +46,14 @@ Names.createName = function(name, owner) {
 	});
 };
 
+Names.nameToJSON = function(name) {
+	return {
+		name: name.name,
+		owner: name.owner,
+		registered: name.registered,
+		updated: name.updated,
+		a: name.a
+	};
+};
+
 module.exports = Names;

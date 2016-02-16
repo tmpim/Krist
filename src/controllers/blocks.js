@@ -59,15 +59,7 @@ BlocksController.getBlock = function(height) {
 };
 
 BlocksController.blockToJSON = function(block) {
-	return {
-		height: block.id,
-		address: block.address,
-		hash: block.hash,
-		short_hash: block.hash.substring(0, 12),
-		value: block.value,
-		time: block.time,
-		difficulty: block.difficulty
-	};
+	return blocks.blockToJSON(block); // i needed to move it but i didnt want to change 1000 lines of code ok
 };
 
 BlocksController.submitBlock = function(address, nonce) {

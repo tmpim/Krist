@@ -19,13 +19,13 @@ console.log('Starting ' + package.name.bold + ' ' + package.version.blue + '...'
 
 process.on('uncaughtException', function(error) {
 	console.log('Uncaught exception'.red.bold);
-	console.log(error);
+	console.log(error.stack);
 });
 
 redis.init().then(function() {
 	database.init().then(function() {
-		webserver.init().then(function() {
-			require('./src/krist.js').init();
-		});
+		require('./src/krist.js').init();
+		require('./src/websockets.js');
+		webserver.init(); // Yeah something happened here idk
 	});
 });

@@ -191,13 +191,7 @@ NamesController.updateName = function(name, privateKey, a) {
 };
 
 NamesController.nameToJSON = function(name) {
-	return {
-		name: name.name,
-		owner: name.owner,
-		registered: name.registered,
-		updated: name.updated,
-		a: name.a
-	};
+	return names.nameToJSON(name);
 };
 
 module.exports = NamesController;

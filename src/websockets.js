@@ -1,7 +1,7 @@
-var fs 		= require('fs'),
-	path 	= require('path');
+var	fs 					= require('fs'),
+	path 				= require('path');
 
-function Websockets() {
+function WebsocketsManager() {
 	this.websockets = [];
 	this.messageHandlers = [];
 }
@@ -14,37 +14,80 @@ function Websocket(socket, token, auth) {
 	this.isGuest = auth === "guest";
 }
 
-Websockets.addMessageHandler = function(type, handler) {
-	this.messageHandlers[type] = handler;
+Websocket.prototype.send = function(message) {
+	this.socket.send(message);
 };
 
-Websockets.addWebsocket = function(socket, token, auth) {
+var Websockets = new WebsocketsManager();
+
+module.exports = Websockets;
+
+WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
+	Websockets.messageHandlers[type] = handler;
+};
+
+WebsocketsManager.prototype.addWebsocket = function(socket, token, auth) {
 	var ws = new Websocket(socket, token, auth);
 
-	var self = this;
-
-	ws.on('close', function() {
-		var id = self.websockets.indexOf(ws);
+	socket.on('close', function() {
+		var id = Websockets.websockets.indexOf(ws);
 
 		if (id !== -1) {
-			self.websockets.splice(id, 1);
+			Websockets.websockets.splice(id, 1);
 		}
 	});
 
-	this.websockets.push(ws);
+	socket.on('message', function(message) {
+		if (message.length > 512) {
+			return socket.send(JSON.stringify({
+				ok: false,
+				error: "message_too_long"
+			}));
+		}
+
+		var msg;
+
+		try {
+			msg = JSON.parse(message);
+		} catch (e) {
+			return socket.send(JSON.stringify({
+				ok: false,
+				error: "syntax_error"
+			}));
+		}
+
+		if (!msg.id) {
+			return socket.send(JSON.stringify({
+				ok: false,
+				error: "missing_parameter",
+				parameter: "id"
+			}));
+		}
+
+		if (typeof Websockets.messageHandlers[msg.type.toLowerCase()] === 'undefined') {
+			return Websockets.sendResponse(socket, msg, {
+				ok: false,
+				error: "invalid_type"
+			});
+		}
+
+		Websockets.sendResponse(socket, msg, Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg));
+	});
+
+	Websockets.websockets.push(ws);
 };
 
-Websockets.broadcast = function(message) {
-	this.websockets.forEach(function(websocket) {
-		websocket.send(message);
+WebsocketsManager.prototype.broadcast = function(message) {
+	Websockets.websockets.forEach(function(websocket) {
+		websocket.send(JSON.stringify(message));
 	});
 };
 
-Websockets.sendResponse = function(ws, message) {
+WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message) {
+	message['id'] = originalMessage.id;
+
 	ws.send(JSON.stringify(message));
 };
-
-module.exports = Websockets;
 
 console.log('[Websockets]'.cyan + ' Loading routes');
 

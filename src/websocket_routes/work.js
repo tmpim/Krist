@@ -15,12 +15,14 @@ module.exports = function(websockets) {
 	 * @apiSuccessExample {json} Success
 	 * {
 	 *     "ok": true,
+	 *     "id": 1,
 	 *     "work": 18750
      * }
 	 */
 	websockets.addMessageHandler('work', function(ws, message) {
-
+		return {
+			ok: true,
+			work: krist.getWork()
+		};
 	});
-
-	return app;
 };

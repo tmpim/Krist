@@ -1,14 +1,19 @@
+function Blocks() {} // I had to nuke like, all the code to get the bloody websockets working.
+// I'm having a mental breakdown here.
+// I don't understand this code anymore.
+
+module.exports = Blocks;
+
 var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
+	krist       = require('./krist.js'),
+	websockets	= require('./websockets.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
-	krist       = require('./krist.js'),
 	addresses   = require('./addresses.js'),
 	names       = require('./names.js'),
 	tx          = require('./transactions.js'),
 	moment      = require('moment');
-
-function Blocks() {}
 
 Blocks.getBlock = function(id) {
 	return schemas.block.findById(id);
@@ -69,6 +74,16 @@ Blocks.submit = function(hash, address, nonce) {
 			}).then(function(block) {
 				webhooks.callBlockWebhooks(block);
 
+				try {
+					websockets.broadcast({
+						type: 'event',
+						event: 'block',
+						block: Blocks.blockToJSON(block)
+					});
+				} catch (e) {
+					console.log(e.stack);
+				}
+
 				addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
 					if (!kristAddress) {
 						schemas.address.create({
@@ -103,4 +118,14 @@ Blocks.submit = function(hash, address, nonce) {
 	});
 };
 
-module.exports = Blocks;
+Blocks.blockToJSON = function(block) {
+	return {
+		height: block.id,
+		address: block.address,
+		hash: block.hash,
+		short_hash: block.hash.substring(0, 12),
+		value: block.value,
+		time: block.time,
+		difficulty: block.difficulty
+	};
+};

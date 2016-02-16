@@ -69,4 +69,16 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 	});
 };
 
+Transactions.transactionToJSON = function(transaction) {
+	return {
+		id: transaction.id,
+		from: transaction.from,
+		to: transaction.to,
+		value: transaction.value,
+		time: transaction.time,
+		name: transaction.name,
+		metadata: transaction.op
+	};
+};
+
 module.exports = Transactions;

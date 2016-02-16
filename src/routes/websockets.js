@@ -1,9 +1,10 @@
-var krist   = require('./../krist.js'),
-	config	= require('./../../config.js'),
-	utils   = require('./../utils.js'),
-	errors  = require('./../errors/errors.js'),
-	redis	= require('./../redis.js'),
-	uuid	= require('node-uuid');
+var krist  		= require('./../krist.js'),
+	config		= require('./../../config.js'),
+	utils   	= require('./../utils.js'),
+	errors  	= require('./../errors/errors.js'),
+	redis		= require('./../redis.js'),
+	websockets	= require('./../websockets.js'),
+	uuid		= require('node-uuid');
 
 module.exports = function(app) {
 	/**
@@ -21,8 +22,11 @@ module.exports = function(app) {
 			if (wsid) {
 				utils.sendToWS(ws, {
 					ok: true,
-					message: "hello"
+					type: "hello",
+					message: "wpte;gomfrektvdefr"
 				});
+
+				websockets.addWebsocket(ws, req.params.token, wsid);
 
 				redis.getClient().del('ws-' + req.params.token);
 			} else {

@@ -1,13 +1,18 @@
+function Webhooks() {}
+
+module.exports = Webhooks;
+
 var utils   = require('./utils.js'),
 	config  = require('./../config.js'),
 	schemas = require('./schemas.js'),
+	blocks  = require('./blocks.js'),
+	names   = require('./names.js'),
+	tx		= require('./transactions.js'),
 	Promise = require('bluebird'),
 	url     = require('url'),
 	request = require('request'),
 	moment  = require('moment'),
 	hat		= require('hat');
-
-function Webhooks() {}
 
 Webhooks.isURLAllowed = function(urlParts) {
 	return new Promise(function(resolve, reject) {
@@ -64,15 +69,7 @@ Webhooks.callNameWebhooks = function(name) {
 				ok: true,
 				type: 'webhook',
 				event: 'name',
-				name: {
-					name: name.name,
-					owner: name.owner,
-					registered: moment(name.registered).format('YYYY-MM-DD HH:mm:ss').toString(),
-					registered_unix: moment(name.registered).unix(),
-					updated: moment(name.updated).format('YYYY-MM-DD HH:mm:ss').toString(),
-					updated_unix: moment(name.updated).unix(),
-					a: name.a
-				}
+				name: names.nameToJSON(name)
 			};
 
 			webhooks.forEach(function(webhook) {
@@ -96,16 +93,7 @@ Webhooks.callTransactionWebhooks = function(transaction) {
 				ok: true,
 				type: 'webhook',
 				event: 'transaction',
-				transaction: {
-					id: transaction.id,
-					from: transaction.from,
-					to: transaction.to,
-					value: transaction.value,
-					time: moment(transaction.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(transaction.time).unix(),
-					name: transaction.name,
-					op: transaction.op
-				}
+				transaction: tx.transactionToJSON(transaction)
 			};
 
 			webhooks.forEach(function(webhook) {
@@ -129,15 +117,7 @@ Webhooks.callBlockWebhooks = function(block) {
 				ok: true,
 				type: 'webhook',
 				event: 'block',
-				block: {
-					height: block.id,
-					address: block.address,
-					hash: block.hash,
-					short_hash: block.hash.substring(0, 12),
-					value: block.value,
-					time: moment(block.time).format('YYYY-MM-DD HH:mm:ss').toString(),
-					time_unix: moment(block.time).unix()
-				}
+				block: blocks.blockToJSON(block)
 			};
 
 			webhooks.forEach(function(webhook) {
@@ -165,5 +145,3 @@ Webhooks.getWebhooksByAddress = function(address) {
 Webhooks.getWebhookCountByAddress = function(address) {
 	return schemas.webhook.count({where: {owner: address}});
 };
-
-module.exports = Webhooks;
