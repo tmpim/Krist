@@ -17,7 +17,7 @@ dependencies and then run `node main`.
 
 ### Webserver Configuration
 
-This Krist node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
+This Luran node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
 configuration for how to set up the proxy in nginx. The Node.js webserver is not designed to and should not be exposed
 to the public web, and should bind to a socket file.
 
