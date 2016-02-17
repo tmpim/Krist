@@ -71,13 +71,13 @@ Blocks.submit = function(hash, address, nonce) {
 		Blocks.getLastBlock().then(function(lastBlock) {
 			names.getUnpaidNameCount().then(function(count) {
 				var value = Blocks.getBaseBlockValue(lastBlock.id) + count;
-				
+
 				var time = new Date();
 
 				var oldWork = krist.getWork();
 
 				var seconds = (time - lastBlock.time) / 1000;
-				var targetWork = seconds * oldWork / 60;
+				var targetWork = seconds * oldWork / krist.getSecondsPerBlock();
 				var diff = targetWork - oldWork;
 
 				var newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
