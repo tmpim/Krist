@@ -1,6 +1,7 @@
 # Luran
 
 This is the new official Luran node. It is written in Node.js.
+NOTE: This project is not fully made by me, but by Lemmmy/Krist
 
 ## API Documentation
 
