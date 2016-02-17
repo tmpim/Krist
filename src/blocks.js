@@ -69,7 +69,9 @@ Blocks.getBlockValue = function() {
 Blocks.submit = function(hash, address, nonce) {
 	return new Promise(function(resolve, reject) {
 		Blocks.getLastBlock().then(function(lastBlock) {
-			names.getUnpaidNameCount().then(function(value) {
+			names.getUnpaidNameCount().then(function(count) {
+				var value = Blocks.getBaseBlockValue(lastBlock.id) + count;
+				
 				var time = new Date();
 
 				var oldWork = krist.getWork();
