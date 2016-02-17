@@ -59,8 +59,14 @@ config.nonceMaxSize = 24;
 // The cost to buy a domain name
 config.nameCost = 500;
 
+// The minimum work
+config.minWork = 500;
+
+// The maximum work
+config.maxWork = 100000;
+
 // The growth factor for the work
-config.workGrowthFactor = 0.9999;
+config.workFactor = 0.1;
 
 // The max amount of webhooks per domain name
 config.maxWebsocketsPerHost = 6;
