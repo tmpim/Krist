@@ -1,6 +1,6 @@
-# Krist
+# Luran
 
-This is the new official Krist node. It is written in Node.js.
+This is the new official Luran node. It is written in Node.js.
 
 ## API Documentation
 
@@ -34,7 +34,7 @@ a correctly configured Sequelize connection, and a data.db file in the project r
 node convertdb
 ```
 
-**Important:** This script will delete all rows in an existing Krist database. A list of tables that will be truncated
+**Important:** This script will delete all rows in an existing Luran database. A list of tables that will be truncated
 is listed when running the script. You will be prompted for confirmation prior to any actions being performed to
 the database. The data.db file should remain unmodified.
 
