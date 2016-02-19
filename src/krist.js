@@ -132,6 +132,10 @@ Krist.getWorkFactor = function() {
 	return config.workFactor || 0.1;
 };
 
+Krist.getSecondsPerBlock = function() {
+	return config.secondsPerBlock || 20;
+};
+
 Krist.makeV2Address = function(key) {
 	var chars = ['', '', '', '', '', '', '', '', ''];
 	var prefix = 'k';
