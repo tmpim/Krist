@@ -86,6 +86,7 @@ Webserver.init = function() {
 			Webserver.express.all('*', function(req, res, next) {
 				res.header('X-Robots-Tag', 'none');
 				res.header('Content-Type', 'application/json');
+				res.header('Access-Control-Allow-Origin', '*');
 				next();
 			});
 
