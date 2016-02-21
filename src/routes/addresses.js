@@ -90,7 +90,7 @@ module.exports = function(app) {
 		if (req.query.listtx) {
 			addresses.getAddress(req.query.listtx).then(function(address) {
 				if (address) {
-					tx.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500, true).then(function(results) {
+					tx.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500, 0, true).then(function(results) {
 						var out = '';
 
 						results.rows.forEach(function (transaction) {
