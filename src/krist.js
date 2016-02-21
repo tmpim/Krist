@@ -34,7 +34,7 @@ var utils       = require('./utils.js'),
 
 var addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i;
 var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/i;
-var nameRegex = /^[a-z0-9]+$/i;
+var nameRegex = /^[a-z0-9]{1,64}$/i;
 
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
 
