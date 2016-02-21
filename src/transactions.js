@@ -24,8 +24,7 @@ var utils       = require('./utils.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
 	addresses   = require('./addresses.js'),
-	krist       = require('./krist.js'),
-	sequelize   = require('sequelize');
+	krist       = require('./krist.js');
 
 function Transactions() {}
 
@@ -43,6 +42,7 @@ Transactions.getTransactions = function (limit, offset, asc, includeMined) {
 
 	if (!includeMined) {
 		query.where.from = {
+			$notIn: ['', ' '],
 			$ne: null
 		};
 	}
@@ -59,17 +59,20 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
 		order: 'id DESC',
 		limit: utils.sanitiseLimit(limit),
 		offset: utils.sanitiseOffset(offset),
-		where: {$or: [{from: address}, {to: address}]}
+		where: {$or: [{from: address}]}
 	};
 
 	if (!includeMined) { // To tell you the truth, idk either.
 		query.where.$or.push({
-			$and: {
-				from: {
-					$ne: null
-				},
-				to: address
-			}
+			from: {
+				$notIn: ['', ' '],
+				$ne: null
+			},
+			to: address
+		});
+	} else {
+		query.where.$or.push({
+			to: address
 		});
 	}
 

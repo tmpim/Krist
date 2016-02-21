@@ -366,12 +366,14 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of transactions this address has made.
 	 * @apiUse Transactions
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 50,
+     *     "total": 3799,
      *     "transactions": [
      *         {
      *             "id": 153197,

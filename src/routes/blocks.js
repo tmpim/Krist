@@ -304,7 +304,7 @@ module.exports = function(app) {
 		blocksController.getBlocksByOrder('hash ASC', req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
 
-			results.forEach(function(block) {
+			results.rows.forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -314,6 +314,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
+				total: results.count,
 				blocks: out
 			});
 		}).catch(function(error) {
