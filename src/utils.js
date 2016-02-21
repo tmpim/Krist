@@ -91,7 +91,11 @@ Utils.sanitiseLimit = function(limit, def, max) {
 	def = def || 50;
 	max = max || 1000;
 
-	return typeof limit !== 'undefined' ? Math.min(parseInt(limit) === 0 ? def : parseInt(limit), max) : def;
+	if (limit === null || limit === '' || (typeof limit === 'string' && limit.trim() === '')) {
+		return def;
+	}
+
+	return typeof limit !== 'undefined' && limit !== null ? Math.min(parseInt(limit) < 0 ? def : parseInt(limit), max) : def;
 };
 
 Utils.sanitiseOffset = function(offset) {
