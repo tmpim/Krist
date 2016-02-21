@@ -150,12 +150,14 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total count of addresses.
 	 * @apiUse Addresses
 	 *
 	 * @apiSuccessExample {json} Success
 	 *      {
 	 *  	    "ok": true,
 	 *  	    "count": 50,
+	 *  	    "total": 500,
 	 *  	    "addresses": [
 	 *  	        {
 	 *  	            "address": "0000000000",
@@ -175,15 +177,19 @@ module.exports = function(app) {
 	 */
 	app.get('/addresses', function(req, res) {
 		addressesController.getAddresses(req.query.limit, req.query.offset).then(function(results) {
+			var resultat = results[0];
+			var count = results[1];
+
 			var out = [];
 
-			results.forEach(function(address) {
+			resultat.forEach(function(address) {
 				out.push(addressesController.addressToJSON(address));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: count,
 				addresses: out
 			});
 		}).catch(function(error) {

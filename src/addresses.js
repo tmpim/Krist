@@ -32,6 +32,10 @@ Addresses.getAddresses = function(limit, offset) {
 	return schemas.address.findAll({ limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
+Addresses.getAddressCount = function() {
+	return schemas.address.count();
+};
+
 Addresses.getRich = function() {
 	return schemas.address.findAll({limit: 50, order: 'balance DESC'});
 };

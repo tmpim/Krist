@@ -147,6 +147,7 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of blocks.
 	 * @apiUse Blocks
 	 *
 	 * @apiDescription *Note*: The count may be slightly different to the limit. This is because invalid blocks are
@@ -157,6 +158,7 @@ module.exports = function(app) {
 	 * {
      *     "ok": true,
      *     "count": 49,
+     *     "total": 100000
      *     "blocks": [
      *         {
      *             "height": 2,
@@ -178,9 +180,12 @@ module.exports = function(app) {
 	 */
 	app.get('/blocks', function(req, res) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
+			var resultat = results[0];
+			var count = results[1];
+
 			var out = [];
 
-			results.forEach(function(block) {
+			resultat.forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -190,6 +195,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
+				total: count,
 				blocks: out
 			});
 		}).catch(function(error) {
