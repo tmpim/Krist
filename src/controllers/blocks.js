@@ -37,12 +37,7 @@ BlocksController.getBlocks = function(limit, offset, asc) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
-		var promises = [];
-
-		promises.push(blocks.getBlocks(limit, offset, asc));
-		promises.push(blocks.getBlockCount());
-
-		Promise.all(promises).then(resolve).catch(reject);
+		blocks.getBlocks(limit, offset, asc).then(resolve).catch(reject);
 	});
 };
 

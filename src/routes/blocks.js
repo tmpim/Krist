@@ -94,7 +94,7 @@ module.exports = function(app) {
 				blocks.getBlocksByOrder('hash ASC', 50).then(function(results) {
 					var out = "";
 
-					results.forEach(function (block) {
+					results.rows.forEach(function (block) {
 						if (block.hash === null) return;
 						if (block.id === 1) return;
 
@@ -111,7 +111,7 @@ module.exports = function(app) {
 
 					var k = false;
 
-					results.forEach(function (block) {
+					results.rows.forEach(function (block) {
 						if (block.hash === null) return;
 						if (block.id === 1) return;
 
@@ -180,12 +180,9 @@ module.exports = function(app) {
 	 */
 	app.get('/blocks', function(req, res) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
-			var resultat = results[0];
-			var count = results[1];
-
 			var out = [];
 
-			resultat.forEach(function(block) {
+			results.rows.forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -195,7 +192,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
-				total: count,
+				total: results.count,
 				blocks: out
 			});
 		}).catch(function(error) {
@@ -246,7 +243,7 @@ module.exports = function(app) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
 			var out = [];
 
-			results[0].forEach(function(block) {
+			results.rows.forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -256,7 +253,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
-				total: results[1],
+				total: results.count,
 				blocks: out
 			});
 		}).catch(function(error) {

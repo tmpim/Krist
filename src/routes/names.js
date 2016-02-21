@@ -62,7 +62,7 @@ module.exports = function(app) {
 			names.getNames().then(function(results) {
 				var out = '';
 
-				results.forEach(function(name) {
+				results.rows.forEach(function(name) {
 					out += name.name + ';';
 				});
 
@@ -128,7 +128,7 @@ module.exports = function(app) {
 					names.getNamesByAddress(address.address).then(function(results) {
 						var out = '';
 
-						results.forEach(function(name) {
+						results.rows.forEach(function(name) {
 							out += name.name + ';';
 						});
 
@@ -365,12 +365,14 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of names.
 	 * @apiUse Names
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 50,
+     *     "total": 570,
      *     "names": [
      *         {
      *             "name": "0",
@@ -392,13 +394,14 @@ module.exports = function(app) {
 		namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
-			results.forEach(function(name) {
+			results.rows.forEach(function(name) {
 				out.push(namesController.nameToJSON(name));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: results.count,
 				names: out
 			});
 		}).catch(function(error) {
@@ -419,12 +422,14 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of names registered in the last 500 blocks.
 	 * @apiUse Names
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 50,
+     *     "total": 67,
      *     "names": [
      *         {
      *             "name": "0",
@@ -446,13 +451,14 @@ module.exports = function(app) {
 		namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
-			results.forEach(function(name) {
+			results.rows.forEach(function(name) {
 				out.push(namesController.nameToJSON(name));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: results.count,
 				names: out
 			});
 		}).catch(function(error) {

@@ -219,14 +219,17 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified, transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of transactions.
 	 * @apiUse Transactions
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 50,
+     *     "total": 175000,
      *     "transactions": [
      *         {
      *             "id": 1,
@@ -249,16 +252,17 @@ module.exports = function(app) {
 	 *  	   ...
 	 */
 	app.get('/transactions', function(req, res) {
-		txController.getTransactions(req.query.limit, req.query.offset, true).then(function(transactions) {
+		txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === 'undefined').then(function(transactions) {
 			var out = [];
 
-			transactions.forEach(function (transaction) {
+			transactions.rows.forEach(function (transaction) {
 				out.push(txController.transactionToJSON(transaction));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: transactions.count,
 				transactions: out
 			});
 		}).catch(function(error) {
@@ -274,14 +278,17 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified, transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of transactions.
 	 * @apiUse Transactions
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 50,
+     *     "total": 175000,
      *     "transactions": [
      *         {
      *             "id": 153287,
@@ -304,16 +311,17 @@ module.exports = function(app) {
 	 *  	   ...
 	 */
 	app.get('/transactions/latest', function(req, res) {
-		txController.getTransactions(req.query.limit, req.query.offset, false).then(function(transactions) {
+		txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === 'undefined').then(function(transactions) {
 			var out = [];
 
-			transactions.forEach(function (transaction) {
+			transactions.rows.forEach(function (transaction) {
 				out.push(txController.transactionToJSON(transaction));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: transactions.count,
 				transactions: out
 			});
 		}).catch(function(error) {

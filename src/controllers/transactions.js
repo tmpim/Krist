@@ -27,7 +27,7 @@ var transactions    = require('./../transactions.js'),
 
 function TransactionsController() {}
 
-TransactionsController.getTransactions = function(limit, offset, asc) {
+TransactionsController.getTransactions = function (limit, offset, asc, includeMined) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
@@ -37,11 +37,11 @@ TransactionsController.getTransactions = function(limit, offset, asc) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
-		transactions.getTransactions(limit, offset, asc).then(resolve).catch(reject);
+		transactions.getTransactions(limit, offset, asc, includeMined).then(resolve).catch(reject);
 	});
 };
 
-TransactionsController.getTransactionsByAddress = function(address, limit, offset) {
+TransactionsController.getTransactionsByAddress = function(address, limit, offset, includeMined) {
 	return new Promise(function(resolve, reject) {
 		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
 			return reject(new errors.ErrorInvalidParameter('limit'));
@@ -53,7 +53,7 @@ TransactionsController.getTransactionsByAddress = function(address, limit, offse
 
 		addresses.getAddress(address).then(function(addr) {
 			if (addr) {
-				transactions.getTransactionsByAddress(addr.address, limit, offset).then(resolve).catch(reject);
+				transactions.getTransactionsByAddress(addr.address, limit, offset, includeMined).then(resolve).catch(reject);
 			} else {
 				reject(new errors.ErrorAddressNotFound());
 			}

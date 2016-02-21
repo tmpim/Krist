@@ -75,7 +75,7 @@ module.exports = function(app) {
 			addresses.getRich().then(function(results) {
 				var out = "";
 
-				results.forEach(function(address) {
+				results.rows.forEach(function(address) {
 					out += address.address.substr(0, 10);
 					out += utils.padDigits(address.balance, 8);
 					out += moment(address.firstseen).format('DD MMM YYYY');
@@ -93,7 +93,7 @@ module.exports = function(app) {
 					tx.getTransactionsByAddress(address.address, typeof req.query.overview !== 'undefined' ? 3 : 500).then(function(results) {
 						var out = '';
 
-						results.forEach(function (transaction) {
+						results.rows.forEach(function (transaction) {
 							out += moment(transaction.time).format('MMM DD HH:mm');
 
 							var peer = '';
@@ -177,19 +177,16 @@ module.exports = function(app) {
 	 */
 	app.get('/addresses', function(req, res) {
 		addressesController.getAddresses(req.query.limit, req.query.offset).then(function(results) {
-			var resultat = results[0];
-			var count = results[1];
-
 			var out = [];
 
-			resultat.forEach(function(address) {
+			results.rows.forEach(function(address) {
 				out.push(addressesController.addressToJSON(address));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
-				total: count,
+				total: results.count,
 				addresses: out
 			});
 		}).catch(function(error) {
@@ -207,12 +204,14 @@ module.exports = function(app) {
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total count of addresses.
 	 * @apiUse Addresses
 	 *
      * @apiSuccessExample {json} Success
 	 *      {
 	 *          "ok": true,
 	 *          "count": 50,
+	 *          "total": 500,
 	 *          "addresses": [
 	 *              {
 	 *                  "address": "k2sdlnjo1m",
@@ -234,13 +233,14 @@ module.exports = function(app) {
 		addressesController.getRich(req.query.limit, req.query.offset).then(function(results) {
 			var out = [];
 
-			results.forEach(function(address) {
+			results.rows.forEach(function(address) {
 				out.push(addressesController.addressToJSON(address));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: results.count,
 				addresses: out
 			});
 		}).catch(function(error) {
@@ -305,12 +305,14 @@ module.exports = function(app) {
 	 * @apiParam (URLParameter) {String} address The address.
 	 *
 	 * @apiSuccess {Number} count The count of results.
+	 * @apiSuccess {Number} total The total amount of names owned by this address.
 	 * @apiUse Names
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
      *     "count": 8,
+     *     "total": 8,
      *     "names": [
      *         {
      *             "name": "supercoolname",
@@ -337,13 +339,14 @@ module.exports = function(app) {
 		namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset).then(function(names) {
 			var out = [];
 
-			names.forEach(function (name) {
+			names.rows.forEach(function (name) {
 				out.push(namesController.nameToJSON(name));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: names.count,
 				names: out
 			});
 		}).catch(function(error) {
@@ -403,16 +406,17 @@ module.exports = function(app) {
 	 * }
 	 */
 	app.get('/addresses/:address/transactions', function(req, res) {
-		txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset).then(function(transactions) {
+		txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset, typeof req.query.excludeMined === 'undefined').then(function(transactions) {
 			var out = [];
 
-			transactions.forEach(function (transaction) {
+			transactions.rows.forEach(function (transaction) {
 				out.push(txController.transactionToJSON(transaction));
 			});
 
 			res.json({
 				ok: true,
 				count: out.length,
+				total: transactions.count,
 				transactions: out
 			});
 		}).catch(function(error) {

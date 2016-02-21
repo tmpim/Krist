@@ -35,12 +35,7 @@ AddressesController.getAddresses = function(limit, offset) {
 			return reject(new errors.ErrorInvalidParameter('offset'));
 		}
 
-		var promises = [];
-
-		promises.push(addresses.getAddresses(limit, offset));
-		promises.push(addresses.getAddressCount());
-
-		Promise.all(promises).then(resolve).catch(reject);
+		addresses.getAddresses(limit, offset).then(resolve).catch(reject);
 	});
 };
 

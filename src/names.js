@@ -28,11 +28,11 @@ var utils       = require('./utils.js'),
 function Names() {}
 
 Names.getNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'name', limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: 'name', limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNamesByAddress = function(address, limit, offset) {
-	return schemas.name.findAll({order: 'name', where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: 'name', where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNameCountByAddress = function(address) {
@@ -44,7 +44,7 @@ Names.getNameByName = function(name) {
 };
 
 Names.getUnpaidNames = function(limit, offset) {
-	return schemas.name.findAll({order: 'id DESC', where: {unpaid: {$gt: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: 'id DESC', where: {unpaid: {$gt: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getUnpaidNameCount = function() {

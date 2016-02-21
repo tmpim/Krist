@@ -24,7 +24,8 @@ var utils       = require('./utils.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
 	addresses   = require('./addresses.js'),
-	krist       = require('./krist.js');
+	krist       = require('./krist.js'),
+	sequelize   = require('sequelize');
 
 function Transactions() {}
 
@@ -32,16 +33,47 @@ Transactions.getTransaction = function(id) {
 	return schemas.transaction.findById(id);
 };
 
-Transactions.getTransactions = function(limit, offset, asc) {
-	return schemas.transaction.findAll({order: 'id' + (asc ? '' : ' DESC'), limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+Transactions.getTransactions = function (limit, offset, asc, includeMined) {
+	var query = {
+		order: 'id' + (asc ? '' : ' DESC'),
+		limit: utils.sanitiseLimit(limit),
+		offset: utils.sanitiseOffset(offset),
+		where: {}
+	};
+
+	if (!includeMined) {
+		query.where.from = {
+			$ne: null
+		};
+	}
+
+	return schemas.transaction.findAndCountAll(query);
 };
 
 Transactions.getRecentTransactions = function(limit, offset) {
 	return schemas.transaction.findAll({order: 'id DESC', limit: utils.sanitiseLimit(limit, 100), offset: utils.sanitiseOffset(offset), where: {from: {$not: ''}}});
 };
 
-Transactions.getTransactionsByAddress = function(address, limit, offset) {
-	return schemas.transaction.findAll({order: 'id DESC', where: {$or: [{from: address}, {to: address}]}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined) {
+	var query = {
+		order: 'id DESC',
+		limit: utils.sanitiseLimit(limit),
+		offset: utils.sanitiseOffset(offset),
+		where: {$or: [{from: address}, {to: address}]}
+	};
+
+	if (!includeMined) { // To tell you the truth, idk either.
+		query.where.$or.push({
+			$and: {
+				from: {
+					$ne: null
+				},
+				to: address
+			}
+		});
+	}
+
+	return schemas.transaction.findAndCountAll(query);
 };
 
 Transactions.createTransaction = function (to, from, value, name, op) {
