@@ -246,7 +246,7 @@ module.exports = function(app) {
 		blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
 			var out = [];
 
-			results.forEach(function(block) {
+			results[0].forEach(function(block) {
 				if (block.hash === null) return;
 				if (block.id === 1) return;
 
@@ -256,6 +256,7 @@ module.exports = function(app) {
 			res.json({
 				ok: true,
 				count: out.length,
+				total: results[1],
 				blocks: out
 			});
 		}).catch(function(error) {
