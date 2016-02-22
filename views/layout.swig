@@ -10,6 +10,28 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:100">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/style.css">
+
+    {% if protocol === "https" %}
+        <style>
+            body {
+                background-image: -webkit-gradient(
+                        linear,
+                        left top,
+                        right bottom,
+                        color-stop(0, #58aeea),
+                        color-stop(1, #37cc98)
+                );
+
+                background-image: -o-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+                background-image: -moz-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+                background-image: -webkit-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+                background-image: -ms-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
+                background-image: linear-gradient(to right bottom, #58aeea 0%, #37cc98 100%);
+            }
+        </style>
+    {% endif %}
+
+    {% block style %}{% endblock %}
 </head>
 <body>
 <header>

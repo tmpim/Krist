@@ -63,14 +63,14 @@ body {
 			left top,
 			right bottom,
 			color-stop(0, #58aeea),
-			color-stop(1, #37cc98)
+			color-stop(1, #517fd2)
 	);
 
-	background-image: -o-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
-	background-image: -moz-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
-	background-image: -webkit-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
-	background-image: -ms-linear-gradient(right bottom, #58aeea 0%, #37cc98 100%);
-	background-image: linear-gradient(to right bottom, #58aeea 0%, #37cc98 100%);
+	background-image: -o-linear-gradient(right bottom, #58aeea 0%, #517fd2 100%);
+	background-image: -moz-linear-gradient(right bottom, #58aeea 0%, #517fd2 100%);
+	background-image: -webkit-linear-gradient(right bottom, #58aeea 0%, #517fd2 100%);
+	background-image: -ms-linear-gradient(right bottom, #58aeea 0%, #517fd2 100%);
+	background-image: linear-gradient(to right bottom, #58aeea 0%, #517fd2 100%);
 
 	background-repeat: no-repeat;
 	background-attachment: fixed;

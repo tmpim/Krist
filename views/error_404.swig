@@ -1,4 +1,4 @@
-{% extends 'layout.swig' %}
+{% extends 'error.swig' %}
 
 {% block content %}
     <section id="left">

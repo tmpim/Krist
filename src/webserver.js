@@ -134,22 +134,27 @@ Webserver.init = function() {
 					if (error) {
 						console.log(error);
 
-						return res.render('error');
+						return res.render('error', {
+							protocol: req.protocol
+						});
 					}
 
 					res.render('index', {
-						commits: commits
+						commits: commits,
+						protocol: req.protocol
 					});
 				});
 			});
 
 			Webserver.express.use(function(req, res) {
-				if (req.xhr || req.accepts('json')) {
+				if (req.xhr) {
 					utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
 				} else {
 					res.header('Content-Type', 'text/html');
 
-					res.render('error_404');
+					res.render('error_404', {
+						protocol: req.protocol
+					});
 				}
 			});
 		});
