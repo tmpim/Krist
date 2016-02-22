@@ -29,11 +29,11 @@ Addresses.getAddress = function(address) {
 };
 
 Addresses.getAddresses = function(limit, offset) {
-	return schemas.address.findAndCountAll({ limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Addresses.getRich = function() {
-	return schemas.address.findAndCountAll({limit: 50, order: 'balance DESC'});
+	return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset), order: 'balance DESC'});
 };
 
 Addresses.verify = function(kristAddress, privatekey) {
