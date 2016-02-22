@@ -32,7 +32,7 @@ Addresses.getAddresses = function(limit, offset) {
 	return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Addresses.getRich = function() {
+Addresses.getRich = function(limit, offset) {
 	return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset), order: 'balance DESC'});
 };
 
