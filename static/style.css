@@ -135,7 +135,7 @@ p:last-child {
 }
 
 .titanic {
-	float: none;
+	float: no/* can do that sir :( */ne;
 }
 
 .small {
