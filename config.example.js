@@ -68,6 +68,9 @@ config.maxWork = 100000;
 // The growth factor for the work
 config.workFactor = 0.1;
 
+// How long it should take to mine a block in seconds
+config.secondsPerblock = 60;
+
 // The max amount of webhooks per domain name
 config.maxWebsocketsPerHost = 6;
 

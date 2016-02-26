@@ -133,7 +133,7 @@ Krist.getWorkFactor = function() {
 };
 
 Krist.getSecondsPerBlock = function() {
-	return config.secondsPerBlock || 20;
+	return config.secondsPerBlock || 60;
 };
 
 Krist.makeV2Address = function(key) {
