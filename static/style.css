@@ -138,6 +138,10 @@ p:last-child {
 	float: no/* can do that sir :( */ne;
 }
 
+.fear {
+	display: none;
+}
+
 .small {
 	font-size: 90%;
 
