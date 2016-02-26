@@ -134,6 +134,18 @@ p:last-child {
 	margin-bottom: 0;
 }
 
+.titanic {
+	float: no/* can do that sir :( */ne;
+	vertical-align: sub;
+	position: fixed;
+	overflow: auto;
+	top: -380000cm;
+}
+
+.fear {
+	display: none;
+}
+
 .small {
 	font-size: 90%;
 
