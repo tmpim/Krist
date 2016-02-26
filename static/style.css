@@ -134,6 +134,10 @@ p:last-child {
 	margin-bottom: 0;
 }
 
+.titanic {
+	float: none;
+}
+
 .small {
 	font-size: 90%;
 
