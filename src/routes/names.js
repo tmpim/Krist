@@ -26,7 +26,8 @@ var krist               = require('./../krist.js'),
 	names               = require('./../names.js'),
 	errors              = require('./../errors/errors.js'),
 	namesController     = require('./../controllers/names.js'),
-	moment              = require('moment');
+	moment              = require('moment'),
+	Promise             = require('bluebird');
 
 module.exports = function(app) {
 	/**
@@ -234,14 +235,18 @@ module.exports = function(app) {
 						return;
 					}
 
-					name.update({
+					var promises = [];
+
+					promises.push(name.update({
 						owner: req.query.q.toLowerCase(),
 						updated: new Date()
-					}).then(function () {
+					}));
+
+					promises.push(tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name));
+
+					Promise.all(promises).then(function () {
 						res.send('Success');
 					});
-
-					tx.createTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name);
 				});
 			});
 

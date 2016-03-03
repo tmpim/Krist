@@ -174,11 +174,19 @@ NamesController.transferName = function(name, privatekey, address) {
 					return reject(new errors.ErrorNotNameOwner());
 				}
 
-				name.update({
+				var promises = [];
+
+				promises.push(name.update({
 					owner: address,
 					updated: new Date()
-				}).then(function () {
-					name.reload().then(resolve).catch(reject);
+				}));
+
+				promises.push(tx.pushTransaction(address, currentOwner.toLowerCase(), 0, name.name));
+
+				Promise.all(promises).then(function () {
+					name.reload().then(function() {
+						resolve(name);
+					}).catch(reject);
 				}).catch(reject);
 			}).catch(reject);
 		});
@@ -207,13 +215,13 @@ NamesController.updateName = function(name, privatekey, a) {
 			return reject(new errors.ErrorInvalidParameter('a'));
 		}
 
-
 		addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
 			var authed = results.authed;
 
 			if (!authed) {
 				return reject(new errors.ErrorAuthFailed());
 			}
+
 			names.getNameByName(name).then(function (name) {
 				if (!name) {
 					return reject(new errors.ErrorNameNotFound());
@@ -223,11 +231,19 @@ NamesController.updateName = function(name, privatekey, a) {
 					return reject(new errors.ErrorNotNameOwner());
 				}
 
-				name.update({
+				var promises = [];
+
+				promises.push(name.update({
 					a: a,
 					updated: new Date()
-				}).then(function () {
-					name.reload().then(resolve).catch(reject);
+				}));
+
+				promises.push(tx.pushTransaction('a', name.owner, 0, name.name));
+
+				Promise.all(promises).then(function () {
+					name.reload().then(function() {
+						resolve(name);
+					}).catch(reject);
 				}).catch(reject);
 			}).catch(reject);
 		});
