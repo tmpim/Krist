@@ -84,7 +84,7 @@ Webhooks.createNameWebhook = function(owner, method, url, addresses) {
 };
 
 Webhooks.callNameWebhooks = function(name) {
-	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: name.owner}]}}}).then(function(webhooks) {
+	schemas.webhook.findAll({where: {event: 'name', value: {$or: [null, '', {$like: '%' + name.owner + '%'}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
 				ok: true,
@@ -108,7 +108,7 @@ Webhooks.callNameWebhooks = function(name) {
 };
 
 Webhooks.callTransactionWebhooks = function(transaction) {
-	schemas.webhook.findAll({where: {event: 'transaction', value: {$or: [null, '', {$like: transaction.from}, {$like: transaction.to}]}}}).then(function(webhooks) {
+	schemas.webhook.findAll({where: {event: 'transaction', value: {$or: [null, '', {$like: '%' + transaction.from + '%'}, {$like: '%' + transaction.to + '%'}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
 				ok: true,
@@ -132,7 +132,7 @@ Webhooks.callTransactionWebhooks = function(transaction) {
 };
 
 Webhooks.callBlockWebhooks = function(block, newWork) {
-	schemas.webhook.findAll({where: {event: 'block', value: {$or: [null, '', {$like: block.address}]}}}).then(function(webhooks) {
+	schemas.webhook.findAll({where: {event: 'block', value: {$or: [null, '', {$like: '%' + block.address + '%'}]}}}).then(function(webhooks) {
 		if (webhooks) {
 			var data = {
 				ok: true,
