@@ -42,6 +42,12 @@ module.exports = function(app) {
 			"</body>" +
 			"</html>");
 	});
+	
+	app.get('/iskristdead', function(req, res) {
+		res.header("Content-Type", "application/json");
+		
+		res.send("{\"ok\":true,\"kristdead\":false}");
+	});
 
 	return app;
 };
