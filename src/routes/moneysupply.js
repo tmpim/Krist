@@ -48,7 +48,7 @@ module.exports = function(app) {
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
-     *     "money_supply": 1013359534
+     *     "money_supply": 4231672
      * }
 	 */
 	app.get('/supply', function(req, res) {

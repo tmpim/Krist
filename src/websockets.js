@@ -19,8 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	fs 					= require('fs'),
-	path 				= require('path');
+var	fs = require('fs'),
+	path = require('path');
 
 function WebsocketsManager() {
 	this.websockets = [];
