@@ -110,4 +110,12 @@ Utils.sendErrorToWS = function(ws, error) {
 	ws.send(JSON.stringify(Utils.errorToJSON(error)));
 };
 
+Utils.sendErrorToWSWithID = function(ws, id, error) {
+	var e = Utils.errorToJSON(error);
+
+	e.id = id;
+
+	ws.send(JSON.stringify(e));
+};
+
 module.exports = Utils;

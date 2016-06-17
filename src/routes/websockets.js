@@ -25,6 +25,8 @@ var krist  		= require('./../krist.js'),
 	errors  	= require('./../errors/errors.js'),
 	redis		= require('./../redis.js'),
 	websockets	= require('./../websockets.js'),
+	addresses   = require('./../addresses.js'),
+	fs          = require('fs'),
 	uuid		= require('node-uuid');
 
 module.exports = function(app) {
@@ -41,10 +43,34 @@ module.exports = function(app) {
 	app.ws('/:token', function(ws, req) {
 		redis.getClient().getAsync('ws-' + req.params.token).then(function(wsid) {
 			if (wsid) {
-				utils.sendToWS(ws, {
-					ok: true,
-					type: "hello",
-					message: "wpte;gomfrektvdefr"
+				fs.readFile('motd.txt', function(err, data) {
+					if (err) {
+						return utils.sendToWS(ws, {
+							ok: true,
+							type: "hello",
+							server_time: new Date(),
+							motd: "Welcome to Krist!"
+						});
+					}
+
+					fs.stat('motd.txt', function(err, stats) {
+						if (err) {
+							return utils.sendToWS(ws, {
+								ok: true,
+								type: "hello",
+								server_time: new Date(),
+								motd: data.toString()
+							});
+						}
+
+						utils.sendToWS(ws, {
+							ok: true,
+							type: "hello",
+							server_time: new Date(),
+							motd: data.toString(),
+							motd_set: stats.mtime
+						});
+					});
 				});
 
 				websockets.addWebsocket(ws, req.params.token, wsid);
@@ -80,7 +106,8 @@ module.exports = function(app) {
 	 * submitblock.
 	 *
 	 * An **authed session** is a session linked to an address. The privatekey is supplied as a POST body parameter
-	 * during /ws/start. It has access to most API calls, including transactions and name registration.
+	 * during /ws/start. It has access to most API calls, including transactions and name registration. **Authed
+	 * websockets only work with v2 addresses.**
 	 *
 	 * You can also upgrade from a guest session to an authed session using the method `upgrade`. See the websocket
 	 * documentation for further information.
@@ -95,6 +122,12 @@ module.exports = function(app) {
 	 *
 	 * `type` must be any valid message type specified in the documentation below.
 	 *
+	 * ## Keep-alive
+	 *
+	 * Every 10 seconds, the server will broadcast a keep-alive event with the type `keepalive` to all clients.
+	 * This is simply to maintain connections from clients which automatically close the socket after inactivity.
+	 * Your client does not need to interpret these events in any way, and can completely disregard them.
+	 *
 	 * ## Examples
 	 *
 	 *
@@ -106,19 +139,41 @@ module.exports = function(app) {
 	 * @apiSuccessExample {json} Success
 	 * {
 	 *     "ok": true,
-	 *     "url": "wss://krist.ceriat.net/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf"
+	 *     "url": "wss://krist.ceriat.net/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf",
+	 *     "expires": 30
      * }
 	 */
 	app.post('/ws/start', function(req, res) {
 		var token = uuid.v1();
 
-		redis.getClient().set('ws-' + token, "guest");
-		redis.getClient().expire('ws-' + token, 300);
+		if (req.body.privatekey) {
+			addresses.verify(krist.makeV2Address(req.body.privatekey), req.body.privatekey).then(function(results) {
+				var authed = results.authed;
+				var user = results.address;
 
-		res.json({
-			ok: true,
-			url: (config.websocketURL || 'wss://krist.ceriat.net') + '/' + token
-		});
+				if (!authed) {
+					return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
+				}
+
+				redis.getClient().set('ws-' + token, results.address.address);
+				redis.getClient().expire('ws-' + token, 30);
+
+				res.json({
+					ok: true,
+					url: (config.websocketURL || 'wss://krist.ceriat.net') + '/' + token,
+					expires: 30
+				});
+			});
+		} else {
+			redis.getClient().set('ws-' + token, "guest");
+			redis.getClient().expire('ws-' + token, 30);
+
+			res.json({
+				ok: true,
+				url: (config.websocketURL || 'wss://krist.ceriat.net') + '/' + token,
+				expires: 30
+			});
+		}
 	});
 
 	return app;

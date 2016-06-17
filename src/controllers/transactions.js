@@ -138,7 +138,6 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 					transactions.pushTransaction(sender, name.owner, amount, com).then(resolve).catch(reject);
 				}).catch(reject);
 			} else {
-
 				transactions.pushTransaction(sender, to, amount, com).then(resolve).catch(reject);
 			}
 		});

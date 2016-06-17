@@ -20,7 +20,8 @@
  */
 
 var	fs 					= require('fs'),
-	path 				= require('path');
+	path 				= require('path'),
+	utils               = require('./utils.js');
 
 function WebsocketsManager() {
 	this.websockets = [];
@@ -92,7 +93,17 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth) {
 			});
 		}
 
-		Websockets.sendResponse(socket, msg, Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg));
+		var response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
+
+		if (response instanceof Promise) {
+			response.then(function(resp) {
+				Websockets.sendResponse(socket, msg, resp);
+			}).catch(function(err) {
+				Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
+			});
+		} else if (response) {
+			Websockets.sendResponse(socket, msg, response);
+		}
 	});
 
 	Websockets.websockets.push(ws);
@@ -131,3 +142,10 @@ try {
 	console.log('[Websockets]'.red + ' Error finding routes: ');
 	console.log(error.stack);
 }
+
+setInterval(function() {
+	Websockets.broadcast({
+		type: "keepalive",
+		server_time: new Date()
+	});
+}, 10000);

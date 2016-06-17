@@ -19,7 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require('./../krist.js');
+var krist       = require('./../krist.js'),
+	utils       = require('./../utils.js'),
+	addresses   = require('./../controllers/addresses.js');
 
 module.exports = function(websockets) {
 	/**
@@ -29,19 +31,50 @@ module.exports = function(websockets) {
 	 * @apiVersion 2.0.2
 	 *
 	 * @apiParam (WebsocketParameter) {Number} id
-	 * @apiParam (WebsocketParameter) {String="work"} me
+	 * @apiParam (WebsocketParameter) {String="me"} type
 	 *
-	 * @apiSuccess
+	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
+	 * @apiUse Address
 	 *
-	 * @apiSuccessExample {json} Success
+	 * @apiSuccessExample {json} Success as guest
 	 * {
 	 *     "ok": true,
 	 *     "id": 1,
+	 *     "isGuest": true
+     * }
+	 *
+	 * @apiSuccessExample {json} Success as authed user
+	 * {
+	 *     "ok": true,
+	 *     "id": 1,
+	 *     "isGuest": false,
+	 *     "address": {
+	 *         "address": "knggsn1d2e",
+	 *         "balance": 0,
+	 *         "totalin": 0,
+	 *         "totalout": 0,
+	 *         "firstseen": "2016-06-17T21:09:28.000Z"
+	 *     }
      * }
 	 */
 	websockets.addMessageHandler('me', function(ws, message) {
-		return {
-			ok: true
-		};
+		return new Promise(function(resolve, reject) {
+			if (ws.isGuest) {
+				resolve({
+					ok: true,
+					isGuest: true
+				});
+			} else {
+				addresses.getAddress(ws.auth).then(function(address) {
+					resolve({
+						ok: true,
+						isGuest: false,
+						address: addresses.addressToJSON(address)
+					});
+				}).catch(function(error) {
+					reject(error);
+				});
+			}
+		});
 	});
 };
