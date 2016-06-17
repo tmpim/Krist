@@ -128,6 +128,28 @@ module.exports = function(app) {
 	 * This is simply to maintain connections from clients which automatically close the socket after inactivity.
 	 * Your client does not need to interpret these events in any way, and can completely disregard them.
 	 *
+	 * ## Subscription Levels
+	 *
+	 * There are several subscription levels for events that are broadcasted to all clients. When you are subscribed
+	 * to an event you will automatically recieve a message with the type `event` in a format similar to the following:
+	 *
+	 *     { "type": "event", "event": "block",  "block": { ... }, "new_work": 100000 }
+	 *
+	 * You can unsubscribe and subscribe to certain events to only recieve what you wish to.
+	 *
+	 * ### Subscription Levels & Event List
+	 *
+	 * | Subscription Name |     Events    |                                       Description                                      |
+	 * |:-----------------:|:-------------:|:--------------------------------------------------------------------------------------:|
+	 * |      `blocks`     |    `block`    | Block events whenever a block is mined by anybody on the node                          |
+	 * |    `ownBlocks`    |    `block`    | Block events whenever the authed user mines a block                                    |
+	 * |   `transactions`  | `transaction` | Transaction events whenever a transaction is made by anybody on the node               |
+	 * | `ownTransactions` | `transaction` | Transaction events whenever a transaction is made to or from the authed user           |
+	 * |      `names`      |     `name`    | Name events whenever a name is created, modified or transferred by anybody on the node |
+	 * |     `ownNames`    |     `name`    | Name events whenever the authed user creates, modifies or transfers a name             |
+	 * |   `ownWebhooks`   |   `webhook`   | Webhook events whenever the authed user creates a webhook                              |
+	 * |       `motd`      |     `motd`    | Event fired whenever the message of the day changes                                    |
+	 *
 	 * ## Examples
 	 *
 	 *

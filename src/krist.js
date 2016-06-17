@@ -27,6 +27,7 @@ var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
+	websockets  = require('./websockets.js'),
 	addresses   = require('./addresses.js'),
 	moment      = require('moment'),
 	fs          = require('fs'),
@@ -96,6 +97,24 @@ Krist.init = function() {
 			}
 		});
 	}
+
+	fs.watchFile('motd.txt', function(curr, prev) {
+		fs.readFile('motd.txt', function(err, data) {
+			websockets.broadcastEvent({
+				type: 'event',
+				event: 'motd',
+				new_motd: data.toString()
+			}, function(ws) {
+				return new Promise(function(resolve, reject) {
+					if (ws.subscriptionLevel.indexOf("motd") >= 0) {
+						return resolve();
+					}
+
+					reject();
+				});
+			});
+		});
+	});
 };
 
 Krist.getWork = function() {

@@ -26,12 +26,16 @@ var	fs 					= require('fs'),
 function WebsocketsManager() {
 	this.websockets = [];
 	this.messageHandlers = [];
+
+	this.validSubscriptionLevels = ['blocks', 'ownBlocks', 'transactions', 'ownTransactions', 'names', 'ownNames', 'ownWebhooks', 'motd'];
 }
 
-function Websocket(socket, token, auth) {
+function Websocket(socket, token, auth, subscriptionLevel) {
 	this.socket = socket;
 	this.token = token;
 	this.auth = auth;
+
+	this.subscriptionLevel = subscriptionLevel || ['ownTransactions', 'blocks'];
 
 	this.isGuest = auth === "guest";
 }
@@ -112,6 +116,14 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth) {
 WebsocketsManager.prototype.broadcast = function(message) {
 	Websockets.websockets.forEach(function(websocket) {
 		websocket.send(JSON.stringify(message));
+	});
+};
+
+WebsocketsManager.prototype.broadcastEvent = function(message, subscriptionCheck) {
+	Websockets.websockets.forEach(function(websocket) {
+		subscriptionCheck(websocket).then(function() {
+			websocket.send(JSON.stringify(message));
+		});
 	});
 };
 

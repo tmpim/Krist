@@ -96,11 +96,21 @@ Blocks.submit = function(hash, address, nonce) {
 				}).then(function(block) {
 					webhooks.callBlockWebhooks(block, newWork);
 
-					websockets.broadcast({
+					websockets.broadcastEvent({
 						type: 'event',
 						event: 'block',
 						block: Blocks.blockToJSON(block),
 						new_work: newWork
+					}, function(ws) {
+						return new Promise(function(resolve, reject) {
+							console.log(ws);
+
+							if ((!ws.isGuest && ws.auth === address && ws.subscriptionLevel.indexOf("ownBlocks") >= 0) || ws.subscriptionLevel.indexOf("blocks") >= 0) {
+								return resolve();
+							}
+
+							reject();
+						});
 					});
 
 					console.log('        New work: ' + newWork.toLocaleString().green);
