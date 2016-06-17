@@ -2,6 +2,10 @@
 
 This is the new official Krist node. It is written in Node.js.
 
+## Repo Guidelines
+- All code and commits are made in British English (Not Simplified American English)
+
+
 ## API Documentation
 
 The documentation is generated with [apiDoc](http://apidocjs.com). It is automatically built by Grunt. You can find a
