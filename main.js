@@ -46,7 +46,28 @@ process.on('uncaughtException', function(error) {
 redis.init().then(function() {
 	database.init().then(function() {
 		require('./src/krist.js').init();
-		require('./src/websockets.js');
+
+		if (config.debugMode) {
+			require('./src/websockets.js');
+
+			// Debug commands only in use on the test node. Go away.
+
+			var stdin = process.openStdin();
+			var krist = require('./src/krist.js');
+
+			stdin.addListener('data', function (d) {
+				var args = d.toString().trim().split(" ");
+
+				if (args[0] === "setWork") {
+					return krist.setWork(new Number(args[1]));
+				}
+
+				if (args[0] === "getWork") {
+					console.log('[Krist]'.bold + ' Current work: ' + krist.getWork().toString().green);
+				}
+			});
+		}
+
 		webserver.init(); // Yeah something happened here idk
 	});
 });
