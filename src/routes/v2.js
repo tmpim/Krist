@@ -24,14 +24,6 @@ var krist   = require('./../krist.js'),
 	errors  = require('./../errors/errors.js');
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (req.query.v2) {
-			return res.send(krist.makeV2Address(req.query.v2));
-		}
-
-		next();
-	});
-
 	/**
 	 * @api {post} /v2 Get v2 address from a private key
 	 * @apiName MakeV2Address

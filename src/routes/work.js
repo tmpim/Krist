@@ -22,14 +22,6 @@
 var krist = require('./../krist.js');
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.getwork !== 'undefined') {
-			return res.send(krist.getWork().toString());
-		}
-
-		next();
-	});
-
 	/**
 	 * @api {get} /work Get the current work
 	 * @apiName GetWork
