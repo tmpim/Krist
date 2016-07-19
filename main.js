@@ -58,16 +58,21 @@ redis.init().then(function() {
 			stdin.addListener('data', function (d) {
 				var args = d.toString().trim().split(" ");
 
-				if (args[0] === "setWork") {
+				if (args[0].toLowerCase() === "setwork") {
 					return krist.setWork(new Number(args[1]));
 				}
 
-				if (args[0] === "getWork") {
+				if (args[0].toLowerCase() === "getwork") {
 					console.log('[Krist]'.bold + ' Current work: ' + krist.getWork().toString().green);
+				}
+
+				if (args[0].toLowerCase() === "freenonce") {
+					krist.freeNonceSubmission = !krist.freeNonceSubmission;
+					console.log(krist.freeNonceSubmission);
 				}
 			});
 		}
 
-		webserver.init(); // Yeah something happened here idk
+		webserver.init(); // Yeah something
 	});
 });

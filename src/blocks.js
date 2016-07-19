@@ -53,7 +53,7 @@ Blocks.getLastBlock = function() {
 };
 
 Blocks.getBaseBlockValue = function(blockID) {
-	return blockID >= 100000 ? 12 : 25;
+	return blockID >= 222222 ? 1 : (blockID >= 100000 ? 12 : 25);
 };
 
 Blocks.getBlockValue = function() {

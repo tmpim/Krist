@@ -106,7 +106,7 @@ BlocksController.submitBlock = function(address, nonce) {
 			var difficulty = krist.getWork();
 			var hash = utils.sha256(address + last + nonce);
 
-			if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
+			if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
 				blocks.submit(hash, address, nonce).then(resolve).catch(reject);
 			} else {
 				return reject(new errors.ErrorSolutionIncorrect());

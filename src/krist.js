@@ -39,6 +39,7 @@ var nameRegex = /^[a-z0-9]{1,64}$/i;
 var aRecordRegex = /^[^\s/$.?#].[^\s]*$/i;
 
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
+Krist.freeNonceSubmission = false;
 
 Krist.init = function() {
 	console.log('[Krist]'.bold + ' Loading...');
