@@ -26,44 +26,26 @@ var krist       = require('./../krist.js'),
 
 module.exports = function(websockets) {
 	/**
-	 * @api {ws} //ws:"type":"login" Login to a wallet (upgrade connection)
-	 * @apiName WSLogin
+	 * @api {ws} //ws:"type":"address" Get an address
+	 * @apiName WSGetAddress
 	 * @apiGroup WebsocketGroup
-	 * @apiVersion 2.0.3
+	 * @apiVersion 2.0.4
 	 *
 	 * @apiParam (WebsocketParameter) {Number} id
 	 * @apiParam (WebsocketParameter) {String="login"} type
-	 * @apiParam (WebsocketParameter) {String} privatekey
+	 * @apiParam (WebsocketParameter) {String} address
 	 *
-	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 * @apiUse Address
 	 */
-	websockets.addMessageHandler('login', function(ws, message) {
+
+	websockets.addMessageHandler('address', function(ws, message) {
 		return new Promise(function(resolve, reject) {
-			if (!message.privatekey) {
-				return reject(new errors.ErrorMissingParameter('privatekey'));
-			}
-
-			addresses.verify(krist.makeV2Address(message.privatekey), message.privatekey).then(function(results) {
-				if (results.authed) {
-					ws.auth = results.address.address;
-					ws.isGuest = false;
-
-					resolve({
-						ok: true,
-						isGuest: false,
-						address: addr.addressToJSON(results.address)
-					});
-				} else {
-					ws.auth = 'guest';
-					ws.isGuest = true;
-
-					resolve({
-						ok: true,
-						isGuest: true
-					});
-				}
-			});
+			addr.getAddress(message.address).then(function(address) {
+				resolve({
+					ok: true,
+					address: addr.addressToJSON(address)
+				})
+			}).catch(reject);
 		});
 	});
 };
