@@ -23,18 +23,6 @@ var krist   = require('./../krist.js'),
 	redis	= require('./../redis.js');
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.getmoneysupply !== 'undefined') {
-			krist.getMoneySupply().then(function(supply) {
-				res.send(supply);
-			});
-
-			return;
-		}
-
-		next();
-	});
-
 	/**
 	 * @api {get} /supply Get the money supply
 	 * @apiName GetMoneySupply
