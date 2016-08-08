@@ -36,10 +36,6 @@ module.exports = function(app) {
 	 * All Websocket related endpoints.
 	 */
 
-	if (!config.debugMode) {
-		return;
-	}
-
 	app.ws('/:token', function(ws, req) {
 		redis.getClient().getAsync('ws-' + req.params.token).then(function(wsid) {
 			if (wsid) {
