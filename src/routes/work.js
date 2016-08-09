@@ -57,7 +57,7 @@ module.exports = function(app) {
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.0.5
 	 *
-	 * @apiSuccess {Number[]} work The work every 5 minutes for the past 24 hours.
+	 * @apiSuccess {Number[]} work The work every minute for the past 24 hours, starting with 24 hours ago.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
