@@ -122,10 +122,10 @@ Krist.init = function() {
 	setInterval(function() {
 		Krist.workOverTime.push(Krist.getWork());
 
-		if (Krist.workOverTime.length > 288) {
+		if (Krist.workOverTime.length > 1440) {
 			Krist.workOverTime.shift();
 		}
-	}, 60 * 5 * 1000);
+	}, 60 * 1000);
 };
 
 Krist.getWork = function() {
