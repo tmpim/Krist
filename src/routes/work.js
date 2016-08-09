@@ -34,10 +34,9 @@ module.exports = function(app) {
 	 * @api {get} /work Get the current work
 	 * @apiName GetWork
 	 * @apiGroup MiscellaneousGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.0.5
 	 *
 	 * @apiSuccess {Number} work The current Krist work (difficulty)
-	 * @apiSuccess {Number} growth_factor The current work growth factor
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
@@ -49,6 +48,27 @@ module.exports = function(app) {
 		res.json({
 			ok: true,
 			work: krist.getWork()
+		});
+	});
+
+	/**
+	 * @api {get} /work/day Get the work over the past 24 hours
+	 * @apiName GetWorkDay
+	 * @apiGroup MiscellaneousGroup
+	 * @apiVersion 2.0.5
+	 *
+	 * @apiSuccess {Number[]} work The work every 5 minutes for the past 24 hours.
+	 *
+	 * @apiSuccessExample {json} Success
+	 * {
+	 *     "ok": true,
+	 *     "work": 18750
+     * }
+	 */
+	app.get('/work/day', function(req, res) {
+		res.json({
+			ok: true,
+			work: krist.getWorkOverTime()
 		});
 	});
 

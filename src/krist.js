@@ -41,6 +41,8 @@ var aRecordRegex = /^[^\s\.\?\#].[^\s]*$/i;
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
 Krist.freeNonceSubmission = false;
 
+Krist.workOverTime = [];
+
 Krist.init = function() {
 	console.log('[Krist]'.bold + ' Loading...');
 
@@ -116,10 +118,22 @@ Krist.init = function() {
 			});
 		});
 	});
+
+	setInterval(function() {
+		Krist.workOverTime.push(Krist.getWork());
+
+		if (Krist.workOverTime.length > 288) {
+			Krist.workOverTime.shift();
+		}
+	}, 60 * 5 * 1000);
 };
 
 Krist.getWork = function() {
 	return Krist.work;
+};
+
+Krist.getWorkOverTime = function() {
+	return Krist.workOverTime;
 };
 
 Krist.setWork = function(work) {
