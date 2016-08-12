@@ -116,7 +116,7 @@ module.exports = function(app) {
 						if (block.id === 1) return;
 
 						if (!k) {
-							out += utils.padDigits(block.id, 8); 
+							out += utils.padDigits(block.id, 8);
 							out += moment(block.time).format('YYYY-MM-DD').toString();
 
 							k  = true;
@@ -373,7 +373,7 @@ module.exports = function(app) {
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
-     *     "base_value": 12 
+     *     "base_value": 12
      * }
 	 */
 	app.get('/blocks/basevalue', function(req, res) {
@@ -391,9 +391,10 @@ module.exports = function(app) {
 	 * @api {get} /blocks/value Get the block reward
 	 * @apiName GetBlockValue
 	 * @apiGroup BlockGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.0.6
 	 *
 	 * @apiSuccess {Number} value
+	 * @apiSuccess {Number} base_value
 	 *
 	 * @apiDescription Returns the block reward - the base value plus the amount of unpaid names (names registered in
 	 * 				   the last 500 blocks).
@@ -401,15 +402,19 @@ module.exports = function(app) {
 	 * @apiSuccessExample {json} Success
 	 * {
      *     "ok": true,
-     *     "value": 14
+     *     "value": 2,
+     *     "base_value": 1
      * }
 	 */
 	app.get('/blocks/value', function(req, res) {
-		blocks.getBlockValue().then(function(value) {
-			res.json({
-				ok: true,
-				value: value
-			})
+		blocks.getLastBlock().then(function(block) {
+			blocks.getBlockValue().then(function (value) {
+				res.json({
+					ok: true,
+					value: value,
+					base_value: blocks.getBaseBlockValue(block.id)
+				})
+			});
 		});
 	});
 
