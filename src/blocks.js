@@ -203,6 +203,6 @@ Blocks.blockToJSON = function(block) {
 		short_hash: block.hash.substring(0, 12),
 		value: block.value,
 		time: block.time,
-		difficulty: block.difficulty
+		difficulty: block.id < 5000 ? Blocks.getBaseBlockValue(block.id) : block.difficulty
 	};
 };
