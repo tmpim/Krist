@@ -103,8 +103,6 @@ Blocks.submit = function(hash, address, nonce) {
 						new_work: newWork
 					}, function(ws) {
 						return new Promise(function(resolve, reject) {
-							console.log(ws);
-
 							if ((!ws.isGuest && ws.auth === address && ws.subscriptionLevel.indexOf("ownBlocks") >= 0) || ws.subscriptionLevel.indexOf("blocks") >= 0) {
 								return resolve();
 							}
