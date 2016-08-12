@@ -27,7 +27,7 @@ var krist               = require('./../krist.js'),
 	names               = require('./../names.js'),
 	tx                  = require('./../transactions.js'),
 	utils               = require('./../utils.js'),
-	moment              = require('moment');
+	moment              = require('moment'); 
 
 module.exports = function(app) {
 	/**

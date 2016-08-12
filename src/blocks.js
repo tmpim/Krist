@@ -53,6 +53,51 @@ Blocks.getLastBlock = function() {
 };
 
 Blocks.getBaseBlockValue = function(blockID) {
+	if (blockID >= 1 && blockID < 501) return 400000000000;
+	if (blockID >= 501 && blockID < 541) return 381274937337;
+	if (blockID >= 541 && blockID < 546) return 350000000000;
+	if (blockID >= 546 && blockID < 549) return 400000000000;
+	if (blockID >= 549 && blockID < 554) return 300000000000;
+	if (blockID >= 554 && blockID < 635) return 288365888229;
+	if (blockID >= 635 && blockID < 891) return 58365888229;
+	if (blockID >= 891 && blockID < 936) return 6000000000;
+	if (blockID >= 936 && blockID < 974) return 400000000000;
+	if (blockID >= 974 && blockID < 979) return 100000000000;
+	if (blockID >= 979 && blockID < 1083) return 400000000000;
+	if (blockID >= 1083 && blockID < 1149) return 100000000000;
+	if (blockID >= 1149 && blockID < 1165) return 10000000000;
+	if (blockID >= 1165 && blockID < 1171) return 5000000000;
+	if (blockID >= 1171 && blockID < 1172) return 500000000;
+	if (blockID >= 1172 && blockID < 1178) return 5000000000;
+	if (blockID >= 1178 && blockID < 1355) return 2000000000000;
+	if (blockID >= 1355 && blockID < 1390) return 200000000000;
+	if (blockID >= 1390 && blockID < 2486) return 20000000000;
+	if (blockID >= 2486 && blockID < 2640) return 400000000000;
+	if (blockID >= 2640 && blockID < 2667) return 300000000000;
+	if (blockID >= 2667 && blockID < 2700) return 3000000000;
+	if (blockID >= 2700 && blockID < 2743) return 10000000000;
+	if (blockID >= 2743 && blockID < 2773) return 8000000000;
+	if (blockID >= 2773 && blockID < 2795) return 5000000000;
+	if (blockID >= 2795 && blockID < 2812) return 3000000000;
+	if (blockID >= 2812 && blockID < 2813) return 1000000000;
+	if (blockID >= 2813 && blockID < 2936) return 400000000000;
+	if (blockID >= 2936 && blockID < 2942) return 4000000000;
+	if (blockID >= 2942 && blockID < 2972) return 8000000000;
+	if (blockID >= 2972 && blockID < 2989) return 2000000000;
+	if (blockID >= 2989 && blockID < 2990) return 100000000;
+	if (blockID >= 2990 && blockID < 2998) return 500000000;
+	if (blockID >= 2998 && blockID < 3000) return 200000000;
+	if (blockID >= 3000 && blockID < 3003) return 100000000;
+	if (blockID >= 3003 && blockID < 3005) return 50000000;
+	if (blockID >= 3005 && blockID < 3006) return 23555120;
+	if (blockID >= 3006 && blockID < 3018) return 53555120;
+	if (blockID >= 3018 && blockID < 3029) return 20000000;
+	if (blockID >= 3029 && blockID < 3089) return 400000000000;
+	if (blockID >= 3089 && blockID < 3096) return 20000000;
+	if (blockID >= 3096 && blockID < 3368) return 19875024;
+	if (blockID >= 3368 && blockID < 4097) return 10875024;
+	if (blockID >= 4097 && blockID < 5000) return 8750240;
+
 	return blockID >= 222222 ? 1 : (blockID >= 100000 ? 12 : 25);
 };
 
