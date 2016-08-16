@@ -87,6 +87,7 @@ Webserver.init = function() {
 				res.header('X-Robots-Tag', 'none');
 				res.header('Content-Type', 'application/json');
 				res.header('Access-Control-Allow-Origin', '*');
+				res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, UPDATE, DELETE, OPTIONS');
 				next();
 			});
 
