@@ -110,8 +110,8 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 			return reject(new errors.ErrorInvalidParameter('amount'));
 		}
 
-		if (com && !/^[\x20-\x7F]+$/i.test(com)) {
-			return reject(new errors.ErrorInvalidParameter('com'));
+		if (com && !/^[\x20-\x7F\n]+$/i.test(com)) {
+			return reject(new errors.ErrorInvalidParameter('metadata'));
 		}
 
 		var from = krist.makeV2Address(privatekey);
