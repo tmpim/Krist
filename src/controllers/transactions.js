@@ -110,7 +110,7 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 			return reject(new errors.ErrorInvalidParameter('amount'));
 		}
 
-		if (com && !/^[\x20-\x7F\n]+$/i.test(com)) {
+		if (com &&() !/^[\x20-\x7F\n]+$/i.test(com) || com.length > 255)) {
 			return reject(new errors.ErrorInvalidParameter('metadata'));
 		}
 
