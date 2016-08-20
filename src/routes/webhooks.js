@@ -82,8 +82,6 @@ module.exports = function(app) {
 	 * @apiGroup WebhookGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiDescription There is a limit of 6 webhooks per hostname.
-	 *
 	 * @apiParam (BodyParameter) {String} privatekey The privatekey of your address.
 	 * @apiParam (BodyParameter) {String} owner Your address, used as confirmation.
 	 * @apiParam (BodyParameter) {String="transaction","block","name"} event The event type of this webhook.

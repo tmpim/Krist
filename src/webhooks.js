@@ -35,22 +35,6 @@ var utils   = require('./utils.js'),
 	moment  = require('moment'),
 	hat		= require('hat');
 
-Webhooks.isURLAllowed = function(urlParts) {
-	return new Promise(function(resolve, reject) {
-		schemas.webhook.findAll().then(function(webhooks) {
-			var count = 0;
-
-			webhooks.forEach(function(webhook) {
-				if(url.parse(webhook.url).hostname.toLowerCase().trim() === urlParts.hostname.toLowerCase().trim()) {
-					count++;
-				}
-			});
-
-			resolve(count < config.maxWebsocketsPerHost);
-		}).catch(reject);
-	});
-};
-
 Webhooks.createTransactionWebhook = function(owner, method, url, addresses) {
 	return schemas.webhook.create({
 		event: 'transaction',
