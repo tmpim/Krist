@@ -73,35 +73,28 @@ WebhooksController.registerWebhook = function(privatekey, owner, event, destURL,
 				return reject(new errors.ErrorAuthFailed());
 			}
 
-			names.getNameCountByAddress(owner).then(function (nameCount) {
-				webhooks.getWebhookCountByAddress(owner).then(function (webhookCount) {
-					if (webhookCount >= nameCount) {
-						return reject(new errors.ErrorLimitReached());
+
+			switch (event.toLowerCase().trim()) {
+				case 'transaction':
+					if (addresses && !krist.isValidKristAddressList(addresses)) {
+						return reject(new errors.ErrorInvalidParameter('addresses'));
 					}
 
-					switch (event.toLowerCase().trim()) {
-						case 'transaction':
-							if (addresses && !krist.isValidKristAddressList(addresses)) {
-								return reject(new errors.ErrorInvalidParameter('addresses'));
-							}
+					webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
 
-							webhooks.createTransactionWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
-
-							break;
-						case 'name':
-							if (addresses && !krist.isValidKristAddressList(addresses)) {
-								return reject(new errors.ErrorInvalidParameter('addresses'));
-							}
-
-							webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
-
-							break;
-						case 'block':
-							webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
-							break;
+					break;
+				case 'name':
+					if (addresses && !krist.isValidKristAddressList(addresses)) {
+						return reject(new errors.ErrorInvalidParameter('addresses'));
 					}
-				});
-			});
+
+					webhooks.createNameWebhook(owner.toLowerCase(), method, destURL, addresses ? addresses.replace(/,+$/, '').toLowerCase() : null).then(resolve).catch(reject);
+
+					break;
+				case 'block':
+					webhooks.createBlockWebhook(owner.toLowerCase(), method, destURL).then(resolve).catch(reject);
+					break;
+			}
 		}).catch(reject);
 	});
 };

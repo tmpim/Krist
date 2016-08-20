@@ -111,12 +111,6 @@ module.exports = function(app) {
 	 *     "ok": false,
 	 *     "error": "auth_failed"
 	 * }
-	 *
-	 * @apiErrorExample {json} Limit Reached
-	 * {
-     *     "ok": false,
-     *     "error": "limit_reached"
-     * }
 	 */
 	app.post('/webhooks', function(req, res) {
 		webhooksController.registerWebhook(req.body.privatekey, req.body.owner, req.body.event, req.body.url, req.body.method, req.body.addresses).then(function(webhook) {
