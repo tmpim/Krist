@@ -238,8 +238,6 @@ NamesController.updateName = function(name, privatekey, a) {
 					updated: new Date()
 				}));
 
-				promises.push(tx.pushTransaction('a', name.owner, 0, name.name));
-
 				Promise.all(promises).then(function () {
 					name.reload().then(function() {
 						resolve(name);
