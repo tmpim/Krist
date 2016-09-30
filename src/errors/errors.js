@@ -39,11 +39,11 @@ util.inherits(errors.KristError, Error);
 module.exports = errors;
 
 try {
-	var findPath = path.join(__dirname, './');
+	var findPath = __dirname;
 
 	fs.readdirSync(findPath).forEach(function(file) {
 		if (path.extname(file).toLowerCase() !== '.js' ||
-			path.basename(file).toLowerCase() === path.basename(this.filename).toLowerCase()) {
+			path.basename(file).toLowerCase() === path.basename(__filename).toLowerCase()) {
 
 			return;
 		}
