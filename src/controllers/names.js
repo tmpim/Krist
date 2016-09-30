@@ -186,7 +186,7 @@ NamesController.transferName = function(name, privatekey, address) {
 						updated: new Date()
 					}));
 
-					promises.push(tx.pushTransaction(address, results.address.address.toLowerCase(), 0, name.name));
+					promises.push(tx.pushTransaction(address, results.address.address.toLowerCase(), 0, null, name.name));
 
 					Promise.all(promises).then(function () {
 						name.reload().then(function() {
