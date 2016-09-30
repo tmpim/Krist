@@ -196,7 +196,7 @@ NamesController.transferName = function(name, privatekey, address) {
 NamesController.updateName = function(name, privatekey, a) {
 	return new Promise(function(resolve, reject) {
 		a = a || "";
-		
+
 		if (!name) {
 			return reject(new errors.ErrorMissingParameter('name'));
 		}
@@ -209,7 +209,7 @@ NamesController.updateName = function(name, privatekey, a) {
 			return reject(new errors.ErrorInvalidParameter('name'));
 		}
 
-		if (a && !krist.isValidARecord(a)) {
+		if (a !== "" && !krist.isValidARecord(a)) {
 			return reject(new errors.ErrorInvalidParameter('a'));
 		}
 
