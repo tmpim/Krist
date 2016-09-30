@@ -165,12 +165,12 @@ NamesController.transferName = function(name, privatekey, address) {
 				return reject(new errors.ErrorAuthFailed());
 			}
 
-			names.getNameByName(name).then(function (name) {
+			names.getNameByName(name).then(function(name) {
 				if (!name) {
 					return reject(new errors.ErrorNameNotFound());
 				}
 
-				if (name.owner !== krist.makeV2Address(privatekey)) {
+				if (name.owner !== results.address) {
 					return reject(new errors.ErrorNotNameOwner());
 				}
 
@@ -181,7 +181,7 @@ NamesController.transferName = function(name, privatekey, address) {
 					updated: new Date()
 				}));
 
-				promises.push(tx.pushTransaction(address, currentOwner.toLowerCase(), 0, name.name));
+				promises.push(tx.pushTransaction(address, results.address.toLowerCase(), 0, name.name));
 
 				Promise.all(promises).then(function () {
 					name.reload().then(function() {
@@ -209,7 +209,7 @@ NamesController.updateName = function(name, privatekey, a) {
 			return reject(new errors.ErrorInvalidParameter('name'));
 		}
 
-		if (a.trim() !== "" && !krist.isValidARecord(a)) {
+		if (a.trim() && !krist.isValidARecord(a)) {
 			return reject(new errors.ErrorInvalidParameter('a'));
 		}
 
