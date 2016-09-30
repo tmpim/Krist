@@ -209,7 +209,7 @@ NamesController.updateName = function(name, privatekey, a) {
 			return reject(new errors.ErrorInvalidParameter('name'));
 		}
 
-		if (a !== "" && !krist.isValidARecord(a)) {
+		if (a.trim() !== "" && !krist.isValidARecord(a)) {
 			return reject(new errors.ErrorInvalidParameter('a'));
 		}
 
