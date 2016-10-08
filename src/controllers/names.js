@@ -174,24 +174,18 @@ NamesController.transferName = function(name, privatekey, address) {
 					return reject(new errors.ErrorNotNameOwner());
 				}
 
-				addresses.getAddress(address).then(function(address) {
-					if (!address) {
-						return reject(new errors.ErrorAddressNotFound());						
-					}
+				var promises = [];
 
-					var promises = [];
+				promises.push(name.update({
+					owner: address,
+					updated: new Date()
+				}));
 
-					promises.push(name.update({
-						owner: address.address,
-						updated: new Date()
-					}));
+				promises.push(tx.pushTransaction(results.address, address, 0, null, name.name));
 
-					promises.push(tx.pushTransaction(results.address.address.toLowerCase(), address, 0, null, name.name));
-
-					Promise.all(promises).then(function () {
-						name.reload().then(function() {
-							resolve(name);
-						}).catch(reject);
+				Promise.all(promises).then(function () {
+					name.reload().then(function() {
+						resolve(name);
 					}).catch(reject);
 				}).catch(reject);
 			}).catch(reject);
@@ -241,6 +235,8 @@ NamesController.updateName = function(name, privatekey, a) {
 					a: a,
 					updated: new Date()
 				}));
+
+				promises.push(tx.createTransaction("a", name.owner, 0, name.name, a));
 
 				Promise.all(promises).then(function () {
 					name.reload().then(function() {

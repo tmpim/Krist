@@ -31,6 +31,24 @@ require('console-stamp')(console, {
 	}
 });
 
+var email = require("emailjs");
+var server = email.server.connect({
+	user: config.emailUser,
+	pass: config.emailPass,
+	host: config.emailHost
+});
+
+console.error = function(msg) {
+	server.send({
+		text: msg,
+		from: config.emailFrom,
+		to: config.emailTo,
+		subject: "Krist server error at " + new Date().toString()
+	});
+
+	process.stderr.write(msg);
+};
+
 var	errors      = require('./src/errors/errors.js'),
 	redis		= require('./src/redis.js'),
 	database	= require('./src/database.js'),
