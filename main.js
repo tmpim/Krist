@@ -22,6 +22,12 @@
 var config		= require('./config.js'),
 	package     = require('./package.json');
 
+var Promise = require("bluebird");
+
+Promise.config({
+	longStackTraces: true
+});
+
 require('colors'); // colours
 require('console-stamp')(console, {
 	pattern: 'HH:MM:ss',
@@ -31,22 +37,8 @@ require('console-stamp')(console, {
 	}
 });
 
-var email = require("emailjs");
-var server = email.server.connect({
-	user: config.emailUser,
-	pass: config.emailPass,
-	host: config.emailHost
-});
-
 console.error = function(msg) {
-	server.send({
-		text: msg,
-		from: config.emailFrom,
-		to: config.emailTo,
-		subject: "Krist server error at " + new Date().toString()
-	});
-
-	process.stderr.write(msg);
+	require("./errorreport.js")(msg, new Error());
 };
 
 var	errors      = require('./src/errors/errors.js'),

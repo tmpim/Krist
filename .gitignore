@@ -16,6 +16,7 @@ npm-debug.log
 .idea_modules/
 
 /config.js
+/errorreport.js
 
 /data.db
 /data/
