@@ -24,9 +24,7 @@ var config		= require('./config.js'),
 
 var Promise = require("bluebird");
 
-Promise.config({
-	longStackTraces: true
-});
+Promise.longStackTraces();
 
 require('colors'); // colours
 require('console-stamp')(console, {

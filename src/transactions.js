@@ -136,7 +136,7 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 
 				resolve(results[2]);
 			}).catch(reject);
-		});
+		}).catch(reject);
 	});
 };
 
