@@ -30,7 +30,8 @@ var	config	    = require('./../config.js'),
 	net		    = require('net'),
 	gitlog 		= require('gitlog'),
 	fs		    = require('fs'),
-	path 	    = require('path');
+	path 	    = require('path'),
+    morgan      = require('morgan');
 
 function Webserver() {}
 
@@ -67,6 +68,8 @@ Webserver.init = function() {
 				delete req.headers['content-encoding'];
 				next();
 			});
+
+            Webserver.express.use(morgan("combined"));
 
 			Webserver.express.use(express.static('static'));
 
