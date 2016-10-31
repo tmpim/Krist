@@ -68,8 +68,8 @@ var Transaction = database.getSequelize().define('transaction', {
 	to: Sequelize.STRING(10),
 	value: Sequelize.INTEGER.UNSIGNED,
 	time: Sequelize.DATE,
-	name: Sequelize.STRING(64),
-	op: Sequelize.STRING(360)
+	name: Sequelize.STRING(128),
+	op: Sequelize.STRING(512)
 }, {
 	timestamps: false
 });
