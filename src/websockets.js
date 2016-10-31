@@ -136,8 +136,7 @@ WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message
 console.log('[Websockets]'.cyan + ' Loading routes');
 
 try {
-	var routePath = path.joihtop
-	n(__dirname, 'websocket_routes');
+	var routePath = path.join(__dirname, 'websocket_routes');
 
 	fs.readdirSync(routePath).forEach(function(file) {
 		if (path.extname(file).toLowerCase() !== '.js') {
