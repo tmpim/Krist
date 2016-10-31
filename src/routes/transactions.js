@@ -110,12 +110,10 @@ module.exports = function(app) {
 					return res.send('Access denied');
 				}
 
-				if (/\.kst$/i.test(req.query.q)) {
-					if (!krist.isValidName(req.query.q)) {
-						return res.send('Error4');
-					}
+				if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+					var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
-					names.getNameByName(req.query.q).then(function(name) {
+					names.getNameByName(nameInfo[2]).then(function(name) {
 						if (!name) {
 							return res.send("Name not found");
 						}
@@ -124,7 +122,13 @@ module.exports = function(app) {
 							return res.send("Error1");
 						}
 
-						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function() {
+						var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+
+						if (req.query.com) {
+							metadata = req.query.com.toLowerCase() + ";" + metadata;
+						}
+
+						tx.pushTransaction(sender, name.owner, amt, metadata).then(function() {
 							res.send('Success');
 						});
 					});
@@ -147,6 +151,8 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.pushtx2 !== 'undefined') {
+			console.log("a");
+
 			if (!req.query.amt || isNaN(req.query.amt)) {
 				return res.send('Error3');
 			}
@@ -162,7 +168,12 @@ module.exports = function(app) {
 				return res.send('Error5');
 			}
 
+			console.log("b");			
+
 			addresses.verify(from, req.query.pkey).then(function(results) {
+
+				console.log("c");	
+
 				var authed = results.authed;
 				var sender = results.address;
 
@@ -170,14 +181,12 @@ module.exports = function(app) {
 					return res.send('Access denied');
 				}
 
-				if (/\.kst$/i.test(req.query.q)) {
-					var qname = req.query.q.replace(/\.kst$/i, "");
+				if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+					console.log("d");	
 
-					if (!krist.isValidName(qname)) {
-						return res.send('Error4');
-					}
+					var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
-					names.getNameByName(qname).then(function (name) {
+					names.getNameByName(nameInfo[2]).then(function (name) {
 						if (!name) {
 							return res.send("Name not found");
 						}
@@ -186,7 +195,9 @@ module.exports = function(app) {
 							return res.send("Error1");
 						}
 
-						tx.pushTransaction(sender, name.owner, amt, req.query.com).then(function () {
+						var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+
+						tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
 							res.send('Success');
 						});
 					});

@@ -93,13 +93,11 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 			return reject(new errors.ErrorMissingParameter('amount'));
 		}
 
-		var isName = /\.kst$/i.test(to);
-		var toName = isName ? to.replace(/\.kst$/i, "") : "";
+		var isName = krist.nameMetaRegex.test(to.toLowerCase());
+		var nameInfo;
 
 		if (isName) {
-			if (!krist.isValidName(toName)) {
-				return reject(new errors.ErrorInvalidParameter('to'));
-			}
+			nameInfo = krist.nameMetaRegex.exec(to.toLowerCase());
 		} else {
 			if (!krist.isValidKristAddress(to)) {
 				return reject(new errors.ErrorInvalidParameter('to'));
@@ -129,10 +127,16 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
 				return reject(new errors.ErrorInsufficientFunds());
 			}
 
-			if (toName) {
-				names.getNameByName(toName).then(function (name) {
+			if (isName) {
+				names.getNameByName(nameInfo[2]).then(function (name) {
 					if (!name) {
 						return reject(new errors.ErrorNameNotFound());
+					}
+
+					if (com) {
+						com = to.toLowerCase() + ";" + com;
+					} else {
+						com = to.toLowerCase();
 					}
 
 					transactions.pushTransaction(sender, name.owner, amount, com).then(resolve).catch(reject);

@@ -38,6 +38,8 @@ var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-
 var nameRegex = /^[a-z0-9]{1,64}$/i;
 var aRecordRegex = /^[^\s\.\?\#].[^\s]*$/i;
 
+Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
+
 Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
 Krist.freeNonceSubmission = false;
 
