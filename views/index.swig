@@ -5,18 +5,35 @@
     <ul class="links">
         <li><a href="http://www.computercraft.info/forums2/index.php?/topic/22201-krist-minable-currency-that-works-across-servers/page__p__207703#entry207703">Forum Thread</a></li>
         <li><a href="/docs">API Documentation</a></li>
-        <li class="disabled"><span class="coming-soon">Web Wallet</span> (coming soon)</li>
+        <li><a href="http://kristweb.lemmmy.pw/">Web Wallet</a></li>
     </ul>
 
     <br /><br />
-    <h3>Useful Links</h3>
+    <h3>Miners</h3>
 
     <ul class="links smaller">
-        <li><a href="https://github.com/apemanzilla/KWallet">KWallet by apemanzilla</a></li>
-        <li><a href="https://github.com/apemanzilla/turbokrist">turbokrist by apemanzilla</a></li>
+        <li><a href="https://github.com/apemanzilla/turbokrist">(<b>GPU</b>) turbokrist by apemanzilla</a></li>
+        <li><a href="https://github.com/1lann/krist-miner">(<b>CPU</b>) krist-miner by 1lann</a></li>
+        <li><a href="https://github.com/Yevano/ytci-krist-miner">(<b>CPU</b>) ytci-krist-miner by Yevano</a></li>
+    </ul>
+
+    <br />
+    <h3>Wallets</h3>
+
+    <ul class="links smaller">
+        <li><a href="http://kristweb.lemmmy.pw/">(<b>Web</b>) KristWeb by Lemmmy</a></li>
+        <li><a href="https://github.com/apemanzilla/KWallet">(<b>Desktop</b>) KWallet by apemanzilla</a></li>
+        <li><a href="https://github.com/timia2109/KristWallet">(<b>Android</b>) Android Wallet by timia2109</a></li>
+        <li><a href="https://pastebin.com/CChWjRx6">(<b>ComputerCraft</b>) kristwallet by 3d6</a></li>
+    </ul>
+
+    <br />
+    <h3>Games & Tools</h3>
+
+    <ul class="links smaller">    
         <li><a href="http://klottery.sci4me.com/">KLottery by sci4me and Yevano</a></li>
         <li><a href="http://kfaucet.lemmmy.pw/">KFaucet by Lignum</a></li>
-        <li><a href="https://github.com/timia2109/KristWallet">Android Wallet by timia2109</a></li>
+        <li><a href="http://timia2109.me/kst/">API Tester by timia2109</a></li>
     </ul>
 </section>
 
