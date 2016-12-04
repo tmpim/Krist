@@ -69,6 +69,20 @@ AddressesController.getAddress = function(address) {
 	});
 };
 
+AddressesController.getAlert = function(privatekey) {
+	return new Promise(function(resolve, reject) {
+		var address = krist.makeV2Address(privatekey);
+
+		addresses.getAddress(address).then(function(result) {
+			if (!result) {
+				return reject(new errors.ErrorAddressNotFound());
+			}
+
+			resolve(result.alert);
+		}).catch(reject);
+	});
+};
+
 AddressesController.addressToJSON = function(address) {
 	return {
 		address: address.address.toLowerCase(),

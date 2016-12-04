@@ -151,8 +151,6 @@ module.exports = function(app) {
 		}
 
 		if (typeof req.query.pushtx2 !== 'undefined') {
-			console.log("a");
-
 			if (!req.query.amt || isNaN(req.query.amt)) {
 				return res.send('Error3');
 			}
@@ -168,12 +166,7 @@ module.exports = function(app) {
 				return res.send('Error5');
 			}
 
-			console.log("b");			
-
 			addresses.verify(from, req.query.pkey).then(function(results) {
-
-				console.log("c");	
-
 				var authed = results.authed;
 				var sender = results.address;
 

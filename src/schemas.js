@@ -32,6 +32,10 @@ var Address = database.getSequelize().define('address', {
 	privatekey: {
 		type: Sequelize.STRING(64),
 		allowNull: true
+	},
+	alert: {
+		type: Sequelize.STRING(1024),
+		allowNull: true
 	}
 }, {
 	timestamps: false

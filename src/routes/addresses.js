@@ -71,6 +71,20 @@ module.exports = function(app) {
 			return;
 		}
 
+		if (req.query.alert) {
+			var from = krist.makeV2Address(req.query.alert);
+
+			addresses.getAddress(from).then(function(address) {
+				if (address) {
+					res.send(address.alert);
+				} else {
+					res.send('');
+				}
+			});
+
+			return;
+		}
+
 		if (typeof req.query.richapi !== 'undefined') {
 			addresses.getRich().then(function(results) {
 				var out = "";
@@ -188,6 +202,17 @@ module.exports = function(app) {
 				count: out.length,
 				total: results.count,
 				addresses: out
+			});
+		}).catch(function(error) {
+			utils.sendErrorToRes(req, res, error);
+		});
+	});
+
+	app.post('/addresses/alert', function(req, res) {
+		addressesController.getAlert(req.body.privatekey).then(function(alert) {
+			res.json({
+				ok: true,
+				alert: alert
 			});
 		}).catch(function(error) {
 			utils.sendErrorToRes(req, res, error);

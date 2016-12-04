@@ -69,8 +69,6 @@ Webserver.init = function() {
 				next();
 			});
 
-            Webserver.express.use(morgan("combined"));
-
 			Webserver.express.use(express.static('static'));
 
 			Webserver.express.set('views', path.join(__dirname, '../views'));
