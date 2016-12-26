@@ -1,6 +1,7 @@
-# Krist
+# Luran
 
-This is the new official Krist node. It is written in Node.js.
+This is the new official Luran node. It is written in Node.js.
+NOTE: This project is not fully made by me, but by Lemmmy/Krist
 
 ## Repo Guidelines
 - All code and commits are made in British English (Not Simplified American English)
@@ -20,7 +21,7 @@ dependencies and then run `node main`.
 
 ### Webserver Configuration
 
-This Krist node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
+This Luran node is supposed to be ran behind a serverside proxy. The file `nginx_example.conf` includes a basic
 configuration for how to set up the proxy in nginx. The Node.js webserver is not designed to and should not be exposed
 to the public web, and should bind to a socket file.
 
@@ -38,7 +39,7 @@ a correctly configured Sequelize connection, and a data.db file in the project r
 node convertdb
 ```
 
-**Important:** This script will delete all rows in an existing Krist database. A list of tables that will be truncated
+**Important:** This script will delete all rows in an existing Luran database. A list of tables that will be truncated
 is listed when running the script. You will be prompted for confirmation prior to any actions being performed to
 the database. The data.db file should remain unmodified.
 
