@@ -31,8 +31,7 @@
     <h3>Games & Tools</h3>
 
     <ul class="links smaller">    
-        <li><a href="http://klottery.sci4me.com/">KLottery by sci4me and Yevano</a></li>
-        <li><a href="http://kfaucet.lemmmy.pw/">KFaucet by Lignum</a></li>
+        <li><a href="https://kristminer.cf">KristMiner by lolmaker2002</a></li>
         <li><a href="http://timia2109.com/kst/">API Tester by timia2109</a></li>
     </ul>
 </section>
