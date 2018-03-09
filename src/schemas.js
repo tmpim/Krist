@@ -24,7 +24,10 @@ var	Sequelize	= require('sequelize'),
 	database	= require('./database.js');
 
 var Address = database.getSequelize().define('address', {
-	address: Sequelize.STRING(10),
+	address: {
+		type: Sequelize.STRING(10),
+		unique: true
+	},
 	balance: Sequelize.INTEGER.UNSIGNED,
 	totalin: Sequelize.INTEGER.UNSIGNED,
 	totalout: Sequelize.INTEGER.UNSIGNED,
