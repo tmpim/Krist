@@ -31,7 +31,7 @@ module.exports = function(websockets) {
 	 *
 	 * @apiParam (WebsocketParameter) {Number} id
 	 * @apiParam (WebsocketParameter) {String="make_transaction"} type
-	 * @apiParam (WebsocketParameter) {String=} [privatekey] The privatekey of your address.
+	 * @apiParam (WebsocketParameter) {String} [privatekey] The privatekey of your address.
 	 * @apiParam (WebsocketParameter) {String} to The recipient of the transaction.
 	 * @apiParam (WebsocketParameter) {Number} amount The amount to send to the recipient.
 	 * @apiParam (WebsocketParameter) {String} [metadata] Optional metadata to include in the transaction.
