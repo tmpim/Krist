@@ -30,7 +30,8 @@ module.exports = function(websockets) {
 	 * @apiVersion 2.0.7
 	 *
 	 * @apiParam (WebsocketParameter) {Number} id
-	 * @apiParam (WebsocketParameter) {String="me"} type
+	 * @apiParam (WebsocketParameter) {String="make_transaction"} type
+	 * @apiParam (WebsocketParameter) {String=} [privatekey] The privatekey of your address.
 	 * @apiParam (WebsocketParameter) {String} to The recipient of the transaction.
 	 * @apiParam (WebsocketParameter) {Number} amount The amount to send to the recipient.
 	 * @apiParam (WebsocketParameter) {String} [metadata] Optional metadata to include in the transaction.
@@ -54,7 +55,7 @@ module.exports = function(websockets) {
 				return reject(new errors.ErrorMissingParameter('privatekey'));
 			}
 
-			txController.makeTransaction(ws.isGuest ? message.privatekey : ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
+			txController.makeTransaction(message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
 				resolve({
 					ok: true,
 					transaction: txController.transactionToJSON(transaction)
