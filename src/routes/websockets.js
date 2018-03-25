@@ -39,39 +39,42 @@ module.exports = function(app) {
 	app.ws('/:token', function(ws, req) {
 		redis.getClient().getAsync('ws-' + req.params.token).then(function(wsid) {
 			if (wsid) {
-				fs.readFile('motd.txt', function(err, data) {
-					if (err) {
-						return utils.sendToWS(ws, {
-							ok: true,
-							type: "hello",
-							server_time: new Date(),
-							motd: "Welcome to Krist!"
-						});
-					}
-
-					fs.stat('motd.txt', function(err, stats) {
+				redis.getClient().getAsync('wspkey-' + req.params.token).then(function(pkey) {
+					fs.readFile('motd.txt', function(err, data) {
 						if (err) {
 							return utils.sendToWS(ws, {
 								ok: true,
 								type: "hello",
 								server_time: new Date(),
-								motd: data.toString()
+								motd: "Welcome to Krist!"
 							});
 						}
 
-						utils.sendToWS(ws, {
-							ok: true,
-							type: "hello",
-							server_time: new Date(),
-							motd: data.toString(),
-							motd_set: stats.mtime
+						fs.stat('motd.txt', function(err, stats) {
+							if (err) {
+								return utils.sendToWS(ws, {
+									ok: true,
+									type: "hello",
+									server_time: new Date(),
+									motd: data.toString()
+								});
+							}
+
+							utils.sendToWS(ws, {
+								ok: true,
+								type: "hello",
+								server_time: new Date(),
+								motd: data.toString(),
+								motd_set: stats.mtime
+							});
 						});
 					});
+
+					websockets.addWebsocket(ws, req.params.token, wsid, pkey);
+
+					redis.getClient().del('ws-' + req.params.token);
+					redis.getClient().del('wspkey-' + req.params.token);
 				});
-
-				websockets.addWebsocket(ws, req.params.token, wsid);
-
-				redis.getClient().del('ws-' + req.params.token);
 			} else {
 				utils.sendErrorToWS(ws, new errors.ErrorInvalidWebsocketToken());
 
@@ -174,7 +177,9 @@ module.exports = function(app) {
 				}
 
 				redis.getClient().set('ws-' + token, results.address.address);
+				redis.getClient().set('wspkey-' + token, req.body.privatekey);
 				redis.getClient().expire('ws-' + token, 30);
+				redis.getClient().expire('wspkey-' + token, 30);
 
 				res.json({
 					ok: true,

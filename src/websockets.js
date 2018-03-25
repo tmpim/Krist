@@ -30,10 +30,11 @@ function WebsocketsManager() {
 	this.validSubscriptionLevels = ['blocks', 'ownBlocks', 'transactions', 'ownTransactions', 'names', 'ownNames', 'ownWebhooks', 'motd'];
 }
 
-function Websocket(socket, token, auth, subscriptionLevel) {
+function Websocket(socket, token, auth, subscriptionLevel, privatekey) {
 	this.socket = socket;
 	this.token = token;
 	this.auth = auth;
+	this.privatekey = privatekey;
 
 	this.subscriptionLevel = subscriptionLevel || ['ownTransactions', 'blocks'];
 
@@ -52,8 +53,8 @@ WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
 	Websockets.messageHandlers[type] = handler;
 };
 
-WebsocketsManager.prototype.addWebsocket = function(socket, token, auth) {
-	var ws = new Websocket(socket, token, auth);
+WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
+	var ws = new Websocket(socket, token, auth, null, pkey);
 
 	socket.on('close', function() {
 		var id = Websockets.websockets.indexOf(ws);

@@ -47,6 +47,7 @@ module.exports = function(websockets) {
 			addresses.verify(krist.makeV2Address(message.privatekey), message.privatekey).then(function(results) {
 				if (results.authed) {
 					ws.auth = results.address.address;
+					ws.privatekey = message.privatekey;
 					ws.isGuest = false;
 
 					resolve({

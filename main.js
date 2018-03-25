@@ -35,10 +35,6 @@ require('console-stamp')(console, {
 	}
 });
 
-console.error = function(msg) {
-	require("./errorreport.js")(msg, new Error());
-};
-
 var	errors      = require('./src/errors/errors.js'),
 	redis		= require('./src/redis.js'),
 	database	= require('./src/database.js'),

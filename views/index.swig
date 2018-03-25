@@ -23,16 +23,14 @@
     <ul class="links smaller">
         <li><a href="http://kristweb.lemmmy.pw/">(<b>Web</b>) KristWeb by Lemmmy</a></li>
         <li><a href="https://github.com/apemanzilla/KWallet">(<b>Desktop</b>) KWallet by apemanzilla</a></li>
-        <li><a href="https://github.com/timia2109/KristWallet">(<b>Android</b>) Android Wallet by timia2109</a></li>
         <li><a href="https://pastebin.com/CChWjRx6">(<b>ComputerCraft</b>) kristwallet by 3d6</a></li>
     </ul>
 
     <br />
     <h3>Games & Tools</h3>
 
-    <ul class="links smaller">    
+    <ul class="links smaller">
         <li><a href="https://kristminer.cf">KristMiner by lolmaker2002</a></li>
-        <li><a href="http://timia2109.com/kst/">API Tester by timia2109</a></li>
     </ul>
 </section>
 
