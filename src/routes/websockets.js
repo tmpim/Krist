@@ -26,6 +26,7 @@ var krist  		= require('./../krist.js'),
 	redis		= require('./../redis.js'),
 	websockets	= require('./../websockets.js'),
 	addresses   = require('./../addresses.js'),
+	blocks      = require('./../controllers/blocks.js'),
 	fs          = require('fs'),
 	uuid		= require('node-uuid');
 
@@ -40,32 +41,40 @@ module.exports = function(app) {
 		redis.getClient().getAsync('ws-' + req.params.token).then(function(wsid) {
 			if (wsid) {
 				redis.getClient().getAsync('wspkey-' + req.params.token).then(function(pkey) {
-					fs.readFile('motd.txt', function(err, data) {
-						if (err) {
-							return utils.sendToWS(ws, {
-								ok: true,
-								type: "hello",
-								server_time: new Date(),
-								motd: "Welcome to Krist!"
-							});
-						}
-
-						fs.stat('motd.txt', function(err, stats) {
+					blocks.getLastBlock().then(function(block) {
+						fs.readFile('motd.txt', function(err, data) {
 							if (err) {
 								return utils.sendToWS(ws, {
 									ok: true,
 									type: "hello",
 									server_time: new Date(),
-									motd: data.toString()
+									motd: "Welcome to Krist!",
+									last_block: blocks.blockToJSON(block),
+									work: krist.getWork()
 								});
 							}
 
-							utils.sendToWS(ws, {
-								ok: true,
-								type: "hello",
-								server_time: new Date(),
-								motd: data.toString(),
-								motd_set: stats.mtime
+							fs.stat('motd.txt', function(err, stats) {
+								if (err) {
+									return utils.sendToWS(ws, {
+										ok: true,
+										type: "hello",
+										server_time: new Date(),
+										motd: data.toString(),
+										last_block: blocks.blockToJSON(block),
+										work: krist.getWork()
+									});
+								}
+
+								utils.sendToWS(ws, {
+									ok: true,
+									type: "hello",
+									server_time: new Date(),
+									motd: data.toString(),
+									motd_set: stats.mtime,
+									last_block: blocks.blockToJSON(block),
+									work: krist.getWork()
+								});
 							});
 						});
 					});

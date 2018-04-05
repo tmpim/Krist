@@ -1,6 +1,6 @@
 {
   "name": "Krist",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
   "scripts": {
@@ -89,7 +89,8 @@
       "WebsocketGroup",
       "WebsocketStart",
       "WSGetWork",
-      "WSMakeTransaction"
+      "WSMakeTransaction",
+      "WSSubmitBlock"
     ]
   }
 }
