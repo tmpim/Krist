@@ -30,6 +30,7 @@
     <h3>Games & Tools</h3>
 
     <ul class="links smaller">
+        <li><a href="https://kristdice.inci.ninja">KristDice by Incinirate</a></li>
         <li><a href="https://kristminer.cf">KristMiner by lolmaker2002</a></li>
     </ul>
 </section>
