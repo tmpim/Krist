@@ -12,9 +12,9 @@
     <h3>Miners</h3>
 
     <ul class="links smaller">
+		<li><a href="https://github.com/apemanzilla/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by apemanzilla</a></li>
         <li><a href="https://github.com/apemanzilla/turbokrist">(<b>GPU</b>) turbokrist by apemanzilla</a></li>
         <li><a href="https://github.com/1lann/krist-miner">(<b>CPU</b>) krist-miner by 1lann</a></li>
-        <li><a href="https://github.com/Yevano/ytci-krist-miner">(<b>CPU</b>) ytci-krist-miner by Yevano</a></li>
     </ul>
 
     <br />
