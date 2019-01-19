@@ -13,7 +13,7 @@ config.databaseDB      = 'example';
 config.databaseUser    = 'example';
 // The password used to authenticate against the database
 config.databasePass    = 'example';
-// The dialect used to connect, one of: mysql, postgres, mariadb or mssql. (sqlite not supported, fuck you Taras!)
+// The dialect used to connect, one of: mysql, postgres, mariadb or mssql. 
 config.databaseDialect = 'mysql';
 
 /*

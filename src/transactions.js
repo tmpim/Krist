@@ -116,7 +116,7 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 					totalout: 0
 				}));
 			} else {
-				promises.push(recipient.increment({ balance: amount, totalout: amount }));
+				promises.push(recipient.increment({ balance: amount, totalin: amount }));
 			}
 
 			Promise.all(promises).then(function(results) {
