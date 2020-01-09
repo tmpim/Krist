@@ -31,8 +31,8 @@ config.redisPrefix = 'krist';
  * WEBSERVER SETUP
  */
 
-// The sock file for your server. Proxy this to nginx.
-config.serverSock = '/var/krist/krist.sock';
+// The portfor your server. Proxy this to nginx.
+config.serverSock = '8000';
 
 // Configuration of the rate limiter. See: https://github.com/nfriedly/express-rate-limit
 config.rateLimitSettings = {

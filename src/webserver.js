@@ -52,9 +52,9 @@ Webserver.init = function() {
 		Webserver.express = express();
 		Webserver.ws = require('express-ws')(Webserver.express);
 
-		console.log('[Webserver]'.cyan + ' Starting on socket ' + config.serverSock.bold);
+		console.log('[Webserver]'.cyan + ' Starting on port ' + config.serverSock.bold);
 
-		fs.unlink(config.serverSock, function() {
+		//fs.unlink(config.serverSock, function() {
 			Webserver.express.listen(config.serverSock, function() {
 				console.log('[Webserver]'.green + ' Started');
 				resolve();
@@ -159,6 +159,6 @@ Webserver.init = function() {
 					});
 				}
 			});
-		});
+		//});
 	});
 };
