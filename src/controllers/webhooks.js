@@ -19,7 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var webhooks    = require('./../webhooks.js'),
+var config  = require('./../../config.js'),
+	webhooks    = require('./../webhooks.js'),
 	names       = require('./../names.js'),
 	errors      = require('./../errors/errors.js'),
 	addrs   	= require('./../addresses.js'),
@@ -30,6 +31,8 @@ function WebhooksController() {}
 
 WebhooksController.registerWebhook = function(privatekey, owner, event, destURL, method, addresses) {
 	return new Promise(function(resolve, reject) {
+		if (config.webhooksDeprecated) return reject(new errors.ErrorWebhooksDeprecated("Webhooks are now deprecated. Consider switching to Websockets instead, or contact Lemmmy#8924 to discuss your use case."));
+
 		if (!privatekey) {
 			return reject(new errors.ErrorMissingParameter('privatekey'));
 		}

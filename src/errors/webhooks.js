@@ -39,3 +39,12 @@ errors.ErrorLimitReached = function(message) {
 };
 
 util.inherits(errors.ErrorLimitReached, errors.KristError);
+
+errors.ErrorWebhooksDeprecated = function(message) {
+	errors.KristError.call(this);
+	this.message = message;
+	this.statusCode = 410;
+	this.errorString = 'webhooks_deprecated';
+};
+
+util.inherits(errors.ErrorWebhooksDeprecated, errors.KristError);
