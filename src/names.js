@@ -23,6 +23,7 @@ var utils       = require('./utils.js'),
 	config      = require('./../config.js'),
 	schemas     = require('./schemas.js'),
 	webhooks    = require('./webhooks.js'),
+	websockets  = require('./websockets.js'),
 	krist       = require('./krist.js');
 
 function Names() {}
@@ -64,6 +65,20 @@ Names.createName = function(name, owner) {
 		unpaid: Names.getNameCost()
 	}).then(function(name) {
 		webhooks.callNameWebhooks(name);
+		
+		websockets.broadcastEvent({
+			type: 'event',
+			event: 'name',
+			name: Names.nameToJSON(name)
+		}, function(ws) {
+			return new Promise(function(resolve, reject) {
+				if ((!ws.isGuest && (ws.auth === owner) && ws.subscriptionLevel.indexOf("ownNames") >= 0) || ws.subscriptionLevel.indexOf("names") >= 0) {
+					return resolve();
+				}
+
+				reject();
+			});
+		});
 	});
 };
 
