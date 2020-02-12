@@ -92,6 +92,20 @@ Transactions.createTransaction = function (to, from, value, name, op) {
 		}).then(function(transaction) {
 			webhooks.callTransactionWebhooks(transaction);
 
+			websockets.broadcastEvent({
+				type: 'event',
+				event: 'transaction',
+				transaction: Transactions.transactionToJSON(transaction)
+			}, function(ws) {
+				return new Promise(function(resolve, reject) {
+					if ((!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
+						return resolve();
+					}
+
+					reject();
+				});
+			});
+
 			resolve(transaction);
 		}).catch(reject);
 	});
@@ -120,20 +134,6 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
 			}
 
 			Promise.all(promises).then(function(results) {
-				websockets.broadcastEvent({
-					type: 'event',
-					event: 'transaction',
-					transaction: Transactions.transactionToJSON(results[2])
-				}, function(ws) {
-					return new Promise(function(resolve, reject) {
-						if ((!ws.isGuest && (ws.auth === recipientAddress || ws.auth === sender.address) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
-							return resolve();
-						}
-
-						reject();
-					});
-				});
-
 				resolve(results[2]);
 			}).catch(reject);
 		}).catch(reject);
