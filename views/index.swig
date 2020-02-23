@@ -12,9 +12,8 @@
     <h3>Miners</h3>
 
     <ul class="links smaller">
-		<li><a href="https://github.com/apemanzilla/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by apemanzilla</a></li>
-        <li><a href="https://github.com/apemanzilla/turbokrist">(<b>GPU</b>) turbokrist by apemanzilla</a></li>
-        <li><a href="https://github.com/1lann/krist-miner">(<b>CPU</b>) krist-miner by 1lann</a></li>
+        <li><a href="https://github.com/tmpim/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by dana</a></li>
+        <li><a href="https://github.com/1lann/krist-miner">(<b>CPU only</b>) krist-miner by 1lann</a></li>
     </ul>
 
     <br />
@@ -22,7 +21,6 @@
 
     <ul class="links smaller">
         <li><a href="https://krist.club/">(<b>Web</b>) KristWeb by Lemmmy</a></li>
-        <li><a href="https://github.com/apemanzilla/KWallet">(<b>Desktop</b>) KWallet by apemanzilla</a></li>
         <li><a href="https://pastebin.com/CChWjRx6">(<b>ComputerCraft</b>) kristwallet by 3d6</a></li>
     </ul>
 
@@ -31,7 +29,6 @@
 
     <ul class="links smaller">
         <li><a href="https://kristdice.inci.ninja">KristDice by Incinirate</a></li>
-        <li><a href="https://kristminer.cf">KristMiner by lolmaker2002</a></li>
     </ul>
 </section>
 
