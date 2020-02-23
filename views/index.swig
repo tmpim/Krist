@@ -12,7 +12,7 @@
     <h3>Miners</h3>
 
     <ul class="links smaller">
-	<li><a href="https://github.com/tmpim/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by dana</a></li>
+        <li><a href="https://github.com/tmpim/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by dana</a></li>
         <li><a href="https://github.com/1lann/krist-miner">(<b>CPU only</b>) krist-miner by 1lann</a></li>
     </ul>
 
