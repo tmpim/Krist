@@ -116,14 +116,22 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
 
 WebsocketsManager.prototype.broadcast = function(message) {
 	Websockets.websockets.forEach(function(websocket) {
-		websocket.send(JSON.stringify(message));
+    try {
+  		websocket.send(JSON.stringify(message));
+    } catch (err) {
+      console.error("Error sending websocket broadcast:", err);
+    }
 	});
 };
 
 WebsocketsManager.prototype.broadcastEvent = function(message, subscriptionCheck) {
 	Websockets.websockets.forEach(function(websocket) {
 		subscriptionCheck(websocket).then(function() {
-			websocket.send(JSON.stringify(message));
+      try {
+			  websocket.send(JSON.stringify(message));
+      } catch (err) {
+        console.error("Error sending websocket event broadcast:", err);
+      }
 		}).catch(function() {});
 	});
 };
