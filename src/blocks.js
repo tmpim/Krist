@@ -200,7 +200,7 @@ Blocks.blockToJSON = function(block) {
 		height: block.id,
 		address: block.address,
 		hash: block.hash,
-		short_hash: block.hash.substring(0, 12),
+    short_hash: block.hash ? block.hash.substring(0, 12) : null,
 		value: block.value,
 		time: block.time,
 		difficulty: block.id < 5000 ? Blocks.getBaseBlockValue(block.id) : block.difficulty
