@@ -29,7 +29,7 @@ An example configuration file can be found at `config.example.js`. To configure
 the project, make a copy of this file and change anything required, then save it
 to `config.js`.
 
-## Licence
+## License
 
 This project is released under **GPL-3.0**. More information can be found in the
-`LICENCE` file.
+`LICENSE` file.
