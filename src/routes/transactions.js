@@ -175,8 +175,6 @@ module.exports = function(app) {
         }
 
         if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          console.log("d");	
-
           const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
           names.getNameByName(nameInfo[2]).then(function (name) {
