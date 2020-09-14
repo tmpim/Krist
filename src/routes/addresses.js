@@ -24,7 +24,6 @@ const krist               = require("./../krist.js"),
   addressesController = require("./../controllers/addresses.js"),
   namesController     = require("./../controllers/names.js"),
   txController        = require("./../controllers/transactions.js"),
-  names               = require("./../names.js"),
   tx                  = require("./../transactions.js"),
   utils               = require("./../utils.js"),
   moment              = require("moment");

@@ -49,24 +49,12 @@ Utils.padDigits = function(number, digits) {
 
 Utils.errorToJSON = function(error) {
   if (error instanceof errors.KristError) {
-    const out = {
+    return {
       ok: false,
-      error: error.errorString
+      error: error.errorString,
+      message: error.message,
+      ...(error.info || {})
     };
-
-    if (error.message) {
-      out.message = message;
-    }
-
-    if (error.info) {
-      for (const key in error.info) {
-        if (error.info.hasOwnProperty(key)) {
-          out[key] = error.info[key];
-        }
-      }
-    }
-
-    return out;
   } else {
     console.error(chalk`{red [Error]} Uncaught error.`);
     console.error(error.stack);

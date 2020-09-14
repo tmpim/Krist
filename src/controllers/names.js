@@ -19,11 +19,11 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const names       = require("./../names.js"),
-  addresses   = require("./../addresses.js"),
-  tx          = require("./../transactions.js"),
-  krist       = require("./../krist.js"),
-  errors      = require("./../errors/errors.js");
+const names     = require("./../names.js");
+const addresses = require("./../addresses.js");
+const tx        = require("./../transactions.js");
+const krist     = require("./../krist.js");
+const errors    = require("./../errors/errors.js");
 
 function NamesController() {}
 
@@ -41,20 +41,13 @@ NamesController.getNames = function(limit, offset) {
   });
 };
 
-NamesController.getName = function(name) {
-  return new Promise(function(resolve, reject) {
-    if (!krist.isValidName(name)) {
-      return reject(new errors.ErrorInvalidParameter("name"));
-    }
+NamesController.getName = async function(name) {
+  if (!krist.isValidName(name))
+    throw new errors.ErrorInvalidParameter("name");
 
-    names.getNameByName(name).then(function(name) {
-      if (name) {
-        resolve(name);
-      } else {
-        reject(new errors.ErrorNameNotFound());
-      }
-    }).catch(reject);
-  });
+  const dbName = await names.getNameByName(name);
+  if (dbName) return name;
+  else throw new errors.ErrorNameNotFound();
 };
 
 NamesController.getUnpaidNames = function(limit, offset) {
@@ -136,116 +129,73 @@ NamesController.registerName = function(desiredName, privatekey) {
   });
 };
 
-NamesController.transferName = function(name, privatekey, address) {
-  return new Promise(function(resolve, reject) {
-    if (!name) {
-      return reject(new errors.ErrorMissingParameter("name"));
-    }
+NamesController.transferName = async function(name, privatekey, address) {
+  // Input validation
+  if (!name) throw new errors.ErrorMissingParameter("name");
+  if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
+  if (!address) throw new errors.ErrorMissingParameter("address");
 
-    if (!privatekey) {
-      return reject(new errors.ErrorMissingParameter("privatekey"));
-    }
+  if (!krist.isValidName(name)) throw new errors.ErrorInvalidParameter("name");
+  if (!krist.isValidKristAddress(name)) throw new errors.ErrorInvalidParameter("address");
 
-    if (!address) {
-      return reject(new errors.ErrorMissingParameter("address"));
-    }
+  // Address auth validation
+  const { authed, dbAddress } = addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  if (!authed) throw new errors.ErrorAuthFailed();
 
-    if (!krist.isValidName(name)) {
-      return reject(new errors.ErrorInvalidParameter("name"));
-    }
+  // Get the name from the database
+  const dbName = names.getNameByName(name);
+  if (!dbName) throw new errors.ErrorNameNotFound();
+  if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
 
-    if (!krist.isValidKristAddress(address)) {
-      return reject(new errors.ErrorInvalidParameter("address"));
-    }
+  // Do these actions in parallel
+  await Promise.all([
+    // Update the name's owner
+    dbName.update({
+      owner: address,
+      updated: new Date()
+    }),
 
-    addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      const authed = results.authed;
+    // Add a name meta transaction
+    tx.pushTransaction(dbAddress, address, 0, null, dbName.name)
+  ]);
 
-      if (!authed) {
-        return reject(new errors.ErrorAuthFailed());
-      }
-
-      names.getNameByName(name).then(function(name) {
-        if (!name) {
-          return reject(new errors.ErrorNameNotFound());
-        }
-
-        if (name.owner !== results.address.address) {
-          return reject(new errors.ErrorNotNameOwner());
-        }
-
-        const promises = [];
-
-        promises.push(name.update({
-          owner: address,
-          updated: new Date()
-        }));
-
-        promises.push(tx.pushTransaction(results.address, address, 0, null, name.name));
-
-        Promise.all(promises).then(function () {
-          name.reload().then(function() {
-            resolve(name);
-          }).catch(reject);
-        }).catch(reject);
-      }).catch(reject);
-    });
-  });
+  // Return the updated name
+  return dbName.reload();
 };
 
-NamesController.updateName = function(name, privatekey, a) {
-  return new Promise(function(resolve, reject) {
-    a = a || "";
+NamesController.updateName = async function(name, privatekey, a) {
+  a = a || ""; // Replace with an empty string if given anything falsy
 
-    if (!name) {
-      return reject(new errors.ErrorMissingParameter("name"));
-    }
+  // Input validation
+  if (!name) throw new errors.ErrorMissingParameter("name");
+  if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
-    if (!privatekey) {
-      return reject(new errors.ErrorMissingParameter("privatekey"));
-    }
+  if (!krist.isValidName(name)) throw new errors.ErrorInvalidParameter("name");
+  if (a.trim() && !krist.isValidARecord(a)) throw new errors.ErrorInvalidParameter("a");
 
-    if (!krist.isValidName(name)) {
-      return reject(new errors.ErrorInvalidParameter("name"));
-    }
+  // Address auth validation
+  const { authed, dbAddress } = addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  if (!authed) throw new errors.ErrorAuthFailed();
 
-    if (a.trim() && !krist.isValidARecord(a)) {
-      return reject(new errors.ErrorInvalidParameter("a"));
-    }
+  // Get the name from the database
+  const dbName = names.getNameByName(name);
+  if (!dbName) throw new errors.ErrorNameNotFound();
+  if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
 
-    addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      const authed = results.authed;
+  // Do these actions in parallel
+  await Promise.all([
+    // Update the name's A record
+    dbName.update({
+      a,
+      updated: new Date()
+    }),
 
-      if (!authed) {
-        return reject(new errors.ErrorAuthFailed());
-      }
+    // Add a name meta transaction
+    tx.createTransaction("a", dbName.owner, 0, a, dbName.name)
+  ]);
 
-      names.getNameByName(name).then(function (name) {
-        if (!name) {
-          return reject(new errors.ErrorNameNotFound());
-        }
-
-        if (name.owner !== krist.makeV2Address(privatekey)) {
-          return reject(new errors.ErrorNotNameOwner());
-        }
-
-        const promises = [];
-
-        promises.push(name.update({
-          a: a,
-          updated: new Date()
-        }));
-
-        promises.push(tx.createTransaction("a", name.owner, 0, name.name, a));
-
-        Promise.all(promises).then(function () {
-          name.reload().then(function() {
-            resolve(name);
-          }).catch(reject);
-        }).catch(reject);
-      }).catch(reject);
-    });
-  });
+  // Return the updated name
+  return dbName.reload();
 };
 
 NamesController.nameToJSON = function(name) {

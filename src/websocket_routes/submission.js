@@ -19,9 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const errors = require("../errors/errors.js"),
-  addressesController = require("./../controllers/addresses.js");
-blocksController = require("./../controllers/blocks.js");
+const errors              = require("../errors/errors.js");
+const addressesController = require("./../controllers/addresses.js");
+const blocksController    = require("./../controllers/blocks.js");
 
 module.exports = function(websockets) {
   /**

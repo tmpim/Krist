@@ -166,12 +166,12 @@ Krist.makeV2Address = function(key) {
   let prefix = "k";
   let hash = utils.sha256(utils.sha256(key));
 
-  for (var i = 0; i <= 8; i++) {
+  for (let i = 0; i <= 8; i++) {
     chars[i] = hash.substring(0, 2);
     hash = utils.sha256(utils.sha256(hash));
   }
 
-  for (i = 0; i <= 8;) {
+  for (let i = 0; i <= 8;) {
     const index = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
 
     if (chars[index] === "") {

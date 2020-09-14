@@ -18,6 +18,7 @@
     }],
     "no-shadow": ["error"],
     "no-var": ["error"],
-    "prefer-const": ["error"]
+    "prefer-const": ["error"],
+    "one-var": ["error", { "separateRequires": true }]
   }
 }

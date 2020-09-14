@@ -19,8 +19,6 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist = require("./../krist.js");
-
 module.exports = function(websockets) {
   /**
 	 * @api {ws} //ws:"type":"subscribe" Subscribe to an event
@@ -70,7 +68,7 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["ownTransactions", "blocks"]
      * }
 	 */
-  websockets.addMessageHandler("get_subscription_level", function(ws, message) {
+  websockets.addMessageHandler("get_subscription_level", function(ws) {
     return {
       ok: true,
       subscription_level: ws.subscriptionLevel
@@ -95,12 +93,10 @@ module.exports = function(websockets) {
 	 *     "valid_subscription_levels": ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames","motd"]
      * }
 	 */
-  websockets.addMessageHandler("get_valid_subscription_levels", function(ws, message) {
-    return {
-      ok: true,
-      valid_subscription_levels: websockets.validSubscriptionLevels
-    };
-  });
+  websockets.addMessageHandler("get_valid_subscription_levels", () => ({
+    ok: true,
+    valid_subscription_levels: websockets.validSubscriptionLevels
+  }));
 
   /**
 	 * @api {ws} //ws:"type":"unsubscribe" Unsubscribe from an event

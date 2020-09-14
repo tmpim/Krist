@@ -19,9 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist       = require("./../krist.js"),
-  utils       = require("./../utils.js"),
-  addresses   = require("./../controllers/addresses.js");
+const addresses = require("./../controllers/addresses.js");
 
 module.exports = function(websockets) {
   /**
@@ -57,7 +55,7 @@ module.exports = function(websockets) {
 	 *     }
      * }
 	 */
-  websockets.addMessageHandler("me", function(ws, message) {
+  websockets.addMessageHandler("me", function(ws) {
     return new Promise(function(resolve, reject) {
       if (ws.isGuest) {
         resolve({

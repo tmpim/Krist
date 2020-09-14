@@ -20,11 +20,9 @@
  */
 
 const utils      = require("./utils.js");
-const config     = require("./../config.js");
 const schemas    = require("./schemas.js");
 const websockets = require("./websockets.js");
 const addresses  = require("./addresses.js");
-const krist      = require("./krist.js");
 const { Op }     = require("sequelize");
 
 // Query operator to exclude mined transactions in the 'from' field
@@ -94,7 +92,7 @@ Transactions.createTransaction = function (to, from, value, name, op, dbTx) {
         event: "transaction",
         transaction: Transactions.transactionToJSON(transaction)
       }, function(ws) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function() {
           if ((!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
             return resolve();
           }
@@ -108,15 +106,15 @@ Transactions.createTransaction = function (to, from, value, name, op, dbTx) {
   });
 };
 
-Transactions.pushTransaction = function(sender, recipientAddress, amount, metadata, name) {
+Transactions.pushTransaction = function(sender, recipientAddress, amount, metadata, name, dbTx) {
   return new Promise(function(resolve, reject) {
     addresses.getAddress(recipientAddress).then(function(recipient) {
       const promises = [];
 
-      promises.push(sender.decrement({ balance: amount }));
-      promises.push(sender.increment({ totalout: amount }));
+      promises.push(sender.decrement({ balance: amount }, { transaction: dbTx }));
+      promises.push(sender.increment({ totalout: amount }, { transaction: dbTx }));
 
-      promises.push(Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata));
+      promises.push(Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx));
 
       if (!recipient) {
         promises.push(schemas.address.create({
@@ -125,9 +123,9 @@ Transactions.pushTransaction = function(sender, recipientAddress, amount, metada
           balance: amount,
           totalin: amount,
           totalout: 0
-        }));
+        }, { transaction: dbTx }));
       } else {
-        promises.push(recipient.increment({ balance: amount, totalin: amount }));
+        promises.push(recipient.increment({ balance: amount, totalin: amount }, { transaction: dbTx }));
       }
 
       Promise.all(promises).then(function(results) {

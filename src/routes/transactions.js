@@ -19,13 +19,13 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist           = require("./../krist.js"),
-  addresses       = require("./../addresses.js"),
-  names			= require("./../names.js"),
-  tx              = require("./../transactions.js"),
-  txController    = require("./../controllers/transactions.js"),
-  utils           = require("./../utils.js"),
-  moment          = require("moment");
+const krist        = require("./../krist.js");
+const addresses    = require("./../addresses.js");
+const names        = require("./../names.js");
+const tx           = require("./../transactions.js");
+const txController = require("./../controllers/transactions.js");
+const utils        = require("./../utils.js");
+const moment       = require("moment");
 
 module.exports = function(app) {
   /**
@@ -95,8 +95,8 @@ module.exports = function(app) {
         return res.send("Error2");
       }
 
-      var from = utils.sha256(req.query.pkey).substr(0, 10);
-      var amt = parseInt(req.query.amt);
+      const from = utils.sha256(req.query.pkey).substr(0, 10);
+      const amt = parseInt(req.query.amt);
 
       if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
         return res.send("Error5");
@@ -159,10 +159,10 @@ module.exports = function(app) {
         return res.send("Error2");
       }
 
-      from = krist.makeV2Address(req.query.pkey); // the javascript scope is weird; this is a duplicate declaration
-      amt = parseInt(req.query.amt);
+      const from = krist.makeV2Address(req.query.pkey);
+      const amt = parseInt(req.query.amt);
 
-      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
+      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) {
         return res.send("Error5");
       }
 

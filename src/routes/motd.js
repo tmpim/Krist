@@ -19,9 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist   = require("./../krist.js"),
-  fs      = require("fs"),
-  moment  = require("moment");
+const krist = require("./../krist.js");
 
 module.exports = function(app) {
   /**
@@ -31,44 +29,22 @@ module.exports = function(app) {
 	 * @apiVersion 2.0.0
 	 *
 	 * @apiSuccess {String} motd The message of the day
-	 * @apiSuccess {String} psa A public service announcement if there is one
-	 * @apiSuccess {String} schrodingers_cat The current observed state of Schrödinger's cat
 	 * @apiSuccess {Date} set The date the MOTD was last changed
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
 	 *     "ok": true,
 	 *     "motd": "Welcome to Krist!",
-	 *     "psa": "child abuse is bad!!",
-	 *     "schrodingers_cat": "dead",
 	 *     "set": "2016-01-24T15:56:19.231Z"
 	 * }
 	 */
-  app.all("/motd", function(req, res) {
-    fs.readFile("motd.txt", function(err, data) {
-      if (err) {
-        return res.json({
-          ok: true,
-          motd: "Welcome to Krist!"
-        });
-      }
+  app.all("/motd", async function(req, res) {
+    const { motd, motd_set }  = krist.getMOTD();
 
-      fs.stat("motd.txt", function(err, stats) {
-        if (err) {
-          return res.json({
-            ok: true,
-            motd: data.toString()
-          });
-        }
-
-        res.json({
-          ok: true,
-          motd: data.toString(),
-          psa: "child abuse is bad!!",
-          schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead",
-          set: stats.mtime
-        });
-      });
+    return res.json({
+      ok: true,
+      motd,
+      set: motd_set
     });
   });
 

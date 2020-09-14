@@ -40,10 +40,8 @@ module.exports = function(websockets) {
 	 *     "work": 18750
      * }
 	 */
-  websockets.addMessageHandler("work", function(ws, message) {
-    return {
-      ok: true,
-      work: krist.getWork()
-    };
-  });
+  websockets.addMessageHandler("work", () => ({
+    ok: true,
+    work: krist.getWork()
+  }));
 };

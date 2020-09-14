@@ -19,18 +19,19 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config     = require("./../config.js");
-const utils      = require("./utils.js");
-const errors     = require("./errors/errors.js");
-const express    = require("express");
-const bodyParser = require("body-parser");
-const expressWs  = require("express-ws");
-const swig       = require("swig");
-const rateLimit  = require("express-rate-limit");
-const gitlog     = require("gitlog");
-const fs         = require("fs");
-const path       = require("path");
-const chalk      = require("chalk");
+const config        = require("./../config.js");
+const utils         = require("./utils.js");
+const errors        = require("./errors/errors.js");
+const express       = require("express");
+const bodyParser    = require("body-parser");
+const expressWs     = require("express-ws");
+const swig          = require("swig");
+const rateLimit     = require("express-rate-limit");
+const gitlog        = require("gitlog");
+const fs            = require("fs");
+const path          = require("path");
+const chalk         = require("chalk");
+const { promisify } = require("util");
 
 function Webserver() {}
 
@@ -40,120 +41,116 @@ Webserver.getExpress = function() {
   return Webserver.express;
 };
 
-Webserver.init = function() {
-  return new Promise(function(resolve, reject) {
-    if (typeof config.serverSock === "undefined") {
-      console.error(chalk`{red [Config]} Missing config option: serverSock`);
+Webserver.init = async function() {
+  if (typeof config.serverSock === "undefined") {
+    console.error(chalk`{red [Config]} Missing config option: serverSock`);
 
-      return null;
-    }
+    return null;
+  }
 
-    Webserver.express = express();
-    Webserver.ws = expressWs(Webserver.express);
+  Webserver.express = express();
+  Webserver.ws = expressWs(Webserver.express);
 
-    Webserver.express.enable("trust proxy");
-    Webserver.express.disable("x-powered-by");
-    Webserver.express.disable("etag");
+  Webserver.express.enable("trust proxy");
+  Webserver.express.disable("x-powered-by");
+  Webserver.express.disable("etag");
 
-    Webserver.express.use(function(req, res, next) {
-      delete req.headers["content-encoding"];
-      next();
+  Webserver.express.use(function(req, res, next) {
+    delete req.headers["content-encoding"];
+    next();
+  });
+
+  Webserver.express.use(express.static("static"));
+
+  Webserver.express.set("views", path.join(__dirname, "../views"));
+  Webserver.express.set("view engine", "swig");
+  Webserver.express.engine(".swig", swig.renderFile);
+
+  swig.setDefaults({
+    debug: config.debugMode
+  });
+
+  Webserver.express.use(bodyParser.urlencoded({ extended: false }));
+  Webserver.express.use(bodyParser.json());
+
+  Webserver.express.use(rateLimit(config.rateLimitSettings));
+
+  Webserver.express.all("*", function(req, res, next) {
+    res.header("X-Robots-Tag", "none");
+    res.header("Content-Type", "application/json");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, UPDATE, DELETE, OPTIONS");
+    next();
+  });
+
+  Webserver.express.all("/", function(req, res, next) {
+    res.header("Content-Type", "text/plain");
+    next();
+  });
+
+  console.log(chalk`{cyan [Webserver]} Loading routes`);
+
+  try {
+    const routePath = path.join(__dirname, "routes");
+
+    fs.readdirSync(routePath).forEach(function(file) {
+      if (path.extname(file).toLowerCase() !== ".js") {
+        return;
+      }
+
+      try {
+        require("./routes/" + file)(Webserver.express);
+      } catch (error) {
+        console.error(chalk`{red [Webserver]} Error loading route '${file}':`);
+        console.error(error.stack);
+      }
     });
+  } catch (error) {
+    console.error(chalk`{red [Webserver]} Error finding routes:`);
+    console.error(error.stack);
+  }
 
-    Webserver.express.use(express.static("static"));
+  Webserver.express.get("/", function(req, res) {
+    res.header("Content-Type", "text/html");
 
-    Webserver.express.set("views", path.join(__dirname, "../views"));
-    Webserver.express.set("view engine", "swig");
-    Webserver.express.engine(".swig", swig.renderFile);
+    gitlog({
+      repo: path.join(__dirname, "../"),
+      number: 5,
+      fields: [
+        "subject",
+        "body",
+        "hash",
+        "authorName",
+        "authorDateRel"
+      ]
+    }, function(error, commits) {
+      if (error) {
+        console.log(error);
 
-    swig.setDefaults({
-      debug: config.debugMode
-    });
-
-    Webserver.express.use(bodyParser.urlencoded({ extended: false }));
-    Webserver.express.use(bodyParser.json());
-
-    Webserver.express.use(rateLimit(config.rateLimitSettings));
-
-    Webserver.express.all("*", function(req, res, next) {
-      res.header("X-Robots-Tag", "none");
-      res.header("Content-Type", "application/json");
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Methods", "GET, POST, PUT, UPDATE, DELETE, OPTIONS");
-      next();
-    });
-
-    Webserver.express.all("/", function(req, res, next) {
-      res.header("Content-Type", "text/plain");
-      next();
-    });
-
-    console.log(chalk`{cyan [Webserver]} Loading routes`);
-
-    try {
-      const routePath = path.join(__dirname, "routes");
-
-      fs.readdirSync(routePath).forEach(function(file) {
-        if (path.extname(file).toLowerCase() !== ".js") {
-          return;
-        }
-
-        try {
-          require("./routes/" + file)(Webserver.express);
-        } catch (error) {
-          console.error(chalk`{red [Webserver]} Error loading route '${file}':`);
-          console.error(error.stack);
-        }
-      });
-    } catch (error) {
-      console.error(chalk`{red [Webserver]} Error finding routes:`);
-      console.error(error.stack);
-    }
-
-    Webserver.express.get("/", function(req, res) {
-      res.header("Content-Type", "text/html");
-
-      gitlog({
-        repo: path.join(__dirname, "../"),
-        number: 5,
-        fields: [
-          "subject",
-          "body",
-          "hash",
-          "authorName",
-          "authorDateRel"
-        ]
-      }, function(error, commits) {
-        if (error) {
-          console.log(error);
-
-          return res.render("error", {
-            protocol: req.protocol
-          });
-        }
-
-        res.render("index", {
-          commits: commits,
-          protocol: req.protocol
-        });
-      });
-    });
-
-    Webserver.express.use(function(req, res) {
-      if (req.xhr) {
-        utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
-      } else {
-        res.header("Content-Type", "text/html");
-
-        res.render("error_404", {
+        return res.render("error", {
           protocol: req.protocol
         });
       }
-    });
 
-    Webserver.express.listen(config.serverSock, function() {
-      console.log(chalk`{green [Webserver]} Listening on {bold ${config.serverSock}}`);
-      resolve();
+      res.render("index", {
+        commits: commits,
+        protocol: req.protocol
+      });
     });
   });
+
+  Webserver.express.use(function(req, res) {
+    if (req.xhr) {
+      utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
+    } else {
+      res.header("Content-Type", "text/html");
+
+      res.render("error_404", {
+        protocol: req.protocol
+      });
+    }
+  });
+
+  await promisify(Webserver.express.listen)(config.serverSock);
+  console.log(chalk`{green [Webserver]} Listening on {bold ${config.serverSock}}`);
 };

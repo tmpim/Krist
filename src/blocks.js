@@ -122,6 +122,8 @@ Blocks.submit = async function(hash, address, nonce) {
     const targetWork = seconds * oldWork / krist.getSecondsPerBlock();
     const diff = targetWork - oldWork;
 
+    // eslint is wrong lmao
+    // eslint-disable-next-line no-shadow
     const newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
 
     console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}}.`);
@@ -133,6 +135,7 @@ Blocks.submit = async function(hash, address, nonce) {
     }, { transaction: t });
 
     // Do all the fun stuff in parallel
+    // eslint-disable-next-line no-shadow
     const [block] = await Promise.all([
       // Create the new block
       schemas.block.create({
