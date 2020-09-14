@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var errors = require("../errors/errors.js"),
+const errors = require("../errors/errors.js"),
   txController = require("./../controllers/transactions.js");
 
 module.exports = function(websockets) {

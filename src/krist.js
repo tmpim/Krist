@@ -31,10 +31,10 @@ const fs         = require("fs");
 const fsp        = fs.promises;
 const chalk      = require("chalk");
 
-var addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
-var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
-var nameRegex = /^[a-z0-9]{1,64}$/i;
-var aRecordRegex = /^[^\s\.\?\#].[^\s]*$/i;
+const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
+const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
+const nameRegex = /^[a-z0-9]{1,64}$/i;
+const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
 
@@ -46,7 +46,7 @@ Krist.workOverTime = [];
 Krist.init = function() {
   console.log(chalk`{bold [Krist]} Loading...`);
 
-  var requiredConfigOptions = [
+  const requiredConfigOptions = [
     "walletVersion",
     "nameCost",
     "workFactor"
@@ -162,9 +162,9 @@ Krist.getSecondsPerBlock = function() {
 };
 
 Krist.makeV2Address = function(key) {
-  var chars = ["", "", "", "", "", "", "", "", ""];
-  var prefix = "k";
-  var hash = utils.sha256(utils.sha256(key));
+  const chars = ["", "", "", "", "", "", "", "", ""];
+  let prefix = "k";
+  let hash = utils.sha256(utils.sha256(key));
 
   for (var i = 0; i <= 8; i++) {
     chars[i] = hash.substring(0, 2);
@@ -172,7 +172,7 @@ Krist.makeV2Address = function(key) {
   }
 
   for (i = 0; i <= 8;) {
-    var index = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
+    const index = parseInt(hash.substring(2 * i, 2 + (2 * i)), 16) % 9;
 
     if (chars[index] === "") {
       hash = utils.sha256(hash);

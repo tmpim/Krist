@@ -32,7 +32,7 @@ Database.getSequelize = function() {
 };
 
 Database.init = async function() {
-  var requiredConfigOptions = [
+  const requiredConfigOptions = [
     "databaseHost",
     "databaseDB",
     "databaseUser",

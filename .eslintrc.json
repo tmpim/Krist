@@ -5,6 +5,7 @@
     "sourceType": "script"
   },
   "env": {
+    "es6": true,
     "node": true
   },
   "extends": "eslint:recommended",
@@ -14,6 +15,9 @@
     "eol-last": ["error", "always"],
     "indent": ["error", 2, {
       "FunctionDeclaration": { "parameters": "first" }
-    }]
+    }],
+    "no-shadow": ["error"],
+    "no-var": ["error"],
+    "prefer-const": ["error"]
   }
 }

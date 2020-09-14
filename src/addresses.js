@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var utils       = require("./utils.js"),
+const utils       = require("./utils.js"),
   schemas     = require("./schemas.js");
 
 function Addresses() {}

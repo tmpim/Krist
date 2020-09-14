@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist               = require("./../krist.js"),
+const krist               = require("./../krist.js"),
   utils               = require("./../utils.js"),
   addresses           = require("./../addresses.js"),
   tx                  = require("./../transactions.js"),
@@ -60,7 +60,7 @@ module.exports = function(app) {
   app.get("/", function(req, res, next) {
     if (typeof req.query.dumpnames !== "undefined") {
       names.getNames().then(function(results) {
-        var out = "";
+        let out = "";
 
         results.rows.forEach(function(name) {
           out += name.name + ";";
@@ -126,7 +126,7 @@ module.exports = function(app) {
       addresses.getAddress(req.query.listnames).then(function(address) {
         if (address) {
           names.getNamesByAddress(address.address).then(function(results) {
-            var out = "";
+            let out = "";
 
             results.rows.forEach(function(name) {
               out += name.name + ";";
@@ -144,7 +144,7 @@ module.exports = function(app) {
 
     if (typeof req.query.getnewdomains !== "undefined") {
       names.getUnpaidNames().then(function(results) {
-        var out = "";
+        let out = "";
 
         results.forEach(function(name) {
           out += name.name + ";";
@@ -177,15 +177,15 @@ module.exports = function(app) {
         return res.send("Error6");
       }
 
-      var desiredName = req.query.name.toLowerCase();
+      const desiredName = req.query.name.toLowerCase();
 
       names.getNameByName(desiredName).then(function(name) {
         if (name) {
           res.send("Error5");
         } else {
           addresses.verify(krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
-            var authed = results.authed;
-            var address = results.address;
+            const authed = results.authed;
+            const address = results.address;
 
             if (!authed) {
               return res.send("Access denied");
@@ -218,10 +218,10 @@ module.exports = function(app) {
         return res.send("Error4");
       }
 
-      var currentOwner = krist.makeV2Address(req.query.pkey);
+      const currentOwner = krist.makeV2Address(req.query.pkey);
 
       addresses.verify(currentOwner, req.query.pkey).then(function(results) {
-        var authed = results.authed;
+        const authed = results.authed;
 
         if (!authed) {
           return res.send("Access denied");
@@ -234,7 +234,7 @@ module.exports = function(app) {
             return;
           }
 
-          var promises = [];
+          const promises = [];
 
           promises.push(name.update({
             owner: req.query.q.toLowerCase(),
@@ -261,10 +261,10 @@ module.exports = function(app) {
         return res.send("Error8");
       }
 
-      var owner = krist.makeV2Address(req.query.pkey);
+      const owner = krist.makeV2Address(req.query.pkey);
 
       addresses.verify(owner, req.query.pkey).then(function(results) {
-        var authed = results.authed;
+        const authed = results.authed;
 
         if (!authed) {
           return res.send("Access denied");
@@ -396,7 +396,7 @@ module.exports = function(app) {
 	 */
   app.get("/names", function(req, res) {
     namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(name) {
         out.push(namesController.nameToJSON(name));
@@ -453,7 +453,7 @@ module.exports = function(app) {
 	 */
   app.get("/names/new", function(req, res) {
     namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(name) {
         out.push(namesController.nameToJSON(name));

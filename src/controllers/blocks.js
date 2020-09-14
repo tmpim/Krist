@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var config	= require("./../../config.js"),
+const config	= require("./../../config.js"),
   blocks  = require("./../blocks.js"),
   krist   = require("./../krist.js"),
   utils   = require("./../utils.js"),
@@ -102,9 +102,9 @@ BlocksController.submitBlock = function(address, nonce) {
     }
 
     blocks.getLastBlock().then(function(lastBlock) {
-      var last = lastBlock.hash.substr(0, 12);
-      var difficulty = krist.getWork();
-      var hash = utils.sha256(address + last + nonce);
+      const last = lastBlock.hash.substr(0, 12);
+      const difficulty = krist.getWork();
+      const hash = utils.sha256(address + last + nonce);
 
       if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
         blocks.submit(hash, address, nonce).then(resolve).catch(reject);

@@ -23,7 +23,6 @@ const utils      = require("./utils.js");
 const config     = require("./../config.js");
 const schemas    = require("./schemas.js");
 const websockets = require("./websockets.js");
-const krist      = require("./krist.js");
 const { Op }     = require("sequelize");
 
 function Names() {}

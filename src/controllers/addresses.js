@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var addresses   = require("./../addresses.js"),
+const addresses   = require("./../addresses.js"),
   krist       = require("./../krist.js"),
   errors      = require("./../errors/errors.js");
 
@@ -71,7 +71,7 @@ AddressesController.getAddress = function(address) {
 
 AddressesController.getAlert = function(privatekey) {
   return new Promise(function(resolve, reject) {
-    var address = krist.makeV2Address(privatekey);
+    const address = krist.makeV2Address(privatekey);
 
     addresses.getAddress(address).then(function(result) {
       if (!result) {

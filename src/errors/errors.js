@@ -24,7 +24,7 @@ const fs    = require("fs");
 const path  = require("path");
 const chalk = require("chalk");
 
-var errors = {};
+const errors = {};
 
 errors.KristError = function(message) {
   Error.call(this);
@@ -40,7 +40,7 @@ util.inherits(errors.KristError, Error);
 module.exports = errors;
 
 try {
-  var findPath = __dirname;
+  const findPath = __dirname;
 
   fs.readdirSync(findPath).forEach(function(file) {
     if (path.extname(file).toLowerCase() !== ".js" ||

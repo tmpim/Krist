@@ -30,7 +30,7 @@ Utils.sha256 = function(input) {
 };
 
 Utils.hexToBase36 = function(input) {
-  for (var i= 6; i <= 251; i += 7) {
+  for (let i= 6; i <= 251; i += 7) {
     if (input <= i) {
       if (i <= 69) {
         return String.fromCharCode(("0".charCodeAt(0)) + (i - 6) / 7);
@@ -49,7 +49,7 @@ Utils.padDigits = function(number, digits) {
 
 Utils.errorToJSON = function(error) {
   if (error instanceof errors.KristError) {
-    var out = {
+    const out = {
       ok: false,
       error: error.errorString
     };
@@ -59,7 +59,7 @@ Utils.errorToJSON = function(error) {
     }
 
     if (error.info) {
-      for (var key in error.info) {
+      for (const key in error.info) {
         if (error.info.hasOwnProperty(key)) {
           out[key] = error.info[key];
         }
@@ -79,7 +79,7 @@ Utils.errorToJSON = function(error) {
 };
 
 Utils.sendErrorToRes = function (req, res, error) {
-  var errorCode = error.statusCode || 500;
+  let errorCode = error.statusCode || 500;
 
   if (req.query.cc !== "undefined") {
     errorCode = 200;
@@ -112,7 +112,7 @@ Utils.sendErrorToWS = function(ws, error) {
 };
 
 Utils.sendErrorToWSWithID = function(ws, id, error) {
-  var e = Utils.errorToJSON(error);
+  const e = Utils.errorToJSON(error);
 
   e.id = id;
 

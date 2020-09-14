@@ -1,11 +1,15 @@
 {
   "cSpell.words": [
+    "Lemmy",
     "MOTD",
     "authed",
     "ceriat",
     "firstseen",
+    "getbalance",
     "gitlog",
     "keepalive",
+    "listtx",
+    "richapi",
     "sanitise",
     "submitblock",
     "subprotocol",

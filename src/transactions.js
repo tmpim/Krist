@@ -111,7 +111,7 @@ Transactions.createTransaction = function (to, from, value, name, op, dbTx) {
 Transactions.pushTransaction = function(sender, recipientAddress, amount, metadata, name) {
   return new Promise(function(resolve, reject) {
     addresses.getAddress(recipientAddress).then(function(recipient) {
-      var promises = [];
+      const promises = [];
 
       promises.push(sender.decrement({ balance: amount }));
       promises.push(sender.increment({ totalout: amount }));

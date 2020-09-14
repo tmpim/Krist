@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist           = require("./../krist.js"),
+const krist           = require("./../krist.js"),
   addresses       = require("./../addresses.js"),
   names			= require("./../names.js"),
   tx              = require("./../transactions.js"),
@@ -69,7 +69,7 @@ module.exports = function(app) {
   app.get("/", function(req, res, next) {
     if (typeof req.query.recenttx !== "undefined") {
       tx.getRecentTransactions().then(function(transactions) {
-        var out = "";
+        let out = "";
 
         transactions.forEach(function (transaction) {
           out += moment(transaction.time).format("MMM DD HH:mm");
@@ -103,15 +103,15 @@ module.exports = function(app) {
       }
 
       addresses.verify(from, req.query.pkey).then(function(results) {
-        var authed = results.authed;
-        var sender = results.address;
+        const authed = results.authed;
+        const sender = results.address;
 
         if (!authed) {
           return res.send("Access denied");
         }
 
         if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
           names.getNameByName(nameInfo[2]).then(function(name) {
             if (!name) {
@@ -122,7 +122,7 @@ module.exports = function(app) {
               return res.send("Error1");
             }
 
-            var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+            let metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
 
             if (req.query.com) {
               metadata = req.query.com.toLowerCase() + ";" + metadata;
@@ -167,8 +167,8 @@ module.exports = function(app) {
       }
 
       addresses.verify(from, req.query.pkey).then(function(results) {
-        var authed = results.authed;
-        var sender = results.address;
+        const authed = results.authed;
+        const sender = results.address;
 
         if (!authed) {
           return res.send("Access denied");
@@ -177,7 +177,7 @@ module.exports = function(app) {
         if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
           console.log("d");	
 
-          var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
           names.getNameByName(nameInfo[2]).then(function (name) {
             if (!name) {
@@ -188,7 +188,7 @@ module.exports = function(app) {
               return res.send("Error1");
             }
 
-            var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+            const metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
 
             tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
               res.send("Success");
@@ -257,7 +257,7 @@ module.exports = function(app) {
 	 */
   app.get("/transactions", function(req, res) {
     txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === "undefined").then(function(transactions) {
-      var out = [];
+      const out = [];
 
       transactions.rows.forEach(function (transaction) {
         out.push(txController.transactionToJSON(transaction));
@@ -316,7 +316,7 @@ module.exports = function(app) {
 	 */
   app.get("/transactions/latest", function(req, res) {
     txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === "undefined").then(function(transactions) {
-      var out = [];
+      const out = [];
 
       transactions.rows.forEach(function (transaction) {
         out.push(txController.transactionToJSON(transaction));

@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var transactions    = require("./../transactions.js"),
+const transactions    = require("./../transactions.js"),
   addresses       = require("./../addresses.js"),
   krist           = require("./../krist.js"),
   names			= require("./../names.js"),
@@ -93,8 +93,8 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
       return reject(new errors.ErrorMissingParameter("amount"));
     }
 
-    var isName = krist.nameMetaRegex.test(to.toLowerCase());
-    var nameInfo;
+    const isName = krist.nameMetaRegex.test(to.toLowerCase());
+    let nameInfo;
 
     if (isName) {
       nameInfo = krist.nameMetaRegex.exec(to.toLowerCase());
@@ -112,12 +112,12 @@ TransactionsController.makeTransaction = function(privatekey, to, amount, com) {
       return reject(new errors.ErrorInvalidParameter("metadata"));
     }
 
-    var from = krist.makeV2Address(privatekey);
+    const from = krist.makeV2Address(privatekey);
     amount = parseInt(amount);
 
     addresses.verify(from, privatekey).then(function(results) {
-      var authed = results.authed;
-      var sender = results.address;
+      const authed = results.authed;
+      const sender = results.address;
 
       if (!authed) {
         return reject(new errors.ErrorAuthFailed());

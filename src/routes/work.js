@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require("./../krist.js");
+const krist = require("./../krist.js");
 
 module.exports = function(app) {
   app.get("/", function(req, res, next) {

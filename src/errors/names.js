@@ -1,4 +1,4 @@
-var	util        = require("util"),
+const	util        = require("util"),
   errors      = require("./errors.js");
 
 errors.ErrorNameNotFound = function(message) {

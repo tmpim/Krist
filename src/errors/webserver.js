@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	util        = require("util"),
+const	util        = require("util"),
   errors      = require("./errors.js");
 
 errors.ErrorRouteNotFound = function(message) {

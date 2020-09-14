@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var config				= require("./../../config.js"),
+const config				= require("./../../config.js"),
   krist               = require("./../krist.js"),
   utils               = require("./../utils.js"),
   addressesController = require("./../controllers/addresses.js"),

@@ -19,11 +19,11 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	Sequelize	= require("sequelize"),
+const	Sequelize	= require("sequelize"),
   config		= require("./../config.js"),
   database	= require("./database.js");
 
-var Address = database.getSequelize().define("address", {
+const Address = database.getSequelize().define("address", {
   address: {
     type: Sequelize.STRING(10),
     unique: true
@@ -44,7 +44,7 @@ var Address = database.getSequelize().define("address", {
   timestamps: false
 });
 
-var Block = database.getSequelize().define("block", {
+const Block = database.getSequelize().define("block", {
   value: Sequelize.INTEGER.UNSIGNED,
   hash: {
     type: Sequelize.STRING(64),
@@ -64,7 +64,7 @@ var Block = database.getSequelize().define("block", {
   ]
 });
 
-var Name = database.getSequelize().define("name", {
+const Name = database.getSequelize().define("name", {
   name: {
     type: Sequelize.STRING(64),
     unique: true
@@ -78,7 +78,7 @@ var Name = database.getSequelize().define("name", {
   timestamps: false
 });
 
-var Transaction = database.getSequelize().define("transaction", {
+const Transaction = database.getSequelize().define("transaction", {
   from: Sequelize.STRING(10),
   to: Sequelize.STRING(10),
   value: Sequelize.INTEGER.UNSIGNED,

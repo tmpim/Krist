@@ -49,7 +49,7 @@ Websocket.prototype.send = function(message) {
   this.socket.send(message);
 };
 
-var Websockets = new WebsocketsManager();
+const Websockets = new WebsocketsManager();
 
 module.exports = Websockets;
 
@@ -58,10 +58,10 @@ WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
 };
 
 WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
-  var ws = new Websocket(socket, token, auth, null, pkey);
+  const ws = new Websocket(socket, token, auth, null, pkey);
 
   socket.on("close", function() {
-    var id = Websockets.websockets.indexOf(ws);
+    const id = Websockets.websockets.indexOf(ws);
 
     if (id !== -1) {
       Websockets.websockets.splice(id, 1);
@@ -76,7 +76,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
       }));
     }
 
-    var msg;
+    let msg;
 
     try {
       msg = JSON.parse(message);
@@ -102,7 +102,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
       });
     }
 
-    var response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
+    const response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
 
     if (response instanceof Promise) {
       response.then(function(resp) {

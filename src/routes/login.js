@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist 	    = require("./../krist.js"),
+const krist 	    = require("./../krist.js"),
   utils 	    = require("./../utils.js"),
   addresses   = require("./../addresses.js"),
   errors	    = require("./../errors/errors.js");
@@ -53,8 +53,8 @@ module.exports = function(app) {
       return utils.sendErrorToRes(req, res, new errors.ErrorMissingParameter("privatekey"));
     }
 
-    var v = parseInt(req.query.v) || 2;
-    var address;
+    const v = parseInt(req.query.v) || 2;
+    let address;
 
     switch (v) {
     case 1:

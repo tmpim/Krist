@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var names       = require("./../names.js"),
+const names       = require("./../names.js"),
   addresses   = require("./../addresses.js"),
   tx          = require("./../transactions.js"),
   krist       = require("./../krist.js"),
@@ -106,8 +106,8 @@ NamesController.registerName = function(desiredName, privatekey) {
     }
 
     addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      var authed = results.authed;
-      var address = results.address;
+      const authed = results.authed;
+      const address = results.address;
 
       if (!authed) {
         return reject(new errors.ErrorAuthFailed());
@@ -122,7 +122,7 @@ NamesController.registerName = function(desiredName, privatekey) {
           return reject(new errors.ErrorInsufficientFunds());
         }
 
-        var promises = [];
+        const promises = [];
 
         promises.push(address.decrement({balance: names.getNameCost()}));
         promises.push(address.increment({totalout: names.getNameCost()}));
@@ -159,7 +159,7 @@ NamesController.transferName = function(name, privatekey, address) {
     }
 
     addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      var authed = results.authed;
+      const authed = results.authed;
 
       if (!authed) {
         return reject(new errors.ErrorAuthFailed());
@@ -174,7 +174,7 @@ NamesController.transferName = function(name, privatekey, address) {
           return reject(new errors.ErrorNotNameOwner());
         }
 
-        var promises = [];
+        const promises = [];
 
         promises.push(name.update({
           owner: address,
@@ -214,7 +214,7 @@ NamesController.updateName = function(name, privatekey, a) {
     }
 
     addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      var authed = results.authed;
+      const authed = results.authed;
 
       if (!authed) {
         return reject(new errors.ErrorAuthFailed());
@@ -229,7 +229,7 @@ NamesController.updateName = function(name, privatekey, a) {
           return reject(new errors.ErrorNotNameOwner());
         }
 
-        var promises = [];
+        const promises = [];
 
         promises.push(name.update({
           a: a,

@@ -19,11 +19,10 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist            = require("./../krist.js"),
-  blocksController = require("./../controllers/blocks.js"),
-  blocks           = require("./../blocks.js"),
-  utils            = require("./../utils.js"),
-  moment           = require("moment");
+const blocksController = require("./../controllers/blocks.js");
+const blocks           = require("./../blocks.js");
+const utils            = require("./../utils.js");
+const moment           = require("moment");
 
 module.exports = function(app) {
   /**
@@ -92,7 +91,7 @@ module.exports = function(app) {
     if (typeof req.query.blocks !== "undefined") {
       if (typeof req.query.low !== "undefined") {
         blocks.getBlocksByOrder([["hash", "ASC"]], 50).then(function(results) {
-          var out = "";
+          let out = "";
 
           results.rows.forEach(function (block) {
             if (block.hash === null) return;
@@ -107,9 +106,9 @@ module.exports = function(app) {
         });
       } else {
         blocks.getBlocks(50).then(function(results) {
-          var out = "";
+          let out = "";
 
-          var k = false;
+          let k = false;
 
           results.rows.forEach(function (block) {
             if (block.hash === null) return;
@@ -180,7 +179,7 @@ module.exports = function(app) {
 	 */
   app.get("/blocks", function(req, res) {
     blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(block) {
         if (block.hash === null) return;
@@ -241,7 +240,7 @@ module.exports = function(app) {
 	 */
   app.get("/blocks/latest", function(req, res) {
     blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(block) {
         if (block.hash === null) return;
@@ -302,7 +301,7 @@ module.exports = function(app) {
 	 */
   app.get("/blocks/lowest", function(req, res) {
     blocksController.getBlocksByOrder([["hash", "ASC"]], req.query.limit, req.query.offset, true).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(block) {
         if (block.hash === null) return;

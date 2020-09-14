@@ -91,7 +91,7 @@ Webserver.init = function() {
     console.log(chalk`{cyan [Webserver]} Loading routes`);
 
     try {
-      var routePath = path.join(__dirname, "routes");
+      const routePath = path.join(__dirname, "routes");
 
       fs.readdirSync(routePath).forEach(function(file) {
         if (path.extname(file).toLowerCase() !== ".js") {

@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist               = require("./../krist.js"),
+const krist               = require("./../krist.js"),
   addresses           = require("./../addresses.js"),
   addressesController = require("./../controllers/addresses.js"),
   namesController     = require("./../controllers/names.js"),
@@ -72,7 +72,7 @@ module.exports = function(app) {
     }
 
     if (req.query.alert) {
-      var from = krist.makeV2Address(req.query.alert);
+      const from = krist.makeV2Address(req.query.alert);
 
       addresses.getAddress(from).then(function(address) {
         if (address) {
@@ -87,7 +87,7 @@ module.exports = function(app) {
 
     if (typeof req.query.richapi !== "undefined") {
       addresses.getRich().then(function(results) {
-        var out = "";
+        let out = "";
 
         results.rows.forEach(function(address) {
           out += address.address.substr(0, 10);
@@ -105,13 +105,13 @@ module.exports = function(app) {
       addresses.getAddress(req.query.listtx).then(function(address) {
         if (address) {
           tx.getTransactionsByAddress(address.address, typeof req.query.overview !== "undefined" ? 3 : 500, 0, true).then(function(results) {
-            var out = "";
+            let out = "";
 
             results.rows.forEach(function (transaction) {
               out += moment(transaction.time).format("MMM DD HH:mm");
 
-              var peer = "";
-              var sign = "";
+              let peer = "";
+              let sign = "";
 
               if (transaction.to === address.address) {
                 peer = transaction.from;
@@ -191,7 +191,7 @@ module.exports = function(app) {
 	 */
   app.get("/addresses", function(req, res) {
     addressesController.getAddresses(req.query.limit, req.query.offset).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(address) {
         out.push(addressesController.addressToJSON(address));
@@ -256,7 +256,7 @@ module.exports = function(app) {
 	 */
   app.get("/addresses/rich", function(req, res) {
     addressesController.getRich(req.query.limit, req.query.offset).then(function(results) {
-      var out = [];
+      const out = [];
 
       results.rows.forEach(function(address) {
         out.push(addressesController.addressToJSON(address));
@@ -362,7 +362,7 @@ module.exports = function(app) {
 	 */
   app.get("/addresses/:address/names", function(req, res) {
     namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset).then(function(names) {
-      var out = [];
+      const out = [];
 
       names.rows.forEach(function (name) {
         out.push(namesController.nameToJSON(name));
@@ -434,7 +434,7 @@ module.exports = function(app) {
 	 */
   app.get("/addresses/:address/transactions", function(req, res) {
     txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset, typeof req.query.excludeMined === "undefined").then(function(transactions) {
-      var out = [];
+      const out = [];
 
       transactions.rows.forEach(function (transaction) {
         out.push(txController.transactionToJSON(transaction));
