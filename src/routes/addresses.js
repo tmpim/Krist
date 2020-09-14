@@ -406,7 +406,7 @@ module.exports = function(app) {
      *             "value": 75,
      *             "time": "2016-02-02T23:30:51.000Z",
      *             "name": null,
-     *             "op": null
+     *             "metadata": null
      *         },
      *         {
      *             "id": 153196,
@@ -415,7 +415,7 @@ module.exports = function(app) {
      *             "value": 50,
      *             "time": "2016-02-02T23:30:39.000Z",
      *             "name": null,
-     *             "op": null
+     *             "metadata": null
      *         },
 	 *
 	 * @apiErrorExample {json} Address Not Found

@@ -240,7 +240,7 @@ module.exports = function(app) {
      *             "value": 50,
      *             "time": "2015-02-14T16:44:40.000Z",
      *             "name": null,
-     *             "op": null
+     *             "metadata": null
      *         },
      *         {
      *             "id": 46,
@@ -249,7 +249,7 @@ module.exports = function(app) {
      *             "value": 1000,
      *             "time": "2015-02-14T23:15:39.000Z",
      *             "name": null,
-     *             "op": null
+     *             "metadata": null
      *         },
 	 *  	   ...
 	 */
@@ -299,7 +299,7 @@ module.exports = function(app) {
      *             "value": 14,
      *             "time": "2016-02-06T19:22:41.000Z",
      *             "name": null,
-     *             "op": null
+     *             "metadata": null
      *         },
      *         {
      *             "id": 153286,
@@ -308,7 +308,7 @@ module.exports = function(app) {
      *             "value": 500,
      *             "time": "2016-02-06T14:01:19.000Z",
      *             "name": "exam",
-     *             "op": null
+     *             "metadata": null
      *         },
 	 *  	   ...
 	 */
@@ -351,7 +351,7 @@ module.exports = function(app) {
      *         "value": 56610,
      *         "time": "2016-02-03T19:15:32.000Z",
      *         "name": null,
-     *         "op": null
+     *         "metadata": null
      *     }
      * }
 	 */
