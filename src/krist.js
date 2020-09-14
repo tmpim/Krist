@@ -21,43 +21,40 @@
 
 function Krist() {}
 
-module.exports = Krist; // well whatever the problem was this fixed it
+module.exports = Krist;
 
-var utils       = require('./utils.js'),
-	config      = require('./../config.js'),
-	schemas     = require('./schemas.js'),
-	webhooks    = require('./webhooks.js'),
-	websockets  = require('./websockets.js'),
-	addresses   = require('./addresses.js'),
-	moment      = require('moment'),
-	fs          = require('fs'),
-	errors      = require('./errors/errors.js');
+const utils      = require('./utils.js');
+const config     = require('./../config.js');
+const schemas    = require('./schemas.js');
+const websockets = require('./websockets.js');
+const fs         = require('fs');
+const fsp        = fs.promises;
+const chalk      = require("chalk");
 
-var addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/i;
-var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/i;
+var addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
+var addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
 var nameRegex = /^[a-z0-9]{1,64}$/i;
 var aRecordRegex = /^[^\s\.\?\#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
 
-Krist.work = 18750; // work as of the writing of this line. this is used purely for backup.
+Krist.work = 100000;
 Krist.freeNonceSubmission = false;
 
 Krist.workOverTime = [];
 
 Krist.init = function() {
-	console.log('[Krist]'.bold + ' Loading...');
+	console.log(chalk`{bold [Krist]} Loading...`);
 
 	var requiredConfigOptions = [
 		'walletVersion',
 		'nameCost',
-		'workFactor',
-		'maxWebsocketsPerHost'
+		'workFactor'
 	];
 
 	requiredConfigOptions.forEach(function(option) {
 		if (!config[option]) {
-			console.error('[Config]'.red + ' Missing config option: ' + option);
+			console.error(chalk`{red [Config]} Missing config option: ${option}`);
 
 			process.exit(1);
 		}
@@ -67,16 +64,16 @@ Krist.init = function() {
 
 	/// WOW dont use deprecated functions lemmmmmym!
 	if (!fs.existsSync('data')) {
-		fs.mkdirSync('data', 775);
+		fs.mkdirSync('data', 0o775);
 	}
 
 	// Check for and make the work file
 	if (fs.existsSync('data/work')) {
 		fs.access('data/work', fs.W_OK, function(err) {
 			if (err) {
-				console.log('[Krist]'.red + ' Cannot access data/work file. Please check the running user/group has write perms.');
-				console.log('[Krist]'.red + ' ' + err);
-				console.log('[Krist]'.red + ' Aborting.');
+				console.log(chalk`{red [Krist]} Cannot access data/work file. Please check the running user/group has write perms.`);
+				console.log(chalk`{red [Krist]} ${err}`);
+				console.log(chalk`{red [Krist]} Aborting.`);
 
 				process.exit(1);
 			}
@@ -84,41 +81,38 @@ Krist.init = function() {
 
 		fs.readFile('data/work', function(err, contents) {
 			if (err) {
-				console.log('[Krist]'.red + ' Critical error reading work file.');
-				console.log('[Krist]'.red + ' ' + err);
+				console.log(chalk`{red [Krist]} Critical error reading work file.`);
+				console.log(chalk`{red [Krist]} ${err}`);
 
 				return;
 			}
 
 			Krist.work = parseInt(contents);
 
-			console.log('[Krist]'.bold + ' Current work: ' + Krist.work.toString().green);
+			console.log(chalk`{bold [Krist]} Current work: {green ${Krist.work}}`);
 		});
 	} else {
-		fs.writeFile('data/work', Krist.work, function(err) {
-			if (err) {
-				console.log('[Krist]'.red + ' Critical error writing work file.');
-				console.log('[Krist]'.red + ' ' + err);
-			}
-		});
+    // Write the work file
+    this.setWork(Krist.work);
 	}
 
-	fs.watchFile('motd.txt', function(curr, prev) {
-		fs.readFile('motd.txt', function(err, data) {
-			websockets.broadcastEvent({
-				type: 'event',
-				event: 'motd',
-				new_motd: data.toString()
-			}, function(ws) {
-				return new Promise(function(resolve, reject) {
-					if (ws.subscriptionLevel.indexOf("motd") >= 0) {
-						return resolve();
-					}
+  // Watch for MOTD changes and broadcast them to the websockets
+	fs.watchFile('motd.txt', async function() {
+    const { motd } = await Krist.getMOTD();
 
-					reject();
-				});
-			});
-		});
+    websockets.broadcastEvent({
+      type: 'event',
+      event: 'motd',
+      new_motd: motd
+    }, ws => {
+      return new Promise((resolve, reject) => {
+        if (ws.subscriptionLevel.indexOf("motd") >= 0) {
+          return resolve();
+        }
+  
+        reject();
+      });
+    });
 	});
 
 	setInterval(function() {
@@ -138,15 +132,9 @@ Krist.getWorkOverTime = function() {
 	return Krist.workOverTime;
 };
 
-Krist.setWork = function(work) {
+Krist.setWork = async function(work) {
 	Krist.work = work;
-
-	fs.writeFile('data/work', work, function(err) {
-		if (err) {
-			console.log('[Krist]'.red + ' Critical error writing work file.');
-			console.log('[Krist]'.red + ' ' + err);
-		}
-	});
+	return fsp.writeFile('data/work', work.toString());
 };
 
 Krist.getWalletVersion = function() {
@@ -213,3 +201,18 @@ Krist.isValidName = function(name) {
 Krist.isValidARecord = function(ar) {
 	return aRecordRegex.test(ar);
 };
+
+Krist.getMOTD = async function() {
+  try {
+    const motd = (await fsp.readFile("motd.txt")).toString();
+    const stat = (await fsp.stat("motd.txt"));
+
+    return {
+      motd,
+      motd_set: stat.mtime
+    };
+  } catch (error) { // Return a generic MOTD if the file was not found
+    console.error(error);
+    return "Welcome to Krist!";
+  }
+}

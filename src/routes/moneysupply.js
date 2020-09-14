@@ -19,8 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist   = require('./../krist.js'),
-	redis	= require('./../redis.js');
+const krist = require('./../krist.js');
 
 module.exports = function(app) {
 	app.get('/', function(req, res, next) {
@@ -51,25 +50,13 @@ module.exports = function(app) {
      *     "money_supply": 1013359534
      * }
 	 */
-	app.get('/supply', function(req, res) {
-		redis.getClient().getAsync('money_supply').then(function(supply) {
-			if (supply) {
-				res.json({
-					ok: true,
-					money_supply: parseInt(supply)
-				});
-			} else {
-				krist.getMoneySupply().then(function(supply) {
-					res.json({
-						ok: true,
-						money_supply: supply
-					});
+	app.get('/supply', async function(req, res) {
+    const supply = await krist.getMoneySupply();
 
-					redis.getClient().set('money_supply', supply);
-					redis.getClient().expire('money_supply', 60);
-				});
-			}
-		});
+    res.json({
+      ok: true,
+      money_supply: supply
+    });
 	});
 
 	return app;

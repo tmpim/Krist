@@ -19,64 +19,55 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var config		= require('./config.js'),
-	package     = require('./package.json');
+const config = require('./config.js');
+const package = require('./package.json');
+const chalk = require("chalk");
 
-var Promise = require("bluebird");
-
-Promise.longStackTraces();
-
-require('colors'); // colours
 require('console-stamp')(console, {
-	pattern: 'HH:MM:ss',
-	label: false,
-	colors: {
-		stamp: "yellow"
-	}
+  pattern: 'HH:MM:ss',
+  label: false,
+  colors: {
+    stamp: "yellow"
+  }
 });
 
-var	errors      = require('./src/errors/errors.js'),
-	redis		= require('./src/redis.js'),
-	database	= require('./src/database.js'),
-	webserver	= require('./src/webserver.js');
+const database = require('./src/database.js');
+const webserver = require('./src/webserver.js');
 
-console.log('Starting ' + package.name.bold + ' ' + package.version.blue + '...');
+console.log(chalk`Starting {bold ${package.name}} {blue ${package.version}}...`);
 
-process.on('uncaughtException', function(error) {
-	console.log('Uncaught exception'.red.bold);
-	console.log(error.stack);
-});
+async function main() {
+  await database.init();
 
-redis.init().then(function() {
-	database.init().then(function() {
-		require('./src/krist.js').init();
+  require('./src/krist.js').init();
 
-		if (config.debugMode) {
-			require('./src/websockets.js');
+  if (config.debugMode) {
+    require('./src/websockets.js');
 
-			// Debug commands only in use on the test node. Go away.
+    // Debug commands only in use on the test node. Go away.
 
-			var stdin = process.openStdin();
-			var krist = require('./src/krist.js');
+    var stdin = process.openStdin();
+    var krist = require('./src/krist.js');
 
-			stdin.addListener('data', function (d) {
-				var args = d.toString().trim().split(" ");
+    stdin.addListener('data', function (d) {
+      var args = d.toString().trim().split(" ");
 
-				if (args[0].toLowerCase() === "setwork") {
-					return krist.setWork(new Number(args[1]));
-				}
+      if (args[0].toLowerCase() === "setwork") {
+        return krist.setWork(new Number(args[1]));
+      }
 
-				if (args[0].toLowerCase() === "getwork") {
-					console.log('[Krist]'.bold + ' Current work: ' + krist.getWork().toString().green);
-				}
+      if (args[0].toLowerCase() === "getwork") {
+        console.log(chalk`{bold [Krist]} Current work: {green ${krist.getWork().toString()}}`);
+      }
 
-				if (args[0].toLowerCase() === "freenonce") {
-					krist.freeNonceSubmission = !krist.freeNonceSubmission;
-					console.log(krist.freeNonceSubmission);
-				}
-			});
-		}
+      if (args[0].toLowerCase() === "freenonce") {
+        krist.freeNonceSubmission = !krist.freeNonceSubmission;
+        console.log(krist.freeNonceSubmission);
+      }
+    });
+  }
 
-		webserver.init(); // Yeah something
-	});
-});
+  return webserver.init();
+}
+
+main().catch(console.error);

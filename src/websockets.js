@@ -19,15 +19,19 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	fs 					= require('fs'),
-	path 				= require('path'),
-	utils               = require('./utils.js');
+const chalk  = require("chalk");
+const fs     = require('fs');
+const path   = require('path');
+const utils  = require('./utils.js');
+const errors = require("./errors/errors.js");
+const uuid   = require("node-uuid");
 
 function WebsocketsManager() {
 	this.websockets = [];
-	this.messageHandlers = [];
+  this.messageHandlers = [];
+  this.pendingTokens = [];
 
-	this.validSubscriptionLevels = ['blocks', 'ownBlocks', 'transactions', 'ownTransactions', 'names', 'ownNames', 'ownWebhooks', 'motd'];
+	this.validSubscriptionLevels = ['blocks', 'ownBlocks', 'transactions', 'ownTransactions', 'names', 'ownNames', 'motd'];
 }
 
 function Websocket(socket, token, auth, subscriptionLevel, privatekey) {
@@ -142,10 +146,35 @@ WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message
 	ws.send(JSON.stringify(message));
 };
 
-console.log('[Websockets]'.cyan + ' Loading routes');
+WebsocketsManager.prototype.obtainToken = function(address, privatekey) {
+  // Generate a new token
+  const token = uuid.v1();
+  this.pendingTokens[token] = { address, privatekey };
+
+  // Destroy the token after 30 seconds
+  setTimeout(() => {
+    delete this.pendingTokens[token];
+  }, 30000);
+
+  return token;
+}
+
+WebsocketsManager.prototype.useToken = function(token) {
+  const tokenData = this.pendingTokens[token];
+
+  // Reject if token not found
+  if (!tokenData) throw new errors.ErrorInvalidWebsocketToken();
+
+  // Prevent token re-use
+  this.pendingTokens[token] = null;
+
+  return tokenData;
+}
+
+console.log(chalk`{cyan [Websockets]} Loading routes`);
 
 try {
-	var routePath = path.join(__dirname, 'websocket_routes');
+	const routePath = path.join(__dirname, 'websocket_routes');
 
 	fs.readdirSync(routePath).forEach(function(file) {
 		if (path.extname(file).toLowerCase() !== '.js') {
@@ -155,13 +184,13 @@ try {
 		try {
 			require('./websocket_routes/' + file)(module.exports);
 		} catch (error) {
-			console.log('[Websockets]'.red + ' Error loading route `' + file + '`: ');
-			console.log(error.stack);
+      console.error(chalk`{red [Websockets]} Error loading route '${file}'`);
+      console.error(error.stack);
 		}
 	});
 } catch (error) {
-	console.log('[Websockets]'.red + ' Error finding routes: ');
-	console.log(error.stack);
+  console.error(chalk`{red [Websockets]} Error loading routes:`);
+  console.error(error.stack);
 }
 
 setInterval(function() {

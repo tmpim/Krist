@@ -28,7 +28,7 @@ var config				= require('./../../config.js'),
 	errors              = require('./../errors/errors.js');
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
+	app.get('/', async function(req, res, next) {
 		if (typeof req.query.submitblock !== 'undefined') {
 			if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
 				return res.send('Invalid address');
@@ -36,23 +36,23 @@ module.exports = function(app) {
 
 			if (!req.query.nonce || req.query.nonce.length > config.nonceMaxSize) {
 				return res.send('Nonce is too large');
-			}
+      }
+      
+      const lastBlock = await blocks.getLastBlock();
 
-			blocks.getLastBlock().then(function(lastBlock) {
-				var last = lastBlock.hash.substr(0, 12);
-				var difficulty = krist.getWork();
-				var hash = utils.sha256(req.query.address + last + req.query.nonce);
+      const last = lastBlock.hash.substr(0, 12);
+      const difficulty = krist.getWork();
+      const hash = utils.sha256(req.query.address + last + req.query.nonce);
 
-				if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-					blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
-						res.send('Block solved');
-					}).catch(function() {
-						res.send('Solution rejected');
-					})
-				} else {
-					res.send(req.query.address + last + req.query.nonce);
-				}
-			});
+      if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
+        blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
+          res.send('Block solved');
+        }).catch(function() {
+          res.send('Solution rejected');
+        })
+      } else {
+        res.send(req.query.address + last + req.query.nonce);
+      }
 
 			return;
 		}

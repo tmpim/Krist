@@ -26,8 +26,7 @@ var krist               = require('./../krist.js'),
 	names               = require('./../names.js'),
 	errors              = require('./../errors/errors.js'),
 	namesController     = require('./../controllers/names.js'),
-	moment              = require('moment'),
-	Promise             = require('bluebird');
+	moment              = require('moment');
 
 module.exports = function(app) {
 	/**

@@ -19,9 +19,10 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	util    = require('util'),
-	fs      = require('fs'),
-	path    = require('path');
+const util  = require("util");
+const fs    = require("fs");
+const path  = require("path");
+const chalk = require("chalk");
 
 var errors = {};
 
@@ -51,13 +52,13 @@ try {
 		try {
 			require('./' + file);
 		} catch (error) {
-			console.log('[Error]'.red + ' Uncaught error: `' + file + '`: ');
-			console.log(error.stack);
+      console.error(chalk`{red [Error]} Uncaught error.`);
+      console.error(error.stack);
 		}
 	});
 } catch (error) {
-	console.log('[Error]'.red + ' Uncaught error: ');
-	console.log(error.stack);
+  console.error(chalk`{red [Error]} Uncaught error.`);
+  console.error(error.stack);
 }
 
 module.exports = errors;

@@ -19,16 +19,14 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist  		= require('./../krist.js'),
-	config		= require('./../../config.js'),
-	utils   	= require('./../utils.js'),
-	errors  	= require('./../errors/errors.js'),
-	redis		= require('./../redis.js'),
-	websockets	= require('./../websockets.js'),
-	addresses   = require('./../addresses.js'),
-	blocks      = require('./../controllers/blocks.js'),
-	fs          = require('fs'),
-	uuid		= require('node-uuid');
+const krist      = require('./../krist.js');
+const config     = require('./../../config.js');
+const utils      = require('./../utils.js');
+const errors     = require('./../errors/errors.js');
+const websockets = require('./../websockets.js');
+const addresses  = require('./../addresses.js');
+const blocks     = require('./../controllers/blocks.js');
+const chalk      = require("chalk");
 
 module.exports = function(app) {
 	/**
@@ -37,63 +35,34 @@ module.exports = function(app) {
 	 * All Websocket related endpoints.
 	 */
 
-	app.ws('/:token', function(ws, req) {
-		redis.getClient().getAsync('ws-' + req.params.token).then(function(wsid) {
-			if (wsid) {
-				redis.getClient().getAsync('wspkey-' + req.params.token).then(function(pkey) {
-					blocks.getLastBlock().then(function(block) {
-						fs.readFile('motd.txt', function(err, data) {
-							if (err) {
-								return utils.sendToWS(ws, {
-									ok: true,
-									type: "hello",
-									server_time: new Date(),
-									motd: "Welcome to Krist!",
-									last_block: blocks.blockToJSON(block),
-									work: krist.getWork()
-								});
-							}
+	app.ws('/:token', async function(ws, req) {
+    try {
+      // Look up the token, will reject if the token does not exist
+      const { token } = req.params;
+      const { address, privatekey } = websockets.useToken(token);
 
-							fs.stat('motd.txt', function(err, stats) {
-								if (err) {
-									return utils.sendToWS(ws, {
-										ok: true,
-										type: "hello",
-										server_time: new Date(),
-										motd: data.toString(),
-										last_block: blocks.blockToJSON(block),
-										work: krist.getWork()
-									});
-								}
+      const lastBlock = await blocks.getLastBlock();
+      const { motd, motd_set } = await krist.getMOTD();
 
-								utils.sendToWS(ws, {
-									ok: true,
-									type: "hello",
-									server_time: new Date(),
-									motd: data.toString(),
-									motd_set: stats.mtime,
-									last_block: blocks.blockToJSON(block),
-									work: krist.getWork()
-								});
-							});
-						});
-					});
+      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${req.connection.remoteAddress}} (origin: {bold ${req.header("Origin")}})`);
+      
+      // Send the hello message containing the MOTD and last block
+      utils.sendToWS(ws, {
+        ok: true,
+        type: "hello",
+        server_time: new Date(),
+        motd, motd_set,
+        last_block: blocks.blockToJSON(lastBlock),
+        work: krist.getWork()
+      });
 
-					websockets.addWebsocket(ws, req.params.token, wsid, pkey);
-
-					redis.getClient().del('ws-' + req.params.token);
-					redis.getClient().del('wspkey-' + req.params.token);
-				});
-			} else {
-				utils.sendErrorToWS(ws, new errors.ErrorInvalidWebsocketToken());
-
-				ws.close();
-			}
-		}).catch(function(error) {
-			utils.sendErrorToWS(ws, error);
+      websockets.addWebsocket(ws, token, address, privatekey);
+    } catch (error) {
+      utils.sendErrorToWS(ws, error);
+      console.error(error);
 
 			ws.close();
-		});
+    }
 	});
 
 	/**
@@ -139,11 +108,11 @@ module.exports = function(app) {
 	 * ## Subscription Levels
 	 *
 	 * There are several subscription levels for events that are broadcasted to all clients. When you are subscribed
-	 * to an event you will automatically recieve a message with the type `event` in a format similar to the following:
+	 * to an event you will automatically receive a message with the type `event` in a format similar to the following:
 	 *
 	 *     { "type": "event", "event": "block",  "block": { ... }, "new_work": 100000 }
 	 *
-	 * You can unsubscribe and subscribe to certain events to only recieve what you wish to.
+	 * You can unsubscribe and subscribe to certain events to only receive what you wish to.
 	 *
 	 * ### Subscription Levels & Event List
 	 *
@@ -155,7 +124,6 @@ module.exports = function(app) {
 	 * | `ownTransactions` | `transaction` | Transaction events whenever a transaction is made to or from the authed user           |
 	 * |      `names`      |     `name`    | Name events whenever a name is created, modified or transferred by anybody on the node |
 	 * |     `ownNames`    |     `name`    | Name events whenever the authed user creates, modifies or transfers a name             |
-	 * |   `ownWebhooks`   |   `webhook`   | Webhook events whenever the authed user creates a webhook                              |
 	 * |       `motd`      |     `motd`    | Event fired whenever the message of the day changes                                    |
 	 *
 	 * ## Examples
@@ -174,21 +142,16 @@ module.exports = function(app) {
      * }
 	 */
 	app.post('/ws/start', function(req, res) {
-		var token = uuid.v1();
+    const { privatekey } = req.body;
 
-		if (req.body.privatekey) {
-			addresses.verify(krist.makeV2Address(req.body.privatekey), req.body.privatekey).then(function(results) {
-				var authed = results.authed;
-				var user = results.address;
+		if (privatekey) { // Auth as address if privatekey provided
+			addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
+        const { authed, address } = results;
 
-				if (!authed) {
+				if (!authed)
 					return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
-				}
-
-				redis.getClient().set('ws-' + token, results.address.address);
-				redis.getClient().set('wspkey-' + token, req.body.privatekey);
-				redis.getClient().expire('ws-' + token, 30);
-				redis.getClient().expire('wspkey-' + token, 30);
+        
+        const token = websockets.obtainToken(address.address, privatekey);
 
 				res.json({
 					ok: true,
@@ -196,9 +159,8 @@ module.exports = function(app) {
 					expires: 30
 				});
 			});
-		} else {
-			redis.getClient().set('ws-' + token, "guest");
-			redis.getClient().expire('ws-' + token, 30);
+		} else { // Auth as guest if no privatekey provided
+      const token = websockets.obtainToken("guest");
 
 			res.json({
 				ok: true,

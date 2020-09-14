@@ -19,17 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	util        = require('util'),
-	errors      = require('./errors.js');
-
-errors.ErrorWebhookNotFound = function(message) {
-	errors.KristError.call(this);
-	this.message = message;
-	this.statusCode = 404;
-	this.errorString = 'webhook_not_found';
-};
-
-util.inherits(errors.ErrorWebhookNotFound, errors.KristError);
+const util = require('util');
+const errors = require('./errors.js');
 
 errors.ErrorLimitReached = function(message) {
 	errors.KristError.call(this);
@@ -39,12 +30,3 @@ errors.ErrorLimitReached = function(message) {
 };
 
 util.inherits(errors.ErrorLimitReached, errors.KristError);
-
-errors.ErrorWebhooksDeprecated = function(message) {
-	errors.KristError.call(this);
-	this.message = message;
-	this.statusCode = 410;
-	this.errorString = 'webhooks_deprecated';
-};
-
-util.inherits(errors.ErrorWebhooksDeprecated, errors.KristError);

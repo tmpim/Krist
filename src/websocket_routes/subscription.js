@@ -92,7 +92,7 @@ module.exports = function(websockets) {
 	 * {
 	 *     "ok": true,
 	 *     "id": 1,
-	 *     "valid_subscription_levels": ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames", "ownWebhooks", "motd"]
+	 *     "valid_subscription_levels": ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames","motd"]
      * }
 	 */
 	websockets.addMessageHandler('get_valid_subscription_levels', function(ws, message) {

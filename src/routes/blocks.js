@@ -91,7 +91,7 @@ module.exports = function(app) {
 
 		if (typeof req.query.blocks !== 'undefined') {
 			if (typeof req.query.low !== 'undefined') {
-				blocks.getBlocksByOrder('hash ASC', 50).then(function(results) {
+				blocks.getBlocksByOrder([['hash', 'ASC']], 50).then(function(results) {
 					var out = "";
 
 					results.rows.forEach(function (block) {
@@ -301,7 +301,7 @@ module.exports = function(app) {
 	 *  	   ...
 	 */
 	app.get('/blocks/lowest', function(req, res) {
-		blocksController.getBlocksByOrder('hash ASC', req.query.limit, req.query.offset, true).then(function(results) {
+		blocksController.getBlocksByOrder([['hash', 'ASC']], req.query.limit, req.query.offset, true).then(function(results) {
 			var out = [];
 
 			results.rows.forEach(function(block) {

@@ -19,40 +19,41 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-function Blocks() {} // I had to nuke like, all the code to get the bloody websockets working.
-// I'm having a mental breakdown here.
-// I don't understand this code anymore.
-
+function Blocks() {}
 module.exports = Blocks;
 
-var utils       = require('./utils.js'),
-	config      = require('./../config.js'),
-	krist       = require('./krist.js'),
-	websockets	= require('./websockets.js'),
-	schemas     = require('./schemas.js'),
-	webhooks    = require('./webhooks.js'),
-	addresses   = require('./addresses.js'),
-	names       = require('./names.js'),
-	tx          = require('./transactions.js'),
-	moment      = require('moment');
+const utils      = require('./utils.js');
+const krist      = require('./krist.js');
+const websockets = require('./websockets.js');
+const schemas    = require('./schemas.js');
+const addresses  = require('./addresses.js');
+const names      = require('./names.js');
+const tx         = require('./transactions.js');
+const moment     = require('moment');
+const Database   = require('./database.js');
+const chalk      = require("chalk");
+const { Op }     = require("sequelize");
 
 Blocks.getBlock = function(id) {
-	return schemas.block.findById(id);
+	return schemas.block.findByPk(id);
 };
 
 Blocks.getBlocks = function(limit, offset, asc) {
-	return schemas.block.findAndCountAll({order: 'id' + (asc ? '' : ' DESC'),  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.block.findAndCountAll({order: [['id', asc ? 'ASC' : ' DESC']],  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getBlocksByOrder = function(order, limit, offset) {
 	return schemas.block.findAndCountAll({order: order, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Blocks.getLastBlock = function() {
-	return schemas.block.findOne({order: 'id DESC'});
+Blocks.getLastBlock = function(t) {
+	return schemas.block.findOne({order: [['id','DESC']]}, { transaction: t });
 };
 
-Blocks.getBaseBlockValue = function(blockID) {
+Blocks.getLegacyWork = function(blockID) {
+  // Early return for all existing blocks
+  if (blockID >= 5000) return null;
+
 	if (blockID >= 1 && blockID < 501) return 400000000000;
 	if (blockID >= 501 && blockID < 541) return 381274937337;
 	if (blockID >= 541 && blockID < 546) return 350000000000;
@@ -96,103 +97,102 @@ Blocks.getBaseBlockValue = function(blockID) {
 	if (blockID >= 3089 && blockID < 3096) return 20000000;
 	if (blockID >= 3096 && blockID < 3368) return 19875024;
 	if (blockID >= 3368 && blockID < 4097) return 10875024;
-	if (blockID >= 4097 && blockID < 5000) return 8750240;
+  if (blockID >= 4097 && blockID < 5000) return 8750240;
+}
 
+Blocks.getBaseBlockValue = function(blockID) {
 	return blockID >= 222222 ? 1 : (blockID >= 100000 ? 12 : 25);
 };
 
-Blocks.getBlockValue = function() {
-	return new Promise(function(resolve, reject) {
-		Blocks.getLastBlock().then(function(lastBlock) {
-			names.getUnpaidNameCount().then(function(count) {
-				resolve(Blocks.getBaseBlockValue(lastBlock.id) + count);
-			}).catch(reject);
-		}).catch(reject);
-	});
-};
+Blocks.getBlockValue = async (t) => {
+  const lastBlock = await Blocks.getLastBlock(t);
+  const unpaidNames = await names.getUnpaidNameCount(t);
+  return Blocks.getBaseBlockValue(lastBlock.id) + unpaidNames;
+}
 
-Blocks.submit = function(hash, address, nonce) {
-	return new Promise(function(resolve, reject) {
-		Blocks.getLastBlock().then(function(lastBlock) {
-			names.getUnpaidNameCount().then(function(count) {
-				var value = Blocks.getBaseBlockValue(lastBlock.id) + count;
+Blocks.submit = async function(hash, address, nonce) {
+  const { block, newWork } = await Database.getSequelize().transaction(async t => {
+    const lastBlock = await Blocks.getLastBlock(t);
+    const value = await Blocks.getBlockValue();
+    const time = new Date();
 
-				var time = new Date();
+    const oldWork = krist.getWork();
 
-				var oldWork = krist.getWork();
+    const seconds = (time - lastBlock.time) / 1000;
+    const targetWork = seconds * oldWork / krist.getSecondsPerBlock();
+    const diff = targetWork - oldWork;
 
-				var seconds = (time - lastBlock.time) / 1000;
-				var targetWork = seconds * oldWork / krist.getSecondsPerBlock();
-				var diff = targetWork - oldWork;
+    const newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
 
-				var newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
+    console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format('HH:mm:ss DD/MM/YYYY')}}.`);
 
-				console.log('[Krist]'.bold + ' Block submitted by ' + address.toString().bold + ' at ' + moment().format('HH:mm:ss DD/MM/YYYY').toString().cyan + '.');
+    const unpaidNames = await schemas.name.findAll({ 
+      where: { 
+        unpaid: { [Op.gt]: 0 }
+      }
+    }, { transaction: t });
 
-				krist.setWork(newWork);
+    // Do all the fun stuff in parallel
+    const [block] = await Promise.all([
+      // Create the new block
+      schemas.block.create({
+        hash: hash,
+        address: address,
+        nonce: nonce,
+        time: time,
+        difficulty: oldWork,
+        value: value
+      }, { transaction: t }),
 
-				schemas.block.create({
-					hash: hash,
-					address: address,
-					nonce: nonce,
-					time: time,
-					difficulty: oldWork,
-					value: value
-				}).then(function(block) {
-					webhooks.callBlockWebhooks(block, newWork);
+      // Create the transaction
+      tx.createTransaction(address, null, value, null, null, t),
 
-					websockets.broadcastEvent({
-						type: 'event',
-						event: 'block',
-						block: Blocks.blockToJSON(block),
-						new_work: newWork
-					}, function(ws) {
-						return new Promise(function(resolve, reject) {
-							if ((!ws.isGuest && ws.auth === address && ws.subscriptionLevel.indexOf("ownBlocks") >= 0) || ws.subscriptionLevel.indexOf("blocks") >= 0) {
-								return resolve();
-							}
+      // Decrement all unpaid name counters
+      unpaidNames.map(name => name.decrement({ unpaid: 1 }, { transaction: t }))
+    ]);
 
-							reject();
-						});
-					});
+    // See if the address already exists before depositing Krist to it
+    const kristAddress = await addresses.getAddress(address);
+    if (kristAddress) { // Address exists, increment its balance
+      await kristAddress.increment({ balance: value, totalin: value }, { transaction: t });
+    } else { // Address doesn't exist, create it
+      await schemas.address.create({
+        address,
+        firstseen: time,
+        balance: value,
+        totalin: value,
+        totalout: 0
+      }, { transaction: t });
+    }
 
-					console.log('        New work: ' + newWork.toLocaleString().green);
+    return { block, newWork };
+  });
 
-					addresses.getAddress(address.toLowerCase()).then(function(kristAddress) {
-						if (!kristAddress) {
-							schemas.address.create({
-								address: address.toLowerCase(),
-								firstseen: time,
-								balance: value,
-								totalin: value,
-								totalout: 0
-							}).then(function(addr) {
-								console.log('        ' + addr.address.bold + '\'s balance: ' + addr.balance.toLocaleString().green + ' KST');
-								resolve({work: newWork, address: addr, block: block});
-							});
+  // Save the new work
+  console.log(chalk`        New work: {green ${newWork.toLocaleString()}}`);
+  await krist.setWork(newWork);
 
-							return;
-						}
+  // Submit the new block event to all websockets (async)
+  websockets.broadcastEvent({
+    type: "event",
+    event: "block",
+    block: Blocks.blockToJSON(block),
+    new_work: newWork
+  }, function(ws) {
+    // Only send if they are subscribed to `ownBlocks` (when authed), or 
+    // subscribed to `blocks`
+    return new Promise(function(resolve, reject) {
+      if ((!ws.isGuest && ws.auth === address && ws.subscriptionLevel.indexOf("ownBlocks") >= 0) || ws.subscriptionLevel.indexOf("blocks") >= 0) {
+        return resolve();
+      }
 
-						kristAddress.increment({ balance: value, totalin: value }).then(function() {
-							kristAddress.reload().then(function(updatedAddress) {
-								console.log('        ' + updatedAddress.address.bold + '\'s balance: ' + updatedAddress.balance.toLocaleString().green + ' KST');
-								resolve({work: newWork, address: updatedAddress, block: block});
-							});
-						});
-					});
+      reject();
+    });
+  });
 
-					tx.createTransaction(address, null, value, null, null);
-
-					schemas.name.findAll({ where: { unpaid: { $gt: 0 }}}).then(function(names) {
-						names.forEach(function(name) {
-							name.decrement({ unpaid: 1 });
-						});
-					});
-				}).catch(reject);
-			});
-		});
-	});
+  // Get the updated address balance to return to the API
+  const kristAddress = await addresses.getAddress(address);
+  return { work: newWork, address: kristAddress, block };
 };
 
 Blocks.blockToJSON = function(block) {
@@ -203,6 +203,6 @@ Blocks.blockToJSON = function(block) {
     short_hash: block.hash ? block.hash.substring(0, 12) : null,
 		value: block.value,
 		time: block.time,
-		difficulty: block.id < 5000 ? Blocks.getBaseBlockValue(block.id) : block.difficulty
+		difficulty: Blocks.getLegacyWork(block.id) || block.difficulty
 	};
 };

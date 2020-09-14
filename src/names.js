@@ -19,21 +19,21 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var utils       = require('./utils.js'),
-	config      = require('./../config.js'),
-	schemas     = require('./schemas.js'),
-	webhooks    = require('./webhooks.js'),
-	websockets  = require('./websockets.js'),
-	krist       = require('./krist.js');
+const utils      = require('./utils.js');
+const config     = require('./../config.js');
+const schemas    = require('./schemas.js');
+const websockets = require('./websockets.js');
+const krist      = require('./krist.js');
+const { Op }     = require("sequelize");
 
 function Names() {}
 
 Names.getNames = function(limit, offset) {
-	return schemas.name.findAndCountAll({order: 'name', limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: [['name', 'ASC']], limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNamesByAddress = function(address, limit, offset) {
-	return schemas.name.findAndCountAll({order: 'name', where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: [['name', 'ASC']], where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNameCountByAddress = function(address) {
@@ -45,11 +45,11 @@ Names.getNameByName = function(name) {
 };
 
 Names.getUnpaidNames = function(limit, offset) {
-	return schemas.name.findAndCountAll({order: 'id DESC', where: {unpaid: {$gt: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+	return schemas.name.findAndCountAll({order: [['id', 'DESC']], where: {unpaid: {[Op.gt]: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Names.getUnpaidNameCount = function() {
-	return schemas.name.count({where: {unpaid: {$gt: 0}}});
+Names.getUnpaidNameCount = function(t) {
+	return schemas.name.count({where: {unpaid: {[Op.gt]: 0}}}, { transaction: t });
 };
 
 Names.getNameCost = function() {
@@ -63,9 +63,7 @@ Names.createName = function(name, owner) {
 		registered: new Date(),
 		updated: new Date(),
 		unpaid: Names.getNameCost()
-	}).then(function(name) {
-		webhooks.callNameWebhooks(name);
-		
+	}).then(function(name) {		
 		websockets.broadcastEvent({
 			type: 'event',
 			event: 'name',

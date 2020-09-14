@@ -19,79 +19,76 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var utils       = require('./utils.js'),
-	config      = require('./../config.js'),
-	schemas     = require('./schemas.js'),
-	webhooks    = require('./webhooks.js'),
-	websockets	= require('./websockets.js'),
-	addresses   = require('./addresses.js'),
-	krist       = require('./krist.js');
+const utils      = require('./utils.js');
+const config     = require('./../config.js');
+const schemas    = require('./schemas.js');
+const websockets = require('./websockets.js');
+const addresses  = require('./addresses.js');
+const krist      = require('./krist.js');
+const { Op }     = require("sequelize");
+
+// Query operator to exclude mined transactions in the 'from' field
+const EXCLUDE_MINED = {
+  [Op.notIn]: ['', ' '], // From field that isn't a blank string or a space
+  [Op.not]: null // And is not null
+};
 
 function Transactions() {}
 
 Transactions.getTransaction = function(id) {
-	return schemas.transaction.findById(id);
+	return schemas.transaction.findByPk(id);
 };
 
 Transactions.getTransactions = function (limit, offset, asc, includeMined) {
-	var query = {
-		order: 'id' + (asc ? '' : ' DESC'),
+	return schemas.transaction.findAndCountAll({
+		order: [['id', asc ? 'ASC' : 'DESC']],
 		limit: utils.sanitiseLimit(limit),
 		offset: utils.sanitiseOffset(offset),
-		where: {}
-	};
-
-	if (!includeMined) {
-		query.where.from = {
-			$notIn: ['', ' '],
-			$ne: null
-		};
-	}
-
-	return schemas.transaction.findAndCountAll(query);
+		where: includeMined ? {} : { from: EXCLUDE_MINED }
+  });
 };
 
 Transactions.getRecentTransactions = function(limit, offset) {
-	return schemas.transaction.findAll({order: 'id DESC', limit: utils.sanitiseLimit(limit, 100), offset: utils.sanitiseOffset(offset), where: {from: {$not: ''}}});
+	return schemas.transaction.findAll({
+    order: [['id', 'DESC']], 
+    limit: utils.sanitiseLimit(limit, 100), 
+    offset: utils.sanitiseOffset(offset), 
+    where: { from: EXCLUDE_MINED }
+  });
 };
 
 Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined) {
-	var query = {
-		order: 'id DESC',
+	return schemas.transaction.findAndCountAll({
+		order: [['id', 'DESC']],
 		limit: utils.sanitiseLimit(limit),
 		offset: utils.sanitiseOffset(offset),
-		where: {$or: [{from: address}]}
-	};
-
-	if (!includeMined) { // To tell you the truth, idk either.
-		query.where.$or.push({
-			from: {
-				$notIn: ['', ' '],
-				$ne: null
-			},
-			to: address
-		});
-	} else {
-		query.where.$or.push({
-			to: address
-		});
-	}
-
-	return schemas.transaction.findAndCountAll(query);
+    where: includeMined
+      // When including mined transactions, we only care if from or to is the
+      // queried address:
+      ? {[Op.or]: [{ from: address }, { to: address }]}
+      // However, when we exclude mined transactions, we care about the
+      // transactions from the queried address, or transactions to it from a
+      // non-null sender (mined transactions):
+      : {[Op.or]: [
+        { from: address }, // Transactions from this address
+        { // Non-mined txes to this address
+          from: EXCLUDE_MINED, // Non-blank from
+          to: address
+        } 
+      ]}
+  });
 };
 
-Transactions.createTransaction = function (to, from, value, name, op) {
+Transactions.createTransaction = function (to, from, value, name, op, dbTx) {
 	return new Promise(function(resolve, reject) {
 		schemas.transaction.create({
-			to: to,
-			from: from,
-			value: value,
-			name: name,
+			to,
+			from,
+			value,
+			name,
 			time: new Date(),
-			op: op
-		}).then(function(transaction) {
-			webhooks.callTransactionWebhooks(transaction);
-
+			op
+		}, { transaction: dbTx }).then(function(transaction) {
 			websockets.broadcastEvent({
 				type: 'event',
 				event: 'transaction',

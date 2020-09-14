@@ -19,8 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var crypto = require('crypto'),
-	errors = require('./errors/errors.js');
+const crypto = require('crypto');
+const errors = require('./errors/errors.js');
+const chalk  = require("chalk");
 
 function Utils() {}
 
@@ -67,8 +68,8 @@ Utils.errorToJSON = function(error) {
 
 		return out;
 	} else {
-		console.log('[Error]'.red + ' Uncaught error.');
-		console.log(error.stack);
+		console.error(chalk`{red [Error]} Uncaught error.`);
+		console.error(error.stack);
 
 		return {
 			ok: false,

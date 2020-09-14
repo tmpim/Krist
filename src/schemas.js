@@ -56,11 +56,19 @@ var Block = database.getSequelize().define('block', {
 	difficulty: Sequelize.INTEGER(10).UNSIGNED,
 	useragent: Sequelize.STRING(255)
 }, {
-	timestamps: false
+  timestamps: false,
+  indexes: [
+    { // Index the address that mined a block
+      fields: ["address"]
+    }
+  ]
 });
 
 var Name = database.getSequelize().define('name', {
-	name: Sequelize.STRING(64),
+	name: {
+    type: Sequelize.STRING(64),
+    unique: true
+  },
 	owner: Sequelize.STRING(10),
 	registered: Sequelize.DATE,
 	updated: Sequelize.DATE,
@@ -78,33 +86,25 @@ var Transaction = database.getSequelize().define('transaction', {
 	name: Sequelize.STRING(128),
 	op: Sequelize.STRING(512)
 }, {
-	timestamps: false
-});
-
-var Webhook = database.getSequelize().define('webhook', {
-	event: Sequelize.ENUM('transaction', 'block', 'name'),
-	value: {
-		type: Sequelize.STRING(255),
-		allowNull: true
-	},
-	url: Sequelize.STRING(255),
-	method: Sequelize.ENUM('get', 'post'),
-	owner: Sequelize.STRING(10),
-	token: Sequelize.STRING(16)
-}, {
-	timestamps: false
+  timestamps: false,
+  indexes: [
+    { // Index on 'from'
+      fields: ["from"]
+    },
+    { // Index on 'to'
+      fields: ["to"]
+    }
+  ]
 });
 
 Address.sync();
 Block.sync();
 Name.sync();
 Transaction.sync();
-Webhook.sync();
 
 module.exports = {
 	address: Address,
 	block: Block,
 	name: Name,
-	transaction: Transaction,
-	webhook: Webhook
+	transaction: Transaction
 };
