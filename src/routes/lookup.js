@@ -22,7 +22,7 @@
 const express      = require("express");
 const krist        = require("../krist");
 const transactions = require("../transactions");
-aconst names        = require("../names");
+const names        = require("../names");
 const errors       = require("../errors/errors");
 const utils        = require("../utils");
 
