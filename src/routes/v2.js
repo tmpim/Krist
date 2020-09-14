@@ -19,9 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist   = require("./../krist.js"),
-  utils   = require("./../utils.js"),
-  errors  = require("./../errors/errors.js");
+const krist  = require("./../krist.js");
+const utils  = require("./../utils.js");
+const errors = require("./../errors/errors.js");
 
 module.exports = function(app) {
   app.get("/", function(req, res, next) {

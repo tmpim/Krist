@@ -19,53 +19,28 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config = require('./config.js');
-const package = require('./package.json');
+const config = require("./config.js");
+const package = require("./package.json");
 const chalk = require("chalk");
 
-require('console-stamp')(console, {
-  pattern: 'HH:MM:ss',
+require("console-stamp")(console, {
+  pattern: "HH:MM:ss",
   label: false,
   colors: {
     stamp: "yellow"
   }
 });
 
-const database = require('./src/database.js');
-const webserver = require('./src/webserver.js');
+const database = require("./src/database.js");
+const webserver = require("./src/webserver.js");
 
 console.log(chalk`Starting {bold ${package.name}} {blue ${package.version}}...`);
 
 async function main() {
   await database.init();
 
-  require('./src/krist.js').init();
-
-  if (config.debugMode) {
-    require('./src/websockets.js');
-
-    // Debug commands only in use on the test node. Go away.
-
-    var stdin = process.openStdin();
-    var krist = require('./src/krist.js');
-
-    stdin.addListener('data', function (d) {
-      var args = d.toString().trim().split(" ");
-
-      if (args[0].toLowerCase() === "setwork") {
-        return krist.setWork(new Number(args[1]));
-      }
-
-      if (args[0].toLowerCase() === "getwork") {
-        console.log(chalk`{bold [Krist]} Current work: {green ${krist.getWork().toString()}}`);
-      }
-
-      if (args[0].toLowerCase() === "freenonce") {
-        krist.freeNonceSubmission = !krist.freeNonceSubmission;
-        console.log(krist.freeNonceSubmission);
-      }
-    });
-  }
+  require("./src/krist.js").init();
+  if (config.debugMode) require("./src/debug.js");
 
   return webserver.init();
 }

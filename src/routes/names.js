@@ -491,15 +491,17 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-  app.get("/names/:name", function(req, res) {
-    namesController.getName(req.params.name).then(function(name) {
+  app.get("/names/:name", async function(req, res) {
+    try {
+      const dbName = await namesController.getName(req.params.name);
+      
       res.json({
         ok: true,
-        name: namesController.nameToJSON(name)
+        name: namesController.nameToJSON(dbName)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**

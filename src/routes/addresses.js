@@ -19,14 +19,14 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist               = require("./../krist.js"),
-  addresses           = require("./../addresses.js"),
-  addressesController = require("./../controllers/addresses.js"),
-  namesController     = require("./../controllers/names.js"),
-  txController        = require("./../controllers/transactions.js"),
-  tx                  = require("./../transactions.js"),
-  utils               = require("./../utils.js"),
-  moment              = require("moment");
+const krist               = require("./../krist.js");
+const addresses           = require("./../addresses.js");
+const addressesController = require("./../controllers/addresses.js");
+const namesController     = require("./../controllers/names.js");
+const txController        = require("./../controllers/transactions.js");
+const tx                  = require("./../transactions.js");
+const utils               = require("./../utils.js");
+const moment              = require("moment");
 
 module.exports = function(app) {
   /**

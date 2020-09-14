@@ -1,5 +1,5 @@
-const	util        = require("util"),
-  errors      = require("./errors.js");
+const util   = require("util");
+const errors = require("./errors.js");
 
 errors.ErrorNameNotFound = function(message) {
   errors.KristError.call(this);

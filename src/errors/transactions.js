@@ -19,8 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const	util        = require("util"),
-  errors      = require("./errors.js");
+const util   = require("util");
+const errors = require("./errors.js");
 
 errors.ErrorInsufficientFunds = function(message) {
   errors.KristError.call(this);

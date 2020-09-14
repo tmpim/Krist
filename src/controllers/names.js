@@ -46,7 +46,7 @@ NamesController.getName = async function(name) {
     throw new errors.ErrorInvalidParameter("name");
 
   const dbName = await names.getNameByName(name);
-  if (dbName) return name;
+  if (dbName) return dbName;
   else throw new errors.ErrorNameNotFound();
 };
 
@@ -136,14 +136,14 @@ NamesController.transferName = async function(name, privatekey, address) {
   if (!address) throw new errors.ErrorMissingParameter("address");
 
   if (!krist.isValidName(name)) throw new errors.ErrorInvalidParameter("name");
-  if (!krist.isValidKristAddress(name)) throw new errors.ErrorInvalidParameter("address");
+  if (!krist.isValidKristAddress(address)) throw new errors.ErrorInvalidParameter("address");
 
   // Address auth validation
-  const { authed, dbAddress } = addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Get the name from the database
-  const dbName = names.getNameByName(name);
+  const dbName = await names.getNameByName(name);
   if (!dbName) throw new errors.ErrorNameNotFound();
   if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
 
@@ -174,11 +174,11 @@ NamesController.updateName = async function(name, privatekey, a) {
   if (a.trim() && !krist.isValidARecord(a)) throw new errors.ErrorInvalidParameter("a");
 
   // Address auth validation
-  const { authed, dbAddress } = addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Get the name from the database
-  const dbName = names.getNameByName(name);
+  const dbName = await names.getNameByName(name);
   if (!dbName) throw new errors.ErrorNameNotFound();
   if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
 
@@ -191,7 +191,7 @@ NamesController.updateName = async function(name, privatekey, a) {
     }),
 
     // Add a name meta transaction
-    tx.createTransaction("a", dbName.owner, 0, a, dbName.name)
+    tx.createTransaction("a", dbName.owner, 0, dbName.name, a)
   ]);
 
   // Return the updated name

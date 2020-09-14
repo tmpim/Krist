@@ -19,11 +19,11 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config	= require("./../../config.js"),
-  blocks  = require("./../blocks.js"),
-  krist   = require("./../krist.js"),
-  utils   = require("./../utils.js"),
-  errors  = require("./../errors/errors.js");
+const config = require("./../../config.js");
+const blocks = require("./../blocks.js");
+const krist  = require("./../krist.js");
+const utils  = require("./../utils.js");
+const errors = require("./../errors/errors.js");
 
 function BlocksController() {}
 

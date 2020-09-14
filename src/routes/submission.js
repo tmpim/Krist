@@ -19,13 +19,13 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config				= require("./../../config.js"),
-  krist               = require("./../krist.js"),
-  utils               = require("./../utils.js"),
-  addressesController = require("./../controllers/addresses.js"),
-  blocksController    = require("./../controllers/blocks.js"),
-  blocks              = require("./../blocks.js"),
-  errors              = require("./../errors/errors.js");
+const config              = require("./../../config.js");
+const krist               = require("./../krist.js");
+const utils               = require("./../utils.js");
+const addressesController = require("./../controllers/addresses.js");
+const blocksController    = require("./../controllers/blocks.js");
+const blocks              = require("./../blocks.js");
+const errors              = require("./../errors/errors.js");
 
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {

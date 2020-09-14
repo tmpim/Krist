@@ -19,8 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const utils       = require("./utils.js"),
-  schemas     = require("./schemas.js");
+const utils   = require("./utils.js");
+const schemas = require("./schemas.js");
 
 function Addresses() {}
 

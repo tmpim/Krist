@@ -55,6 +55,15 @@ Utils.errorToJSON = function(error) {
       message: error.message,
       ...(error.info || {})
     };
+  } else if (error.name === "SequelizeUniqueConstraintError") {    
+    console.error(chalk`{red [Error]} Uncaught validation error.`);
+    console.error(error.stack);
+    console.error(error.errors);
+
+    return {
+      ok: false,
+      error: "server_error"
+    };
   } else {
     console.error(chalk`{red [Error]} Uncaught error.`);
     console.error(error.stack);

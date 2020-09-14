@@ -213,6 +213,6 @@ Krist.getMOTD = async function() {
     };
   } catch (error) { // Return a generic MOTD if the file was not found
     console.error(error);
-    return "Welcome to Krist!";
+    return { motd: "Welcome to Krist!" };
   }
 };

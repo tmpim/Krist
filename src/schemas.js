@@ -19,9 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const	Sequelize	= require("sequelize"),
-  config		= require("./../config.js"),
-  database	= require("./database.js");
+const Sequelize = require("sequelize");
+const config    = require("./../config.js");
+const database  = require("./database.js");
 
 const Address = database.getSequelize().define("address", {
   address: {

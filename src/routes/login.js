@@ -19,10 +19,10 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist 	    = require("./../krist.js"),
-  utils 	    = require("./../utils.js"),
-  addresses   = require("./../addresses.js"),
-  errors	    = require("./../errors/errors.js");
+const krist     = require("./../krist.js");
+const utils     = require("./../utils.js");
+const addresses = require("./../addresses.js");
+const errors    = require("./../errors/errors.js");
 
 module.exports = function(app) {
   /**

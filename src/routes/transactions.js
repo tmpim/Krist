@@ -392,15 +392,16 @@ module.exports = function(app) {
      *     "error": "insufficient_funds"
      * }
 	 */
-  app.post("/transactions", function(req, res) {
-    txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata).then(function(transaction) {
+  app.post("/transactions", async function(req, res) {
+    try {
+      const transaction = await txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata);
       res.json({
         ok: true,
         transaction: txController.transactionToJSON(transaction)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   return app;

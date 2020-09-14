@@ -39,7 +39,7 @@ module.exports = function(app) {
 	 * }
 	 */
   app.all("/motd", async function(req, res) {
-    const { motd, motd_set }  = krist.getMOTD();
+    const { motd, motd_set } = await krist.getMOTD();
 
     return res.json({
       ok: true,

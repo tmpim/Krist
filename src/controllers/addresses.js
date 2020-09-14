@@ -19,9 +19,9 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const addresses   = require("./../addresses.js"),
-  krist       = require("./../krist.js"),
-  errors      = require("./../errors/errors.js");
+const addresses = require("./../addresses.js");
+const krist     = require("./../krist.js");
+const errors    = require("./../errors/errors.js");
 
 function AddressesController() {}
 

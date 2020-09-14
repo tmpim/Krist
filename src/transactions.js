@@ -77,62 +77,62 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
   });
 };
 
-Transactions.createTransaction = function (to, from, value, name, op, dbTx) {
-  return new Promise(function(resolve, reject) {
-    schemas.transaction.create({
-      to,
-      from,
-      value,
-      name,
-      time: new Date(),
-      op
-    }, { transaction: dbTx }).then(function(transaction) {
-      websockets.broadcastEvent({
-        type: "event",
-        event: "transaction",
-        transaction: Transactions.transactionToJSON(transaction)
-      }, function(ws) {
-        return new Promise(function() {
-          if ((!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
-            return resolve();
-          }
+Transactions.createTransaction = async function (to, from, value, name, op, dbTx) {
+  // Create the new transaction object
+  const newTransaction = await schemas.transaction.create({
+    to,
+    from,
+    value,
+    name,
+    time: new Date(),
+    op
+  }, { transaction: dbTx });
 
-          reject();
-        });
-      });
-
-      resolve(transaction);
-    }).catch(reject);
-  });
-};
-
-Transactions.pushTransaction = function(sender, recipientAddress, amount, metadata, name, dbTx) {
-  return new Promise(function(resolve, reject) {
-    addresses.getAddress(recipientAddress).then(function(recipient) {
-      const promises = [];
-
-      promises.push(sender.decrement({ balance: amount }, { transaction: dbTx }));
-      promises.push(sender.increment({ totalout: amount }, { transaction: dbTx }));
-
-      promises.push(Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx));
-
-      if (!recipient) {
-        promises.push(schemas.address.create({
-          address: recipientAddress.toLowerCase(),
-          firstseen: new Date(),
-          balance: amount,
-          totalin: amount,
-          totalout: 0
-        }, { transaction: dbTx }));
-      } else {
-        promises.push(recipient.increment({ balance: amount, totalin: amount }, { transaction: dbTx }));
+  // Broadcast the transaction to websockets subscribed to transactions (async)
+  websockets.broadcastEvent({
+    type: "event",
+    event: "transaction",
+    transaction: Transactions.transactionToJSON(newTransaction)
+  }, function(ws) {
+    return new Promise(function(resolve, reject) {
+      if ((!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
+        return resolve();
       }
 
-      Promise.all(promises).then(function(results) {
-        resolve(results[2]);
-      }).catch(reject);
-    }).catch(reject);
+      reject();
+    });
   });
+
+  return newTransaction;
+};
+
+Transactions.pushTransaction = async function(sender, recipientAddress, amount, metadata, name, dbTx) {
+  const recipient = await addresses.getAddress(recipientAddress);
+
+  // Do these in parallel:
+  const [,, newTransaction] = await Promise.all([
+    // Decrease the sender's own balance
+    sender.decrement({ balance: amount }, { transaction: dbTx }),
+    // Increase the sender's totalout
+    sender.increment({ totalout: amount }, { transaction: dbTx }),
+
+    // Create the transaction
+    Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx),
+
+    // Create the recipient if they don't exist, 
+    !recipient
+      ? schemas.address.create({
+        address: recipientAddress.toLowerCase(),
+        firstseen: new Date(),
+        balance: amount,
+        totalin: amount,
+        totalout: 0
+      }, { transaction: dbTx })
+    // Otherwise, increment their balance and totalin
+      : recipient.increment({ balance: amount, totalin: amount }, { transaction: dbTx })
+  ]);
+
+  return newTransaction;
 };
 
 Transactions.transactionToJSON = function(transaction) {
