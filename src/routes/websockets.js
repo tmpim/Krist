@@ -41,11 +41,11 @@ module.exports = function(app) {
       const { token } = req.params;
       const { address, privatekey } = websockets.useToken(token);
 
+      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${req.connection.remoteAddress}} (origin: {bold ${req.header("Origin")}})`);
+      websockets.addWebsocket(ws, token, address, privatekey);
+
       const lastBlock = await blocks.getLastBlock();
       const { motd, motd_set, debug_mode } = await krist.getMOTD();
-
-      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${req.connection.remoteAddress}} (origin: {bold ${req.header("Origin")}})`);
-      
       // Send the hello message containing the MOTD and last block
       utils.sendToWS(ws, {
         ok: true,
@@ -55,8 +55,6 @@ module.exports = function(app) {
         last_block: blocks.blockToJSON(lastBlock),
         work: krist.getWork()
       });
-
-      websockets.addWebsocket(ws, token, address, privatekey);
     } catch (error) {
       utils.sendErrorToWS(ws, error);
       console.error(error);
