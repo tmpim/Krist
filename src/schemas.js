@@ -75,7 +75,12 @@ const Name = database.getSequelize().define("name", {
   a: Sequelize.STRING,
   unpaid: Sequelize.INTEGER.UNSIGNED
 }, {
-  timestamps: false
+  timestamps: false,
+  indexes: [
+    { // Index on 'owner'
+      fields: ["owner"]
+    }
+  ]
 });
 
 const Transaction = database.getSequelize().define("transaction", {
