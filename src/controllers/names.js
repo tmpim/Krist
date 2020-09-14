@@ -84,49 +84,40 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
   });
 };
 
-NamesController.registerName = function(desiredName, privatekey) {
-  return new Promise(function(resolve, reject) {
-    if (!desiredName) {
-      return reject(new errors.ErrorMissingParameter("name"));
-    }
+NamesController.registerName = async function(desiredName, privatekey) {
+  // Input validation
+  if (!desiredName) throw new errors.ErrorMissingParameter("name");
+  if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
-    if (!privatekey) {
-      return reject(new errors.ErrorMissingParameter("privatekey"));
-    }
+  if (!krist.isValidName(desiredName)) throw new errors.ErrorInvalidParameter("name");
 
-    if (!krist.isValidName(desiredName)) {
-      return reject(new errors.ErrorInvalidParameter("name"));
-    }
+  // Address auth validation
+  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  if (!authed) throw new errors.ErrorAuthFailed();
 
-    addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-      const authed = results.authed;
-      const address = results.address;
+  // Check if the name already exists
+  if (await names.getNameByName(desiredName)) 
+    throw new errors.ErrorNameTaken();
 
-      if (!authed) {
-        return reject(new errors.ErrorAuthFailed());
-      }
+  // Reject insufficient funds
+  if (dbAddress.balance < names.getNameCost())
+    throw new errors.ErrorInsufficientFunds();
 
-      names.getNameByName(desiredName).then(function (name) {
-        if (name) {
-          return reject(new errors.ErrorNameTaken());
-        }
+  // Do these actions in parallel
+  const [,,, dbName] = await Promise.all([
+    // Decrease the purchaser's balance and increase their totalout
+    dbAddress.decrement({ balance: names.getNameCost() }),
+    dbAddress.increment({ totalout: names.getNameCost() }),
 
-        if (address.balance < names.getNameCost()) {
-          return reject(new errors.ErrorInsufficientFunds());
-        }
+    // Create the name transaction
+    tx.createTransaction("name", dbAddress.address, names.getNameCost(), desiredName, null),
 
-        const promises = [];
+    // Create the name itself
+    names.createName(desiredName, dbAddress.address)
+  ]);
 
-        promises.push(address.decrement({balance: names.getNameCost()}));
-        promises.push(address.increment({totalout: names.getNameCost()}));
-
-        promises.push(tx.createTransaction("name", address.address, names.getNameCost(), desiredName, null));
-        promises.push(names.createName(desiredName, address.address));
-
-        Promise.all(promises).then(resolve).catch(reject);
-      }).catch(reject);
-    }).catch(reject);
-  });
+  // Return the new name
+  return dbName;
 };
 
 NamesController.transferName = async function(name, privatekey, address) {
