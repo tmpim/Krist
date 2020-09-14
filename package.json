@@ -1,6 +1,6 @@
 {
   "name": "Krist",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
   "scripts": {
@@ -38,7 +38,7 @@
   },
   "apidoc": {
     "title": "Krist",
-    "url": "http://krist.ceriat.net",
+    "url": "https://krist.ceriat.net",
     "description": "This is the documentation for the new Krist API.",
     "order": [
       "AddressGroup",
@@ -74,7 +74,9 @@
       "WebsocketStart",
       "WSGetWork",
       "WSMakeTransaction",
-      "WSSubmitBlock"
+      "WSSubmitBlock",
+      "LookupGroup",
+      "LookupTransactions"
     ]
   }
 }

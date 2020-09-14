@@ -19,6 +19,7 @@
     "totalin",
     "totalout",
     "txes",
+    "unsupplied",
     "websockets"
   ]
 }

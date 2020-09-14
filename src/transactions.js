@@ -77,6 +77,23 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
   });
 };
 
+Transactions.getTransactionsByAddresses = function(addressList, limit, offset, orderBy, order, includeMined) {
+  return schemas.transaction.findAndCountAll({
+    order: [[orderBy || "id", order || "ASC"]],
+    limit: utils.sanitiseLimit(limit),
+    offset: utils.sanitiseOffset(offset),
+    where: includeMined
+      ? {[Op.or]: [{ from: {[Op.in]: addressList} }, { to: {[Op.in]: addressList} }]}
+      : {[Op.or]: [
+        { from: {[Op.in]: addressList} },
+        { 
+          from: EXCLUDE_MINED, 
+          to: {[Op.in]: addressList}
+        } 
+      ]}
+  });
+};
+
 Transactions.createTransaction = async function (to, from, value, name, op, dbTx) {
   // Create the new transaction object
   const newTransaction = await schemas.transaction.create({
