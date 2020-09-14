@@ -22,6 +22,7 @@
 const express      = require("express");
 const krist        = require("../krist");
 const transactions = require("../transactions");
+aconst names        = require("../names");
 const errors       = require("../errors/errors");
 const utils        = require("../utils");
 
@@ -30,6 +31,8 @@ const ADDRESS_LIST_LIMIT = 128;
 
 // Valid fields to order transaction lookups by
 const TRANSACTION_FIELDS = ["id", "from", "to", "value", "time"];
+// Valid fields to order name lookups by
+const NAME_FIELDS = ["name", "owner", "registered", "updated"];
 
 /** Validate a comma-separated list of addresses, returning an array of them
  * if it is valid, or throwing an error if it is not. */
@@ -160,6 +163,58 @@ module.exports = function(app) {
       count: rows.length,
       total: count,
       transactions: rows.map(transactions.transactionToJSON)
+    });
+  });
+
+  /**
+   * @api {get} /lookup/names/:addresses Lookup names
+   * @apiName LookupNames
+   * @apiGroup LookupGroup
+   * @apiVersion 2.1.3
+   *
+   * @apiDescription **WARNING:** The Lookup API is in Beta, and is subject to
+   * change at any time without warning. 
+   * 
+	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
+   *           addresses to filter name owners by.
+   * 
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+   *           results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+   *           results.
+	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+   *           results by. Must be one of `name`, `owner`, `registered`, 
+   *           `updated`.
+	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+   *           the results in. Must be one of `ASC` or `DESC`.
+   * 
+   * @apiSuccess {Number} count The count of results returned.
+   * @apiSuccess {Number} total The total count of results available.
+   * @apiUse Names
+   */
+  api.get("/names/:addresses", async (req, res) => {
+    const { addresses: addressesParam } = req.params;
+
+    // Validate address list
+    if (!addressesParam) throw new errors.ErrorMissingParameter("addresses");
+    const addressList = validateAddressList(addressesParam);
+
+    // Query filtering parameters
+    const limit = validateLimit(req.query.limit);
+    const offset = validateOffset(req.query.offset);
+    const orderBy = validateOrderBy(NAME_FIELDS, req.query.orderBy);
+    const order = validateOrder(req.query.order);
+
+    // Perform the query
+    const { rows, count } = await names.getNamesByAddresses(
+      addressList, limit, offset, orderBy, order
+    );
+
+    return res.json({
+      ok: true,
+      count: rows.length,
+      total: count,
+      names: rows.map(names.nameToJSON)
     });
   });
 
