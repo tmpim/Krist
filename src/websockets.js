@@ -72,6 +72,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
     if (message.length > 512) {
       return socket.send(JSON.stringify({
         ok: false,
+        type: "error",
         error: "message_too_long"
       }));
     }
@@ -83,6 +84,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
     } catch (e) {
       return socket.send(JSON.stringify({
         ok: false,
+        type: "error",
         error: "syntax_error"
       }));
     }
@@ -90,6 +92,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
     if (typeof msg.id !== "number" && typeof msg.id !== "string") {
       return socket.send(JSON.stringify({
         ok: false,
+        type: "error",
         error: "missing_parameter",
         parameter: "id"
       }));
@@ -98,6 +101,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
     if (typeof Websockets.messageHandlers[msg.type.toLowerCase()] === "undefined") {
       return Websockets.sendResponse(socket, msg, {
         ok: false,
+        type: "error",
         error: "invalid_type"
       });
     }

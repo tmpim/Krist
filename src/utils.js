@@ -105,14 +105,15 @@ Utils.sendToWS = function(ws, message) {
 };
 
 Utils.sendErrorToWS = function(ws, error) {
-  ws.send(JSON.stringify(Utils.errorToJSON(error)));
+  const e = Utils.errorToJSON(error);
+  e.type = "error";
+  ws.send(JSON.stringify(e));
 };
 
 Utils.sendErrorToWSWithID = function(ws, id, error) {
   const e = Utils.errorToJSON(error);
-
   e.id = id;
-
+  e.type = "error";
   ws.send(JSON.stringify(e));
 };
 
