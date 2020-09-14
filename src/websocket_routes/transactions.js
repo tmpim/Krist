@@ -20,10 +20,10 @@
  */
 
 var errors = require("../errors/errors.js"),
-	txController = require('./../controllers/transactions.js');
+  txController = require("./../controllers/transactions.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"make_transaction" Make a transaction
 	 * @apiName WSMakeTransaction
 	 * @apiGroup WebsocketGroup
@@ -49,18 +49,18 @@ module.exports = function(websockets) {
      *     "error": "insufficient_funds"
      * }
 	 */
-	websockets.addMessageHandler('make_transaction', function(ws, message) {
-		return new Promise(function(resolve, reject) {
-			if (ws.isGuest && !message.privatekey) {
-				return reject(new errors.ErrorMissingParameter('privatekey'));
-			}
+  websockets.addMessageHandler("make_transaction", function(ws, message) {
+    return new Promise(function(resolve, reject) {
+      if (ws.isGuest && !message.privatekey) {
+        return reject(new errors.ErrorMissingParameter("privatekey"));
+      }
 
-			txController.makeTransaction(message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
-				resolve({
-					ok: true,
-					transaction: txController.transactionToJSON(transaction)
-				});
-			}).catch(reject);
-		});
-	});
+      txController.makeTransaction(message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
+        resolve({
+          ok: true,
+          transaction: txController.transactionToJSON(transaction)
+        });
+      }).catch(reject);
+    });
+  });
 };

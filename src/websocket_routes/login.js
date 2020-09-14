@@ -19,13 +19,13 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist       = require('./../krist.js'),
-	utils       = require('./../utils.js'),
-	addresses   = require('./../addresses.js'),
-	addr        = require('./../controllers/addresses.js');
+var krist       = require("./../krist.js"),
+  utils       = require("./../utils.js"),
+  addresses   = require("./../addresses.js"),
+  addr        = require("./../controllers/addresses.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"login" Login to a wallet (upgrade connection)
 	 * @apiName WSLogin
 	 * @apiGroup WebsocketGroup
@@ -38,33 +38,33 @@ module.exports = function(websockets) {
 	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 * @apiUse Address
 	 */
-	websockets.addMessageHandler('login', function(ws, message) {
-		return new Promise(function(resolve, reject) {
-			if (!message.privatekey) {
-				return reject(new errors.ErrorMissingParameter('privatekey'));
-			}
+  websockets.addMessageHandler("login", function(ws, message) {
+    return new Promise(function(resolve, reject) {
+      if (!message.privatekey) {
+        return reject(new errors.ErrorMissingParameter("privatekey"));
+      }
 
-			addresses.verify(krist.makeV2Address(message.privatekey), message.privatekey).then(function(results) {
-				if (results.authed) {
-					ws.auth = results.address.address;
-					ws.privatekey = message.privatekey;
-					ws.isGuest = false;
+      addresses.verify(krist.makeV2Address(message.privatekey), message.privatekey).then(function(results) {
+        if (results.authed) {
+          ws.auth = results.address.address;
+          ws.privatekey = message.privatekey;
+          ws.isGuest = false;
 
-					resolve({
-						ok: true,
-						isGuest: false,
-						address: addr.addressToJSON(results.address)
-					});
-				} else {
-					ws.auth = 'guest';
-					ws.isGuest = true;
+          resolve({
+            ok: true,
+            isGuest: false,
+            address: addr.addressToJSON(results.address)
+          });
+        } else {
+          ws.auth = "guest";
+          ws.isGuest = true;
 
-					resolve({
-						ok: true,
-						isGuest: true
-					});
-				}
-			});
-		});
-	});
+          resolve({
+            ok: true,
+            isGuest: true
+          });
+        }
+      });
+    });
+  });
 };

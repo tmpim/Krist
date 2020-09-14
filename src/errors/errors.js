@@ -27,12 +27,12 @@ const chalk = require("chalk");
 var errors = {};
 
 errors.KristError = function(message) {
-	Error.call(this);
-	this.message = message;
-	this.errorString = 'unknown_error';
-	this.statusCode = 500;
+  Error.call(this);
+  this.message = message;
+  this.errorString = "unknown_error";
+  this.statusCode = 500;
 
-	this.info = {};
+  this.info = {};
 };
 
 util.inherits(errors.KristError, Error);
@@ -40,22 +40,22 @@ util.inherits(errors.KristError, Error);
 module.exports = errors;
 
 try {
-	var findPath = __dirname;
+  var findPath = __dirname;
 
-	fs.readdirSync(findPath).forEach(function(file) {
-		if (path.extname(file).toLowerCase() !== '.js' ||
+  fs.readdirSync(findPath).forEach(function(file) {
+    if (path.extname(file).toLowerCase() !== ".js" ||
 			path.basename(file).toLowerCase() === path.basename(__filename).toLowerCase()) {
 
-			return;
-		}
+      return;
+    }
 
-		try {
-			require('./' + file);
-		} catch (error) {
+    try {
+      require("./" + file);
+    } catch (error) {
       console.error(chalk`{red [Error]} Uncaught error.`);
       console.error(error.stack);
-		}
-	});
+    }
+  });
 } catch (error) {
   console.error(chalk`{red [Error]} Uncaught error.`);
   console.error(error.stack);

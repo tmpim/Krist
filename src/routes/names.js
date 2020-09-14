@@ -19,23 +19,23 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist               = require('./../krist.js'),
-	utils               = require('./../utils.js'),
-	addresses           = require('./../addresses.js'),
-	tx                  = require('./../transactions.js'),
-	names               = require('./../names.js'),
-	errors              = require('./../errors/errors.js'),
-	namesController     = require('./../controllers/names.js'),
-	moment              = require('moment');
+var krist               = require("./../krist.js"),
+  utils               = require("./../utils.js"),
+  addresses           = require("./../addresses.js"),
+  tx                  = require("./../transactions.js"),
+  names               = require("./../names.js"),
+  errors              = require("./../errors/errors.js"),
+  namesController     = require("./../controllers/names.js"),
+  moment              = require("moment");
 
 module.exports = function(app) {
-	/**
+  /**
 	 * @apiDefine NameGroup Names
 	 *
 	 * All Name related endpoints.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Name
 	 *
 	 * @apiSuccess {Object} name
@@ -46,7 +46,7 @@ module.exports = function(app) {
 	 * @apiSuccess {String} name.a The A record (or CNAME record) of this name.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Names
 	 *
 	 * @apiSuccess {Object[]} names
@@ -57,262 +57,262 @@ module.exports = function(app) {
 	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
 	 */
 
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.dumpnames !== 'undefined') {
-			names.getNames().then(function(results) {
-				var out = '';
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.dumpnames !== "undefined") {
+      names.getNames().then(function(results) {
+        var out = "";
 
-				results.rows.forEach(function(name) {
-					out += name.name + ';';
-				});
+        results.rows.forEach(function(name) {
+          out += name.name + ";";
+        });
 
-				res.send(out);
-			});
+        res.send(out);
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.a) {
-			names.getNameByName(req.query.a).then(function (name) {
-				if (name) {
-					res.send(name.a);
-				} else {
-					res.send("");
-				}
-			});
+    if (req.query.a) {
+      names.getNameByName(req.query.a).then(function (name) {
+        if (name) {
+          res.send(name.a);
+        } else {
+          res.send("");
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.getowner) {
-			names.getNameByName(req.query.getwoenr).then(function (name) {
-				if (name) {
-					res.send(name.owner);
-				} else {
-					res.send("");
-				}
-			});
+    if (req.query.getowner) {
+      names.getNameByName(req.query.getwoenr).then(function (name) {
+        if (name) {
+          res.send(name.owner);
+        } else {
+          res.send("");
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.nameCost !== 'undefined') {
-			return res.send(names.getNameCost().toString());
-		}
+    if (typeof req.query.nameCost !== "undefined") {
+      return res.send(names.getNameCost().toString());
+    }
 
-		if (typeof req.query.namebonus !== 'undefined') {
-			names.getUnpaidNameCount().then(function(count) {
-				res.send(count.toString());
-			});
+    if (typeof req.query.namebonus !== "undefined") {
+      names.getUnpaidNameCount().then(function(count) {
+        res.send(count.toString());
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.getnames) {
-			addresses.getAddress(req.query.getnames).then(function(address) {
-				if (address) {
-					names.getNameCountByAddress(address.address).then(function(count) {
-						res.send(count.toString());
-					});
-				} else {
-					res.send('0');
-				}
-			});
+    if (req.query.getnames) {
+      addresses.getAddress(req.query.getnames).then(function(address) {
+        if (address) {
+          names.getNameCountByAddress(address.address).then(function(count) {
+            res.send(count.toString());
+          });
+        } else {
+          res.send("0");
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.listnames) {
-			addresses.getAddress(req.query.listnames).then(function(address) {
-				if (address) {
-					names.getNamesByAddress(address.address).then(function(results) {
-						var out = '';
+    if (req.query.listnames) {
+      addresses.getAddress(req.query.listnames).then(function(address) {
+        if (address) {
+          names.getNamesByAddress(address.address).then(function(results) {
+            var out = "";
 
-						results.rows.forEach(function(name) {
-							out += name.name + ';';
-						});
+            results.rows.forEach(function(name) {
+              out += name.name + ";";
+            });
 
-						res.send(out);
-					});
-				} else {
-					res.send('Error4');
-				}
-			});
+            res.send(out);
+          });
+        } else {
+          res.send("Error4");
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.getnewdomains !== 'undefined') {
-			names.getUnpaidNames().then(function(results) {
-				var out = '';
+    if (typeof req.query.getnewdomains !== "undefined") {
+      names.getUnpaidNames().then(function(results) {
+        var out = "";
 
-				results.forEach(function(name) {
-					out += name.name + ';';
-				});
+        results.forEach(function(name) {
+          out += name.name + ";";
+        });
 
-				res.send(out);
-			});
+        res.send(out);
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.name_check) {
-			if (!krist.isValidName(req.query.name_check)) {
-				return res.send("0");
-			}
+    if (req.query.name_check) {
+      if (!krist.isValidName(req.query.name_check)) {
+        return res.send("0");
+      }
 
-			names.getNameByName(req.query.name_check).then(function (name) {
-				if (name) {
-					res.send("0");
-				} else {
-					res.send("01"); // look at Taras's code and you'll know why :^)
-				}
-			});
+      names.getNameByName(req.query.name_check).then(function (name) {
+        if (name) {
+          res.send("0");
+        } else {
+          res.send("01"); // look at Taras's code and you'll know why :^)
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.name_new !== 'undefined') {
-			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.send('Error6');
-			}
+    if (typeof req.query.name_new !== "undefined") {
+      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+        return res.send("Error6");
+      }
 
-			var desiredName = req.query.name.toLowerCase();
+      var desiredName = req.query.name.toLowerCase();
 
-			names.getNameByName(desiredName).then(function(name) {
-				if (name) {
-					res.send('Error5');
-				} else {
-					addresses.verify(krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
-						var authed = results.authed;
-						var address = results.address;
+      names.getNameByName(desiredName).then(function(name) {
+        if (name) {
+          res.send("Error5");
+        } else {
+          addresses.verify(krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
+            var authed = results.authed;
+            var address = results.address;
 
-						if (!authed) {
-							return res.send('Access denied');
-						}
+            if (!authed) {
+              return res.send("Access denied");
+            }
 
-						if (address.balance < names.getNameCost()) {
-							return res.send('Error1');
-						}
+            if (address.balance < names.getNameCost()) {
+              return res.send("Error1");
+            }
 
-						address.decrement({balance: names.getNameCost()});
-						address.increment({totalout: names.getNameCost()});
+            address.decrement({balance: names.getNameCost()});
+            address.increment({totalout: names.getNameCost()});
 
-						tx.createTransaction('name', address.address, names.getNameCost(), desiredName, null);
-						names.createName(desiredName, address.address).then(function () {
-							res.send('Success');
-						});
-					});
-				}
-			});
+            tx.createTransaction("name", address.address, names.getNameCost(), desiredName, null);
+            names.createName(desiredName, address.address).then(function () {
+              res.send("Success");
+            });
+          });
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.name_transfer !== 'undefined') {
-			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.send('Error6');
-			}
+    if (typeof req.query.name_transfer !== "undefined") {
+      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+        return res.send("Error6");
+      }
 
-			if (!req.query.q || !krist.isValidKristAddress(req.query.q)) {
-				return res.send('Error4');
-			}
+      if (!req.query.q || !krist.isValidKristAddress(req.query.q)) {
+        return res.send("Error4");
+      }
 
-			var currentOwner = krist.makeV2Address(req.query.pkey);
+      var currentOwner = krist.makeV2Address(req.query.pkey);
 
-			addresses.verify(currentOwner, req.query.pkey).then(function(results) {
-				var authed = results.authed;
+      addresses.verify(currentOwner, req.query.pkey).then(function(results) {
+        var authed = results.authed;
 
-				if (!authed) {
-					return res.send('Access denied');
-				}
+        if (!authed) {
+          return res.send("Access denied");
+        }
 
-				names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-					if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
-						res.send(req.query.name.toLowerCase());
+        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
+          if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
+            res.send(req.query.name.toLowerCase());
 
-						return;
-					}
+            return;
+          }
 
-					var promises = [];
+          var promises = [];
 
-					promises.push(name.update({
-						owner: req.query.q.toLowerCase(),
-						updated: new Date()
-					}));
+          promises.push(name.update({
+            owner: req.query.q.toLowerCase(),
+            updated: new Date()
+          }));
 
-					promises.push(tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name));
+          promises.push(tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name));
 
-					Promise.all(promises).then(function () {
-						res.send('Success');
-					});
-				});
-			});
+          Promise.all(promises).then(function () {
+            res.send("Success");
+          });
+        });
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.name_update !== 'undefined') {
-			if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-				return res.send('Error6');
-			}
+    if (typeof req.query.name_update !== "undefined") {
+      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
+        return res.send("Error6");
+      }
 
-			if (!req.query.ar || !krist.isValidARecord(req.query.ar)) {
-				return res.send('Error8');
-			}
+      if (!req.query.ar || !krist.isValidARecord(req.query.ar)) {
+        return res.send("Error8");
+      }
 
-			var owner = krist.makeV2Address(req.query.pkey);
+      var owner = krist.makeV2Address(req.query.pkey);
 
-			addresses.verify(owner, req.query.pkey).then(function(results) {
-				var authed = results.authed;
+      addresses.verify(owner, req.query.pkey).then(function(results) {
+        var authed = results.authed;
 
-				if (!authed) {
-					return res.send('Access denied');
-				}
+        if (!authed) {
+          return res.send("Access denied");
+        }
 
-				names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-					if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
-						return res.send(req.query.name.toLowerCase());
-					}
+        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
+          if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
+            return res.send(req.query.name.toLowerCase());
+          }
 
-					name.update({
-						a: req.query.ar,
-						updated: new Date()
-					}).then(function () {
-						res.send('Success');
-					});
+          name.update({
+            a: req.query.ar,
+            updated: new Date()
+          }).then(function () {
+            res.send("Success");
+          });
 
-					tx.createTransaction('a', owner.toLowerCase(), 0, name.name);
-				});
-			});
+          tx.createTransaction("a", owner.toLowerCase(), 0, name.name);
+        });
+      });
 
-			return;
-		}
+      return;
+    }
 
-		next();
-	});
+    next();
+  });
 
-	app.get('/names/check/:name', function(req, res) {
-		if (!krist.isValidName(req.params.name)) {
-			return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter('name'));
-		}
+  app.get("/names/check/:name", function(req, res) {
+    if (!krist.isValidName(req.params.name)) {
+      return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter("name"));
+    }
 
-		names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
-			if (name) {
-				res.json({
-					ok: true,
-					available: false
-				});
-			} else {
-				res.json({
-					ok: true,
-					available: true
-				});
-			}
-		});
-	});
+    names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
+      if (name) {
+        res.json({
+          ok: true,
+          available: false
+        });
+      } else {
+        res.json({
+          ok: true,
+          available: true
+        });
+      }
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /names/cost Get the cost of a name
 	 * @apiName GetNameCost
 	 * @apiGroup NameGroup
@@ -326,14 +326,14 @@ module.exports = function(app) {
 	 *     "name_cost": 500
      * }
 	 */
-	app.get('/names/cost', function(req, res) {
-		res.json({
-			ok: true,
-			name_cost: names.getNameCost()
-		});
-	});
+  app.get("/names/cost", function(req, res) {
+    res.json({
+      ok: true,
+      name_cost: names.getNameCost()
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /names/bonus Get the name bonus
 	 * @apiName GetNameBonus
 	 * @apiGroup NameGroup
@@ -350,16 +350,16 @@ module.exports = function(app) {
 	 *     "name_bonus": 12
      * }
 	 */
-	app.get('/names/bonus', function(req, res) {
-		names.getUnpaidNameCount().then(function(count) {
-			res.json({
-				ok: true,
-				name_bonus: count
-			});
-		});
-	});
+  app.get("/names/bonus", function(req, res) {
+    names.getUnpaidNameCount().then(function(count) {
+      res.json({
+        ok: true,
+        name_bonus: count
+      });
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /names List all names
 	 * @apiName GetNames
 	 * @apiGroup NameGroup
@@ -394,26 +394,26 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/names', function(req, res) {
-		namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
-			var out = [];
+  app.get("/names", function(req, res) {
+    namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
+      var out = [];
 
-			results.rows.forEach(function(name) {
-				out.push(namesController.nameToJSON(name));
-			});
+      results.rows.forEach(function(name) {
+        out.push(namesController.nameToJSON(name));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: results.count,
-				names: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: results.count,
+        names: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /names/new List newest names
 	 * @apiName GetNewNames
 	 * @apiGroup NameGroup
@@ -451,26 +451,26 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/names/new', function(req, res) {
-		namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
-			var out = [];
+  app.get("/names/new", function(req, res) {
+    namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
+      var out = [];
 
-			results.rows.forEach(function(name) {
-				out.push(namesController.nameToJSON(name));
-			});
+      results.rows.forEach(function(name) {
+        out.push(namesController.nameToJSON(name));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: results.count,
-				names: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: results.count,
+        names: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /names/:name Get a name
 	 * @apiName GetName
 	 * @apiGroup NameGroup
@@ -492,18 +492,18 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-	app.get('/names/:name', function(req, res) {
-		namesController.getName(req.params.name).then(function(name) {
-			res.json({
-				ok: true,
-				name: namesController.nameToJSON(name)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.get("/names/:name", function(req, res) {
+    namesController.getName(req.params.name).then(function(name) {
+      res.json({
+        ok: true,
+        name: namesController.nameToJSON(name)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {post} /names/:name Register a name
 	 * @apiName RegisterName
 	 * @apiGroup NameGroup
@@ -536,18 +536,18 @@ module.exports = function(app) {
 	 *     "parameter": "name"
 	 * }
 	 */
-	app.post('/names/:name', function(req, res) {
-		namesController.registerName(req.params.name, req.body.privatekey).then(function() {
-			res.json({
-				ok: true
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.post("/names/:name", function(req, res) {
+    namesController.registerName(req.params.name, req.body.privatekey).then(function() {
+      res.json({
+        ok: true
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
 
-	/**
+  /**
 	 * @api {post} /names/:name/transfer Transfer a name
 	 * @apiName TransferName
 	 * @apiGroup NameGroup
@@ -585,29 +585,29 @@ module.exports = function(app) {
 	 *     "error": "not_name_owner"
 	 * }
 	 */
-	app.post('/names/:name/transfer', function(req, res) {
-		namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
-			res.json({
-				ok: true,
-				name: namesController.nameToJSON(name)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.post("/names/:name/transfer", function(req, res) {
+    namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
+      res.json({
+        ok: true,
+        name: namesController.nameToJSON(name)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	function updateName(req, res) {
-		namesController.updateName(req.params.name, req.body.privatekey, req.body.a).then(function(name) {
-			res.json({
-				ok: true,
-				name: namesController.nameToJSON(name)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	}
+  function updateName(req, res) {
+    namesController.updateName(req.params.name, req.body.privatekey, req.body.a).then(function(name) {
+      res.json({
+        ok: true,
+        name: namesController.nameToJSON(name)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  }
 
-	/**
+  /**
 	 * @api {post} /names/:name/update Update the A record of a name (POST)
 	 * @apiName UpdateNamePOST
 	 * @apiGroup NameGroup
@@ -645,9 +645,9 @@ module.exports = function(app) {
 	 *     "error": "not_name_owner"
 	 * }
 	 */
-	app.post('/names/:name/update', updateName);
+  app.post("/names/:name/update", updateName);
 
-	/**
+  /**
 	 * @api {put} /names/:name Update the A record of a name (PUT)
 	 * @apiName UpdateNamePUT
 	 * @apiGroup NameGroup
@@ -685,7 +685,7 @@ module.exports = function(app) {
 	 *     "error": "not_name_owner"
 	 * }
 	 */
-	app.put('/names/:name', updateName);
+  app.put("/names/:name", updateName);
 
-	return app;
+  return app;
 };

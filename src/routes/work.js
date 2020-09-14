@@ -19,18 +19,18 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require('./../krist.js');
+var krist = require("./../krist.js");
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.getwork !== 'undefined') {
-			return res.send(krist.getWork().toString());
-		}
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.getwork !== "undefined") {
+      return res.send(krist.getWork().toString());
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {get} /work Get the current work
 	 * @apiName GetWork
 	 * @apiGroup MiscellaneousGroup
@@ -44,14 +44,14 @@ module.exports = function(app) {
 	 *     "work": 18750
      * }
 	 */
-	app.get('/work', function(req, res) {
-		res.json({
-			ok: true,
-			work: krist.getWork()
-		});
-	});
+  app.get("/work", function(req, res) {
+    res.json({
+      ok: true,
+      work: krist.getWork()
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /work/day Get the work over the past 24 hours
 	 * @apiName GetWorkDay
 	 * @apiGroup MiscellaneousGroup
@@ -65,12 +65,12 @@ module.exports = function(app) {
 	 *     "work": 18750
      * }
 	 */
-	app.get('/work/day', function(req, res) {
-		res.json({
-			ok: true,
-			work: krist.getWorkOverTime()
-		});
-	});
+  app.get("/work/day", function(req, res) {
+    res.json({
+      ok: true,
+      work: krist.getWorkOverTime()
+    });
+  });
 
-	return app;
+  return app;
 };

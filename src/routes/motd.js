@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist   = require('./../krist.js'),
-	fs      = require('fs'),
-	moment  = require('moment');
+var krist   = require("./../krist.js"),
+  fs      = require("fs"),
+  moment  = require("moment");
 
 module.exports = function(app) {
-	/**
+  /**
 	 * @api {get} /motd Get the message of the day
 	 * @apiName GetMOTD
 	 * @apiGroup MiscellaneousGroup
@@ -44,33 +44,33 @@ module.exports = function(app) {
 	 *     "set": "2016-01-24T15:56:19.231Z"
 	 * }
 	 */
-	app.all('/motd', function(req, res) {
-		fs.readFile('motd.txt', function(err, data) {
-			if (err) {
-				return res.json({
-					ok: true,
-					motd: 'Welcome to Krist!'
-				});
-			}
+  app.all("/motd", function(req, res) {
+    fs.readFile("motd.txt", function(err, data) {
+      if (err) {
+        return res.json({
+          ok: true,
+          motd: "Welcome to Krist!"
+        });
+      }
 
-			fs.stat('motd.txt', function(err, stats) {
-				if (err) {
-					return res.json({
-						ok: true,
-						motd: data.toString()
-					});
-				}
+      fs.stat("motd.txt", function(err, stats) {
+        if (err) {
+          return res.json({
+            ok: true,
+            motd: data.toString()
+          });
+        }
 
-				res.json({
-					ok: true,
-					motd: data.toString(),
-					psa: "child abuse is bad!!",
-					schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead",
-					set: stats.mtime
-				});
-			});
-		});
-	});
+        res.json({
+          ok: true,
+          motd: data.toString(),
+          psa: "child abuse is bad!!",
+          schrodingers_cat: Math.round(Math.random()) == 1 ? "alive" : "dead",
+          set: stats.mtime
+        });
+      });
+    });
+  });
 
-	return app;
+  return app;
 };

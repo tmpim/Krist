@@ -19,10 +19,10 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require('./../krist.js');
+var krist = require("./../krist.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"subscribe" Subscribe to an event
 	 * @apiName WSSubscribe
 	 * @apiGroup WebsocketGroup
@@ -41,18 +41,18 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["ownTransactions", "blocks", "motd"]
      * }
 	 */
-	websockets.addMessageHandler('subscribe', function(ws, message) {
-		if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) < 0) {
-			ws.subscriptionLevel.push(message.event);
-		}
+  websockets.addMessageHandler("subscribe", function(ws, message) {
+    if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) < 0) {
+      ws.subscriptionLevel.push(message.event);
+    }
 
-		return {
-			ok: true,
-			subscription_level: ws.subscriptionLevel
-		};
-	});
+    return {
+      ok: true,
+      subscription_level: ws.subscriptionLevel
+    };
+  });
 
-	/**
+  /**
 	 * @api {ws} //ws:"type":"get_subscription_level" Get the current subscription level
 	 * @apiName WSGetSubscriptionLevel
 	 * @apiGroup WebsocketGroup
@@ -70,14 +70,14 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["ownTransactions", "blocks"]
      * }
 	 */
-	websockets.addMessageHandler('get_subscription_level', function(ws, message) {
-		return {
-			ok: true,
-			subscription_level: ws.subscriptionLevel
-		};
-	});
+  websockets.addMessageHandler("get_subscription_level", function(ws, message) {
+    return {
+      ok: true,
+      subscription_level: ws.subscriptionLevel
+    };
+  });
 
-	/**
+  /**
 	 * @api {ws} //ws:"type":"get_valid_subscription_levels" Get all valid  subscription levels
 	 * @apiName WSGetValidSubscriptionLevels
 	 * @apiGroup WebsocketGroup
@@ -95,14 +95,14 @@ module.exports = function(websockets) {
 	 *     "valid_subscription_levels": ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames","motd"]
      * }
 	 */
-	websockets.addMessageHandler('get_valid_subscription_levels', function(ws, message) {
-		return {
-			ok: true,
-			valid_subscription_levels: websockets.validSubscriptionLevels
-		};
-	});
+  websockets.addMessageHandler("get_valid_subscription_levels", function(ws, message) {
+    return {
+      ok: true,
+      valid_subscription_levels: websockets.validSubscriptionLevels
+    };
+  });
 
-	/**
+  /**
 	 * @api {ws} //ws:"type":"unsubscribe" Unsubscribe from an event
 	 * @apiName WSUnsubscribe
 	 * @apiGroup WebsocketGroup
@@ -121,14 +121,14 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["blocks"]
      * }
 	 */
-	websockets.addMessageHandler('unsubscribe', function(ws, message) {
-		if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) >= 0) {
-			ws.subscriptionLevel.splice(ws.subscriptionLevel.indexOf(message.event), 1);
-		}
+  websockets.addMessageHandler("unsubscribe", function(ws, message) {
+    if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) >= 0) {
+      ws.subscriptionLevel.splice(ws.subscriptionLevel.indexOf(message.event), 1);
+    }
 
-		return {
-			ok: true,
-			subscription_level: ws.subscriptionLevel
-		};
-	});
+    return {
+      ok: true,
+      subscription_level: ws.subscriptionLevel
+    };
+  });
 };

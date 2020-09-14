@@ -19,23 +19,23 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist      = require('./../krist.js');
-const config     = require('./../../config.js');
-const utils      = require('./../utils.js');
-const errors     = require('./../errors/errors.js');
-const websockets = require('./../websockets.js');
-const addresses  = require('./../addresses.js');
-const blocks     = require('./../controllers/blocks.js');
+const krist      = require("./../krist.js");
+const config     = require("./../../config.js");
+const utils      = require("./../utils.js");
+const errors     = require("./../errors/errors.js");
+const websockets = require("./../websockets.js");
+const addresses  = require("./../addresses.js");
+const blocks     = require("./../controllers/blocks.js");
 const chalk      = require("chalk");
 
 module.exports = function(app) {
-	/**
+  /**
 	 * @apiDefine WebsocketGroup Websockets
 	 *
 	 * All Websocket related endpoints.
 	 */
 
-	app.ws('/:token', async function(ws, req) {
+  app.ws("/:token", async function(ws, req) {
     try {
       // Look up the token, will reject if the token does not exist
       const { token } = req.params;
@@ -61,11 +61,11 @@ module.exports = function(app) {
       utils.sendErrorToWS(ws, error);
       console.error(error);
 
-			ws.close();
+      ws.close();
     }
-	});
+  });
 
-	/**
+  /**
 	 * @api {post} /ws/start Initiate a websocket connection
 	 * @apiName WebsocketStart
 	 * @apiGroup WebsocketGroup
@@ -141,34 +141,34 @@ module.exports = function(app) {
 	 *     "expires": 30
      * }
 	 */
-	app.post('/ws/start', function(req, res) {
+  app.post("/ws/start", function(req, res) {
     const { privatekey } = req.body;
 
-		if (privatekey) { // Auth as address if privatekey provided
-			addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
+    if (privatekey) { // Auth as address if privatekey provided
+      addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
         const { authed, address } = results;
 
-				if (!authed)
-					return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
+        if (!authed)
+          return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
         
         const token = websockets.obtainToken(address.address, privatekey);
 
-				res.json({
-					ok: true,
-					url: (config.websocketURL || 'wss://krist.ceriat.net') + '/' + token,
-					expires: 30
-				});
-			});
-		} else { // Auth as guest if no privatekey provided
+        res.json({
+          ok: true,
+          url: (config.websocketURL || "wss://krist.ceriat.net") + "/" + token,
+          expires: 30
+        });
+      });
+    } else { // Auth as guest if no privatekey provided
       const token = websockets.obtainToken("guest");
 
-			res.json({
-				ok: true,
-				url: (config.websocketURL || 'wss://krist.ceriat.net') + '/' + token,
-				expires: 30
-			});
-		}
-	});
+      res.json({
+        ok: true,
+        url: (config.websocketURL || "wss://krist.ceriat.net") + "/" + token,
+        expires: 30
+      });
+    }
+  });
 
-	return app;
+  return app;
 };

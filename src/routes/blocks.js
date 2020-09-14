@@ -19,20 +19,20 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist            = require('./../krist.js'),
-	blocksController = require('./../controllers/blocks.js'),
-	blocks           = require('./../blocks.js'),
-	utils            = require('./../utils.js'),
-	moment           = require('moment');
+var krist            = require("./../krist.js"),
+  blocksController = require("./../controllers/blocks.js"),
+  blocks           = require("./../blocks.js"),
+  utils            = require("./../utils.js"),
+  moment           = require("moment");
 
 module.exports = function(app) {
-	/**
+  /**
 	 * @apiDefine BlockGroup Blocks
 	 *
 	 * All Block related endpoints.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Block
 	 *
 	 * @apiSuccess {Object} block
@@ -46,7 +46,7 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} block.time The time this block was submitted.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Blocks
 	 *
 	 * @apiSuccess {Object[]} blocks
@@ -60,84 +60,84 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} blocks.time The time this block was submitted.
 	 */
 
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.lastblock !== 'undefined') {
-			blocks.getLastBlock().then(function(block) {
-				res.send(block.hash.substring(0, 12));
-			});
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.lastblock !== "undefined") {
+      blocks.getLastBlock().then(function(block) {
+        res.send(block.hash.substring(0, 12));
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.getbaseblockvalue !== 'undefined') {
-			blocks.getLastBlock().then(function(block) {
-				res.send(blocks.getBaseBlockValue(block.id).toString());
-			});
+    if (typeof req.query.getbaseblockvalue !== "undefined") {
+      blocks.getLastBlock().then(function(block) {
+        res.send(blocks.getBaseBlockValue(block.id).toString());
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (req.query.getblockvalue) {
-			blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
-				if (!block) {
-					return res.send('50');
-				}
+    if (req.query.getblockvalue) {
+      blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
+        if (!block) {
+          return res.send("50");
+        }
 
-				res.send(block.value.toString());
-			});
+        res.send(block.value.toString());
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.blocks !== 'undefined') {
-			if (typeof req.query.low !== 'undefined') {
-				blocks.getBlocksByOrder([['hash', 'ASC']], 50).then(function(results) {
-					var out = "";
+    if (typeof req.query.blocks !== "undefined") {
+      if (typeof req.query.low !== "undefined") {
+        blocks.getBlocksByOrder([["hash", "ASC"]], 50).then(function(results) {
+          var out = "";
 
-					results.rows.forEach(function (block) {
-						if (block.hash === null) return;
-						if (block.id === 1) return;
+          results.rows.forEach(function (block) {
+            if (block.hash === null) return;
+            if (block.id === 1) return;
 
-						out += moment(block.time).format('MMM DD').toString();
-						out += utils.padDigits(block.id, 6);
-						out += block.hash.substring(0, 20);
-					});
+            out += moment(block.time).format("MMM DD").toString();
+            out += utils.padDigits(block.id, 6);
+            out += block.hash.substring(0, 20);
+          });
 
-					res.send(out);
-				});
-			} else {
-				blocks.getBlocks(50).then(function(results) {
-					var out = "";
+          res.send(out);
+        });
+      } else {
+        blocks.getBlocks(50).then(function(results) {
+          var out = "";
 
-					var k = false;
+          var k = false;
 
-					results.rows.forEach(function (block) {
-						if (block.hash === null) return;
-						if (block.id === 1) return;
+          results.rows.forEach(function (block) {
+            if (block.hash === null) return;
+            if (block.id === 1) return;
 
-						if (!k) {
-							out += utils.padDigits(block.id, 8);
-							out += moment(block.time).format('YYYY-MM-DD').toString();
+            if (!k) {
+              out += utils.padDigits(block.id, 8);
+              out += moment(block.time).format("YYYY-MM-DD").toString();
 
-							k  = true;
-						}
+              k  = true;
+            }
 
-						out += moment(block.time).format('HH:mm:ss').toString();
-						out += block.address.substring(0, 10);
-						out += block.hash.substring(0, 12);
-					});
+            out += moment(block.time).format("HH:mm:ss").toString();
+            out += block.address.substring(0, 10);
+            out += block.hash.substring(0, 12);
+          });
 
-					res.send(out);
-				});
-			}
+          res.send(out);
+        });
+      }
 
-			return;
-		}
+      return;
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {get} /blocks List all blocks
 	 * @apiName GetBlocks
 	 * @apiGroup BlockGroup
@@ -178,29 +178,29 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/blocks', function(req, res) {
-		blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
-			var out = [];
+  app.get("/blocks", function(req, res) {
+    blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
+      var out = [];
 
-			results.rows.forEach(function(block) {
-				if (block.hash === null) return;
-				if (block.id === 1) return;
+      results.rows.forEach(function(block) {
+        if (block.hash === null) return;
+        if (block.id === 1) return;
 
-				out.push(blocksController.blockToJSON(block));
-			});
+        out.push(blocksController.blockToJSON(block));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: results.count,
-				blocks: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: results.count,
+        blocks: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /blocks/latest List latest blocks
 	 * @apiName GetLatestBlocks
 	 * @apiGroup BlockGroup
@@ -239,29 +239,29 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/blocks/latest', function(req, res) {
-		blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
-			var out = [];
+  app.get("/blocks/latest", function(req, res) {
+    blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
+      var out = [];
 
-			results.rows.forEach(function(block) {
-				if (block.hash === null) return;
-				if (block.id === 1) return;
+      results.rows.forEach(function(block) {
+        if (block.hash === null) return;
+        if (block.id === 1) return;
 
-				out.push(blocksController.blockToJSON(block));
-			});
+        out.push(blocksController.blockToJSON(block));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: results.count,
-				blocks: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: results.count,
+        blocks: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /blocks/lowest List blocks with the lowest hash
 	 * @apiName GetLowestBlocks
 	 * @apiGroup BlockGroup
@@ -300,29 +300,29 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/blocks/lowest', function(req, res) {
-		blocksController.getBlocksByOrder([['hash', 'ASC']], req.query.limit, req.query.offset, true).then(function(results) {
-			var out = [];
+  app.get("/blocks/lowest", function(req, res) {
+    blocksController.getBlocksByOrder([["hash", "ASC"]], req.query.limit, req.query.offset, true).then(function(results) {
+      var out = [];
 
-			results.rows.forEach(function(block) {
-				if (block.hash === null) return;
-				if (block.id === 1) return;
+      results.rows.forEach(function(block) {
+        if (block.hash === null) return;
+        if (block.id === 1) return;
 
-				out.push(blocksController.blockToJSON(block));
-			});
+        out.push(blocksController.blockToJSON(block));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: results.count,
-				blocks: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: results.count,
+        blocks: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /blocks/last Get the last block
 	 * @apiName GetLastBlock
 	 * @apiGroup BlockGroup
@@ -347,18 +347,18 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-	app.get('/blocks/last', function(req, res) {
-		blocksController.getLastBlock().then(function(block) {
-			res.json({
-				ok: true,
-				block: blocksController.blockToJSON(block)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.get("/blocks/last", function(req, res) {
+    blocksController.getLastBlock().then(function(block) {
+      res.json({
+        ok: true,
+        block: blocksController.blockToJSON(block)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 *
 	 * @api {get} /blocks/basevalue Get the base block reward
 	 * @apiName GetBlockBaseValue
@@ -376,17 +376,17 @@ module.exports = function(app) {
      *     "base_value": 12
      * }
 	 */
-	app.get('/blocks/basevalue', function(req, res) {
-		blocks.getLastBlock().then(function(block) {
-			res.json({
-				ok: true,
-				base_value: blocks.getBaseBlockValue(block.id)
-			})
-		});
-	});
+  app.get("/blocks/basevalue", function(req, res) {
+    blocks.getLastBlock().then(function(block) {
+      res.json({
+        ok: true,
+        base_value: blocks.getBaseBlockValue(block.id)
+      });
+    });
+  });
 
 
-	/**
+  /**
 	 *
 	 * @api {get} /blocks/value Get the block reward
 	 * @apiName GetBlockValue
@@ -406,19 +406,19 @@ module.exports = function(app) {
      *     "base_value": 1
      * }
 	 */
-	app.get('/blocks/value', function(req, res) {
-		blocks.getLastBlock().then(function(block) {
-			blocks.getBlockValue().then(function (value) {
-				res.json({
-					ok: true,
-					value: value,
-					base_value: blocks.getBaseBlockValue(block.id)
-				})
-			});
-		});
-	});
+  app.get("/blocks/value", function(req, res) {
+    blocks.getLastBlock().then(function(block) {
+      blocks.getBlockValue().then(function (value) {
+        res.json({
+          ok: true,
+          value: value,
+          base_value: blocks.getBaseBlockValue(block.id)
+        });
+      });
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /blocks/:height Get a block
 	 * @apiName GetBlock
 	 * @apiGroup BlockGroup
@@ -441,16 +441,16 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-	app.get('/blocks/:height', function(req, res) {
-		blocksController.getBlock(req.params.height).then(function(block) {
-			res.json({
-				ok: true,
-				block: blocksController.blockToJSON(block)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.get("/blocks/:height", function(req, res) {
+    blocksController.getBlock(req.params.height).then(function(block) {
+      res.json({
+        ok: true,
+        block: blocksController.blockToJSON(block)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	return app;
+  return app;
 };

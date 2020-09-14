@@ -19,17 +19,17 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config     = require('./../config.js');
-const utils      = require('./utils.js');
-const errors     = require('./errors/errors.js');
-const express    = require('express');
-const bodyParser = require('body-parser');
+const config     = require("./../config.js");
+const utils      = require("./utils.js");
+const errors     = require("./errors/errors.js");
+const express    = require("express");
+const bodyParser = require("body-parser");
 const expressWs  = require("express-ws");
-const swig       = require('swig');
-const rateLimit  = require('express-rate-limit');
-const gitlog     = require('gitlog');
-const fs         = require('fs');
-const path       = require('path');
+const swig       = require("swig");
+const rateLimit  = require("express-rate-limit");
+const gitlog     = require("gitlog");
+const fs         = require("fs");
+const path       = require("path");
 const chalk      = require("chalk");
 
 function Webserver() {}
@@ -42,7 +42,7 @@ Webserver.getExpress = function() {
 
 Webserver.init = function() {
   return new Promise(function(resolve, reject) {
-    if (typeof config.serverSock === 'undefined') {
+    if (typeof config.serverSock === "undefined") {
       console.error(chalk`{red [Config]} Missing config option: serverSock`);
 
       return null;
@@ -51,20 +51,20 @@ Webserver.init = function() {
     Webserver.express = express();
     Webserver.ws = expressWs(Webserver.express);
 
-    Webserver.express.enable('trust proxy');
-    Webserver.express.disable('x-powered-by');
-    Webserver.express.disable('etag');
+    Webserver.express.enable("trust proxy");
+    Webserver.express.disable("x-powered-by");
+    Webserver.express.disable("etag");
 
     Webserver.express.use(function(req, res, next) {
-      delete req.headers['content-encoding'];
+      delete req.headers["content-encoding"];
       next();
     });
 
-    Webserver.express.use(express.static('static'));
+    Webserver.express.use(express.static("static"));
 
-    Webserver.express.set('views', path.join(__dirname, '../views'));
-    Webserver.express.set('view engine', 'swig');
-    Webserver.express.engine('.swig', swig.renderFile);
+    Webserver.express.set("views", path.join(__dirname, "../views"));
+    Webserver.express.set("view engine", "swig");
+    Webserver.express.engine(".swig", swig.renderFile);
 
     swig.setDefaults({
       debug: config.debugMode
@@ -75,31 +75,31 @@ Webserver.init = function() {
 
     Webserver.express.use(rateLimit(config.rateLimitSettings));
 
-    Webserver.express.all('*', function(req, res, next) {
-      res.header('X-Robots-Tag', 'none');
-      res.header('Content-Type', 'application/json');
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, UPDATE, DELETE, OPTIONS');
+    Webserver.express.all("*", function(req, res, next) {
+      res.header("X-Robots-Tag", "none");
+      res.header("Content-Type", "application/json");
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET, POST, PUT, UPDATE, DELETE, OPTIONS");
       next();
     });
 
-    Webserver.express.all('/', function(req, res, next) {
-      res.header('Content-Type', 'text/plain');
+    Webserver.express.all("/", function(req, res, next) {
+      res.header("Content-Type", "text/plain");
       next();
     });
 
     console.log(chalk`{cyan [Webserver]} Loading routes`);
 
     try {
-      var routePath = path.join(__dirname, 'routes');
+      var routePath = path.join(__dirname, "routes");
 
       fs.readdirSync(routePath).forEach(function(file) {
-        if (path.extname(file).toLowerCase() !== '.js') {
+        if (path.extname(file).toLowerCase() !== ".js") {
           return;
         }
 
         try {
-          require('./routes/' + file)(Webserver.express);
+          require("./routes/" + file)(Webserver.express);
         } catch (error) {
           console.error(chalk`{red [Webserver]} Error loading route '${file}':`);
           console.error(error.stack);
@@ -110,29 +110,29 @@ Webserver.init = function() {
       console.error(error.stack);
     }
 
-    Webserver.express.get('/', function(req, res) {
-      res.header('Content-Type', 'text/html');
+    Webserver.express.get("/", function(req, res) {
+      res.header("Content-Type", "text/html");
 
       gitlog({
-        repo: path.join(__dirname, '../'),
+        repo: path.join(__dirname, "../"),
         number: 5,
         fields: [
-          'subject',
-          'body',
-          'hash',
-          'authorName',
-          'authorDateRel'
+          "subject",
+          "body",
+          "hash",
+          "authorName",
+          "authorDateRel"
         ]
       }, function(error, commits) {
         if (error) {
           console.log(error);
 
-          return res.render('error', {
+          return res.render("error", {
             protocol: req.protocol
           });
         }
 
-        res.render('index', {
+        res.render("index", {
           commits: commits,
           protocol: req.protocol
         });
@@ -143,9 +143,9 @@ Webserver.init = function() {
       if (req.xhr) {
         utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
       } else {
-        res.header('Content-Type', 'text/html');
+        res.header("Content-Type", "text/html");
 
-        res.render('error_404', {
+        res.render("error_404", {
           protocol: req.protocol
         });
       }

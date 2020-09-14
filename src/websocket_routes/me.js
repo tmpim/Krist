@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist       = require('./../krist.js'),
-	utils       = require('./../utils.js'),
-	addresses   = require('./../controllers/addresses.js');
+var krist       = require("./../krist.js"),
+  utils       = require("./../utils.js"),
+  addresses   = require("./../controllers/addresses.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"me" Get information about the user
 	 * @apiName WSMe
 	 * @apiGroup WebsocketGroup
@@ -57,24 +57,24 @@ module.exports = function(websockets) {
 	 *     }
      * }
 	 */
-	websockets.addMessageHandler('me', function(ws, message) {
-		return new Promise(function(resolve, reject) {
-			if (ws.isGuest) {
-				resolve({
-					ok: true,
-					isGuest: true
-				});
-			} else {
-				addresses.getAddress(ws.auth).then(function(address) {
-					resolve({
-						ok: true,
-						isGuest: false,
-						address: addresses.addressToJSON(address)
-					});
-				}).catch(function(error) {
-					reject(error);
-				});
-			}
-		});
-	});
+  websockets.addMessageHandler("me", function(ws, message) {
+    return new Promise(function(resolve, reject) {
+      if (ws.isGuest) {
+        resolve({
+          ok: true,
+          isGuest: true
+        });
+      } else {
+        addresses.getAddress(ws.auth).then(function(address) {
+          resolve({
+            ok: true,
+            isGuest: false,
+            address: addresses.addressToJSON(address)
+          });
+        }).catch(function(error) {
+          reject(error);
+        });
+      }
+    });
+  });
 };

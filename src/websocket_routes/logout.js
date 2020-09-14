@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist       = require('./../krist.js'),
-	utils       = require('./../utils.js'),
-	addresses   = require('./../addresses.js');
+var krist       = require("./../krist.js"),
+  utils       = require("./../utils.js"),
+  addresses   = require("./../addresses.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"logout" Log out back to guest (downgrade connection)
 	 * @apiName WSLogout
 	 * @apiGroup WebsocketGroup
@@ -35,13 +35,13 @@ module.exports = function(websockets) {
 	 *
 	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 */
-	websockets.addMessageHandler('logout', function(ws, message) {
-		ws.auth = 'guest';
-		ws.isGuest = true;
+  websockets.addMessageHandler("logout", function(ws, message) {
+    ws.auth = "guest";
+    ws.isGuest = true;
 
-		return {
-			ok: true,
-			isGuest: true
-		};
-	});
+    return {
+      ok: true,
+      isGuest: true
+    };
+  });
 };

@@ -19,75 +19,75 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const utils      = require('./utils.js');
-const config     = require('./../config.js');
-const schemas    = require('./schemas.js');
-const websockets = require('./websockets.js');
-const krist      = require('./krist.js');
+const utils      = require("./utils.js");
+const config     = require("./../config.js");
+const schemas    = require("./schemas.js");
+const websockets = require("./websockets.js");
+const krist      = require("./krist.js");
 const { Op }     = require("sequelize");
 
 function Names() {}
 
 Names.getNames = function(limit, offset) {
-	return schemas.name.findAndCountAll({order: [['name', 'ASC']], limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.name.findAndCountAll({order: [["name", "ASC"]], limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNamesByAddress = function(address, limit, offset) {
-	return schemas.name.findAndCountAll({order: [['name', 'ASC']], where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.name.findAndCountAll({order: [["name", "ASC"]], where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getNameCountByAddress = function(address) {
-	return schemas.name.count({where: {owner: address}});
+  return schemas.name.count({where: {owner: address}});
 };
 
 Names.getNameByName = function(name) {
-	return schemas.name.findOne({where: {name: name}});
+  return schemas.name.findOne({where: {name: name}});
 };
 
 Names.getUnpaidNames = function(limit, offset) {
-	return schemas.name.findAndCountAll({order: [['id', 'DESC']], where: {unpaid: {[Op.gt]: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.name.findAndCountAll({order: [["id", "DESC"]], where: {unpaid: {[Op.gt]: 0}},  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Names.getUnpaidNameCount = function(t) {
-	return schemas.name.count({where: {unpaid: {[Op.gt]: 0}}}, { transaction: t });
+  return schemas.name.count({where: {unpaid: {[Op.gt]: 0}}}, { transaction: t });
 };
 
 Names.getNameCost = function() {
-	return config.nameCost;
+  return config.nameCost;
 };
 
 Names.createName = function(name, owner) {
-	return schemas.name.create({
-		name: name,
-		owner: owner,
-		registered: new Date(),
-		updated: new Date(),
-		unpaid: Names.getNameCost()
-	}).then(function(name) {		
-		websockets.broadcastEvent({
-			type: 'event',
-			event: 'name',
-			name: Names.nameToJSON(name)
-		}, function(ws) {
-			return new Promise(function(resolve, reject) {
-				if ((!ws.isGuest && (ws.auth === owner) && ws.subscriptionLevel.indexOf("ownNames") >= 0) || ws.subscriptionLevel.indexOf("names") >= 0) {
-					return resolve();
-				}
+  return schemas.name.create({
+    name: name,
+    owner: owner,
+    registered: new Date(),
+    updated: new Date(),
+    unpaid: Names.getNameCost()
+  }).then(function(name) {		
+    websockets.broadcastEvent({
+      type: "event",
+      event: "name",
+      name: Names.nameToJSON(name)
+    }, function(ws) {
+      return new Promise(function(resolve, reject) {
+        if ((!ws.isGuest && (ws.auth === owner) && ws.subscriptionLevel.indexOf("ownNames") >= 0) || ws.subscriptionLevel.indexOf("names") >= 0) {
+          return resolve();
+        }
 
-				reject();
-			});
-		});
-	});
+        reject();
+      });
+    });
+  });
 };
 
 Names.nameToJSON = function(name) {
-	return {
-		name: name.name,
-		owner: name.owner,
-		registered: name.registered,
-		updated: name.updated,
-		a: name.a
-	};
+  return {
+    name: name.name,
+    owner: name.owner,
+    registered: name.registered,
+    updated: name.updated,
+    a: name.a
+  };
 };
 
 module.exports = Names;

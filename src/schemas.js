@@ -19,42 +19,42 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var	Sequelize	= require('sequelize'),
-	config		= require('./../config.js'),
-	database	= require('./database.js');
+var	Sequelize	= require("sequelize"),
+  config		= require("./../config.js"),
+  database	= require("./database.js");
 
-var Address = database.getSequelize().define('address', {
-	address: {
-		type: Sequelize.STRING(10),
-		unique: true
-	},
-	balance: Sequelize.INTEGER.UNSIGNED,
-	totalin: Sequelize.INTEGER.UNSIGNED,
-	totalout: Sequelize.INTEGER.UNSIGNED,
-	firstseen: Sequelize.DATE,
-	privatekey: {
-		type: Sequelize.STRING(64),
-		allowNull: true
-	},
-	alert: {
-		type: Sequelize.STRING(1024),
-		allowNull: true
-	}
+var Address = database.getSequelize().define("address", {
+  address: {
+    type: Sequelize.STRING(10),
+    unique: true
+  },
+  balance: Sequelize.INTEGER.UNSIGNED,
+  totalin: Sequelize.INTEGER.UNSIGNED,
+  totalout: Sequelize.INTEGER.UNSIGNED,
+  firstseen: Sequelize.DATE,
+  privatekey: {
+    type: Sequelize.STRING(64),
+    allowNull: true
+  },
+  alert: {
+    type: Sequelize.STRING(1024),
+    allowNull: true
+  }
 }, {
-	timestamps: false
+  timestamps: false
 });
 
-var Block = database.getSequelize().define('block', {
-	value: Sequelize.INTEGER.UNSIGNED,
-	hash: {
-		type: Sequelize.STRING(64),
-		unique: true
-	},
-	address: Sequelize.STRING(10),
-	nonce: Sequelize.STRING(config.nonceMaxSize || 24),
-	time: Sequelize.DATE,
-	difficulty: Sequelize.INTEGER(10).UNSIGNED,
-	useragent: Sequelize.STRING(255)
+var Block = database.getSequelize().define("block", {
+  value: Sequelize.INTEGER.UNSIGNED,
+  hash: {
+    type: Sequelize.STRING(64),
+    unique: true
+  },
+  address: Sequelize.STRING(10),
+  nonce: Sequelize.STRING(config.nonceMaxSize || 24),
+  time: Sequelize.DATE,
+  difficulty: Sequelize.INTEGER(10).UNSIGNED,
+  useragent: Sequelize.STRING(255)
 }, {
   timestamps: false,
   indexes: [
@@ -64,27 +64,27 @@ var Block = database.getSequelize().define('block', {
   ]
 });
 
-var Name = database.getSequelize().define('name', {
-	name: {
+var Name = database.getSequelize().define("name", {
+  name: {
     type: Sequelize.STRING(64),
     unique: true
   },
-	owner: Sequelize.STRING(10),
-	registered: Sequelize.DATE,
-	updated: Sequelize.DATE,
-	a: Sequelize.STRING,
-	unpaid: Sequelize.INTEGER.UNSIGNED
+  owner: Sequelize.STRING(10),
+  registered: Sequelize.DATE,
+  updated: Sequelize.DATE,
+  a: Sequelize.STRING,
+  unpaid: Sequelize.INTEGER.UNSIGNED
 }, {
-	timestamps: false
+  timestamps: false
 });
 
-var Transaction = database.getSequelize().define('transaction', {
-	from: Sequelize.STRING(10),
-	to: Sequelize.STRING(10),
-	value: Sequelize.INTEGER.UNSIGNED,
-	time: Sequelize.DATE,
-	name: Sequelize.STRING(128),
-	op: Sequelize.STRING(512)
+var Transaction = database.getSequelize().define("transaction", {
+  from: Sequelize.STRING(10),
+  to: Sequelize.STRING(10),
+  value: Sequelize.INTEGER.UNSIGNED,
+  time: Sequelize.DATE,
+  name: Sequelize.STRING(128),
+  op: Sequelize.STRING(512)
 }, {
   timestamps: false,
   indexes: [
@@ -103,8 +103,8 @@ Name.sync();
 Transaction.sync();
 
 module.exports = {
-	address: Address,
-	block: Block,
-	name: Name,
-	transaction: Transaction
+  address: Address,
+  block: Block,
+  name: Name,
+  transaction: Transaction
 };

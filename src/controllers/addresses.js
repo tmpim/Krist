@@ -19,78 +19,78 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var addresses   = require('./../addresses.js'),
-	krist       = require('./../krist.js'),
-	errors      = require('./../errors/errors.js');
+var addresses   = require("./../addresses.js"),
+  krist       = require("./../krist.js"),
+  errors      = require("./../errors/errors.js");
 
 function AddressesController() {}
 
 AddressesController.getAddresses = function(limit, offset) {
-	return new Promise(function(resolve, reject) {
-		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-			return reject(new errors.ErrorInvalidParameter('limit'));
-		}
+  return new Promise(function(resolve, reject) {
+    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
+      return reject(new errors.ErrorInvalidParameter("limit"));
+    }
 
-		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-			return reject(new errors.ErrorInvalidParameter('offset'));
-		}
+    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
+      return reject(new errors.ErrorInvalidParameter("offset"));
+    }
 
-		addresses.getAddresses(limit, offset).then(resolve).catch(reject);
-	});
+    addresses.getAddresses(limit, offset).then(resolve).catch(reject);
+  });
 };
 
 AddressesController.getRich = function(limit, offset) {
-	return new Promise(function(resolve, reject) {
-		if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-			return reject(new errors.ErrorInvalidParameter('limit'));
-		}
+  return new Promise(function(resolve, reject) {
+    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
+      return reject(new errors.ErrorInvalidParameter("limit"));
+    }
 
-		if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-			return reject(new errors.ErrorInvalidParameter('offset'));
-		}
+    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
+      return reject(new errors.ErrorInvalidParameter("offset"));
+    }
 
-		addresses.getRich(limit, offset).then(resolve).catch(reject);
-	});
+    addresses.getRich(limit, offset).then(resolve).catch(reject);
+  });
 };
 
 AddressesController.getAddress = function(address) {
-	return new Promise(function(resolve, reject) {
-		if (!krist.isValidKristAddress(address)) {
-			return reject(new errors.ErrorInvalidParameter('address'));
-		}
+  return new Promise(function(resolve, reject) {
+    if (!krist.isValidKristAddress(address)) {
+      return reject(new errors.ErrorInvalidParameter("address"));
+    }
 
-		addresses.getAddress(address).then(function(result) {
-			if (!result) {
-				return reject(new errors.ErrorAddressNotFound());
-			}
+    addresses.getAddress(address).then(function(result) {
+      if (!result) {
+        return reject(new errors.ErrorAddressNotFound());
+      }
 
-			resolve(result);
-		}).catch(reject);
-	});
+      resolve(result);
+    }).catch(reject);
+  });
 };
 
 AddressesController.getAlert = function(privatekey) {
-	return new Promise(function(resolve, reject) {
-		var address = krist.makeV2Address(privatekey);
+  return new Promise(function(resolve, reject) {
+    var address = krist.makeV2Address(privatekey);
 
-		addresses.getAddress(address).then(function(result) {
-			if (!result) {
-				return reject(new errors.ErrorAddressNotFound());
-			}
+    addresses.getAddress(address).then(function(result) {
+      if (!result) {
+        return reject(new errors.ErrorAddressNotFound());
+      }
 
-			resolve(result.alert);
-		}).catch(reject);
-	});
+      resolve(result.alert);
+    }).catch(reject);
+  });
 };
 
 AddressesController.addressToJSON = function(address) {
-	return {
-		address: address.address.toLowerCase(),
-		balance: address.balance,
-		totalin: address.totalin,
-		totalout: address.totalout,
-		firstseen: address.firstseen
-	};
+  return {
+    address: address.address.toLowerCase(),
+    balance: address.balance,
+    totalin: address.totalin,
+    totalout: address.totalout,
+    firstseen: address.firstseen
+  };
 };
 
 module.exports = AddressesController;

@@ -19,10 +19,10 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require('./../krist.js');
+var krist = require("./../krist.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"work" Get the current work
 	 * @apiName WSGetWork
 	 * @apiGroup WebsocketGroup
@@ -40,10 +40,10 @@ module.exports = function(websockets) {
 	 *     "work": 18750
      * }
 	 */
-	websockets.addMessageHandler('work', function(ws, message) {
-		return {
-			ok: true,
-			work: krist.getWork()
-		};
-	});
+  websockets.addMessageHandler("work", function(ws, message) {
+    return {
+      ok: true,
+      work: krist.getWork()
+    };
+  });
 };

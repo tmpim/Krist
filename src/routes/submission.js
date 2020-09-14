@@ -19,23 +19,23 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var config				= require('./../../config.js'),
-	krist               = require('./../krist.js'),
-	utils               = require('./../utils.js'),
-	addressesController = require('./../controllers/addresses.js'),
-	blocksController    = require('./../controllers/blocks.js'),
-	blocks              = require('./../blocks.js'),
-	errors              = require('./../errors/errors.js');
+var config				= require("./../../config.js"),
+  krist               = require("./../krist.js"),
+  utils               = require("./../utils.js"),
+  addressesController = require("./../controllers/addresses.js"),
+  blocksController    = require("./../controllers/blocks.js"),
+  blocks              = require("./../blocks.js"),
+  errors              = require("./../errors/errors.js");
 
 module.exports = function(app) {
-	app.get('/', async function(req, res, next) {
-		if (typeof req.query.submitblock !== 'undefined') {
-			if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
-				return res.send('Invalid address');
-			}
+  app.get("/", async function(req, res, next) {
+    if (typeof req.query.submitblock !== "undefined") {
+      if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
+        return res.send("Invalid address");
+      }
 
-			if (!req.query.nonce || req.query.nonce.length > config.nonceMaxSize) {
-				return res.send('Nonce is too large');
+      if (!req.query.nonce || req.query.nonce.length > config.nonceMaxSize) {
+        return res.send("Nonce is too large");
       }
       
       const lastBlock = await blocks.getLastBlock();
@@ -46,21 +46,21 @@ module.exports = function(app) {
 
       if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
         blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
-          res.send('Block solved');
+          res.send("Block solved");
         }).catch(function() {
-          res.send('Solution rejected');
-        })
+          res.send("Solution rejected");
+        });
       } else {
         res.send(req.query.address + last + req.query.nonce);
       }
 
-			return;
-		}
+      return;
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {post} /submit Submit a block
 	 * @apiName SubmitBlock
 	 * @apiGroup BlockGroup
@@ -111,26 +111,26 @@ module.exports = function(app) {
      *     "parameter": "nonce"
      * }
 	 */
-	app.post('/submit', function(req, res) {
-		blocksController.submitBlock(req.body.address, req.body.nonce).then(function(result) {
-			res.json({
-				ok: true,
-				success: true,
-				work: result.work,
-				address: addressesController.addressToJSON(result.address),
-				block: blocksController.blockToJSON(result.block)
-			});
-		}).catch(function(error) {
-			if (error instanceof errors.ErrorSolutionIncorrect) {
-				res.json({
-					ok: true,
-					success: false
-				});
-			} else {
-				utils.sendErrorToRes(req, res, error);
-			}
-		});
-	});
+  app.post("/submit", function(req, res) {
+    blocksController.submitBlock(req.body.address, req.body.nonce).then(function(result) {
+      res.json({
+        ok: true,
+        success: true,
+        work: result.work,
+        address: addressesController.addressToJSON(result.address),
+        block: blocksController.blockToJSON(result.block)
+      });
+    }).catch(function(error) {
+      if (error instanceof errors.ErrorSolutionIncorrect) {
+        res.json({
+          ok: true,
+          success: false
+        });
+      } else {
+        utils.sendErrorToRes(req, res, error);
+      }
+    });
+  });
 
-	return app;
+  return app;
 };

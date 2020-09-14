@@ -19,22 +19,22 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist           = require('./../krist.js'),
-	addresses       = require('./../addresses.js'),
-	names			= require('./../names.js'),
-	tx              = require('./../transactions.js'),
-	txController    = require('./../controllers/transactions.js'),
-	utils           = require('./../utils.js'),
-	moment          = require('moment');
+var krist           = require("./../krist.js"),
+  addresses       = require("./../addresses.js"),
+  names			= require("./../names.js"),
+  tx              = require("./../transactions.js"),
+  txController    = require("./../controllers/transactions.js"),
+  utils           = require("./../utils.js"),
+  moment          = require("moment");
 
 module.exports = function(app) {
-	/**
+  /**
 	 * @apiDefine TransactionGroup Transactions
 	 *
 	 * All Transactions related endpoints.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Transaction
 	 *
 	 * @apiSuccess {Object} transaction
@@ -50,7 +50,7 @@ module.exports = function(app) {
 	 * @apiSuccess {String} [transaction.metadata] Transaction metadata, or null.
 	 */
 
-	/**
+  /**
 	 * @apiDefine Transactions
 	 *
 	 * @apiSuccess {Object[]} transactions
@@ -66,156 +66,156 @@ module.exports = function(app) {
 	 * @apiSuccess {String} [transactions.metadata] Transaction metadata, or null.
 	 */
 
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.recenttx !== 'undefined') {
-			tx.getRecentTransactions().then(function(transactions) {
-				var out = '';
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.recenttx !== "undefined") {
+      tx.getRecentTransactions().then(function(transactions) {
+        var out = "";
 
-				transactions.forEach(function (transaction) {
-					out += moment(transaction.time).format('MMM DD HH:mm');
+        transactions.forEach(function (transaction) {
+          out += moment(transaction.time).format("MMM DD HH:mm");
 
-					out += transaction.from;
-					out += transaction.to;
+          out += transaction.from;
+          out += transaction.to;
 
-					out += utils.padDigits(Math.abs(transaction.value), 8);
-				});
+          out += utils.padDigits(Math.abs(transaction.value), 8);
+        });
 
-				res.send(out);
-			});
+        res.send(out);
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.pushtx !== 'undefined') {
-			if (!req.query.amt || isNaN(req.query.amt)) {
-				return res.send('Error3');
-			}
+    if (typeof req.query.pushtx !== "undefined") {
+      if (!req.query.amt || isNaN(req.query.amt)) {
+        return res.send("Error3");
+      }
 
-			if (req.query.amt < 1) {
-				return res.send('Error2');
-			}
+      if (req.query.amt < 1) {
+        return res.send("Error2");
+      }
 
-			var from = utils.sha256(req.query.pkey).substr(0, 10);
-			var amt = parseInt(req.query.amt);
+      var from = utils.sha256(req.query.pkey).substr(0, 10);
+      var amt = parseInt(req.query.amt);
 
-			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
-				return res.send('Error5');
-			}
+      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
+        return res.send("Error5");
+      }
 
-			addresses.verify(from, req.query.pkey).then(function(results) {
-				var authed = results.authed;
-				var sender = results.address;
+      addresses.verify(from, req.query.pkey).then(function(results) {
+        var authed = results.authed;
+        var sender = results.address;
 
-				if (!authed) {
-					return res.send('Access denied');
-				}
+        if (!authed) {
+          return res.send("Access denied");
+        }
 
-				if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-					var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+          var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
-					names.getNameByName(nameInfo[2]).then(function(name) {
-						if (!name) {
-							return res.send("Name not found");
-						}
+          names.getNameByName(nameInfo[2]).then(function(name) {
+            if (!name) {
+              return res.send("Name not found");
+            }
 
-						if (!sender || sender.balance < amt) {
-							return res.send("Error1");
-						}
+            if (!sender || sender.balance < amt) {
+              return res.send("Error1");
+            }
 
-						var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+            var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
 
-						if (req.query.com) {
-							metadata = req.query.com.toLowerCase() + ";" + metadata;
-						}
+            if (req.query.com) {
+              metadata = req.query.com.toLowerCase() + ";" + metadata;
+            }
 
-						tx.pushTransaction(sender, name.owner, amt, metadata).then(function() {
-							res.send('Success');
-						});
-					});
-				} else {
-					if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-						return res.send('Error4');
-					}
+            tx.pushTransaction(sender, name.owner, amt, metadata).then(function() {
+              res.send("Success");
+            });
+          });
+        } else {
+          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+            return res.send("Error4");
+          }
 
-					if (!sender || sender.balance < amt) {
-						return res.send("Error1");
-					}
+          if (!sender || sender.balance < amt) {
+            return res.send("Error1");
+          }
 
-					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
-						res.send('Success');
-					});
-				}
-			});
+          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
+            res.send("Success");
+          });
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		if (typeof req.query.pushtx2 !== 'undefined') {
-			if (!req.query.amt || isNaN(req.query.amt)) {
-				return res.send('Error3');
-			}
+    if (typeof req.query.pushtx2 !== "undefined") {
+      if (!req.query.amt || isNaN(req.query.amt)) {
+        return res.send("Error3");
+      }
 
-			if (req.query.amt < 1) {
-				return res.send('Error2');
-			}
+      if (req.query.amt < 1) {
+        return res.send("Error2");
+      }
 
-			from = krist.makeV2Address(req.query.pkey); // the javascript scope is weird; this is a duplicate declaration
-			amt = parseInt(req.query.amt);
+      from = krist.makeV2Address(req.query.pkey); // the javascript scope is weird; this is a duplicate declaration
+      amt = parseInt(req.query.amt);
 
-			if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
-				return res.send('Error5');
-			}
+      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
+        return res.send("Error5");
+      }
 
-			addresses.verify(from, req.query.pkey).then(function(results) {
-				var authed = results.authed;
-				var sender = results.address;
+      addresses.verify(from, req.query.pkey).then(function(results) {
+        var authed = results.authed;
+        var sender = results.address;
 
-				if (!authed) {
-					return res.send('Access denied');
-				}
+        if (!authed) {
+          return res.send("Access denied");
+        }
 
-				if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-					console.log("d");	
+        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+          console.log("d");	
 
-					var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+          var nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
 
-					names.getNameByName(nameInfo[2]).then(function (name) {
-						if (!name) {
-							return res.send("Name not found");
-						}
+          names.getNameByName(nameInfo[2]).then(function (name) {
+            if (!name) {
+              return res.send("Name not found");
+            }
 
-						if (!sender || sender.balance < amt) {
-							return res.send("Error1");
-						}
+            if (!sender || sender.balance < amt) {
+              return res.send("Error1");
+            }
 
-						var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+            var metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
 
-						tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
-							res.send('Success');
-						});
-					});
-				} else {
-					if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-						return res.send('Error4');
-					}
+            tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
+              res.send("Success");
+            });
+          });
+        } else {
+          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
+            return res.send("Error4");
+          }
 
-					if (!sender || sender.balance < amt) {
-						return res.send("Error1");
-					}
+          if (!sender || sender.balance < amt) {
+            return res.send("Error1");
+          }
 
-					tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function () {
-						res.send('Success');
-					});
-				}
-			});
+          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function () {
+            res.send("Success");
+          });
+        }
+      });
 
-			return;
-		}
+      return;
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {get} /transactions List all transactions
 	 * @apiName GetTransactions
 	 * @apiGroup TransactionGroup
@@ -255,26 +255,26 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/transactions', function(req, res) {
-		txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === 'undefined').then(function(transactions) {
-			var out = [];
+  app.get("/transactions", function(req, res) {
+    txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === "undefined").then(function(transactions) {
+      var out = [];
 
-			transactions.rows.forEach(function (transaction) {
-				out.push(txController.transactionToJSON(transaction));
-			});
+      transactions.rows.forEach(function (transaction) {
+        out.push(txController.transactionToJSON(transaction));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: transactions.count,
-				transactions: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: transactions.count,
+        transactions: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /transactions/latest List latest transactions
 	 * @apiName GetLatestTransactions
 	 * @apiGroup TransactionGroup
@@ -314,26 +314,26 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-	app.get('/transactions/latest', function(req, res) {
-		txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === 'undefined').then(function(transactions) {
-			var out = [];
+  app.get("/transactions/latest", function(req, res) {
+    txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === "undefined").then(function(transactions) {
+      var out = [];
 
-			transactions.rows.forEach(function (transaction) {
-				out.push(txController.transactionToJSON(transaction));
-			});
+      transactions.rows.forEach(function (transaction) {
+        out.push(txController.transactionToJSON(transaction));
+      });
 
-			res.json({
-				ok: true,
-				count: out.length,
-				total: transactions.count,
-				transactions: out
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+      res.json({
+        ok: true,
+        count: out.length,
+        total: transactions.count,
+        transactions: out
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {get} /transactions/:id Get a transaction
 	 * @apiName GetTransaction
 	 * @apiGroup TransactionGroup
@@ -357,18 +357,18 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-	app.get('/transactions/:id', function(req, res) {
-		txController.getTransaction(req.params.id).then(function(transaction) {
-			res.json({
-				ok: true,
-				transaction: txController.transactionToJSON(transaction)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.get("/transactions/:id", function(req, res) {
+    txController.getTransaction(req.params.id).then(function(transaction) {
+      res.json({
+        ok: true,
+        transaction: txController.transactionToJSON(transaction)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	/**
+  /**
 	 * @api {post} /transactions/ Make a transaction
 	 * @apiName MakeTransaction
 	 * @apiGroup TransactionGroup
@@ -392,16 +392,16 @@ module.exports = function(app) {
      *     "error": "insufficient_funds"
      * }
 	 */
-	app.post('/transactions', function(req, res) {
-		txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata).then(function(transaction) {
-			res.json({
-				ok: true,
-				transaction: txController.transactionToJSON(transaction)
-			});
-		}).catch(function(error) {
-			utils.sendErrorToRes(req, res, error);
-		});
-	});
+  app.post("/transactions", function(req, res) {
+    txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata).then(function(transaction) {
+      res.json({
+        ok: true,
+        transaction: txController.transactionToJSON(transaction)
+      });
+    }).catch(function(error) {
+      utils.sendErrorToRes(req, res, error);
+    });
+  });
 
-	return app;
+  return app;
 };

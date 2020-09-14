@@ -1,0 +1,6 @@
+node_modules
+static
+views
+data
+config.js
+config.example.js

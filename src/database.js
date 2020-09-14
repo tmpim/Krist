@@ -19,8 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config    = require('./../config.js');
-const Sequelize = require('sequelize');
+const config    = require("./../config.js");
+const Sequelize = require("sequelize");
 const chalk     = require("chalk");
 
 function Database() {}
@@ -28,42 +28,42 @@ function Database() {}
 module.exports = Database;
 
 Database.getSequelize = function() {
-	return Database.sequelize;
+  return Database.sequelize;
 };
 
 Database.init = async function() {
-	var requiredConfigOptions = [
-		'databaseHost',
-		'databaseDB',
-		'databaseUser',
-		'databasePass'
-	];
+  var requiredConfigOptions = [
+    "databaseHost",
+    "databaseDB",
+    "databaseUser",
+    "databasePass"
+  ];
 
-	requiredConfigOptions.forEach(function(option) {
-		if (!config[option]) {
-			console.error(chalk`{red [Config]} Missing config option: ${option}`);
+  requiredConfigOptions.forEach(function(option) {
+    if (!config[option]) {
+      console.error(chalk`{red [Config]} Missing config option: ${option}`);
 
-			process.exit(1);
-		}
-	});
+      process.exit(1);
+    }
+  });
 
-	console.log(chalk`{cyan [DB]} Connecting to database {bold ${config.databaseDB}} as user {bold ${config.databaseUser}}...`);
+  console.log(chalk`{cyan [DB]} Connecting to database {bold ${config.databaseDB}} as user {bold ${config.databaseUser}}...`);
 
-	Database.sequelize = new Sequelize(config.databaseDB, config.databaseUser, config.databasePass, {
-		host: config.databaseHost,
-		dialect: config.databaseDialect,
-		logging: false,
-		pool: {
-			max: 6,
-			min: 2,
-			idle: 10000
-		}
-	});
+  Database.sequelize = new Sequelize(config.databaseDB, config.databaseUser, config.databasePass, {
+    host: config.databaseHost,
+    dialect: config.databaseDialect,
+    logging: false,
+    pool: {
+      max: 6,
+      min: 2,
+      idle: 10000
+    }
+  });
 
-	try {
-		Database.sequelize.authenticate();
-		console.log(chalk`{green [DB]} Connected`);
-	} catch (error) {
-		console.error(error);
-	}
+  try {
+    Database.sequelize.authenticate();
+    console.log(chalk`{green [DB]} Connected`);
+  } catch (error) {
+    console.error(error);
+  }
 };

@@ -20,33 +20,33 @@
  */
 
 const chalk  = require("chalk");
-const fs     = require('fs');
-const path   = require('path');
-const utils  = require('./utils.js');
+const fs     = require("fs");
+const path   = require("path");
+const utils  = require("./utils.js");
 const errors = require("./errors/errors.js");
 const uuid   = require("node-uuid");
 
 function WebsocketsManager() {
-	this.websockets = [];
+  this.websockets = [];
   this.messageHandlers = [];
   this.pendingTokens = [];
 
-	this.validSubscriptionLevels = ['blocks', 'ownBlocks', 'transactions', 'ownTransactions', 'names', 'ownNames', 'motd'];
+  this.validSubscriptionLevels = ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames", "motd"];
 }
 
 function Websocket(socket, token, auth, subscriptionLevel, privatekey) {
-	this.socket = socket;
-	this.token = token;
-	this.auth = auth;
-	this.privatekey = privatekey;
+  this.socket = socket;
+  this.token = token;
+  this.auth = auth;
+  this.privatekey = privatekey;
 
-	this.subscriptionLevel = subscriptionLevel || ['ownTransactions', 'blocks'];
+  this.subscriptionLevel = subscriptionLevel || ["ownTransactions", "blocks"];
 
-	this.isGuest = auth === "guest";
+  this.isGuest = auth === "guest";
 }
 
 Websocket.prototype.send = function(message) {
-	this.socket.send(message);
+  this.socket.send(message);
 };
 
 var Websockets = new WebsocketsManager();
@@ -54,96 +54,96 @@ var Websockets = new WebsocketsManager();
 module.exports = Websockets;
 
 WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
-	Websockets.messageHandlers[type] = handler;
+  Websockets.messageHandlers[type] = handler;
 };
 
 WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
-	var ws = new Websocket(socket, token, auth, null, pkey);
+  var ws = new Websocket(socket, token, auth, null, pkey);
 
-	socket.on('close', function() {
-		var id = Websockets.websockets.indexOf(ws);
+  socket.on("close", function() {
+    var id = Websockets.websockets.indexOf(ws);
 
-		if (id !== -1) {
-			Websockets.websockets.splice(id, 1);
-		}
-	});
+    if (id !== -1) {
+      Websockets.websockets.splice(id, 1);
+    }
+  });
 
-	socket.on('message', function(message) {
-		if (message.length > 512) {
-			return socket.send(JSON.stringify({
-				ok: false,
-				error: "message_too_long"
-			}));
-		}
+  socket.on("message", function(message) {
+    if (message.length > 512) {
+      return socket.send(JSON.stringify({
+        ok: false,
+        error: "message_too_long"
+      }));
+    }
 
-		var msg;
+    var msg;
 
-		try {
-			msg = JSON.parse(message);
-		} catch (e) {
-			return socket.send(JSON.stringify({
-				ok: false,
-				error: "syntax_error"
-			}));
-		}
+    try {
+      msg = JSON.parse(message);
+    } catch (e) {
+      return socket.send(JSON.stringify({
+        ok: false,
+        error: "syntax_error"
+      }));
+    }
 
-		if (!msg.id) {
-			return socket.send(JSON.stringify({
-				ok: false,
-				error: "missing_parameter",
-				parameter: "id"
-			}));
-		}
+    if (!msg.id) {
+      return socket.send(JSON.stringify({
+        ok: false,
+        error: "missing_parameter",
+        parameter: "id"
+      }));
+    }
 
-		if (typeof Websockets.messageHandlers[msg.type.toLowerCase()] === 'undefined') {
-			return Websockets.sendResponse(socket, msg, {
-				ok: false,
-				error: "invalid_type"
-			});
-		}
+    if (typeof Websockets.messageHandlers[msg.type.toLowerCase()] === "undefined") {
+      return Websockets.sendResponse(socket, msg, {
+        ok: false,
+        error: "invalid_type"
+      });
+    }
 
-		var response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
+    var response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
 
-		if (response instanceof Promise) {
-			response.then(function(resp) {
-				Websockets.sendResponse(socket, msg, resp);
-			}).catch(function(err) {
-				Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
-			});
-		} else if (response) {
-			Websockets.sendResponse(socket, msg, response);
-		}
-	});
+    if (response instanceof Promise) {
+      response.then(function(resp) {
+        Websockets.sendResponse(socket, msg, resp);
+      }).catch(function(err) {
+        Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
+      });
+    } else if (response) {
+      Websockets.sendResponse(socket, msg, response);
+    }
+  });
 
-	Websockets.websockets.push(ws);
+  Websockets.websockets.push(ws);
 };
 
 WebsocketsManager.prototype.broadcast = function(message) {
-	Websockets.websockets.forEach(function(websocket) {
+  Websockets.websockets.forEach(function(websocket) {
     try {
   		websocket.send(JSON.stringify(message));
     } catch (err) {
       console.error("Error sending websocket broadcast:", err);
     }
-	});
+  });
 };
 
 WebsocketsManager.prototype.broadcastEvent = function(message, subscriptionCheck) {
-	Websockets.websockets.forEach(function(websocket) {
-		subscriptionCheck(websocket).then(function() {
+  Websockets.websockets.forEach(function(websocket) {
+    subscriptionCheck(websocket).then(function() {
       try {
 			  websocket.send(JSON.stringify(message));
       } catch (err) {
         console.error("Error sending websocket event broadcast:", err);
       }
-		}).catch(function() {});
-	});
+    }).catch(function() {});
+  });
 };
 
 WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message) {
-	message['id'] = originalMessage.id;
+  message["id"] = originalMessage.id;
 
-	ws.send(JSON.stringify(message));
+  ws.send(JSON.stringify(message));
 };
 
 WebsocketsManager.prototype.obtainToken = function(address, privatekey) {
@@ -157,7 +157,7 @@ WebsocketsManager.prototype.obtainToken = function(address, privatekey) {
   }, 30000);
 
   return token;
-}
+};
 
 WebsocketsManager.prototype.useToken = function(token) {
   const tokenData = this.pendingTokens[token];
@@ -169,33 +169,33 @@ WebsocketsManager.prototype.useToken = function(token) {
   this.pendingTokens[token] = null;
 
   return tokenData;
-}
+};
 
 console.log(chalk`{cyan [Websockets]} Loading routes`);
 
 try {
-	const routePath = path.join(__dirname, 'websocket_routes');
+  const routePath = path.join(__dirname, "websocket_routes");
 
-	fs.readdirSync(routePath).forEach(function(file) {
-		if (path.extname(file).toLowerCase() !== '.js') {
-			return;
-		}
+  fs.readdirSync(routePath).forEach(function(file) {
+    if (path.extname(file).toLowerCase() !== ".js") {
+      return;
+    }
 
-		try {
-			require('./websocket_routes/' + file)(module.exports);
-		} catch (error) {
+    try {
+      require("./websocket_routes/" + file)(module.exports);
+    } catch (error) {
       console.error(chalk`{red [Websockets]} Error loading route '${file}'`);
       console.error(error.stack);
-		}
-	});
+    }
+  });
 } catch (error) {
   console.error(chalk`{red [Websockets]} Error loading routes:`);
   console.error(error.stack);
 }
 
 setInterval(function() {
-	Websockets.broadcast({
-		type: "keepalive",
-		server_time: new Date()
-	});
+  Websockets.broadcast({
+    type: "keepalive",
+    server_time: new Date()
+  });
 }, 10000);

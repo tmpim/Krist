@@ -19,18 +19,18 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist = require('./../krist.js');
+var krist = require("./../krist.js");
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.getwalletversion !== 'undefined') {
-			return res.send(krist.getWalletVersion().toString());
-		}
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.getwalletversion !== "undefined") {
+      return res.send(krist.getWalletVersion().toString());
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {get} /walletversion Get latest KristWallet version
 	 * @apiName GetWalletVersion
 	 * @apiGroup MiscellaneousGroup
@@ -44,14 +44,14 @@ module.exports = function(app) {
      *     "walletVersion": 14
      * }
 	 */
-	app.get('/walletversion', function(req, res) {
-		res.header('Content-Type', 'application/json');
+  app.get("/walletversion", function(req, res) {
+    res.header("Content-Type", "application/json");
 
-		res.json({
-			ok: true,	
-			walletVersion: krist.getWalletVersion()
-		});
-	});
+    res.json({
+      ok: true,	
+      walletVersion: krist.getWalletVersion()
+    });
+  });
 
-	return app;
+  return app;
 };

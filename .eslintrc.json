@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "script"
+  },
+  "env": {
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "semi": ["error", "always"],
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }],
+    "eol-last": ["error", "always"],
+    "indent": ["error", 2, {
+      "FunctionDeclaration": { "parameters": "first" }
+    }]
+  }
+}

@@ -19,13 +19,13 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-var krist       = require('./../krist.js'),
-	utils       = require('./../utils.js'),
-	addresses   = require('./../addresses.js'),
-	addr        = require('./../controllers/addresses.js');
+var krist       = require("./../krist.js"),
+  utils       = require("./../utils.js"),
+  addresses   = require("./../addresses.js"),
+  addr        = require("./../controllers/addresses.js");
 
 module.exports = function(websockets) {
-	/**
+  /**
 	 * @api {ws} //ws:"type":"address" Get an address
 	 * @apiName WSGetAddress
 	 * @apiGroup WebsocketGroup
@@ -38,14 +38,14 @@ module.exports = function(websockets) {
 	 * @apiUse Address
 	 */
 
-	websockets.addMessageHandler('address', function(ws, message) {
-		return new Promise(function(resolve, reject) {
-			addr.getAddress(message.address).then(function(address) {
-				resolve({
-					ok: true,
-					address: addr.addressToJSON(address)
-				})
-			}).catch(reject);
-		});
-	});
+  websockets.addMessageHandler("address", function(ws, message) {
+    return new Promise(function(resolve, reject) {
+      addr.getAddress(message.address).then(function(address) {
+        resolve({
+          ok: true,
+          address: addr.addressToJSON(address)
+        });
+      }).catch(reject);
+    });
+  });
 };

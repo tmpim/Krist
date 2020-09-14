@@ -19,22 +19,22 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const krist = require('./../krist.js');
+const krist = require("./../krist.js");
 
 module.exports = function(app) {
-	app.get('/', function(req, res, next) {
-		if (typeof req.query.getmoneysupply !== 'undefined') {
-			krist.getMoneySupply().then(function(supply) {
-				res.send(supply);
-			});
+  app.get("/", function(req, res, next) {
+    if (typeof req.query.getmoneysupply !== "undefined") {
+      krist.getMoneySupply().then(function(supply) {
+        res.send(supply);
+      });
 
-			return;
-		}
+      return;
+    }
 
-		next();
-	});
+    next();
+  });
 
-	/**
+  /**
 	 * @api {get} /supply Get the money supply
 	 * @apiName GetMoneySupply
 	 * @apiGroup MiscellaneousGroup
@@ -50,14 +50,14 @@ module.exports = function(app) {
      *     "money_supply": 1013359534
      * }
 	 */
-	app.get('/supply', async function(req, res) {
+  app.get("/supply", async function(req, res) {
     const supply = await krist.getMoneySupply();
 
     res.json({
       ok: true,
       money_supply: supply
     });
-	});
+  });
 
-	return app;
+  return app;
 };

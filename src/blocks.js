@@ -22,93 +22,93 @@
 function Blocks() {}
 module.exports = Blocks;
 
-const utils      = require('./utils.js');
-const krist      = require('./krist.js');
-const websockets = require('./websockets.js');
-const schemas    = require('./schemas.js');
-const addresses  = require('./addresses.js');
-const names      = require('./names.js');
-const tx         = require('./transactions.js');
-const moment     = require('moment');
-const Database   = require('./database.js');
+const utils      = require("./utils.js");
+const krist      = require("./krist.js");
+const websockets = require("./websockets.js");
+const schemas    = require("./schemas.js");
+const addresses  = require("./addresses.js");
+const names      = require("./names.js");
+const tx         = require("./transactions.js");
+const moment     = require("moment");
+const Database   = require("./database.js");
 const chalk      = require("chalk");
 const { Op }     = require("sequelize");
 
 Blocks.getBlock = function(id) {
-	return schemas.block.findByPk(id);
+  return schemas.block.findByPk(id);
 };
 
 Blocks.getBlocks = function(limit, offset, asc) {
-	return schemas.block.findAndCountAll({order: [['id', asc ? 'ASC' : ' DESC']],  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.block.findAndCountAll({order: [["id", asc ? "ASC" : " DESC"]],  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getBlocksByOrder = function(order, limit, offset) {
-	return schemas.block.findAndCountAll({order: order, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.block.findAndCountAll({order: order, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getLastBlock = function(t) {
-	return schemas.block.findOne({order: [['id','DESC']]}, { transaction: t });
+  return schemas.block.findOne({order: [["id","DESC"]]}, { transaction: t });
 };
 
 Blocks.getLegacyWork = function(blockID) {
   // Early return for all existing blocks
   if (blockID >= 5000) return null;
 
-	if (blockID >= 1 && blockID < 501) return 400000000000;
-	if (blockID >= 501 && blockID < 541) return 381274937337;
-	if (blockID >= 541 && blockID < 546) return 350000000000;
-	if (blockID >= 546 && blockID < 549) return 400000000000;
-	if (blockID >= 549 && blockID < 554) return 300000000000;
-	if (blockID >= 554 && blockID < 635) return 288365888229;
-	if (blockID >= 635 && blockID < 891) return 58365888229;
-	if (blockID >= 891 && blockID < 936) return 6000000000;
-	if (blockID >= 936 && blockID < 974) return 400000000000;
-	if (blockID >= 974 && blockID < 979) return 100000000000;
-	if (blockID >= 979 && blockID < 1083) return 400000000000;
-	if (blockID >= 1083 && blockID < 1149) return 100000000000;
-	if (blockID >= 1149 && blockID < 1165) return 10000000000;
-	if (blockID >= 1165 && blockID < 1171) return 5000000000;
-	if (blockID >= 1171 && blockID < 1172) return 500000000;
-	if (blockID >= 1172 && blockID < 1178) return 5000000000;
-	if (blockID >= 1178 && blockID < 1355) return 2000000000000;
-	if (blockID >= 1355 && blockID < 1390) return 200000000000;
-	if (blockID >= 1390 && blockID < 2486) return 20000000000;
-	if (blockID >= 2486 && blockID < 2640) return 400000000000;
-	if (blockID >= 2640 && blockID < 2667) return 300000000000;
-	if (blockID >= 2667 && blockID < 2700) return 3000000000;
-	if (blockID >= 2700 && blockID < 2743) return 10000000000;
-	if (blockID >= 2743 && blockID < 2773) return 8000000000;
-	if (blockID >= 2773 && blockID < 2795) return 5000000000;
-	if (blockID >= 2795 && blockID < 2812) return 3000000000;
-	if (blockID >= 2812 && blockID < 2813) return 1000000000;
-	if (blockID >= 2813 && blockID < 2936) return 400000000000;
-	if (blockID >= 2936 && blockID < 2942) return 4000000000;
-	if (blockID >= 2942 && blockID < 2972) return 8000000000;
-	if (blockID >= 2972 && blockID < 2989) return 2000000000;
-	if (blockID >= 2989 && blockID < 2990) return 100000000;
-	if (blockID >= 2990 && blockID < 2998) return 500000000;
-	if (blockID >= 2998 && blockID < 3000) return 200000000;
-	if (blockID >= 3000 && blockID < 3003) return 100000000;
-	if (blockID >= 3003 && blockID < 3005) return 50000000;
-	if (blockID >= 3005 && blockID < 3006) return 23555120;
-	if (blockID >= 3006 && blockID < 3018) return 53555120;
-	if (blockID >= 3018 && blockID < 3029) return 20000000;
-	if (blockID >= 3029 && blockID < 3089) return 400000000000;
-	if (blockID >= 3089 && blockID < 3096) return 20000000;
-	if (blockID >= 3096 && blockID < 3368) return 19875024;
-	if (blockID >= 3368 && blockID < 4097) return 10875024;
+  if (blockID >= 1 && blockID < 501) return 400000000000;
+  if (blockID >= 501 && blockID < 541) return 381274937337;
+  if (blockID >= 541 && blockID < 546) return 350000000000;
+  if (blockID >= 546 && blockID < 549) return 400000000000;
+  if (blockID >= 549 && blockID < 554) return 300000000000;
+  if (blockID >= 554 && blockID < 635) return 288365888229;
+  if (blockID >= 635 && blockID < 891) return 58365888229;
+  if (blockID >= 891 && blockID < 936) return 6000000000;
+  if (blockID >= 936 && blockID < 974) return 400000000000;
+  if (blockID >= 974 && blockID < 979) return 100000000000;
+  if (blockID >= 979 && blockID < 1083) return 400000000000;
+  if (blockID >= 1083 && blockID < 1149) return 100000000000;
+  if (blockID >= 1149 && blockID < 1165) return 10000000000;
+  if (blockID >= 1165 && blockID < 1171) return 5000000000;
+  if (blockID >= 1171 && blockID < 1172) return 500000000;
+  if (blockID >= 1172 && blockID < 1178) return 5000000000;
+  if (blockID >= 1178 && blockID < 1355) return 2000000000000;
+  if (blockID >= 1355 && blockID < 1390) return 200000000000;
+  if (blockID >= 1390 && blockID < 2486) return 20000000000;
+  if (blockID >= 2486 && blockID < 2640) return 400000000000;
+  if (blockID >= 2640 && blockID < 2667) return 300000000000;
+  if (blockID >= 2667 && blockID < 2700) return 3000000000;
+  if (blockID >= 2700 && blockID < 2743) return 10000000000;
+  if (blockID >= 2743 && blockID < 2773) return 8000000000;
+  if (blockID >= 2773 && blockID < 2795) return 5000000000;
+  if (blockID >= 2795 && blockID < 2812) return 3000000000;
+  if (blockID >= 2812 && blockID < 2813) return 1000000000;
+  if (blockID >= 2813 && blockID < 2936) return 400000000000;
+  if (blockID >= 2936 && blockID < 2942) return 4000000000;
+  if (blockID >= 2942 && blockID < 2972) return 8000000000;
+  if (blockID >= 2972 && blockID < 2989) return 2000000000;
+  if (blockID >= 2989 && blockID < 2990) return 100000000;
+  if (blockID >= 2990 && blockID < 2998) return 500000000;
+  if (blockID >= 2998 && blockID < 3000) return 200000000;
+  if (blockID >= 3000 && blockID < 3003) return 100000000;
+  if (blockID >= 3003 && blockID < 3005) return 50000000;
+  if (blockID >= 3005 && blockID < 3006) return 23555120;
+  if (blockID >= 3006 && blockID < 3018) return 53555120;
+  if (blockID >= 3018 && blockID < 3029) return 20000000;
+  if (blockID >= 3029 && blockID < 3089) return 400000000000;
+  if (blockID >= 3089 && blockID < 3096) return 20000000;
+  if (blockID >= 3096 && blockID < 3368) return 19875024;
+  if (blockID >= 3368 && blockID < 4097) return 10875024;
   if (blockID >= 4097 && blockID < 5000) return 8750240;
-}
+};
 
 Blocks.getBaseBlockValue = function(blockID) {
-	return blockID >= 222222 ? 1 : (blockID >= 100000 ? 12 : 25);
+  return blockID >= 222222 ? 1 : (blockID >= 100000 ? 12 : 25);
 };
 
 Blocks.getBlockValue = async (t) => {
   const lastBlock = await Blocks.getLastBlock(t);
   const unpaidNames = await names.getUnpaidNameCount(t);
   return Blocks.getBaseBlockValue(lastBlock.id) + unpaidNames;
-}
+};
 
 Blocks.submit = async function(hash, address, nonce) {
   const { block, newWork } = await Database.getSequelize().transaction(async t => {
@@ -124,7 +124,7 @@ Blocks.submit = async function(hash, address, nonce) {
 
     const newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
 
-    console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format('HH:mm:ss DD/MM/YYYY')}}.`);
+    console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}}.`);
 
     const unpaidNames = await schemas.name.findAll({ 
       where: { 
@@ -196,13 +196,13 @@ Blocks.submit = async function(hash, address, nonce) {
 };
 
 Blocks.blockToJSON = function(block) {
-	return {
-		height: block.id,
-		address: block.address,
-		hash: block.hash,
+  return {
+    height: block.id,
+    address: block.address,
+    hash: block.hash,
     short_hash: block.hash ? block.hash.substring(0, 12) : null,
-		value: block.value,
-		time: block.time,
-		difficulty: Blocks.getLegacyWork(block.id) || block.difficulty
-	};
+    value: block.value,
+    time: block.time,
+    difficulty: Blocks.getLegacyWork(block.id) || block.difficulty
+  };
 };
