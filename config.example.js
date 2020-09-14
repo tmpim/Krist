@@ -20,7 +20,7 @@ config.databaseDialect = 'mysql';
  * WEBSERVER SETUP
  */
 
-// The portfor your server. Proxy this to nginx.
+// The port for your server. Proxy this to Casket.
 config.serverSock = '8000';
 
 // Configuration of the rate limiter. See: https://github.com/nfriedly/express-rate-limit
