@@ -115,7 +115,7 @@ Webserver.init = async function() {
 
     gitlog({
       repo: path.join(__dirname, "../"),
-      number: 5,
+      number: 10,
       fields: [
         "subject",
         "body",
