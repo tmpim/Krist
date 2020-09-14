@@ -140,14 +140,13 @@ Webserver.init = async function() {
   });
 
   Webserver.express.use(function(req, res) {
-    if (req.xhr) {
-      utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
-    } else {
+    if (req.accepts("html")) { // Respond to browsers with HTML 404 page
       res.header("Content-Type", "text/html");
-
       res.render("error_404", {
         protocol: req.protocol
       });
+    } else { // Respond to API requests with JSON 404 response
+      utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
     }
   });
 
