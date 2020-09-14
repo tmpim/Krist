@@ -1,10 +1,11 @@
 {
   "name": "Krist",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
   "scripts": {
-    "convertdb": "node convertdb.js"
+    "start": "node main.js",
+    "docs": "apidoc -i src -o static/docs"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,7 @@
     "body-parser": "^1.14.2",
     "chalk": "^4.1.0",
     "console-stamp": "^0.2.0",
-    "express": "^4.13.3",
+    "express": "^5.0.0-alpha.8",
     "express-rate-limit": "^2.1.0",
     "express-ws": "^1.0.0-rc.2",
     "gitlog": "^2.1.2",
@@ -34,10 +35,6 @@
   "optionalDependencies": {},
   "devDependencies": {
     "apidoc": "^0.25.0"
-  },
-  "scripts": {
-    "start": "node main.js",
-    "docs": "apidoc -i src -o static/docs"
   },
   "apidoc": {
     "title": "Krist",
