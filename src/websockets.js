@@ -87,7 +87,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
       }));
     }
 
-    if (!msg.id) {
+    if (typeof msg.id !== "number" || isNaN(msg.id) || msg.id < 0) {
       return socket.send(JSON.stringify({
         ok: false,
         error: "missing_parameter",
