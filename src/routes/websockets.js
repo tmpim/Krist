@@ -42,7 +42,7 @@ module.exports = function(app) {
       const { address, privatekey } = websockets.useToken(token);
 
       const lastBlock = await blocks.getLastBlock();
-      const { motd, motd_set } = await krist.getMOTD();
+      const { motd, motd_set, debug_mode } = await krist.getMOTD();
 
       console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${req.connection.remoteAddress}} (origin: {bold ${req.header("Origin")}})`);
       
@@ -51,7 +51,7 @@ module.exports = function(app) {
         ok: true,
         type: "hello",
         server_time: new Date(),
-        motd, motd_set,
+        motd, motd_set, debug_mode,
         last_block: blocks.blockToJSON(lastBlock),
         work: krist.getWork()
       });

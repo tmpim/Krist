@@ -1,6 +1,6 @@
 {
   "name": "Krist",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "The new Krist node written in node.js.",
   "main": "main.js",
   "scripts": {

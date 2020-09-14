@@ -209,7 +209,8 @@ Krist.getMOTD = async function() {
 
     return {
       motd,
-      motd_set: stat.mtime
+      motd_set: stat.mtime,
+      debug_mode: config.debugMode || undefined
     };
   } catch (error) { // Return a generic MOTD if the file was not found
     console.error(error);

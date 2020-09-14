@@ -30,6 +30,8 @@ module.exports = function(app) {
 	 *
 	 * @apiSuccess {String} motd The message of the day
 	 * @apiSuccess {Date} set The date the MOTD was last changed
+	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
+   *                       this will be set to 'true'.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
@@ -39,12 +41,13 @@ module.exports = function(app) {
 	 * }
 	 */
   app.all("/motd", async function(req, res) {
-    const { motd, motd_set } = await krist.getMOTD();
+    const { motd, motd_set, debug_mode } = await krist.getMOTD();
 
     return res.json({
       ok: true,
       motd,
-      set: motd_set
+      set: motd_set,
+      debug_mode
     });
   });
 
