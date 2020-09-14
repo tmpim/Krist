@@ -10,7 +10,7 @@ https://krist.ceriat.net, http://krist.ceriat.net {
     proxy / 127.0.0.1:8000 {
         transparent
         websocket
-        except /style.css /index.js
+        except /style.css
     }
 
     cors
