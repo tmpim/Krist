@@ -204,7 +204,7 @@ Krist.isValidARecord = function(ar) {
 
 Krist.getMOTD = async function() {
   try {
-    const motd = (await fsp.readFile("motd.txt")).toString();
+    const motd = (await fsp.readFile("motd.txt")).toString().trim();
     const stat = (await fsp.stat("motd.txt"));
 
     return {
