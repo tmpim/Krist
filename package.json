@@ -32,7 +32,13 @@
     "swig": "^1.4.2"
   },
   "optionalDependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "apidoc": "^0.25.0"
+  },
+  "scripts": {
+    "start": "node main.js",
+    "docs": "apidoc -i src -o static/docs"
+  },
   "apidoc": {
     "title": "Krist",
     "url": "http://krist.ceriat.net",
