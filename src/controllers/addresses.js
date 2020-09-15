@@ -84,13 +84,7 @@ AddressesController.getAlert = function(privatekey) {
 };
 
 AddressesController.addressToJSON = function(address) {
-  return {
-    address: address.address.toLowerCase(),
-    balance: address.balance,
-    totalin: address.totalin,
-    totalout: address.totalout,
-    firstseen: address.firstseen
-  };
+  return addresses.addressToJSON(address);
 };
 
 module.exports = AddressesController;

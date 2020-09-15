@@ -32,6 +32,10 @@ Addresses.getAddresses = function(limit, offset) {
   return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
+Addresses.getAddressesByList = function(addressList) {
+  return schemas.address.findAll({ where: { address: addressList } });
+};
+
 Addresses.getRich = function(limit, offset) {
   return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset), order: [["balance", "DESC"]]});
 };
@@ -74,6 +78,16 @@ Addresses.verify = function(kristAddress, privatekey) {
       }
     });
   });
+};
+
+Addresses.addressToJSON = function(address) {
+  return {
+    address: address.address.toLowerCase(),
+    balance: address.balance,
+    totalin: address.totalin,
+    totalout: address.totalout,
+    firstseen: address.firstseen
+  };
 };
 
 module.exports = Addresses;

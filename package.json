@@ -76,8 +76,9 @@
       "WSMakeTransaction",
       "WSSubmitBlock",
       "LookupGroup",
-      "LookupNames",
-      "LookupTransactions"
+      "LookupAddresses",
+      "LookupTransactions",
+      "LookupNames"
     ]
   }
 }

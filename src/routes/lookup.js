@@ -21,8 +21,9 @@
 
 const express      = require("express");
 const krist        = require("../krist");
-const transactions = require("../transactions");
-const names        = require("../names");
+const Addresses    = require("../addresses");
+const Transactions = require("../transactions");
+const Names        = require("../names");
 const errors       = require("../errors/errors");
 const utils        = require("../utils");
 
@@ -41,8 +42,8 @@ function validateAddressList(addressList) {
   if (!krist.isValidKristAddressList(addressList))
     throw new errors.ErrorInvalidParameter("addresses");
 
-  // Deserialize address list
-  const addresses = addressList.trim().split(",");
+  // Deserialize, clean up, and deduplicate address list
+  const addresses = [...new Set(addressList.trim().toLowerCase().split(","))];
 
   // Check that they didn't supply too many addresses
   if (addresses.length > ADDRESS_LIST_LIMIT)
@@ -113,13 +114,96 @@ module.exports = function(app) {
 	 */
 
   /**
+   * @api {get} /lookup/addresses/:addresses Lookup addresses
+   * @apiName LookupAddresses
+   * @apiGroup LookupGroup
+   * @apiVersion 2.1.3
+   *
+   * @apiDescription Return an object containing the given address(es). Any
+   * addresses that do not exist on the Krist server (i.e. they have not been
+   * logged in to, or have not received Krist) will be assigned `null` in the
+   * object.
+   * 
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning. 
+   * 
+	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
+   *           addresses to filter transactions to/from.
+   * 
+   * @apiSuccess {Number} found The amount of addresses that were successfully
+   *             returned.
+   * @apiSuccess {Number} notFound The amount of addresses that were not
+   *             returned.
+   * @apiSuccess {Object} addresses Object keyed by address containing their
+   *             data, or `null` if the address was not found. 
+   * 
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "found": 3,
+   *   "notFound": 1,
+   *   "addresses": {
+   *     "kfakeaddy0": null,
+   *     "khugepoopy": {
+   *       "address": "khugepoopy",
+   *       "balance": 433,
+   *       "totalin": 467572,
+   *       "totalout": 242505,
+   *       "firstseen": "2017-04-12T20:23:02.000Z"
+   *     },
+   *     "kreichdyes": {
+   *       "address": "kreichdyes",
+   *       "balance": 210,
+   *       "totalin": 65518,
+   *       "totalout": 69767,
+   *       "firstseen": "2018-06-28T17:30:50.000Z"
+   *     },
+   *     "kre3w0i79j": {
+   *       "address": "kre3w0i79j",
+   *       "balance": 0,
+   *       "totalin": 227329,
+   *       "totalout": 227277,
+   *       "firstseen": "2015-03-13T12:55:18.000Z"
+   *     }
+   *   }
+   * }
+   */
+  api.get("/addresses/:addresses", async (req, res) => {
+    const { addresses: addressesParam } = req.params;
+
+    // Validate address list
+    if (!addressesParam) throw new errors.ErrorMissingParameter("addresses");
+    const addressList = validateAddressList(addressesParam);
+
+    // Perform the query
+    const rows = await Addresses.getAddressesByList(addressList);
+
+    // Prepare the output object (initialize all supplied addresses with 'null')
+    const out = addressList.reduce((obj, address) => (obj[address] = null, obj), {});
+
+    // Populate the output object with the addresses we actually found
+    for (const address of rows) {
+      out[address.address] = Addresses.addressToJSON(address);
+    }
+
+    return res.json({
+      ok: true,
+      found: rows.length,
+      notFound: addressList.length - rows.length,
+      addresses: out
+    });
+  });
+
+  /**
    * @api {get} /lookup/transactions/:addresses Lookup transactions
    * @apiName LookupTransactions
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
    *
-   * @apiDescription **WARNING:** The Lookup API is in Beta, and is subject to
-   * change at any time without warning. 
+   * @apiDescription Return all the transactions to/from the given address(es).
+   * 
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning. 
    * 
 	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
@@ -138,6 +222,32 @@ module.exports = function(app) {
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
    * @apiUse Transactions
+   * 
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "count": 20,
+   *   "total": 4785,
+   *   "transactions": [
+   *     {
+   *       "id": 892595,
+   *       "from": "khugepoopy",
+   *       "to": "kqxhx5yn9v",
+   *       "value": 7000,
+   *       "time": "2018-12-29T13:02:05.000Z",
+   *       "name": null,
+   *       "metadata": "lignum@switchcraft.kst"
+   *     },
+   *     {
+   *       "id": 1454706,
+   *       "from": "k5cfswitch",
+   *       "to": "khugepoopy",
+   *       "value": 5050,
+   *       "time": "2020-01-20T00:01:47.000Z",
+   *       "name": null,
+   *       "metadata": ""
+   *     },
+   *     ...
    */
   api.get("/transactions/:addresses", async (req, res) => {
     const { addresses: addressesParam } = req.params;
@@ -154,7 +264,7 @@ module.exports = function(app) {
     const includeMined = typeof req.query.includeMined !== "undefined";
 
     // Perform the query
-    const { rows, count } = await transactions.getTransactionsByAddresses(
+    const { rows, count } = await Transactions.getTransactionsByAddresses(
       addressList, limit, offset, orderBy, order, includeMined
     );
 
@@ -162,7 +272,7 @@ module.exports = function(app) {
       ok: true,
       count: rows.length,
       total: count,
-      transactions: rows.map(transactions.transactionToJSON)
+      transactions: rows.map(Transactions.transactionToJSON)
     });
   });
 
@@ -172,8 +282,10 @@ module.exports = function(app) {
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
    *
-   * @apiDescription **WARNING:** The Lookup API is in Beta, and is subject to
-   * change at any time without warning. 
+   * @apiDescription Return all the names owned by the given address(es).
+   * 
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning. 
    * 
 	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter name owners by.
@@ -191,6 +303,28 @@ module.exports = function(app) {
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
    * @apiUse Names
+   * 
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "count": 20,
+   *   "total": 45,
+   *   "names": [
+   *     {
+   *       "name": "ahh11",
+   *       "owner": "khugepoopy",
+   *       "registered": "2016-06-12T13:21:41.000Z",
+   *       "updated": "2018-04-06T16:54:53.000Z",
+   *       "a": ""
+   *     },
+   *     {
+   *       "name": "antiblock",
+   *       "owner": "kreichdyes",
+   *       "registered": "2020-01-25T12:18:14.000Z",
+   *       "updated": "2020-01-25T12:18:14.000Z",
+   *       "a": null
+   *     },
+   *     ...
    */
   api.get("/names/:addresses", async (req, res) => {
     const { addresses: addressesParam } = req.params;
@@ -206,7 +340,7 @@ module.exports = function(app) {
     const order = validateOrder(req.query.order);
 
     // Perform the query
-    const { rows, count } = await names.getNamesByAddresses(
+    const { rows, count } = await Names.getNamesByAddresses(
       addressList, limit, offset, orderBy, order
     );
 
@@ -214,7 +348,7 @@ module.exports = function(app) {
       ok: true,
       count: rows.length,
       total: count,
-      names: rows.map(names.nameToJSON)
+      names: rows.map(Names.nameToJSON)
     });
   });
 
