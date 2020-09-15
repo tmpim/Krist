@@ -22,6 +22,7 @@
 const express      = require("express");
 const krist        = require("../krist");
 const Addresses    = require("../addresses");
+const Blocks       = require("../blocks");
 const Transactions = require("../transactions");
 const Names        = require("../names");
 const errors       = require("../errors/errors");
@@ -30,6 +31,8 @@ const utils        = require("../utils");
 // Fair tradeoff between flexibility and parameter limitations
 const ADDRESS_LIST_LIMIT = 128;
 
+// Valid fields to order block lookups by
+const BLOCK_FIELDS = ["height", "address", "hash", "value", "time", "difficulty"];
 // Valid fields to order transaction lookups by
 const TRANSACTION_FIELDS = ["id", "from", "to", "value", "time"];
 // Valid fields to order name lookups by
@@ -176,7 +179,7 @@ module.exports = function(app) {
     const addressList = validateAddressList(addressesParam);
 
     // Perform the query
-    const rows = await Addresses.getAddressesByList(addressList);
+    const rows = await Addresses.lookupAddresses(addressList);
 
     // Prepare the output object (initialize all supplied addresses with 'null')
     const out = addressList.reduce((obj, address) => (obj[address] = null, obj), {});
@@ -191,6 +194,77 @@ module.exports = function(app) {
       found: rows.length,
       notFound: addressList.length - rows.length,
       addresses: out
+    });
+  });
+
+  /**
+   * @api {get} /lookup/blocks Lookup blocks
+   * @apiName LookupBlocks
+   * @apiGroup LookupGroup
+   * @apiVersion 2.1.3
+   *
+   * @apiDescription Return all the blocks.
+   * 
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning. 
+   * 
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+   *           results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+   *           results.
+	 * @apiParam (QueryParameter) {String} [orderBy=height] The field to order the
+   *           results by. Must be one of `height`, `address`, `hash`, `value`,
+   *           `time` or `difficulty`.
+	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+   *           the results in. Must be one of `ASC` or `DESC`.
+   * 
+   * @apiSuccess {Number} count The count of results returned.
+   * @apiSuccess {Number} total The total count of results available.
+   * @apiUse Blocks
+   * 
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "count": 20,
+   *   "total": 1397410,
+   *   "blocks": [
+   *     {
+   *       "height": 101496,
+   *       "address": "k5ztameslf",
+   *       "hash": "00000000224f08def4a2cef05fed91abdf8eb03feb79d80fe2b187487d2ad06b",
+   *       "short_hash": "00000000224f",
+   *       "value": 3013,
+   *       "time": "2016-01-11T22:16:09.000Z",
+   *       "difficulty": 18758
+   *     },
+   *     {
+   *       "height": 1187992,
+   *       "address": "kristallie",
+   *       "hash": "00000000004fd4ededc6edc7528c99f10e74cdecd88627a5a98df9431f52473b",
+   *       "short_hash": "00000000004f",
+   *       "value": 152,
+   *       "time": "2020-02-09T04:02:58.000Z",
+   *       "difficulty": 100
+   *     },
+   *     ...
+   */
+  api.get("/blocks", async (req, res) => {
+    // Query filtering parameters
+    const limit = validateLimit(req.query.limit);
+    const offset = validateOffset(req.query.offset);
+    const orderBy = validateOrderBy(BLOCK_FIELDS, req.query.orderBy);
+    const order = validateOrder(req.query.order);
+
+    // Perform the query (replace 'height' with 'id')
+    const { rows, count } = await Blocks.lookupBlocks(
+      limit, offset, orderBy === "height" ? "id" : orderBy, order
+    );
+
+    return res.json({
+      ok: true,
+      count: rows.length,
+      total: count,
+      blocks: rows.map(Blocks.blockToJSON)
     });
   });
 
@@ -264,7 +338,7 @@ module.exports = function(app) {
     const includeMined = typeof req.query.includeMined !== "undefined";
 
     // Perform the query
-    const { rows, count } = await Transactions.getTransactionsByAddresses(
+    const { rows, count } = await Transactions.lookupTransactions(
       addressList, limit, offset, orderBy, order, includeMined
     );
 
@@ -294,8 +368,8 @@ module.exports = function(app) {
    *           results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
    *           results.
-	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
-   *           results by. Must be one of `name`, `owner`, `registered`, 
+	 * @apiParam (QueryParameter) {String} [orderBy=name] The field to order the
+   *           results by. Must be one of `name`, `owner`, `registered` or 
    *           `updated`.
 	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
@@ -340,7 +414,7 @@ module.exports = function(app) {
     const order = validateOrder(req.query.order);
 
     // Perform the query
-    const { rows, count } = await Names.getNamesByAddresses(
+    const { rows, count } = await Names.lookupNames(
       addressList, limit, offset, orderBy, order
     );
 

@@ -77,7 +77,7 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
   });
 };
 
-Transactions.getTransactionsByAddresses = function(addressList, limit, offset, orderBy, order, includeMined) {
+Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, order, includeMined) {
   return schemas.transaction.findAndCountAll({
     order: [[orderBy || "id", order || "ASC"]],
     limit: utils.sanitiseLimit(limit),

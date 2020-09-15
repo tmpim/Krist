@@ -35,7 +35,7 @@ Names.getNamesByAddress = function(address, limit, offset) {
   return schemas.name.findAndCountAll({order: [["name", "ASC"]], where: {owner: address}, limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Names.getNamesByAddresses = function(addressList, limit, offset, orderBy, order) {
+Names.lookupNames = function(addressList, limit, offset, orderBy, order) {
   return schemas.name.findAndCountAll({
     order: [[orderBy || "name", order || "ASC"]], 
     limit: utils.sanitiseLimit(limit),

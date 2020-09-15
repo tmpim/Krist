@@ -32,7 +32,7 @@ Addresses.getAddresses = function(limit, offset) {
   return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Addresses.getAddressesByList = function(addressList) {
+Addresses.lookupAddresses = function(addressList) {
   return schemas.address.findAll({ where: { address: addressList } });
 };
 

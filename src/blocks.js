@@ -50,6 +50,14 @@ Blocks.getLastBlock = function(t) {
   return schemas.block.findOne({order: [["id","DESC"]]}, { transaction: t });
 };
 
+Blocks.lookupBlocks = function(limit, offset, orderBy, order) {
+  return schemas.block.findAndCountAll({
+    order: [[orderBy || "id", order || "ASC"]],
+    limit: utils.sanitiseLimit(limit),
+    offset: utils.sanitiseOffset(offset),
+  });
+};
+
 Blocks.getLegacyWork = function(blockID) {
   // Early return for all existing blocks
   if (blockID >= 5000) return null;
