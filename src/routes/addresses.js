@@ -328,6 +328,9 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (URLParameter) {String} address The address.
 	 *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of names owned by this address.
 	 * @apiUse Names
