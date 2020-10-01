@@ -388,6 +388,7 @@ module.exports = function(app) {
 	 *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
+	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified, transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of transactions this address has made.
