@@ -357,7 +357,7 @@ module.exports = function(app) {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiSuccess {Number} base_value
+	 * @apiSuccess {Number} base_value - The base block reward.
 	 *
 	 * @apiDescription Returns the base block reward - the amount of Krist rewarded for submitting a block excluding
 	 * 				   name rewards.
@@ -385,11 +385,11 @@ module.exports = function(app) {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.6
 	 *
-	 * @apiSuccess {Number} value
-	 * @apiSuccess {Number} base_value
+	 * @apiSuccess {Number} value - The current block reward.
+	 * @apiSuccess {Number} base_value - The base block reward.
 	 *
 	 * @apiDescription Returns the block reward - the base value plus the amount of unpaid names (names registered in
-	 * 				   the last 500 blocks).
+	 * 				   the last 500 blocks). This is how much Krist will be rewarded for mining a block right now.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
