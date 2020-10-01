@@ -25,8 +25,12 @@ const chalk  = require("chalk");
 
 function Utils() {}
 
-Utils.sha256 = function(input) {
-  return crypto.createHash("sha256").update(input.toString()).digest("hex");
+Utils.sha256 = function(...inputs) {
+  let hash = crypto.createHash("sha256");
+  for (const input of inputs) {
+    hash = hash.update(input instanceof Uint8Array ? input : input.toString());
+  }
+  return hash.digest("hex");
 };
 
 Utils.hexToBase36 = function(input) {
