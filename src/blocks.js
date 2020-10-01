@@ -149,7 +149,8 @@ Blocks.submit = async function(hash, address, nonce) {
       schemas.block.create({
         hash: hash,
         address: address,
-        nonce: nonce,
+        // Convert a binary nonce to a string if necessary
+        nonce: Buffer.from(nonce, "binary").toString("hex"),
         time: time,
         difficulty: oldWork,
         value: value

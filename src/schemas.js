@@ -51,7 +51,7 @@ const Block = database.getSequelize().define("block", {
     unique: true
   },
   address: Sequelize.STRING(10),
-  nonce: Sequelize.STRING(config.nonceMaxSize || 24).BINARY,
+  nonce: Sequelize.STRING((config.nonceMaxSize || 24) * 2),
   time: Sequelize.DATE,
   difficulty: Sequelize.INTEGER(10).UNSIGNED,
   useragent: Sequelize.STRING(255)

@@ -83,7 +83,7 @@ BlocksController.blockToJSON = function(block) {
   return blocks.blockToJSON(block); // i needed to move it but i didnt want to change 1000 lines of code ok
 };
 
-BlocksController.submitBlock = function(address, nonce) {
+BlocksController.submitBlock = function(address, rawNonce) {
   return new Promise(function(resolve, reject) {
     if (!address) {
       return reject(new errors.ErrorMissingParameter("address"));
@@ -93,15 +93,15 @@ BlocksController.submitBlock = function(address, nonce) {
       return reject(new errors.ErrorInvalidParameter("address"));
     }
 
-    if (!nonce) {
+    if (!rawNonce) {
       return reject(new errors.ErrorMissingParameter("nonce"));
     }
 
-    if (nonce.length < 1 || nonce.length > config.nonceMaxSize) {
+    if (rawNonce.length < 1 || rawNonce.length > config.nonceMaxSize) {
       return reject(new errors.ErrorInvalidParameter("nonce"));
     }
 
-    const nonce = Array.isArray(nonce) ? new Uint8Array(nonce) : nonce;
+    const nonce = Array.isArray(rawNonce) ? new Uint8Array(rawNonce) : rawNonce;
     blocks.getLastBlock().then(function(lastBlock) {
       const last = lastBlock.hash.substr(0, 12);
       const difficulty = krist.getWork();
