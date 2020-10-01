@@ -39,7 +39,7 @@ Blocks.getBlock = function(id) {
 };
 
 Blocks.getBlocks = function(limit, offset, asc) {
-  return schemas.block.findAndCountAll({order: [["id", asc ? "ASC" : " DESC"]],  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
+  return schemas.block.findAndCountAll({order: [["id", asc ? "ASC" : "DESC"]],  limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
 Blocks.getBlocksByOrder = function(order, limit, offset) {
