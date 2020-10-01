@@ -61,6 +61,16 @@ BlocksController.getBlocksByOrder = function(order, limit, offset) {
   });
 };
 
+BlocksController.getLowestHashes = async function(limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
+
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
+
+  return blocks.getLowestHashes(limit, offset);
+};
+
 BlocksController.getBlock = function(height) {
   return new Promise(function(resolve, reject) {
     if (isNaN(height)) {

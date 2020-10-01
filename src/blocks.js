@@ -50,6 +50,20 @@ Blocks.getLastBlock = function(t) {
   return schemas.block.findOne({order: [["id","DESC"]]}, { transaction: t });
 };
 
+Blocks.getLowestHashes = function(limit, offset) {
+  return schemas.block.findAndCountAll({
+    where: {
+      [Op.and]: [
+        { hash: { [Op.not]: null } },
+        { id: { [Op.gt]: 10 } } // Ignore the genesis block
+      ]
+    },
+    order: [["hash", "ASC"]], 
+    limit: utils.sanitiseLimit(limit), 
+    offset: utils.sanitiseOffset(offset)
+  });
+};
+
 Blocks.lookupBlocks = function(limit, offset, orderBy, order) {
   return schemas.block.findAndCountAll({
     order: [[orderBy || "id", order || "ASC"]],

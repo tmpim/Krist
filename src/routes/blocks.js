@@ -299,26 +299,19 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/blocks/lowest", function(req, res) {
-    blocksController.getBlocksByOrder([["hash", "ASC"]], req.query.limit, req.query.offset, true).then(function(results) {
-      const out = [];
-
-      results.rows.forEach(function(block) {
-        if (block.hash === null) return;
-        if (block.id === 1) return;
-
-        out.push(blocksController.blockToJSON(block));
-      });
+  app.get("/blocks/lowest", async function(req, res) {
+    try {
+      const { rows, count } = await blocksController.getLowestHashes(req.query.limit, req.query.offset);
 
       res.json({
         ok: true,
-        count: out.length,
-        total: results.count,
-        blocks: out
+        count: rows.length,
+        total: count,
+        blocks: rows.map(blocksController.blockToJSON)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
