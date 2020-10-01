@@ -67,7 +67,7 @@ module.exports = function(app) {
 	 * @apiVersion 2.0.0
 	 *
 	 * @apiParam (BodyParameter) {String} address The address to send the reward to, if successful.
-	 * @apiParam (BodyParameter) {String} nonce The nonce to submit with.
+	 * @apiParam (BodyParameter) {String|Number[]} nonce The nonce to submit with.
 	 *
 	 * @apiSuccess {Boolean} success Whether the submission was successful or not.
 	 * @apiSuccess {Number} [work] The new difficulty for block submission (if the solution was successful).

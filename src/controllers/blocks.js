@@ -101,10 +101,11 @@ BlocksController.submitBlock = function(address, nonce) {
       return reject(new errors.ErrorInvalidParameter("nonce"));
     }
 
+    const nonce = Array.isArray(nonce) ? new Uint8Array(nonce) : nonce;
     blocks.getLastBlock().then(function(lastBlock) {
       const last = lastBlock.hash.substr(0, 12);
       const difficulty = krist.getWork();
-      const hash = utils.sha256(address + last + nonce);
+      const hash = utils.sha256(address, last, nonce);
 
       if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
         blocks.submit(hash, address, nonce).then(resolve).catch(reject);

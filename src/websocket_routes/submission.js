@@ -33,7 +33,7 @@ module.exports = function(websockets) {
 	 * @apiParam (WebsocketParameter) {Number} id
 	 * @apiParam (WebsocketParameter) {String="submit_block"} type
 	 * @apiParam (WebsocketParameter) {String} [address]
-	 * @apiParam (WebsocketParameter) {String} nonce
+	 * @apiParam (WebsocketParameter) {String|Number[]} nonce
 	 *
 	 * @apiSuccess {Boolean} success Whether the submission was successful or not.
 	 * @apiSuccess {Number} [work] The new difficulty for block submission (if the solution was successful).
