@@ -24,6 +24,10 @@ module.exports = function(app) {
     res.send("Connor dominates and penetrates Ryan Smith.");
   });
 
+  app.get("/justyn", function(req, res) {
+    res.send("is gay");
+  });
+
   app.get("/liggy", function(req, res) {
     res.header("Content-Type", "text/html");
 
