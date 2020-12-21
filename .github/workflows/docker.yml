@@ -1,0 +1,19 @@
+name: Publish Docker Image
+on:
+  release:
+    types: [published]
+jobs:
+  push_to_registry:
+    name: Push Docker image to GitHub Container Registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v2
+        with:
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_PAT }}
+          registry: ghcr.io
+          repository: ${{ github.repository }}
+          tag_with_ref: true

@@ -20,7 +20,7 @@
  */
 
 const utils      = require("./utils.js");
-const config     = require("./../config.js");
+const constants  = require("./constants.js");
 const schemas    = require("./schemas.js");
 const websockets = require("./websockets.js");
 const { Op }     = require("sequelize");
@@ -61,7 +61,7 @@ Names.getUnpaidNameCount = function(t) {
 };
 
 Names.getNameCost = function() {
-  return config.nameCost;
+  return constants.nameCost;
 };
 
 Names.createName = async function(name, owner) {

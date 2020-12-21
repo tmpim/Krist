@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config              = require("./../../config.js");
+const constants           = require("./../constants.js");
 const krist               = require("./../krist.js");
 const utils               = require("./../utils.js");
 const addressesController = require("./../controllers/addresses.js");
@@ -30,26 +30,25 @@ const errors              = require("./../errors/errors.js");
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
     if (typeof req.query.submitblock !== "undefined") {
-      if (!req.query.address || !krist.isValidKristAddress(req.query.address)) {
+      if (!req.query.address || !krist.isValidKristAddress(req.query.address))
         return res.send("Invalid address");
-      }
-
-      if (!req.query.nonce || req.query.nonce.length > config.nonceMaxSize) {
+      if (!req.query.nonce || req.query.nonce.length > constants.nonceMaxSize)
         return res.send("Nonce is too large");
-      }
       
       const lastBlock = await blocks.getLastBlock();
 
       const last = lastBlock.hash.substr(0, 12);
-      const difficulty = krist.getWork();
+      const difficulty = await krist.getWork();
       const hash = utils.sha256(req.query.address + last + req.query.nonce);
 
-      if (parseInt(hash.substr(0, 12), 16) <= difficulty) {
-        blocks.submit(hash, req.query.address, req.query.nonce).then(function() {
+      if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
+        try {
+          await blocks.submit(hash, req.query.address, req.query.nonce);
           res.send("Block solved");
-        }).catch(function() {
+        } catch (err) {
+          console.error(err);
           res.send("Solution rejected");
-        });
+        }
       } else {
         res.send(req.query.address + last + req.query.nonce);
       }

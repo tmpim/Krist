@@ -19,7 +19,6 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config    = require("./../config.js");
 const Sequelize = require("sequelize");
 const chalk     = require("chalk");
 
@@ -32,26 +31,18 @@ Database.getSequelize = function() {
 };
 
 Database.init = async function() {
-  const requiredConfigOptions = [
-    "databaseHost",
-    "databaseDB",
-    "databaseUser",
-    "databasePass"
-  ];
+  const host = process.env.DB_HOST || "127.0.0.1";
+  const port = parseInt(process.env.DB_PORT) || 3306;
+  const db = process.env.DB_NAME || "krist";
+  const user = process.env.DB_USER || "krist";
+  const pass = process.env.DB_PASS;
 
-  requiredConfigOptions.forEach(function(option) {
-    if (!config[option]) {
-      console.error(chalk`{red [Config]} Missing config option: ${option}`);
+  console.log(chalk`{cyan [DB]} Connecting to database {bold ${db}} as user {bold ${user}}...`);
 
-      process.exit(1);
-    }
-  });
-
-  console.log(chalk`{cyan [DB]} Connecting to database {bold ${config.databaseDB}} as user {bold ${config.databaseUser}}...`);
-
-  Database.sequelize = new Sequelize(config.databaseDB, config.databaseUser, config.databasePass, {
-    host: config.databaseHost,
-    dialect: config.databaseDialect,
+  Database.sequelize = new Sequelize(db, user, pass, {
+    host,
+    port,
+    dialect: "mysql",
     logging: false,
     pool: {
       max: 6,

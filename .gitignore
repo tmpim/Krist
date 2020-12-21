@@ -27,3 +27,5 @@ npm-debug.log
 
 /static/docs
 /static/kristwallet
+
+.env

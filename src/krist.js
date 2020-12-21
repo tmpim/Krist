@@ -23,13 +23,12 @@ function Krist() {}
 
 module.exports = Krist;
 
-const utils      = require("./utils.js");
-const config     = require("./../config.js");
-const schemas    = require("./schemas.js");
-const websockets = require("./websockets.js");
-const fs         = require("fs");
-const fsp        = fs.promises;
-const chalk      = require("chalk");
+require("./websockets.js"); // hack to deal with circular deps
+const utils        = require("./utils.js");
+const constants    = require("./constants.js");
+const schemas      = require("./schemas.js");
+const chalk        = require("chalk");
+const { getRedis } = require("./redis.js");
 
 const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
 const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
@@ -38,107 +37,43 @@ const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
 
-Krist.work = 100000;
 Krist.freeNonceSubmission = false;
 
 Krist.workOverTime = [];
 
-Krist.init = function() {
+Krist.init = async function() {
   console.log(chalk`{bold [Krist]} Loading...`);
 
-  const requiredConfigOptions = [
-    "walletVersion",
-    "nameCost",
-    "workFactor"
-  ];
-
-  requiredConfigOptions.forEach(function(option) {
-    if (!config[option]) {
-      console.error(chalk`{red [Config]} Missing config option: ${option}`);
-
-      process.exit(1);
-    }
-  });
-
-  // Check for and make the data dir
-
-  /// WOW dont use deprecated functions lemmmmmym!
-  if (!fs.existsSync("data")) {
-    fs.mkdirSync("data", 0o775);
+  // Pre-initialize the work to 100,000
+  const r = getRedis();
+  if (!await r.exists("work")) {
+    await Krist.setWork(Krist.getMaxWork());
   }
+  console.log(chalk`{bold [Krist]} Current work: {green ${await Krist.getWork()}}`);
 
-  // Check for and make the work file
-  if (fs.existsSync("data/work")) {
-    fs.access("data/work", fs.W_OK, function(err) {
-      if (err) {
-        console.log(chalk`{red [Krist]} Cannot access data/work file. Please check the running user/group has write perms.`);
-        console.log(chalk`{red [Krist]} ${err}`);
-        console.log(chalk`{red [Krist]} Aborting.`);
-
-        process.exit(1);
-      }
-    });
-
-    fs.readFile("data/work", function(err, contents) {
-      if (err) {
-        console.log(chalk`{red [Krist]} Critical error reading work file.`);
-        console.log(chalk`{red [Krist]} ${err}`);
-
-        return;
-      }
-
-      Krist.work = parseInt(contents);
-
-      console.log(chalk`{bold [Krist]} Current work: {green ${Krist.work}}`);
-    });
-  } else {
-    // Write the work file
-    this.setWork(Krist.work);
-  }
-
-  // Watch for MOTD changes and broadcast them to the websockets
-  fs.watchFile("motd.txt", async function() {
-    const { motd } = await Krist.getMOTD();
-
-    websockets.broadcastEvent({
-      type: "event",
-      event: "motd",
-      new_motd: motd
-    }, ws => {
-      return new Promise((resolve, reject) => {
-        if (ws.subscriptionLevel.indexOf("motd") >= 0) {
-          return resolve();
-        }
-  
-        reject();
-      });
-    });
-  });
-
-  setInterval(function() {
-    Krist.workOverTime.push(Krist.getWork());
-
-    if (Krist.workOverTime.length > 1440) {
-      Krist.workOverTime.shift();
-    }
+  // Update the work over time every minute
+  setInterval(async function() {
+    await r.lpush("work-over-time", await Krist.getWork());
+    await r.ltrim("work-over-time", 0, 1440);
   }, 60 * 1000);
 };
 
-Krist.getWork = function() {
-  return Krist.work;
+Krist.getWork = async function() {
+  return parseInt(await getRedis().get("work"));
 };
 
-Krist.getWorkOverTime = function() {
-  return Krist.workOverTime;
+Krist.getWorkOverTime = async function() {
+  return (await getRedis().lrange("work-over-time", 0, 1440))
+    .map(i => parseInt(i))
+    .reverse();
 };
 
-Krist.setWork = async function(work) {
-  Krist.work = work;
-  return fsp.writeFile("data/work", work.toString());
+Krist.setWork = async function(work) {  
+  await getRedis().set("work", work);
 };
 
 Krist.getWalletVersion = function() {
-  return typeof config.walletVersion === "number" ? config.walletVersion : 13;
+  return constants.walletVersion;
 };
 
 Krist.getMoneySupply = function() {
@@ -146,19 +81,19 @@ Krist.getMoneySupply = function() {
 };
 
 Krist.getMinWork = function() {
-  return config.minWork || 500;
+  return constants.minWork;
 };
 
 Krist.getMaxWork = function() {
-  return config.maxWork || 100000;
+  return constants.maxWork;
 };
 
 Krist.getWorkFactor = function() {
-  return config.workFactor || 0.1;
+  return constants.workFactor;
 };
 
 Krist.getSecondsPerBlock = function() {
-  return config.secondsPerBlock || 60;
+  return constants.secondsPerBlock;
 };
 
 Krist.makeV2Address = function(key) {
@@ -204,13 +139,14 @@ Krist.isValidARecord = function(ar) {
 
 Krist.getMOTD = async function() {
   try {
-    const motd = (await fsp.readFile("motd.txt")).toString().trim();
-    const stat = (await fsp.stat("motd.txt"));
+    const r = getRedis();
+    const motd = await r.get("motd");
+    const date = new Date(await r.get("motd:date"));
 
     return {
       motd,
-      motd_set: stat.mtime,
-      debug_mode: config.debugMode || undefined
+      motd_set: date,
+      debug_mode: process.env.NODE_ENV !== "production"
     };
   } catch (error) { // Return a generic MOTD if the file was not found
     console.error(error);

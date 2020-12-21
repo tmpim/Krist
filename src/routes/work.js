@@ -22,9 +22,9 @@
 const krist = require("./../krist.js");
 
 module.exports = function(app) {
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.getwork !== "undefined") {
-      return res.send(krist.getWork().toString());
+      return res.send((await krist.getWork()).toString());
     }
 
     next();
@@ -44,10 +44,10 @@ module.exports = function(app) {
 	 *     "work": 18750
      * }
 	 */
-  app.get("/work", function(req, res) {
+  app.get("/work", async function(req, res) {
     res.json({
       ok: true,
-      work: krist.getWork()
+      work: await krist.getWork()
     });
   });
 
@@ -62,13 +62,13 @@ module.exports = function(app) {
 	 * @apiSuccessExample {json} Success
 	 * {
 	 *     "ok": true,
-	 *     "work": 18750
+	 *     "work": [18750, 19250, ...]
      * }
 	 */
-  app.get("/work/day", function(req, res) {
+  app.get("/work/day", async function(req, res) {
     res.json({
       ok: true,
-      work: krist.getWorkOverTime()
+      work: await krist.getWorkOverTime()
     });
   });
 

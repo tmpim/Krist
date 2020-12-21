@@ -138,7 +138,7 @@ Blocks.submit = async function(hash, address, nonce) {
     const value = await Blocks.getBlockValue();
     const time = new Date();
 
-    const oldWork = krist.getWork();
+    const oldWork = await krist.getWork();
 
     const seconds = (time - lastBlock.time) / 1000;
     const targetWork = seconds * oldWork / krist.getSecondsPerBlock();

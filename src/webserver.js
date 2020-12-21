@@ -19,7 +19,6 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config        = require("./../config.js");
 const utils         = require("./utils.js");
 const errors        = require("./errors/errors.js");
 const express       = require("express");
@@ -42,12 +41,6 @@ Webserver.getExpress = function() {
 };
 
 Webserver.init = async function() {
-  if (typeof config.serverSock === "undefined") {
-    console.error(chalk`{red [Config]} Missing config option: serverSock`);
-
-    return null;
-  }
-
   Webserver.express = express();
   Webserver.ws = expressWs(Webserver.express);
 
@@ -67,13 +60,19 @@ Webserver.init = async function() {
   Webserver.express.engine(".swig", swig.renderFile);
 
   swig.setDefaults({
-    debug: config.debugMode
+    debug: process.env.NODE_ENV !== "production"
   });
 
   Webserver.express.use(bodyParser.urlencoded({ extended: false }));
   Webserver.express.use(bodyParser.json());
 
-  Webserver.express.use(rateLimit(config.rateLimitSettings));
+  Webserver.express.use(rateLimit({    
+    windowMs: 60000,
+    delayAfter: 240,
+    delayMs: 5,
+    max: 320,
+    message: "Rate limit hit. Please try again later."
+  }));
 
   Webserver.express.all("*", function(req, res, next) {
     res.header("X-Robots-Tag", "none");
@@ -150,6 +149,7 @@ Webserver.init = async function() {
     }
   });
 
-  await promisify(Webserver.express.listen)(config.serverSock);
-  console.log(chalk`{green [Webserver]} Listening on {bold ${config.serverSock}}`);
+  const listen = parseInt(process.env.WEB_LISTEN) || 8080;
+  await promisify(Webserver.express.listen)(listen);
+  console.log(chalk`{green [Webserver]} Listening on {bold ${listen}}`);
 };

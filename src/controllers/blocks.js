@@ -19,11 +19,11 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config = require("./../../config.js");
-const blocks = require("./../blocks.js");
-const krist  = require("./../krist.js");
-const utils  = require("./../utils.js");
-const errors = require("./../errors/errors.js");
+const constants = require("./../constants.js");
+const blocks    = require("./../blocks.js");
+const krist     = require("./../krist.js");
+const utils     = require("./../utils.js");
+const errors    = require("./../errors/errors.js");
 
 function BlocksController() {}
 
@@ -93,37 +93,27 @@ BlocksController.blockToJSON = function(block) {
   return blocks.blockToJSON(block); // i needed to move it but i didnt want to change 1000 lines of code ok
 };
 
-BlocksController.submitBlock = function(address, rawNonce) {
-  return new Promise(function(resolve, reject) {
-    if (!address) {
-      return reject(new errors.ErrorMissingParameter("address"));
-    }
+BlocksController.submitBlock = async function(address, rawNonce) {
+  if (!address) throw new errors.ErrorMissingParameter("address");
+  if (!krist.isValidKristAddress(address)) 
+    throw new errors.ErrorInvalidParameter("address");
 
-    if (!krist.isValidKristAddress(address)) {
-      return reject(new errors.ErrorInvalidParameter("address"));
-    }
+  if (!rawNonce) throw new errors.ErrorMissingParameter("rawNonce");
+  if (rawNonce.length < 1 || rawNonce.length > constants.nonceMaxSize)
+    throw new errors.ErrorInvalidParameter("nonce");
 
-    if (!rawNonce) {
-      return reject(new errors.ErrorMissingParameter("nonce"));
-    }
+  const nonce = Array.isArray(rawNonce) ? new Uint8Array(rawNonce) : rawNonce;
+  const lastBlock = await blocks.getLastBlock();
 
-    if (rawNonce.length < 1 || rawNonce.length > config.nonceMaxSize) {
-      return reject(new errors.ErrorInvalidParameter("nonce"));
-    }
+  const last = lastBlock.hash.substr(0, 12);
+  const difficulty = await krist.getWork();
+  const hash = utils.sha256(address, last, nonce);
 
-    const nonce = Array.isArray(rawNonce) ? new Uint8Array(rawNonce) : rawNonce;
-    blocks.getLastBlock().then(function(lastBlock) {
-      const last = lastBlock.hash.substr(0, 12);
-      const difficulty = krist.getWork();
-      const hash = utils.sha256(address, last, nonce);
-
-      if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
-        blocks.submit(hash, address, nonce).then(resolve).catch(reject);
-      } else {
-        return reject(new errors.ErrorSolutionIncorrect());
-      }
-    }).catch(reject);
-  });
+  if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
+    return blocks.submit(hash, address, nonce);
+  } else {
+    throw new errors.ErrorSolutionIncorrect();
+  }
 };
 
 module.exports = BlocksController;

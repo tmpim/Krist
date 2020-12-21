@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const config = require("./config.js");
+require("dotenv").config();
 const package = require("./package.json");
 const chalk = require("chalk");
 
@@ -31,16 +31,29 @@ require("console-stamp")(console, {
   }
 });
 
+const REQUIRED_ENV_VARS = [
+  "DB_PASS",
+  "PUBLIC_URL"
+];
+const missing = REQUIRED_ENV_VARS.filter(e => !process.env[e]);
+if (missing.length) {
+  console.error(chalk.bold.red("Missing environment variables:"));
+  console.error(missing.map(e => chalk.red(e)).join(", "));
+  process.exit(1);
+}
+
 const database = require("./src/database.js");
+const redis = require("./src/redis.js");
 const webserver = require("./src/webserver.js");
 
 console.log(chalk`Starting {bold ${package.name}} {blue ${package.version}}...`);
 
 async function main() {
+  redis.init();
   await database.init();
-
+  
   require("./src/krist.js").init();
-  if (config.debugMode) require("./src/debug.js");
+  if (process.env.NODE_ENV !== "production") require("./src/debug.js");
 
   return webserver.init();
 }
