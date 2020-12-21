@@ -8,6 +8,7 @@
     "freenonce",
     "getbalance",
     "getwork",
+    "ghaction",
     "ghcr",
     "gitlog",
     "keepalive",
