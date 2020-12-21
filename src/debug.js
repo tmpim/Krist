@@ -4,7 +4,7 @@ const addresses = require("./addresses.js");
 
 const debugCommands = {
   "setwork": async args => {
-    const newWork = new Number(args[1]);
+    const newWork = parseInt(args[1]);
     await krist.setWork(newWork);
     console.log(chalk`{bold [Debug]} New work: {green ${newWork}}`);
   },
@@ -16,7 +16,7 @@ const debugCommands = {
 
   "setbalance": async args => {
     const address = args[1].toLowerCase();
-    const balance = new Number(args[2]);
+    const balance = parseInt(args[2]);
 
     const dbAddress = await addresses.getAddress(address);
     if (!dbAddress)
