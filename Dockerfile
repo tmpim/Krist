@@ -3,6 +3,7 @@ WORKDIR /usr/src/krist
 
 # Install packages
 COPY package*.json ./
+RUN apk add git ca-certificates
 RUN npm install
 
 # Install source
