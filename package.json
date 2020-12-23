@@ -1,10 +1,10 @@
 {
   "name": "krist",
-  "version": "2.2.4",
+  "version": "2.3.0",
   "description": "The new Krist node written in node.js.",
   "main": "index.js",
   "scripts": {
-    "start": "node main.js",
+    "start": "node index.js",
     "docs": "apidoc -i src -o static/docs"
   },
   "repository": {
@@ -23,19 +23,18 @@
     "console-stamp": "^0.2.0",
     "dotenv": "^8.2.0",
     "express": "^5.0.0-alpha.8",
+    "express-basic-auth": "^1.2.0",
+    "express-handlebars": "^5.2.0",
     "express-rate-limit": "^2.1.0",
     "express-ws": "^1.0.0-rc.2",
     "gitlog": "^2.1.2",
     "handy-redis": "^2.1.0",
     "moment": "^2.11.1",
     "mysql2": "^2.1.0",
-    "node-uuid": "^1.4.7",
+    "prom-client": "^13.0.0",
     "redis": "^3.0.2",
-    "request": "^2.69.0",
-    "sequelize": "^6.3.5",
-    "swig": "^1.4.2"
+    "sequelize": "^6.3.5"
   },
-  "optionalDependencies": {},
   "devDependencies": {
     "apidoc": "^0.25.0"
   },

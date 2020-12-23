@@ -25,6 +25,21 @@ const websockets = require("./websockets.js");
 const addresses  = require("./addresses.js");
 const { Op }     = require("sequelize");
 
+const promClient = require("prom-client");
+const promTransactionCounter = new promClient.Counter({
+  name: "krist_transactions_total",
+  help: "Total number of transactions since the Krist server started.",
+  labelNames: ["type"]
+});
+
+// Initialize the counters to prevent 'no data' in Grafana
+promTransactionCounter.inc({ type: "unknown" }, 0);
+promTransactionCounter.inc({ type: "mined" }, 0);
+promTransactionCounter.inc({ type: "name_purchase" }, 0);
+promTransactionCounter.inc({ type: "name_a_record" }, 0);
+promTransactionCounter.inc({ type: "name_transfer" }, 0);
+promTransactionCounter.inc({ type: "transfer" }, 0);
+
 // Query operator to exclude mined transactions in the 'from' field
 const EXCLUDE_MINED = {
   [Op.notIn]: ["", " "], // From field that isn't a blank string or a space
@@ -105,6 +120,10 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
     op
   }, { transaction: dbTx });
 
+  promTransactionCounter.inc({ 
+    type: Transactions.identifyTransactionType(newTransaction) 
+  });
+
   // Broadcast the transaction to websockets subscribed to transactions (async)
   websockets.broadcastEvent({
     type: "event",
@@ -152,6 +171,19 @@ Transactions.pushTransaction = async function(sender, recipientAddress, amount, 
   return newTransaction;
 };
 
+Transactions.identifyTransactionType = function(transaction) {
+  if (!transaction) return "unknown";
+  if (!transaction.from) return "mined";
+
+  if (transaction.name) {
+    if (transaction.to === "name") return "name_purchase";
+    else if (transaction.to === "a") return "name_a_record";
+    else return "name_transfer";
+  }
+
+  return "transfer";
+};
+
 Transactions.transactionToJSON = function(transaction) {
   return {
     id: transaction.id,
@@ -160,7 +192,8 @@ Transactions.transactionToJSON = function(transaction) {
     value: transaction.value,
     time: transaction.time,
     name: transaction.name,
-    metadata: transaction.op
+    metadata: transaction.op,
+    type: Transactions.identifyTransactionType(transaction)
   };
 };
 

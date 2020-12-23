@@ -25,6 +25,12 @@ const schemas    = require("./schemas.js");
 const websockets = require("./websockets.js");
 const { Op }     = require("sequelize");
 
+const promClient = require("prom-client");
+const promNamesPurchasedCounter = new promClient.Counter({
+  name: "krist_names_purcahsed_total",
+  help: "Total number of purchased since the Krist server first started."
+});
+
 function Names() {}
 
 Names.getNames = function(limit, offset) {
@@ -72,6 +78,8 @@ Names.createName = async function(name, owner) {
     updated: new Date(),
     unpaid: Names.getNameCost()
   });
+
+  promNamesPurchasedCounter.inc();
   
   websockets.broadcastEvent({
     type: "event",

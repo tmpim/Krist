@@ -9,7 +9,10 @@ RUN npm install
 # Install source
 COPY . .
 
+# Generate docs
+RUN npm run docs
+
 # Run Krist
 EXPOSE 8080
 ENV NODE_ENV=production
-CMD ["node", "index.js"]
+CMD ["npm", "start"]

@@ -24,7 +24,47 @@ const fs     = require("fs");
 const path   = require("path");
 const utils  = require("./utils.js");
 const errors = require("./errors/errors.js");
-const uuid   = require("node-uuid");
+
+const { promisify } = require("util");
+const crypto        = require("crypto");
+const secureBytes   = promisify(crypto.randomBytes);
+
+// =============================================================================
+// PROMETHEUS COUNTERS
+// =============================================================================
+const promClient = require("prom-client");
+
+const promWebsocketConnectionsTotal = new promClient.Counter({
+  name: "krist_websocket_connections_total",
+  help: "Total number of new websocket connections since the Krist server started.",
+  labelNames: ["type"]
+});
+promWebsocketConnectionsTotal.inc({ type: "incomplete" }, 0);
+promWebsocketConnectionsTotal.inc({ type: "guest" }, 0);
+promWebsocketConnectionsTotal.inc({ type: "authed" }, 0);
+
+const promWebsocketTokensTotal = new promClient.Counter({
+  name: "krist_websocket_tokens_total",
+  help: "Total number of websocket tokens created since the Krist server started.",
+  labelNames: ["type"]
+});
+promWebsocketTokensTotal.inc({ type: "guest" }, 0);
+promWebsocketTokensTotal.inc({ type: "authed" }, 0);
+
+const promWebsocketMessagesTotal = new promClient.Counter({
+  name: "krist_websocket_incoming_messages_total",
+  help: "Total number of incoming websocket messages since the Krist server started.",
+  labelNames: ["type"]
+});
+
+const promWebsocketEventBroadcastsTotal = new promClient.Counter({
+  name: "krist_websocket_event_broadcasts_total",
+  help: "Total number of websocket event broadcasts sent out since the Krist server started.",
+  labelNames: ["event"]
+});
+// =============================================================================
+// END PROMETHEUS COUNTERS
+// =============================================================================
 
 function WebsocketsManager() {
   this.websockets = [];
@@ -52,6 +92,32 @@ Websocket.prototype.send = function(message) {
 const Websockets = new WebsocketsManager();
 
 module.exports = Websockets;
+module.exports.promWebsocketConnectionsTotal = promWebsocketConnectionsTotal;
+
+// =============================================================================
+// PROMETHEUS GAUGES
+// =============================================================================
+new promClient.Gauge({
+  name: "krist_websocket_connections_current",
+  help: "Current number of active websocket connections.",
+  labelNames: ["type"],
+  collect() {
+    const sockets = Websockets.websockets;
+    this.set({ type: "guest" }, sockets.filter(w => w.isGuest).length);
+    this.set({ type: "authed" }, sockets.filter(w => !w.isGuest).length);
+  }
+});
+
+new promClient.Gauge({
+  name: "krist_websocket_tokens_pending_current",
+  help: "Current number of pending websocket tokens.",
+  collect() {
+    this.set(Object.keys(Websockets.pendingTokens).length);
+  }
+});
+// =============================================================================
+// END PROMETHEUS GAUGES
+// =============================================================================
 
 WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
   Websockets.messageHandlers[type] = handler;
@@ -59,6 +125,7 @@ WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
 
 WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
   const ws = new Websocket(socket, token, auth, null, pkey);
+  promWebsocketConnectionsTotal.inc({ type: ws.isGuest ? "guest" : "authed" });
 
   socket.on("close", function() {
     const id = Websockets.websockets.indexOf(ws);
@@ -70,6 +137,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
 
   socket.on("message", function(message) {
     if (message.length > 512) {
+      promWebsocketMessagesTotal.inc({ type: "invalid" });
       return socket.send(JSON.stringify({
         ok: false,
         type: "error",
@@ -82,6 +150,7 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
     try {
       msg = JSON.parse(message);
     } catch (e) {
+      promWebsocketMessagesTotal.inc({ type: "invalid" });
       return socket.send(JSON.stringify({
         ok: false,
         type: "error",
@@ -89,16 +158,19 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
       }));
     }
 
-    if (typeof msg.id !== "number" && typeof msg.id !== "string") {
+    if ((typeof msg.id !== "number" && typeof msg.id !== "string") || typeof msg.type !== "string") {
+      promWebsocketMessagesTotal.inc({ type: "invalid" });
       return socket.send(JSON.stringify({
         ok: false,
         type: "error",
         error: "missing_parameter",
-        parameter: "id"
+        parameter: typeof msg.type !== "string" ? "type" : "id"
       }));
     }
 
-    if (typeof Websockets.messageHandlers[msg.type.toLowerCase()] === "undefined") {
+    const type = msg.type.toLowerCase();
+    if (typeof Websockets.messageHandlers[type] === "undefined") {
+      promWebsocketMessagesTotal.inc({ type: "invalid" });
       return Websockets.sendResponse(socket, msg, {
         ok: false,
         type: "error",
@@ -106,7 +178,8 @@ WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
       });
     }
 
-    const response = Websockets.messageHandlers[msg.type.toLowerCase()](ws, msg);
+    const response = Websockets.messageHandlers[type](ws, msg);
+    promWebsocketMessagesTotal.inc({ type });
 
     if (response instanceof Promise) {
       response.then(function(resp) {
@@ -133,6 +206,8 @@ WebsocketsManager.prototype.broadcast = function(message) {
 };
 
 WebsocketsManager.prototype.broadcastEvent = function(message, subscriptionCheck) {
+  promWebsocketEventBroadcastsTotal.inc({ event: message.event });
+
   Websockets.websockets.forEach(function(websocket) {
     subscriptionCheck(websocket).then(function() {
       try {
@@ -150,10 +225,14 @@ WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message
   ws.send(JSON.stringify(message));
 };
 
-WebsocketsManager.prototype.obtainToken = function(address, privatekey) {
+WebsocketsManager.prototype.obtainToken = async function(address, privatekey) {
   // Generate a new token
-  const token = uuid.v1();
+  // NOTE: These used to be UUIDs, so we use 18 bytes here to maintain
+  //       compatibility with anything that may expect exactly 36 characters.
+  const token = (await secureBytes(18)).toString("hex");
   this.pendingTokens[token] = { address, privatekey };
+
+  promWebsocketTokensTotal.inc({ type: address === "guest" ? "guest" : "authed" });
 
   // Destroy the token after 30 seconds
   setTimeout(() => {
@@ -170,7 +249,7 @@ WebsocketsManager.prototype.useToken = function(token) {
   if (!tokenData) throw new errors.ErrorInvalidWebsocketToken();
 
   // Prevent token re-use
-  this.pendingTokens[token] = null;
+  delete this.pendingTokens[token];
 
   return tokenData;
 };

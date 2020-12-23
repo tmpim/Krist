@@ -48,6 +48,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transaction.time The time this transaction this was made.
 	 * @apiSuccess {String} [transaction.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transaction.metadata] Transaction metadata, or null.
+	 * @apiSuccess {String} transaction.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`, 
+   *            `name_a_record`, or `name_transfer`.
 	 */
 
   /**
@@ -64,6 +66,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transactions.time The time this transaction this was made.
 	 * @apiSuccess {String} [transactions.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transactions.metadata] Transaction metadata, or null.
+	 * @apiSuccess {String} transactions.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`, 
+   *            `name_a_record`, or `name_transfer`.
 	 */
 
   app.get("/", function(req, res, next) {
@@ -217,7 +221,7 @@ module.exports = function(app) {
 	 * @api {get} /transactions List all transactions
 	 * @apiName GetTransactions
 	 * @apiGroup TransactionGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.3.0
 	 *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
@@ -240,7 +244,8 @@ module.exports = function(app) {
      *             "value": 50,
      *             "time": "2015-02-14T16:44:40.000Z",
      *             "name": null,
-     *             "metadata": null
+     *             "metadata": null,
+     *             "type": "mined"
      *         },
      *         {
      *             "id": 46,
@@ -249,7 +254,8 @@ module.exports = function(app) {
      *             "value": 1000,
      *             "time": "2015-02-14T23:15:39.000Z",
      *             "name": null,
-     *             "metadata": null
+     *             "metadata": null,
+     *             "type": "transfer"
      *         },
 	 *  	   ...
 	 */
@@ -276,7 +282,7 @@ module.exports = function(app) {
 	 * @api {get} /transactions/latest List latest transactions
 	 * @apiName GetLatestTransactions
 	 * @apiGroup TransactionGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.3.0
 	 *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the results.
@@ -299,7 +305,8 @@ module.exports = function(app) {
      *             "value": 14,
      *             "time": "2016-02-06T19:22:41.000Z",
      *             "name": null,
-     *             "metadata": null
+     *             "metadata": null,
+     *             "type": "mined"
      *         },
      *         {
      *             "id": 153286,
@@ -308,7 +315,8 @@ module.exports = function(app) {
      *             "value": 500,
      *             "time": "2016-02-06T14:01:19.000Z",
      *             "name": "exam",
-     *             "metadata": null
+     *             "metadata": null,
+     *             "type": "name_purchase"
      *         },
 	 *  	   ...
 	 */
@@ -335,7 +343,7 @@ module.exports = function(app) {
 	 * @api {get} /transactions/:id Get a transaction
 	 * @apiName GetTransaction
 	 * @apiGroup TransactionGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.3.0
 	 *
 	 * @apiParam (URLParameter) {Number} id The ID of the transaction to get.
 	 *
@@ -351,7 +359,8 @@ module.exports = function(app) {
      *         "value": 56610,
      *         "time": "2016-02-03T19:15:32.000Z",
      *         "name": null,
-     *         "metadata": null
+     *         "metadata": null,
+     *         "type": "transfer"
      *     }
      * }
 	 */

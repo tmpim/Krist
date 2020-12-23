@@ -272,7 +272,7 @@ module.exports = function(app) {
    * @api {get} /lookup/transactions/:addresses Lookup transactions
    * @apiName LookupTransactions
    * @apiGroup LookupGroup
-   * @apiVersion 2.1.3
+   * @apiVersion 2.3.0
    *
    * @apiDescription Return all the transactions to/from the given address(es).
    * 
@@ -310,7 +310,8 @@ module.exports = function(app) {
    *       "value": 7000,
    *       "time": "2018-12-29T13:02:05.000Z",
    *       "name": null,
-   *       "metadata": "lignum@switchcraft.kst"
+   *       "metadata": "lignum@switchcraft.kst",
+   *       "type": "transfer"
    *     },
    *     {
    *       "id": 1454706,
@@ -319,7 +320,8 @@ module.exports = function(app) {
    *       "value": 5050,
    *       "time": "2020-01-20T00:01:47.000Z",
    *       "name": null,
-   *       "metadata": ""
+   *       "metadata": "",
+   *       "type": "transfer"
    *     },
    *     ...
    */

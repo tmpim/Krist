@@ -34,6 +34,12 @@ const Database   = require("./database.js");
 const chalk      = require("chalk");
 const { Op }     = require("sequelize");
 
+const promClient = require("prom-client");
+const promBlockCounter = new promClient.Counter({
+  name: "krist_blocks_total",
+  help: "Total number of blocks since the Krist server started."
+});
+
 Blocks.getBlock = function(id) {
   return schemas.block.findByPk(id);
 };
@@ -149,6 +155,7 @@ Blocks.submit = async function(hash, address, nonce) {
     const newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
 
     console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}}.`);
+    promBlockCounter.inc();
 
     const unpaidNames = await schemas.name.findAll({ 
       where: { 

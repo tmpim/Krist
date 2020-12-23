@@ -24,13 +24,13 @@ const errors        = require("./errors/errors.js");
 const express       = require("express");
 const bodyParser    = require("body-parser");
 const expressWs     = require("express-ws");
-const swig          = require("swig");
+const exphbs        = require("express-handlebars");
 const rateLimit     = require("express-rate-limit");
-const gitlog        = require("gitlog");
 const fs            = require("fs");
 const path          = require("path");
 const chalk         = require("chalk");
 const { promisify } = require("util");
+const prometheus    = require("./prometheus");
 
 function Webserver() {}
 
@@ -41,32 +41,30 @@ Webserver.getExpress = function() {
 };
 
 Webserver.init = async function() {
-  Webserver.express = express();
-  Webserver.ws = expressWs(Webserver.express);
+  const app = Webserver.express = express();
+  Webserver.ws = expressWs(app);
 
-  Webserver.express.enable("trust proxy");
-  Webserver.express.disable("x-powered-by");
-  Webserver.express.disable("etag");
+  app.enable("trust proxy");
+  app.disable("x-powered-by");
+  app.disable("etag");
 
-  Webserver.express.use(function(req, res, next) {
+  prometheus.init(app);
+
+  app.use(function(req, res, next) {
     delete req.headers["content-encoding"];
     next();
   });
 
-  Webserver.express.use(express.static("static"));
+  app.use(express.static("static"));
 
-  Webserver.express.set("views", path.join(__dirname, "../views"));
-  Webserver.express.set("view engine", "swig");
-  Webserver.express.engine(".swig", swig.renderFile);
+  app.engine(".hbs", exphbs({ extname: ".hbs" }));
+  app.set("view engine", ".hbs");
+  app.locals.debug = process.env.NODE_ENV !== "production";
 
-  swig.setDefaults({
-    debug: process.env.NODE_ENV !== "production"
-  });
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());
 
-  Webserver.express.use(bodyParser.urlencoded({ extended: false }));
-  Webserver.express.use(bodyParser.json());
-
-  Webserver.express.use(rateLimit({    
+  app.use(rateLimit({    
     windowMs: 60000,
     delayAfter: 240,
     delayMs: 5,
@@ -74,7 +72,7 @@ Webserver.init = async function() {
     message: "Rate limit hit. Please try again later."
   }));
 
-  Webserver.express.all("*", function(req, res, next) {
+  app.all("*", function(req, res, next) {
     res.header("X-Robots-Tag", "none");
     res.header("Content-Type", "application/json");
     res.header("Access-Control-Allow-Origin", "*");
@@ -82,7 +80,7 @@ Webserver.init = async function() {
     next();
   });
 
-  Webserver.express.all("/", function(req, res, next) {
+  app.all("/", function(req, res, next) {
     res.header("Content-Type", "text/plain");
     next();
   });
@@ -98,7 +96,7 @@ Webserver.init = async function() {
       }
 
       try {
-        require("./routes/" + file)(Webserver.express);
+        require("./routes/" + file)(app);
       } catch (error) {
         console.error(chalk`{red [Webserver]} Error loading route '${file}':`);
         console.error(error.stack);
@@ -109,47 +107,16 @@ Webserver.init = async function() {
     console.error(error.stack);
   }
 
-  Webserver.express.get("/", function(req, res) {
-    res.header("Content-Type", "text/html");
-
-    gitlog({
-      repo: path.join(__dirname, "../"),
-      number: 10,
-      fields: [
-        "subject",
-        "body",
-        "hash",
-        "authorName",
-        "authorDateRel"
-      ]
-    }, function(error, commits) {
-      if (error) {
-        console.log(error);
-
-        return res.render("error", {
-          protocol: req.protocol
-        });
-      }
-
-      res.render("index", {
-        commits: commits,
-        protocol: req.protocol
-      });
-    });
-  });
-
-  Webserver.express.use(function(req, res) {
+  app.use(function(req, res) {
     if (req.accepts("html")) { // Respond to browsers with HTML 404 page
       res.header("Content-Type", "text/html");
-      res.render("error_404", {
-        protocol: req.protocol
-      });
+      res.render("error_404");
     } else { // Respond to API requests with JSON 404 response
       utils.sendErrorToRes(req, res, new errors.ErrorRouteNotFound());
     }
   });
 
   const listen = parseInt(process.env.WEB_LISTEN) || 8080;
-  await promisify(Webserver.express.listen)(listen);
+  await promisify(app.listen)(listen);
   console.log(chalk`{green [Webserver]} Listening on {bold ${listen}}`);
 };

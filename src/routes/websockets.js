@@ -35,12 +35,17 @@ module.exports = function(app) {
    */
 
   app.ws("/:token", async function(ws, req) {
+    const { token } = req.params;
+    const ip = req.ip;
+    const origin = req.header("Origin");
+
+    websockets.promWebsocketConnectionsTotal.inc({ type: "incomplete" });
+
     try {
       // Look up the token, will reject if the token does not exist
-      const { token } = req.params;
       const { address, privatekey } = websockets.useToken(token);
 
-      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${req.connection.remoteAddress}} (origin: {bold ${req.header("Origin")}})`);
+      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${ip}} (origin: {bold ${origin}})`);
       websockets.addWebsocket(ws, token, address, privatekey);
 
       const lastBlock = await blocks.getLastBlock();
@@ -55,6 +60,8 @@ module.exports = function(app) {
         work: await krist.getWork()
       });
     } catch (error) {
+      console.log(chalk`{red [Websockets]} Failed connection from {bold ${ip}} using token {bold ${token}} (origin: {bold ${origin}})`);
+
       utils.sendErrorToWS(ws, error);
       console.error(error);
 
@@ -138,26 +145,22 @@ module.exports = function(app) {
    *     "expires": 30
      * }
    */
-  app.post("/ws/start", function(req, res) {
+  app.post("/ws/start", async function(req, res) {
     const { privatekey } = req.body;
 
     if (privatekey) { // Auth as address if privatekey provided
-      addresses.verify(krist.makeV2Address(privatekey), privatekey).then(function(results) {
-        const { authed, address } = results;
-
-        if (!authed)
-          return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
+      const { authed, address } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+      if (!authed) return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
         
-        const token = websockets.obtainToken(address.address, privatekey);
+      const token = await websockets.obtainToken(address.address, privatekey);
 
-        res.json({
-          ok: true,
-          url: `wss://${process.env.PUBLIC_URL}/${token}`,
-          expires: 30
-        });
+      res.json({
+        ok: true,
+        url: `wss://${process.env.PUBLIC_URL}/${token}`,
+        expires: 30
       });
     } else { // Auth as guest if no privatekey provided
-      const token = websockets.obtainToken("guest");
+      const token = await websockets.obtainToken("guest");
 
       res.json({
         ok: true,
