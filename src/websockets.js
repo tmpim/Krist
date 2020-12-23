@@ -74,7 +74,8 @@ function WebsocketsManager() {
   this.validSubscriptionLevels = ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames", "motd"];
 }
 
-function Websocket(socket, token, auth, subscriptionLevel, privatekey) {
+function Websocket(req, socket, token, auth, subscriptionLevel, privatekey) {
+  this.req = req;
   this.socket = socket;
   this.token = token;
   this.auth = auth;
@@ -123,8 +124,8 @@ WebsocketsManager.prototype.addMessageHandler = function(type, handler) {
   Websockets.messageHandlers[type] = handler;
 };
 
-WebsocketsManager.prototype.addWebsocket = function(socket, token, auth, pkey) {
-  const ws = new Websocket(socket, token, auth, null, pkey);
+WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pkey) {
+  const ws = new Websocket(req, socket, token, auth, null, pkey);
   promWebsocketConnectionsTotal.inc({ type: ws.isGuest ? "guest" : "authed" });
 
   socket.on("close", function() {

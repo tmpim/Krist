@@ -46,7 +46,7 @@ module.exports = function(app) {
       const { address, privatekey } = websockets.useToken(token);
 
       console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${ip}} (origin: {bold ${origin}})`);
-      websockets.addWebsocket(ws, token, address, privatekey);
+      websockets.addWebsocket(req, ws, token, address, privatekey);
 
       const lastBlock = await blocks.getLastBlock();
       const { motd, motd_set, debug_mode } = await krist.getMOTD();

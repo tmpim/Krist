@@ -23,6 +23,7 @@ const krist     = require("./../krist.js");
 const addresses = require("./../addresses.js");
 const addr      = require("./../controllers/addresses.js");
 const errors    = require("./../errors/errors.js");
+const chalk     = require("chalk");
 
 module.exports = function(websockets) {
   /**
@@ -38,33 +39,37 @@ module.exports = function(websockets) {
 	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 * @apiUse Address
 	 */
-  websockets.addMessageHandler("login", function(ws, message) {
-    return new Promise(function(resolve, reject) {
-      if (!message.privatekey) {
-        return reject(new errors.ErrorMissingParameter("privatekey"));
-      }
+  websockets.addMessageHandler("login", async function(ws, message) {
+    const ip = ws.req.ip;
+    const origin = ws.req.header("Origin");
 
-      addresses.verify(krist.makeV2Address(message.privatekey), message.privatekey).then(function(results) {
-        if (results.authed) {
-          ws.auth = results.address.address;
-          ws.privatekey = message.privatekey;
-          ws.isGuest = false;
+    const privatekey = message.privatekey;
+    if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
-          resolve({
-            ok: true,
-            isGuest: false,
-            address: addr.addressToJSON(results.address)
-          });
-        } else {
-          ws.auth = "guest";
-          ws.isGuest = true;
+    const { address, authed } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
 
-          resolve({
-            ok: true,
-            isGuest: true
-          });
-        }
-      });
-    });
+    if (authed) {
+      console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged in as {bold ${address.address}} from {bold ${ip}} (origin: {bold ${origin}})`);
+
+      ws.auth = address.address;
+      ws.privatekey = message.privatekey;
+      ws.isGuest = false;
+
+      return {
+        ok: true,
+        isGuest: false,
+        address: addr.addressToJSON(address)
+      };
+    } else {
+      console.log(chalk`{red [Websockets]} Session {bold ${ws.auth}} failed login as {bold ${address.address}} from {bold ${ip}} (origin: {bold ${origin}})`);
+
+      ws.auth = "guest";
+      ws.isGuest = true;
+
+      return {
+        ok: true,
+        isGuest: true
+      };
+    }
   });
 };
