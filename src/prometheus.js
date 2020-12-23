@@ -18,7 +18,7 @@ const debug = new client.Gauge({
   name: "krist_debug",
   help: "Whether or not the Krist server is in debug mode."
 });
-debug.set(process.env.NODE_ENV !== "production");
+debug.set(process.env.NODE_ENV !== "production" ? 1 : 0);
 
 module.exports = {
   init(app) {
