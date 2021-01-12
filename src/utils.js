@@ -121,4 +121,13 @@ Utils.sendErrorToWSWithID = function(ws, id, error) {
   ws.send(JSON.stringify(e));
 };
 
+Utils.getLogDetails = function(req) {
+  const ip = req.ip;
+  const origin = req.header("Origin");
+  const path = req.path && req.path.startsWith("/.websocket//") ? "WS" : req.path;
+  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}})`;
+
+  return { ip, origin, path, logDetails };
+};
+
 module.exports = Utils;

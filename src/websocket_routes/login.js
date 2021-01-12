@@ -23,6 +23,7 @@ const krist     = require("./../krist.js");
 const addresses = require("./../addresses.js");
 const addr      = require("./../controllers/addresses.js");
 const errors    = require("./../errors/errors.js");
+const utils     = require("../utils");
 const chalk     = require("chalk");
 
 module.exports = function(websockets) {
@@ -40,16 +41,15 @@ module.exports = function(websockets) {
 	 * @apiUse Address
 	 */
   websockets.addMessageHandler("login", async function(ws, message) {
-    const ip = ws.req.ip;
-    const origin = ws.req.header("Origin");
+    const { logDetails } = utils.getLogDetails(ws.req);
 
     const privatekey = message.privatekey;
     if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
-    const { address, authed } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+    const { address, authed } = await addresses.verify(ws.req, krist.makeV2Address(privatekey), privatekey);
 
     if (authed) {
-      console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged in as {bold ${address.address}} from {bold ${ip}} (origin: {bold ${origin}})`);
+      console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged in as {bold ${address.address}} ${logDetails}`);
 
       ws.auth = address.address;
       ws.privatekey = message.privatekey;
@@ -61,7 +61,7 @@ module.exports = function(websockets) {
         address: addr.addressToJSON(address)
       };
     } else {
-      console.log(chalk`{red [Websockets]} Session {bold ${ws.auth}} failed login as {bold ${address.address}} from {bold ${ip}} (origin: {bold ${origin}})`);
+      console.log(chalk`{red [Websockets]} Session {bold ${ws.auth}} failed login as {bold ${address.address}} ${logDetails}`);
 
       ws.auth = "guest";
       ws.isGuest = true;

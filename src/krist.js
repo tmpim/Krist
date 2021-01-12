@@ -30,6 +30,9 @@ const schemas      = require("./schemas.js");
 const chalk        = require("chalk");
 const { getRedis } = require("./redis.js");
 
+const { cleanAuthLog } = require("./addresses.js");
+const cron             = require("node-cron");
+
 const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
 const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
 const nameRegex = /^[a-z0-9]{1,64}$/i;
@@ -56,6 +59,10 @@ Krist.init = async function() {
     await r.lpush("work-over-time", await Krist.getWork());
     await r.ltrim("work-over-time", 0, 1440);
   }, 60 * 1000);
+
+  // Start the hourly auth log cleaner, and also run it immediately
+  cron.schedule("0 0 * * * *", () => cleanAuthLog().catch(console.error));
+  cleanAuthLog().catch(console.error);
 };
 
 Krist.getWork = async function() {

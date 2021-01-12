@@ -79,7 +79,7 @@ TransactionsController.getTransaction = function(id) {
   });
 };
 
-TransactionsController.makeTransaction = async function(privatekey, to, amount, metadata) {
+TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata) {
   // Input validation
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
   if (!to) throw new errors.ErrorMissingParameter("to");
@@ -103,7 +103,7 @@ TransactionsController.makeTransaction = async function(privatekey, to, amount, 
   amount = parseInt(amount);
 
   // Address auth validation
-  const { authed, address: sender } = await addresses.verify(from, privatekey);
+  const { authed, address: sender } = await addresses.verify(req, from, privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Reject insufficient funds

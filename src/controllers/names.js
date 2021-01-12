@@ -84,7 +84,7 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
   });
 };
 
-NamesController.registerName = async function(desiredName, privatekey) {
+NamesController.registerName = async function(req, desiredName, privatekey) {
   // Input validation
   if (!desiredName) throw new errors.ErrorMissingParameter("name");
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
@@ -92,7 +92,7 @@ NamesController.registerName = async function(desiredName, privatekey) {
   if (!krist.isValidName(desiredName)) throw new errors.ErrorInvalidParameter("name");
 
   // Address auth validation
-  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Check if the name already exists
@@ -120,7 +120,7 @@ NamesController.registerName = async function(desiredName, privatekey) {
   return dbName;
 };
 
-NamesController.transferName = async function(name, privatekey, address) {
+NamesController.transferName = async function(req, name, privatekey, address) {
   // Input validation
   if (!name) throw new errors.ErrorMissingParameter("name");
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
@@ -130,7 +130,7 @@ NamesController.transferName = async function(name, privatekey, address) {
   if (!krist.isValidKristAddress(address)) throw new errors.ErrorInvalidParameter("address");
 
   // Address auth validation
-  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Get the name from the database
@@ -154,7 +154,7 @@ NamesController.transferName = async function(name, privatekey, address) {
   return dbName.reload();
 };
 
-NamesController.updateName = async function(name, privatekey, a) {
+NamesController.updateName = async function(req, name, privatekey, a) {
   a = a || ""; // Replace with an empty string if given anything falsy
 
   // Input validation
@@ -165,7 +165,7 @@ NamesController.updateName = async function(name, privatekey, a) {
   if (a.trim() && !krist.isValidARecord(a)) throw new errors.ErrorInvalidParameter("a");
 
   // Address auth validation
-  const { authed, address: dbAddress } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+  const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Get the name from the database

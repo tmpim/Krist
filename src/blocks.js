@@ -138,7 +138,10 @@ Blocks.getBlockValue = async (t) => {
   return Blocks.getBaseBlockValue(lastBlock.id) + unpaidNames;
 };
 
-Blocks.submit = async function(hash, address, nonce) {
+Blocks.submit = async function(req, hash, address, nonce) {
+  const { logDetails } = utils.getLogDetails(req);
+  addresses.logAuth(req, address, "mining");
+
   const { block, newWork } = await Database.getSequelize().transaction(async t => {
     const lastBlock = await Blocks.getLastBlock(t);
     const value = await Blocks.getBlockValue();
@@ -154,7 +157,7 @@ Blocks.submit = async function(hash, address, nonce) {
     // eslint-disable-next-line no-shadow
     const newWork = Math.round(Math.max(Math.min(oldWork + diff * krist.getWorkFactor(), krist.getMaxWork()), krist.getMinWork()));
 
-    console.log(chalk`{bold [Krist]} Submitting block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}}.`);
+    console.log(chalk`{bold [Krist]} Submitting {bold ${value} KST} block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
     promBlockCounter.inc();
 
     const unpaidNames = await schemas.name.findAll({ 
@@ -201,8 +204,11 @@ Blocks.submit = async function(hash, address, nonce) {
     return { block, newWork };
   });
 
+  // Get the updated address balance to return to the API
+  const kristAddress = await addresses.getAddress(address);
+
   // Save the new work
-  console.log(chalk`        New work: {green ${newWork.toLocaleString()}}`);
+  console.log(chalk`        New work: {green ${newWork.toLocaleString()}} New balance: {green ${kristAddress.balance}}`);
   await krist.setWork(newWork);
 
   // Submit the new block event to all websockets (async)
@@ -223,8 +229,6 @@ Blocks.submit = async function(hash, address, nonce) {
     });
   });
 
-  // Get the updated address balance to return to the API
-  const kristAddress = await addresses.getAddress(address);
   return { work: newWork, address: kristAddress, block };
 };
 

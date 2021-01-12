@@ -182,7 +182,7 @@ module.exports = function(app) {
         if (name) {
           res.send("Error5");
         } else {
-          addresses.verify(krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
+          addresses.verify(req, krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
             const authed = results.authed;
             const address = results.address;
 
@@ -219,7 +219,7 @@ module.exports = function(app) {
 
       const currentOwner = krist.makeV2Address(req.query.pkey);
 
-      addresses.verify(currentOwner, req.query.pkey).then(function(results) {
+      addresses.verify(req, currentOwner, req.query.pkey).then(function(results) {
         const authed = results.authed;
 
         if (!authed) {
@@ -262,7 +262,7 @@ module.exports = function(app) {
 
       const owner = krist.makeV2Address(req.query.pkey);
 
-      addresses.verify(owner, req.query.pkey).then(function(results) {
+      addresses.verify(req, owner, req.query.pkey).then(function(results) {
         const authed = results.authed;
 
         if (!authed) {
@@ -538,7 +538,7 @@ module.exports = function(app) {
 	 * }
 	 */
   app.post("/names/:name", function(req, res) {
-    namesController.registerName(req.params.name, req.body.privatekey).then(function() {
+    namesController.registerName(req, req.params.name, req.body.privatekey).then(function() {
       res.json({
         ok: true
       });
@@ -587,7 +587,7 @@ module.exports = function(app) {
 	 * }
 	 */
   app.post("/names/:name/transfer", function(req, res) {
-    namesController.transferName(req.params.name, req.body.privatekey, req.body.address).then(function(name) {
+    namesController.transferName(req, req.params.name, req.body.privatekey, req.body.address).then(function(name) {
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)
@@ -598,7 +598,7 @@ module.exports = function(app) {
   });
 
   function updateName(req, res) {
-    namesController.updateName(req.params.name, req.body.privatekey, req.body.a).then(function(name) {
+    namesController.updateName(req, req.params.name, req.body.privatekey, req.body.a).then(function(name) {
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)

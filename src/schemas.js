@@ -102,14 +102,30 @@ const Transaction = database.getSequelize().define("transaction", {
   ]
 });
 
+const AuthLog = database.getSequelize().define("authlog", {
+  address: Sequelize.STRING(10),
+  ip: Sequelize.STRING(47),
+  time: Sequelize.DATE,
+  type: Sequelize.ENUM("auth", "mining")
+}, {
+  timestamps: false,
+  indexes: [
+    { fields: ["address"] },
+    { fields: ["address", "ip"] },
+    { fields: ["time"] }
+  ]
+});
+
 Address.sync();
 Block.sync();
 Name.sync();
 Transaction.sync();
+AuthLog.sync();
 
 module.exports = {
   address: Address,
   block: Block,
   name: Name,
-  transaction: Transaction
+  transaction: Transaction,
+  authLog: AuthLog,
 };

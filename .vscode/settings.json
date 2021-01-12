@@ -17,6 +17,7 @@
     "lpush",
     "lrange",
     "ltrim",
+    "octokit",
     "richapi",
     "sanitise",
     "setwork",

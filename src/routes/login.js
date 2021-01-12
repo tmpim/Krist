@@ -67,7 +67,7 @@ module.exports = function(app) {
       return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter("v"));
     }
 
-    addresses.verify(address, req.body.privatekey).then(function(results) {
+    addresses.verify(req, address, req.body.privatekey).then(function(results) {
       if (results.authed) {
         return res.json({
           ok: true,

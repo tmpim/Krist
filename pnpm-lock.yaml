@@ -1,4 +1,5 @@
 dependencies:
+  '@octokit/rest': 18.0.12
   body-parser: 1.19.0
   chalk: 4.1.0
   console-stamp: 0.2.9
@@ -12,6 +13,7 @@ dependencies:
   handy-redis: 2.1.0
   moment: 2.29.1
   mysql2: 2.2.5
+  node-cron: 2.0.3
   prom-client: 13.0.0
   redis: 3.0.2
   sequelize: 6.3.5_mysql2@2.2.5
@@ -27,6 +29,107 @@ packages:
     dev: true
     resolution:
       integrity: sha512-+A1YivoVDNNVCdfozHSR8v/jyuuLTMXwjWuxPFlFlUapXoGc+Gj9mDlTDDfrwl7rXCl2tNZ0kE8sIBO6YOn96Q==
+  /@octokit/auth-token/2.4.4:
+    dependencies:
+      '@octokit/types': 6.2.1
+    dev: false
+    resolution:
+      integrity: sha512-LNfGu3Ro9uFAYh10MUZVaT7X2CnNm2C8IDQmabx+3DygYIQjs9FwzFAHN/0t6mu5HEPhxcb1XOuxdpY82vCg2Q==
+  /@octokit/core/3.2.4:
+    dependencies:
+      '@octokit/auth-token': 2.4.4
+      '@octokit/graphql': 4.5.8
+      '@octokit/request': 5.4.12
+      '@octokit/types': 6.2.1
+      before-after-hook: 2.1.0
+      universal-user-agent: 6.0.0
+    dev: false
+    resolution:
+      integrity: sha512-d9dTsqdePBqOn7aGkyRFe7pQpCXdibSJ5SFnrTr0axevObZrpz3qkWm7t/NjYv5a66z6vhfteriaq4FRz3e0Qg==
+  /@octokit/endpoint/6.0.10:
+    dependencies:
+      '@octokit/types': 6.2.1
+      is-plain-object: 5.0.0
+      universal-user-agent: 6.0.0
+    dev: false
+    resolution:
+      integrity: sha512-9+Xef8nT7OKZglfkOMm7IL6VwxXUQyR7DUSU0LH/F7VNqs8vyd7es5pTfz9E7DwUIx7R3pGscxu1EBhYljyu7Q==
+  /@octokit/graphql/4.5.8:
+    dependencies:
+      '@octokit/request': 5.4.12
+      '@octokit/types': 6.2.1
+      universal-user-agent: 6.0.0
+    dev: false
+    resolution:
+      integrity: sha512-WnCtNXWOrupfPJgXe+vSmprZJUr0VIu14G58PMlkWGj3cH+KLZEfKMmbUQ6C3Wwx6fdhzVW1CD5RTnBdUHxhhA==
+  /@octokit/openapi-types/2.2.0:
+    dev: false
+    resolution:
+      integrity: sha512-274lNUDonw10kT8wHg8fCcUc1ZjZHbWv0/TbAwb0ojhBQqZYc1cQ/4yqTVTtPMDeZ//g7xVEYe/s3vURkRghPg==
+  /@octokit/plugin-paginate-rest/2.7.0_@octokit+core@3.2.4:
+    dependencies:
+      '@octokit/core': 3.2.4
+      '@octokit/types': 6.2.1
+    dev: false
+    peerDependencies:
+      '@octokit/core': '>=2'
+    resolution:
+      integrity: sha512-+zARyncLjt9b0FjqPAbJo4ss7HOlBi1nprq+cPlw5vu2+qjy7WvlXhtXFdRHQbSL1Pt+bfAKaLADEkkvg8sP8w==
+  /@octokit/plugin-request-log/1.0.2_@octokit+core@3.2.4:
+    dependencies:
+      '@octokit/core': 3.2.4
+    dev: false
+    peerDependencies:
+      '@octokit/core': '>=3'
+    resolution:
+      integrity: sha512-oTJSNAmBqyDR41uSMunLQKMX0jmEXbwD1fpz8FG27lScV3RhtGfBa1/BBLym+PxcC16IBlF7KH9vP1BUYxA+Eg==
+  /@octokit/plugin-rest-endpoint-methods/4.4.1_@octokit+core@3.2.4:
+    dependencies:
+      '@octokit/core': 3.2.4
+      '@octokit/types': 6.2.1
+      deprecation: 2.3.1
+    dev: false
+    peerDependencies:
+      '@octokit/core': '>=3'
+    resolution:
+      integrity: sha512-+v5PcvrUcDeFXf8hv1gnNvNLdm4C0+2EiuWt9EatjjUmfriM1pTMM+r4j1lLHxeBQ9bVDmbywb11e3KjuavieA==
+  /@octokit/request-error/2.0.4:
+    dependencies:
+      '@octokit/types': 6.2.1
+      deprecation: 2.3.1
+      once: 1.4.0
+    dev: false
+    resolution:
+      integrity: sha512-LjkSiTbsxIErBiRh5wSZvpZqT4t0/c9+4dOe0PII+6jXR+oj/h66s7E4a/MghV7iT8W9ffoQ5Skoxzs96+gBPA==
+  /@octokit/request/5.4.12:
+    dependencies:
+      '@octokit/endpoint': 6.0.10
+      '@octokit/request-error': 2.0.4
+      '@octokit/types': 6.2.1
+      deprecation: 2.3.1
+      is-plain-object: 5.0.0
+      node-fetch: 2.6.1
+      once: 1.4.0
+      universal-user-agent: 6.0.0
+    dev: false
+    resolution:
+      integrity: sha512-MvWYdxengUWTGFpfpefBBpVmmEYfkwMoxonIB3sUGp5rhdgwjXL1ejo6JbgzG/QD9B/NYt/9cJX1pxXeSIUCkg==
+  /@octokit/rest/18.0.12:
+    dependencies:
+      '@octokit/core': 3.2.4
+      '@octokit/plugin-paginate-rest': 2.7.0_@octokit+core@3.2.4
+      '@octokit/plugin-request-log': 1.0.2_@octokit+core@3.2.4
+      '@octokit/plugin-rest-endpoint-methods': 4.4.1_@octokit+core@3.2.4
+    dev: false
+    resolution:
+      integrity: sha512-hNRCZfKPpeaIjOVuNJzkEL6zacfZlBPV8vw8ReNeyUkVvbuCvvrrx8K8Gw2eyHHsmd4dPlAxIXIZ9oHhJfkJpw==
+  /@octokit/types/6.2.1:
+    dependencies:
+      '@octokit/openapi-types': 2.2.0
+      '@types/node': 14.14.20
+    dev: false
+    resolution:
+      integrity: sha512-jHs9OECOiZxuEzxMZcXmqrEO8GYraHF+UzNVH2ACYh8e/Y7YoT+hUf9ldvVd6zIvWv4p3NdxbQ0xx3ku5BnSiA==
   /@sindresorhus/is/0.14.0:
     dev: true
     engines:
@@ -45,6 +148,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-UHnOPWVWV1z+VV8k6L1HhG7UbGBgIdghqF3l9Ny9ApPghbjICXkUJSd/b9gOgQfjM1r+37cipdw/HJ3F6ICEnQ==
+  /@types/node/14.14.20:
+    dev: false
+    resolution:
+      integrity: sha512-Y93R97Ouif9JEOWPIUyU+eyIdyRqQR0I8Ez1dzku4hDx34NWh4HbtIc3WNzwB1Y9ULvNGeu5B8h8bVL5cAk4/A==
   /@types/redis/2.8.28:
     dependencies:
       '@types/node': 14.14.14
@@ -180,6 +287,10 @@ packages:
       node: '>= 0.8'
     resolution:
       integrity: sha512-NF+epuEdnUYVlGuhaxbbq+dvJttwLnGY+YixlXlME5KpQ5W3CnXA5cVTneY3SPbPDRkcjMbifrwmFYcClgOZeg==
+  /before-after-hook/2.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-IWIbu7pMqyw3EAJHzzHbWa85b6oud/yfKYg5rqB5hNE8CeMi3nX+2C2sj0HswfblST86hpVEOAb9x34NZd6P7A==
   /binary-extensions/2.1.0:
     dev: true
     engines:
@@ -543,6 +654,10 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak=
+  /deprecation/2.3.1:
+    dev: false
+    resolution:
+      integrity: sha512-xmHIy4F3scKVwMsQ4WnVaS8bHOx0DmVwRywosKhaILI0ywMDWPtBSku2HNxRvF7jtwDRsoEwYQSfbxj8b7RlJQ==
   /destroy/1.0.4:
     dev: false
     resolution:
@@ -1117,6 +1232,12 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-/2UGPSgmtqwo1ktx8NDHjuPwZWmHhO+gj0f93EkhLB5RgW9RZevWYYlIkS6zePc6U2WpOdQYIwHe9YC4DWEBVg==
+  /is-plain-object/5.0.0:
+    dev: false
+    engines:
+      node: '>=0.10.0'
+    resolution:
+      integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==
   /is-property/1.0.2:
     dev: false
     resolution:
@@ -1411,6 +1532,22 @@ packages:
   /neo-async/2.6.2:
     resolution:
       integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
+  /node-cron/2.0.3:
+    dependencies:
+      opencollective-postinstall: 2.0.3
+      tz-offset: 0.0.1
+    dev: false
+    engines:
+      node: '>=6.0.0'
+    requiresBuild: true
+    resolution:
+      integrity: sha512-eJI+QitXlwcgiZwNNSRbqsjeZMp5shyajMR81RZCqeW0ZDEj4zU9tpd4nTh/1JsBiKbF8d08FCewiipDmVIYjg==
+  /node-fetch/2.6.1:
+    dev: false
+    engines:
+      node: 4.x || >=6.0.0
+    resolution:
+      integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==
   /nodemon/2.0.6:
     dependencies:
       chokidar: 3.4.3
@@ -1483,6 +1620,11 @@ packages:
     dev: true
     resolution:
       integrity: sha512-5DXOiRKwuSEcQ/l0kGCF6Q3jcADFv5tSmRaJck/OqkVFcOzutB134KRSfF0xDrL39MNnqxbHBbUUcjZIhTgb2g==
+  /opencollective-postinstall/2.0.3:
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-8AV/sCtuzUeTo8gQK5qDZzARrulB3egtLzFgteqB2tcT4Mw7B8Kt7JcDHmltjz6FOAHsvTevk70gZEbhM4ZS9Q==
   /options/0.0.6:
     dev: false
     engines:
@@ -2163,6 +2305,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
+  /tz-offset/0.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-kMBmblijHJXyOpKzgDhKx9INYU4u4E1RPMB0HqmKSgWG8vEcf3exEfLh4FFfzd3xdQOw9EuIy/cP0akY6rHopQ==
   /uc.micro/1.0.6:
     dev: true
     resolution:
@@ -2192,6 +2338,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg==
+  /universal-user-agent/6.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-isyNax3wXoKaulPDZWHQqbmIx1k2tb9fb3GGDBRxCscfYV2Ch7WxPArBsFEG8s/safwXTT7H4QGhaIkTp9447w==
   /universalify/1.0.0:
     dev: true
     engines:
@@ -2347,6 +2497,7 @@ packages:
     resolution:
       integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 specifiers:
+  '@octokit/rest': ^18.0.12
   apidoc: ^0.25.0
   body-parser: ^1.14.2
   chalk: ^4.1.0
@@ -2361,6 +2512,7 @@ specifiers:
   handy-redis: ^2.1.0
   moment: ^2.11.1
   mysql2: ^2.1.0
+  node-cron: ^2.0.3
   prom-client: ^13.0.0
   redis: ^3.0.2
   sequelize: ^6.3.5

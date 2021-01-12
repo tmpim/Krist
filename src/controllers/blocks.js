@@ -93,7 +93,7 @@ BlocksController.blockToJSON = function(block) {
   return blocks.blockToJSON(block); // i needed to move it but i didnt want to change 1000 lines of code ok
 };
 
-BlocksController.submitBlock = async function(address, rawNonce) {
+BlocksController.submitBlock = async function(req, address, rawNonce) {
   if (!address) throw new errors.ErrorMissingParameter("address");
   if (!krist.isValidKristAddress(address)) 
     throw new errors.ErrorInvalidParameter("address");
@@ -110,7 +110,7 @@ BlocksController.submitBlock = async function(address, rawNonce) {
   const hash = utils.sha256(address, last, nonce);
 
   if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
-    return blocks.submit(hash, address, nonce);
+    return blocks.submit(req, hash, address, nonce);
   } else {
     throw new errors.ErrorSolutionIncorrect();
   }

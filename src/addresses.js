@@ -19,8 +19,11 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
-const utils   = require("./utils.js");
-const schemas = require("./schemas.js");
+const chalk     = require("chalk");
+const utils     = require("./utils.js");
+const schemas   = require("./schemas.js");
+const Sequelize = require("sequelize");
+const { Op }    = require("sequelize");
 
 const promClient = require("prom-client");
 const promAddressesVerifiedCounter = new promClient.Counter({
@@ -51,7 +54,44 @@ Addresses.getRich = function(limit, offset) {
   return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset), order: [["balance", "DESC"]]});
 };
 
-Addresses.verify = async function(kristAddress, privatekey) {
+/** For privacy reasons, purge entries from the auth log older than 30 days. */
+Addresses.cleanAuthLog = async function() {
+  const destroyed = await schemas.authLog.destroy({
+    where: {
+      time: { [Op.lte]: Sequelize.literal('NOW() - INTERVAL 30 DAY')}
+    }
+  });
+  console.log(chalk`{cyan [Auth]} Purged {bold ${destroyed}} auth log entries`);
+}
+
+Addresses.logAuth = async function(req, address, type) {
+  const { ip, path, logDetails } = utils.getLogDetails(req);
+
+  if (type === "auth") {
+    console.log(chalk`{green [Auth]} ({bold ${path}}) Successful auth on address {bold ${address}} ${logDetails}`);
+  }
+
+  // Check if there's already a recent log entry with these details. If there
+  // were any within the last 30 minutes, don't add any new ones.
+  const existing = await schemas.authLog.findOne({
+    where: {
+      ip, 
+      address,
+      time: { [Op.gte]: Sequelize.literal('NOW() - INTERVAL 30 MINUTE')},
+      type
+    }
+  });
+  if (existing) return;
+
+  schemas.authLog.create({
+    ip, address, time: new Date(), type
+  });
+}
+
+Addresses.verify = async function(req, kristAddress, privatekey) {
+  const { ip, origin, path, logDetails } = utils.getLogDetails(req);
+
+  console.log(chalk`{cyan [Auth]} ({bold ${path}}) Auth attempt on address {bold ${kristAddress}} ${logDetails}`);
   promAddressesVerifiedCounter.inc({ type: "attempt" });
 
   const hash = utils.sha256(kristAddress + privatekey);
@@ -64,16 +104,23 @@ Addresses.verify = async function(kristAddress, privatekey) {
       privatekey: hash
     });
 
+    Addresses.logAuth(req, kristAddress, "auth");
     promAddressesVerifiedCounter.inc({ type: "authed" });
     return { authed: true, address: newAddress };
   }
 
   if (address.privatekey) { // Address exists, auth if the privatekey is equal
     const authed = address.privatekey === hash;
+
+    if (authed) Addresses.logAuth(req, kristAddress, "auth");      
+    else console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address {bold ${kristAddress}} ${logDetails}`);      
+
     promAddressesVerifiedCounter.inc({ type: authed ? "authed" : "failed" });
     return { authed, address };
   } else { // Address doesn't yet have a privatekey, claim it as the first
     const updatedAddress = await address.update({ privatekey: hash });
+
+    Addresses.logAuth(req, kristAddress, "auth");
     promAddressesVerifiedCounter.inc({ type: "authed" });
     return { authed: true, address: updatedAddress };
   }

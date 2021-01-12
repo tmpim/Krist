@@ -43,7 +43,7 @@ module.exports = function(app) {
 
       if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
         try {
-          await blocks.submit(hash, req.query.address, req.query.nonce);
+          await blocks.submit(req, hash, req.query.address, req.query.nonce);
           res.send("Block solved");
         } catch (err) {
           console.error(err);
@@ -111,7 +111,7 @@ module.exports = function(app) {
      * }
 	 */
   app.post("/submit", function(req, res) {
-    blocksController.submitBlock(req.body.address, req.body.nonce).then(function(result) {
+    blocksController.submitBlock(req, req.body.address, req.body.nonce).then(function(result) {
       res.json({
         ok: true,
         success: true,

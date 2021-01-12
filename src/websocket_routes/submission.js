@@ -84,7 +84,7 @@ module.exports = function(websockets) {
         return reject(new errors.ErrorMissingParameter("address"));
       }
 
-      blocksController.submitBlock(message.address || ws.auth, message.nonce).then(function(result) {
+      blocksController.submitBlock(ws.req, message.address || ws.auth, message.nonce).then(function(result) {
         resolve({
           ok: true,
           success: true,

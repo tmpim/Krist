@@ -20,6 +20,7 @@
  */
 
 const chalk = require("chalk");
+const utils = require("../utils");
 
 module.exports = function(websockets) {
   /**
@@ -34,9 +35,8 @@ module.exports = function(websockets) {
 	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 */
   websockets.addMessageHandler("logout", function(ws) {
-    const ip = ws.req.ip;
-    const origin = ws.req.header("Origin");
-    console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged out from {bold ${ip}} (origin: {bold ${origin}})`);
+    const { logDetails } = utils.getLogDetails(ws.req);
+    console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged out ${logDetails}`);
 
     ws.auth = "guest";
     ws.isGuest = true;

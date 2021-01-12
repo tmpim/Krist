@@ -20,6 +20,13 @@
     <li><a href="https://krist.club/">(<b>Web</b>) KristWeb by Lemmmy</a></li>
     <li><a href="https://pastebin.com/CChWjRx6">(<b>ComputerCraft</b>) kristwallet by 3d6</a></li>
   </ul>
+
+  <br /><br />
+  <h4>Privacy Disclaimer</h4>
+  <p class="privacy">
+    The only PII that the Krist server stores is your IP address, as part of the
+    webserver logs. This information is automatically purged after 30 days.
+  </p>
 </section>
 
 {{#if commits}}
@@ -32,9 +39,16 @@
           <div class="commit">
             <div class="commit-bar"></div>
             <div class="commit-info">
-              <span class="message" title="{{body}}">{{subject}}</span>
+              <span class="commit-subject" title="{{body}}">
+                {{#if type}}
+                  <span class="commit-type commit-type-{{type}}">{{type}}</span>
+                {{/if}}
+                {{subject}}
+              </span>
               <div class="author">
-                <span class="author-name">{{authorName}}</span> -
+                {{#if avatar}}<img class="commit-avatar" src="{{avatar}}" />{{/if}}
+                <span class="author-name">{{authorName}}</span>
+                <span class="sep">&ndash;</span>
                 <span class="date">{{authorDateRel}}</span>
               </div>
             </div>

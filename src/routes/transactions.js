@@ -106,7 +106,7 @@ module.exports = function(app) {
         return res.send("Error5");
       }
 
-      addresses.verify(from, req.query.pkey).then(function(results) {
+      addresses.verify(req, from, req.query.pkey).then(function(results) {
         const authed = results.authed;
         const sender = results.address;
 
@@ -170,7 +170,7 @@ module.exports = function(app) {
         return res.send("Error5");
       }
 
-      addresses.verify(from, req.query.pkey).then(function(results) {
+      addresses.verify(req, from, req.query.pkey).then(function(results) {
         const authed = results.authed;
         const sender = results.address;
 
@@ -401,7 +401,7 @@ module.exports = function(app) {
 	 */
   app.post("/transactions", async function(req, res) {
     try {
-      const transaction = await txController.makeTransaction(req.body.privatekey, req.body.to, req.body.amount, req.body.metadata);
+      const transaction = await txController.makeTransaction(req, req.body.privatekey, req.body.to, req.body.amount, req.body.metadata);
       res.json({
         ok: true,
         transaction: txController.transactionToJSON(transaction)

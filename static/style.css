@@ -133,7 +133,7 @@ a:hover {
 	color: #555;
 }
 
-h3 {
+h3, h4 {
 	display: block;
 
 	margin-bottom: 0.5em;
@@ -142,12 +142,24 @@ h3 {
 	text-align: left;
 }
 
+h4 {
+  font-size: 20px;
+}
+
 p {
 	margin-bottom: 0.25em;
 }
 
 p:last-child {
 	margin-bottom: 0;
+}
+
+.privacy {
+  text-align: left;
+  font-weight: 300;
+  font-size: 75%;
+  opacity: 50%;
+  max-width: 24rem;
 }
 
 b {
@@ -249,13 +261,46 @@ b {
 	padding: 0.2rem 0.2rem 0.2rem 0.4rem;
 }
 
-.git-commits .commit .commit-info .message {
-	color: #555 !important;
+.git-commits .commit .commit-info .commit-subject {
+  display: inline-block;
+  color: #555 !important;
+  margin-bottom: 0.5rem;
 }
+
+.git-commits .commit-type {
+  background: #777;
+  color: #fff;
+
+  padding: 0.1rem 0.3rem;
+  margin-right: 0.2rem;
+
+  font-size: 75%;
+  font-weight: 400;
+
+  border-radius: 3px;
+}
+
+.git-commits .commit-type.commit-type-fix  { background: #3498db; }
+.git-commits .commit-type.commit-type-feat { background: #2ecc71; }
 
 .git-commits .commit .author {
 	font-weight: 300;
-	color: rgba(0, 0, 0, 0.8);
+  color: rgba(0, 0, 0, 0.8);
+  
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+}
+
+.git-commits .sep {
+  display: inline-block;
+  margin: 0 0.25rem;
+}
+
+.git-commits .commit-avatar {
+  display: inline-block;
+  border-radius: 3px;
+  margin-right: 0.2rem;
 }
 
 .github-icon {

@@ -36,8 +36,7 @@ module.exports = function(app) {
 
   app.ws("/:token", async function(ws, req) {
     const { token } = req.params;
-    const ip = req.ip;
-    const origin = req.header("Origin");
+    const { logDetails } = utils.getLogDetails(req);
 
     websockets.promWebsocketConnectionsTotal.inc({ type: "incomplete" });
 
@@ -45,7 +44,7 @@ module.exports = function(app) {
       // Look up the token, will reject if the token does not exist
       const { address, privatekey } = websockets.useToken(token);
 
-      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} from {bold ${ip}} (origin: {bold ${origin}})`);
+      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} ${logDetails}`);
       websockets.addWebsocket(req, ws, token, address, privatekey);
 
       const lastBlock = await blocks.getLastBlock();
@@ -60,7 +59,7 @@ module.exports = function(app) {
         work: await krist.getWork()
       });
     } catch (error) {
-      console.log(chalk`{red [Websockets]} Failed connection from {bold ${ip}} using token {bold ${token}} (origin: {bold ${origin}})`);
+      console.log(chalk`{red [Websockets]} Failed connection using token {bold ${token}} ${logDetails}`);
 
       utils.sendErrorToWS(ws, error);
       console.error(error);
@@ -147,16 +146,17 @@ module.exports = function(app) {
    */
   app.post("/ws/start", async function(req, res) {
     const { privatekey } = req.body;
+    const scheme = process.env.FORCE_INSECURE === "true" ? "ws" : "wss";
 
     if (privatekey) { // Auth as address if privatekey provided
-      const { authed, address } = await addresses.verify(krist.makeV2Address(privatekey), privatekey);
+      const { authed, address } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
       if (!authed) return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
         
       const token = await websockets.obtainToken(address.address, privatekey);
 
       res.json({
         ok: true,
-        url: `wss://${process.env.PUBLIC_URL}/${token}`,
+        url: `${scheme}://${process.env.PUBLIC_URL}/${token}`,
         expires: 30
       });
     } else { // Auth as guest if no privatekey provided
@@ -164,7 +164,7 @@ module.exports = function(app) {
 
       res.json({
         ok: true,
-        url: `wss://${process.env.PUBLIC_URL}/${token}`,
+        url: `${scheme}://${process.env.PUBLIC_URL}/${token}`,
         expires: 30
       });
     }
