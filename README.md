@@ -64,21 +64,29 @@ designed to and should not be exposed to the public web. HTTPS is required.
 Basic configuration is now done via environment variables. You must supply the
 following environment variables:
 
-- `DB_PASS` - The password of the database user.
-- `PUBLIC_URL` - The FQDN of the Krist server (e.g. `krist.ceriat.net`).
+| Variable     | Default      | Description                                             |
+|--------------|--------------|---------------------------------------------------------|
+| `DB_PASS`    | **required** | The password of the database user.                      |
+| `PUBLIC_URL` | **required** | The FQDN of the Krist server (e.g. `krist.ceriat.net`). |
+
 
 The following optional environment variables may also be specified:
 
-- `DB_HOST` - The hostname of the database (defaults to `127.0.0.1`).
-- `DB_PORT` - The port of the database (defaults to `3306`).
-- `DB_NAME` - The name of the database (defaulst to `krist`).
-- `DB_USER` - The username of the database user (defaults to `krist`).
-- `WEB_LISTEN` - The port that the webserver listens on.
-- `REDIS_HOST` - The hostname of the redis server (defaults to `127.0.0.1`).
-- `REDIS_PORT` - The port of the redis server (defaults to `6379`).
-- `REDIS_PREFIX` - The prefix of the redis keys (defaults to `krist:`).
-- `NODE_ENV` - Either `development` or `production`. If `development`, the
-  Krist server runs in debug mode (defaults to `development`).
+| Variable | Default | Description |
+|---|---|---|
+| `DB_HOST` | `127.0.0.1` | The hostname of the database. |
+| `DB_PORT` | `3306` | The port of the database. |
+| `DB_NAME` | `krist` | The name of the database. |
+| `DB_USER` | `krist` | The username of the database user. |
+| `WEB_LISTEN` | `8080` | The port that the webserver listens on. |
+| `REDIS_HOST` | `127.0.0.1` | The hostname of the redis server. |
+| `REDIS_PORT` | `6379` | The port of the redis server. |
+| `REDIS_PREFIX` | `krist:` | The prefix of the redis keys |
+| `NODE_ENV` | `development` | Either `development` or `production`. If `development`, the Krist server runs in debug mode. |
+| `FORCE_INSECURE` | `false` | If `true`, force the websocket gateway to return `ws://` URLs instead of `wss://`. Used for development only. |
+| `GITHUB_TOKEN` |  | Any valid GitHub token (e.g. a PAT with no scopes) to obtain avatars for the homepage. Completely optional. |
+| `USE_PROMETHEUS` | `false` | If `true`, enables Prometheus metrics on the `/metrics` endpoint. |
+| `PROMETHEUS_PASSWORD` |  | If set, require HTTP basic authentication to access Prometheus metrics, with the username `prometheus`. |
 
 For convenience, you may specify environment variables in a `.env` file.
 

@@ -7,7 +7,7 @@ https://krist.ceriat.net, http://krist.ceriat.net {
         502 down.html
     }
 
-    proxy / 127.0.0.1:8000 {
+    proxy / 127.0.0.1:8080 {
         transparent
         websocket
         except /style.css
