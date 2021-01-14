@@ -89,7 +89,7 @@ Addresses.logAuth = async function(req, address, type) {
 }
 
 Addresses.verify = async function(req, kristAddress, privatekey) {
-  const { ip, origin, path, logDetails } = utils.getLogDetails(req);
+  const { path, logDetails } = utils.getLogDetails(req);
 
   console.log(chalk`{cyan [Auth]} ({bold ${path}}) Auth attempt on address {bold ${kristAddress}} ${logDetails}`);
   promAddressesVerifiedCounter.inc({ type: "attempt" });
@@ -110,7 +110,7 @@ Addresses.verify = async function(req, kristAddress, privatekey) {
   }
 
   if (address.privatekey) { // Address exists, auth if the privatekey is equal
-    const authed = address.privatekey === hash;
+    const authed = !address.locked && address.privatekey === hash;
 
     if (authed) Addresses.logAuth(req, kristAddress, "auth");      
     else console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address {bold ${kristAddress}} ${logDetails}`);      

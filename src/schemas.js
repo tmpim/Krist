@@ -39,7 +39,8 @@ const Address = database.getSequelize().define("address", {
   alert: {
     type: Sequelize.STRING(1024),
     allowNull: true
-  }
+  },
+  locked: Sequelize.BOOLEAN
 }, {
   timestamps: false
 });
