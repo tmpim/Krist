@@ -55,7 +55,7 @@ module.exports = function(websockets) {
         return reject(new errors.ErrorMissingParameter("privatekey"));
       }
 
-      txController.makeTransaction(message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
+      txController.makeTransaction(ws.req, message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
         resolve({
           ok: true,
           transaction: txController.transactionToJSON(transaction)
