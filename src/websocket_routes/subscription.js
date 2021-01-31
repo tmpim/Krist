@@ -44,11 +44,11 @@ module.exports = function(websockets) {
   websockets.addMessageHandler("subscribe", async function(ws, message) {
     const { event } = message;
     if (!event) throw new errors.ErrorMissingParameter("event");
-
-    if (websockets.validSubscriptions.includes(event) && !ws.subs.includes(event)) {
-      ws.subs.push(event);
-    } else {
+    if (!websockets.validSubscriptions.includes(event))
       throw new errors.ErrorInvalidParameter("event");
+
+    if (!ws.subs.includes(event)) {
+      ws.subs.push(event);
     }
 
     return {
@@ -127,11 +127,11 @@ module.exports = function(websockets) {
   websockets.addMessageHandler("unsubscribe", async function(ws, message) {
     const { event } = message;
     if (!event) throw new errors.ErrorMissingParameter("event");
-
-    if (websockets.validSubscriptions.includes(event) && ws.subs.includes(event)) {
-      ws.subs.splice(ws.subs.indexOf(event), 1);
-    } else {
+    if (!websockets.validSubscriptions.includes(event))
       throw new errors.ErrorInvalidParameter("event");
+
+    if (ws.subs.includes(event)) {
+      ws.subs.splice(ws.subs.indexOf(event), 1);
     }
 
     return {
