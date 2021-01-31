@@ -217,16 +217,6 @@ Blocks.submit = async function(req, hash, address, nonce) {
     event: "block",
     block: Blocks.blockToJSON(block),
     new_work: newWork
-  }, function(ws) {
-    // Only send if they are subscribed to `ownBlocks` (when authed), or 
-    // subscribed to `blocks`
-    return new Promise(function(resolve, reject) {
-      if ((!ws.isGuest && ws.auth === address && ws.subscriptionLevel.indexOf("ownBlocks") >= 0) || ws.subscriptionLevel.indexOf("blocks") >= 0) {
-        return resolve();
-      }
-
-      reject();
-    });
   });
 
   return { work: newWork, address: kristAddress, block };

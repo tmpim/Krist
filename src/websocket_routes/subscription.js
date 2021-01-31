@@ -19,6 +19,8 @@
  * For more project information, see <https://github.com/Lemmmy/Krist>.
  */
 
+const errors = require("../errors/errors");
+
 module.exports = function(websockets) {
   /**
 	 * @api {ws} //ws:"type":"subscribe" Subscribe to an event
@@ -39,14 +41,19 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["ownTransactions", "blocks", "motd"]
      * }
 	 */
-  websockets.addMessageHandler("subscribe", function(ws, message) {
-    if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) < 0) {
-      ws.subscriptionLevel.push(message.event);
+  websockets.addMessageHandler("subscribe", async function(ws, message) {
+    const { event } = message;
+    if (!event) throw new errors.ErrorMissingParameter("event");
+
+    if (websockets.validSubscriptions.includes(event) && !ws.subs.includes(event)) {
+      ws.subs.push(event);
+    } else {
+      throw new errors.ErrorInvalidParameter("event");
     }
 
     return {
       ok: true,
-      subscription_level: ws.subscriptionLevel
+      subscription_level: ws.subs
     };
   });
 
@@ -71,7 +78,7 @@ module.exports = function(websockets) {
   websockets.addMessageHandler("get_subscription_level", function(ws) {
     return {
       ok: true,
-      subscription_level: ws.subscriptionLevel
+      subscription_level: ws.subs
     };
   });
 
@@ -95,7 +102,7 @@ module.exports = function(websockets) {
 	 */
   websockets.addMessageHandler("get_valid_subscription_levels", () => ({
     ok: true,
-    valid_subscription_levels: websockets.validSubscriptionLevels
+    valid_subscription_levels: websockets.validSubscriptions
   }));
 
   /**
@@ -117,14 +124,19 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["blocks"]
      * }
 	 */
-  websockets.addMessageHandler("unsubscribe", function(ws, message) {
-    if (websockets.validSubscriptionLevels.indexOf(message.event) >= 0 && ws.subscriptionLevel.indexOf(message.event) >= 0) {
-      ws.subscriptionLevel.splice(ws.subscriptionLevel.indexOf(message.event), 1);
+  websockets.addMessageHandler("unsubscribe", async function(ws, message) {
+    const { event } = message;
+    if (!event) throw new errors.ErrorMissingParameter("event");
+
+    if (websockets.validSubscriptions.includes(event) && ws.subs.includes(event)) {
+      ws.subs.splice(ws.subs.indexOf(event), 1);
+    } else {
+      throw new errors.ErrorInvalidParameter("event");
     }
 
     return {
       ok: true,
-      subscription_level: ws.subscriptionLevel
+      subscription_level: ws.subs
     };
   });
 };

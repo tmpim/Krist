@@ -129,14 +129,6 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
     type: "event",
     event: "transaction",
     transaction: Transactions.transactionToJSON(newTransaction)
-  }, function(ws) {
-    return new Promise(function(resolve, reject) {
-      if ((!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subscriptionLevel.indexOf("ownTransactions") >= 0) || ws.subscriptionLevel.indexOf("transactions") >= 0) {
-        return resolve();
-      }
-
-      reject();
-    });
   });
 
   return newTransaction;

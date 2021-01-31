@@ -25,6 +25,9 @@ const path   = require("path");
 const utils  = require("./utils.js");
 const errors = require("./errors/errors.js");
 
+const express = require("express");
+const bodyParser = require("body-parser");
+
 const { promisify } = require("util");
 const crypto        = require("crypto");
 const secureBytes   = promisify(crypto.randomBytes);
@@ -71,17 +74,17 @@ function WebsocketsManager() {
   this.messageHandlers = [];
   this.pendingTokens = [];
 
-  this.validSubscriptionLevels = ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames", "motd"];
+  this.validSubscriptions = ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames", "motd"];
 }
 
-function Websocket(req, socket, token, auth, subscriptionLevel, privatekey) {
+function Websocket(req, socket, token, auth, subs, privatekey) {
   this.req = req;
   this.socket = socket;
   this.token = token;
   this.auth = auth;
   this.privatekey = privatekey;
 
-  this.subscriptionLevel = subscriptionLevel || ["ownTransactions", "blocks"];
+  this.subs = subs || ["ownTransactions", "blocks"];
 
   this.isGuest = auth === "guest";
 }
@@ -206,18 +209,54 @@ WebsocketsManager.prototype.broadcast = function(message) {
   });
 };
 
-WebsocketsManager.prototype.broadcastEvent = function(message, subscriptionCheck) {
+/** Returns a function, based on the event type, that checks whether or not a
+ * given websocket should receive the event. */
+function subscriptionCheck(message) {
+  if (!message.event) throw new Error("Missing event type");
+  
+  switch (message.event) {
+    case "block":
+      const { address } = message.block;
+      return ws => // If the ws is subscribed to 'blocks' or 'ownBlocks'
+        (!ws.isGuest && ws.auth === address && ws.subs.includes("ownBlocks")) 
+        || ws.subs.includes("blocks");
+
+    case "transaction":
+      const { to, from } = message.transaction;
+      return ws => // If the ws is subscribed to 'transactions' or 'ownTransactions'
+        (!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subs.includes("ownTransactions")) 
+        || ws.subs.includes("transactions");
+
+    case "name":
+      const { owner } = message.name;
+      return ws => // If the ws is subscribed to 'names' or 'ownNames'
+        (!ws.isGuest && (ws.auth === owner) && ws.subs.includes("ownNames")) 
+        || ws.subs.includes("names");
+
+    default: 
+      throw new Error("Unknown event type " + message.event);
+  }
+}
+
+WebsocketsManager.prototype.broadcastEvent = function(message) {
+  if (!message.event) throw new Error("Missing event type");
   promWebsocketEventBroadcastsTotal.inc({ event: message.event });
 
-  Websockets.websockets.forEach(function(websocket) {
-    subscriptionCheck(websocket).then(function() {
-      try {
-        websocket.send(JSON.stringify(message));
-      } catch (err) {
-        console.error("Error sending websocket event broadcast:", err);
-      }
-    }).catch(function() {});
+  const subCheck = subscriptionCheck(message);
+  const stringified = JSON.stringify(message);
+  
+  let recipients = 0;
+  Websockets.websockets.forEach(ws => {
+    if (!subCheck(ws)) return;
+    recipients++;
+
+    try {
+      ws.send(stringified);
+    } catch (err) {
+      console.error("Error sending websocket event broadcast:", err);
+    }
   });
+  return recipients;
 };
 
 WebsocketsManager.prototype.sendResponse = function(ws, originalMessage, message) {
@@ -255,6 +294,73 @@ WebsocketsManager.prototype.useToken = function(token) {
   return tokenData;
 };
 
+const fileExists = f => fs.promises.access(f, fs.constants.F_OK).then(() => true).catch(() => false);
+WebsocketsManager.prototype.startIPC = async function() {
+  console.log(chalk`{cyan [Websockets]} Starting IPC server`);
+  
+  const ipcPath = process.env.WS_IPC_PATH;
+  if (await fileExists(ipcPath)) {
+    console.log(chalk`{cyan [Websockets]} Cleaning up existing IPC socket`);
+    await fs.promises.unlink(ipcPath);
+  }
+
+  const app = express();
+  app.use(bodyParser.json());
+
+  app.post("/event", async (req, res) => {
+    // Primitive validation
+    const { body } = req;
+    if (!body.event) throw new errors.ErrorMissingParameter("event");
+
+    let eventData;
+    switch (body.event) {
+      case "block":
+        if (!body.block) throw new errors.ErrorMissingParameter("block");
+        eventData = { block: body.block };
+        break;
+
+      case "transaction":
+        if (!body.transaction) throw new errors.ErrorMissingParameter("transaction");
+        eventData = { transaction: body.transaction };
+        break;
+
+      case "name":
+        if (!body.name) throw new errors.ErrorMissingParameter("name");
+        eventData = { name: body.name };
+        break;
+
+      default:
+        throw new errors.ErrorInvalidParameter("event");
+    }
+
+    const rawEvent = {
+      type: "event",
+      event: body.event,
+      ...eventData
+    };
+    const recipients = Websockets.broadcastEvent(rawEvent);
+
+    console.log(chalk`{yellow [Websockets]} Event {bold ${body.event}} broadcast via IPC to {bold ${recipients} recipients}. Raw event:\n`, rawEvent);
+
+    return res.json({
+      ok: true,
+      recipients
+    });
+  });
+
+  // Error handler
+  app.use((err, req, res, next) => {
+    utils.sendErrorToRes(req, res, err);
+  });
+
+  app.listen(ipcPath, () => {
+    console.log(chalk`{green [Websockets]} Started IPC server`);
+  }).on("error", err => {
+    console.error(chalk`{red [Websockets]} Error starting IPC:`);
+    console.error(err);
+  });
+};
+
 console.log(chalk`{cyan [Websockets]} Loading routes`);
 
 try {
@@ -267,14 +373,21 @@ try {
 
     try {
       require("./websocket_routes/" + file)(module.exports);
-    } catch (error) {
+    } catch (err) {
       console.error(chalk`{red [Websockets]} Error loading route '${file}'`);
-      console.error(error.stack);
+      console.error(err.stack);
     }
   });
-} catch (error) {
+} catch (err) {
   console.error(chalk`{red [Websockets]} Error loading routes:`);
-  console.error(error.stack);
+  console.error(err.stack);
+}
+
+if (typeof process.env.WS_IPC_PATH === "string") {
+  Websockets.startIPC().catch(err => {
+    console.error(chalk`{red [Websockets]} Error starting IPC:`);
+    console.error(err);
+  });    
 }
 
 setInterval(function() {

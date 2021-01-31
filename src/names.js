@@ -85,14 +85,6 @@ Names.createName = async function(name, owner) {
     type: "event",
     event: "name",
     name: Names.nameToJSON(dbName)
-  }, function(ws) {
-    return new Promise(function(resolve, reject) {
-      if ((!ws.isGuest && (ws.auth === owner) && ws.subscriptionLevel.indexOf("ownNames") >= 0) || ws.subscriptionLevel.indexOf("names") >= 0) {
-        return resolve();
-      }
-
-      reject();
-    });
   });
 
   return dbName;
