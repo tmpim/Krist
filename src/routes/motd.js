@@ -1,5 +1,5 @@
 /**
- * Created by Drew Lemmy, 2016
+ * Created by Drew Lemmy, 2016-2021
  *
  * This file is part of Krist.
  *
@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Krist. If not, see <http://www.gnu.org/licenses/>.
  *
- * For more project information, see <https://github.com/Lemmmy/Krist>.
+ * For more project information, see <https://github.com/tmpim/krist>.
  */
 
+const package = require("./../../package.json");
 const krist = require("./../krist.js");
 const constants = require("./../constants.js");
 
@@ -31,8 +32,21 @@ module.exports = function(app) {
 	 *
 	 * @apiSuccess {String} motd The message of the day
 	 * @apiSuccess {Date} set The date the MOTD was last changed
+   * 
+	 * @apiSuccess {String} public_url The public URL of this Krist node.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
-   *                       this will be set to 'true'.
+   *    this will be set to 'true'.
+   * 
+	 * @apiSuccess {Object} package Information related to this build of the Krist
+   *    source code.
+	 * @apiSuccess {String} package.name The name of the package (always `krist`).
+	 * @apiSuccess {String} package.version The version of the Krist server.
+	 * @apiSuccess {String} package.author The author of the Krist server (always
+   *    `Lemmmy`)
+	 * @apiSuccess {String} package.license The license of the Krist server
+   *    (always `GPL-3.0`)
+	 * @apiSuccess {String} package.repository The repository of the Krist server
+   *    source code.
    * 
 	 * @apiSuccess {Object} constants Constants related to the Krist server
    *    configuration.
@@ -62,6 +76,8 @@ module.exports = function(app) {
    *    currency (e.g. `Krist`).
    * @apiSuccess {String} currency.currency_symbol The shorthand symbol for this
    *    currency (e.g. `KST`).
+   * 
+   * @apiSuccess {String} notice Required copyright notice for the Krist server.
 	 *
 	 * @apiSuccessExample {json} Success
    * {
@@ -89,12 +105,23 @@ module.exports = function(app) {
   app.all("/motd", async function(req, res) {
     const { motd, motd_set, debug_mode } = await krist.getMOTD();
 
-    return res.json({
+    res.header("Content-Type", "application/json");
+    return res.send(JSON.stringify({
       ok: true,
+      
       motd,
       set: motd_set,
 
+      public_url: process.env.PUBLIC_URL || "localhost:8080",
       debug_mode,
+
+      package: {
+        name: package.name,
+        version: package.version,
+        author: package.author,
+        licence: package.license,
+        repository: package.repository.url
+      },
 
       constants: {
         wallet_version: constants.walletVersion,
@@ -112,8 +139,12 @@ module.exports = function(app) {
   
         currency_name: "Krist",
         currency_symbol: "KST"
-      }
-    });
+      },
+      
+      // NOTE: It is against the license to modify this string on a fork node
+      notice: "Krist was originally created by 3d6 and Lemmmy. It is now owned"
+            + " and operated by tmpim, and licensed under GPL-3.0."
+    }, null, 2));
   });
 
   return app;

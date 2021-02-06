@@ -1,6 +1,6 @@
 {
   "name": "krist",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "The new Krist node written in node.js.",
   "main": "index.js",
   "scripts": {
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lemmmy/Krist"
+    "url": "https://github.com/tmpim/Krist"
   },
   "author": "Lemmmy",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/Lemmmy/Krist/issues"
+    "url": "https://github.com/tmpim/Krist/issues"
   },
-  "homepage": "https://github.com/Lemmmy/Krist",
+  "homepage": "https://github.com/tmpim/Krist",
   "dependencies": {
     "@octokit/rest": "^18.0.12",
     "body-parser": "^1.14.2",

@@ -1,5 +1,5 @@
 /**
- * Created by Drew Lemmy, 2016
+ * Created by Drew Lemmy, 2016-2021
  *
  * This file is part of Krist.
  *
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Krist. If not, see <http://www.gnu.org/licenses/>.
  *
- * For more project information, see <https://github.com/Lemmmy/Krist>.
+ * For more project information, see <https://github.com/tmpim/krist>.
  */
 
 const util  = require("util");
