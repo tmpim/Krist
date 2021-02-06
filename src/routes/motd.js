@@ -60,8 +60,9 @@ module.exports = function(app) {
    *    value. The work will not automatically go below this.
    * @apiSuccess {Number} constants.max_work The maximum work (block difficulty)
    *    value. The work will not automatically go above this.
-   * @apiSuccess {Number} constants.work_factor The factor at which the work
-   *    may change per block.
+   * @apiSuccess {Number} constants.work_factor Work adjustment rate per block, 
+   *    where 1 means immediate adjustment to target work and 0 means constant 
+   *    work.
    * @apiSuccess {Number} constants.seconds_per_block The ideal time between
    *    mined blocks. The Krist server will adjust the difficulty to match this
    *    value.
@@ -108,7 +109,7 @@ module.exports = function(app) {
     res.header("Content-Type", "application/json");
     return res.send(JSON.stringify({
       ok: true,
-      
+
       motd,
       set: motd_set,
 
