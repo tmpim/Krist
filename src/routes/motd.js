@@ -22,6 +22,7 @@
 const package = require("./../../package.json");
 const krist = require("./../krist.js");
 const constants = require("./../constants.js");
+const Krist = require("./../krist.js");
 
 module.exports = function(app) {
   /**
@@ -34,6 +35,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} set The date the MOTD was last changed
    * 
 	 * @apiSuccess {String} public_url The public URL of this Krist node.
+	 * @apiSuccess {Boolean} mining_enabled If mining is enabled on the server,
+   *    this will be set to 'true'.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
    *    this will be set to 'true'.
    * 
@@ -114,6 +117,7 @@ module.exports = function(app) {
       set: motd_set,
 
       public_url: process.env.PUBLIC_URL || "localhost:8080",
+      mining_enabled: await krist.isMiningEnabled(),
       debug_mode,
 
       package: {

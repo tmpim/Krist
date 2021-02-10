@@ -47,10 +47,28 @@ Krist.workOverTime = [];
 Krist.init = async function() {
   console.log(chalk`{bold [Krist]} Loading...`);
 
-  // Pre-initialize the work to 100,000
+  // Check if mining is enabled
   const r = getRedis();
+  if (!await r.exists("mining-enabled")) {
+    console.log(chalk`{yellow.bold [Krist]} Note: Initialised with mining enabled.`);
+    await r.set("mining-enabled", "true");
+  } else {
+    const miningEnabled = await Krist.isMiningEnabled();
+    if (miningEnabled) console.log(chalk`{green.bold [Krist]} Mining is enabled.`);
+    else               console.log(chalk`{red.bold [Krist]} Mining is disabled!`);
+  }
+
+  // Check for a genesis block
+  const lastBlock = await schemas.block.findOne({ order: [["id", "DESC"]] });
+  if (!lastBlock) {
+    console.log(chalk`{yellow.bold [Krist]} Warning: Genesis block not found. Mining may not behave correctly.`);
+  }
+
+  // Pre-initialise the work to 100,000
   if (!await r.exists("work")) {
-    await Krist.setWork(Krist.getMaxWork());
+    const defaultWork = Krist.getMaxWork();
+    console.log(chalk`{yellow.bold [Krist]} Warning: Work was not yet set in Redis. It will be initialised to: {green ${defaultWork}}`);
+    await Krist.setWork(defaultWork);
   }
   console.log(chalk`{bold [Krist]} Current work: {green ${await Krist.getWork()}}`);
 
@@ -64,6 +82,8 @@ Krist.init = async function() {
   cron.schedule("0 0 * * * *", () => cleanAuthLog().catch(console.error));
   cleanAuthLog().catch(console.error);
 };
+
+Krist.isMiningEnabled = async () => (await getRedis().get("mining-enabled")) === "true";
 
 Krist.getWork = async function() {
   return parseInt(await getRedis().get("work"));

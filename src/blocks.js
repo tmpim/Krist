@@ -139,6 +139,9 @@ Blocks.getBlockValue = async (t) => {
 };
 
 Blocks.submit = async function(req, hash, address, nonce) {
+  if (!await krist.isMiningEnabled())
+    throw new Error("WTF: Attempted to submit block while mining is disabled!");
+
   const { logDetails } = utils.getLogDetails(req);
   addresses.logAuth(req, address, "mining");
 

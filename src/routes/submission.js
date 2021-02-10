@@ -30,6 +30,9 @@ const errors              = require("./../errors/errors.js");
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
     if (typeof req.query.submitblock !== "undefined") {
+      if (!await krist.isMiningEnabled()) 
+        return res.send("Mining disabled");
+        
       if (!req.query.address || !krist.isValidKristAddress(req.query.address))
         return res.send("Invalid address");
       if (!req.query.nonce || req.query.nonce.length > constants.nonceMaxSize)

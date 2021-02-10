@@ -94,6 +94,8 @@ BlocksController.blockToJSON = function(block) {
 };
 
 BlocksController.submitBlock = async function(req, address, rawNonce) {
+  if (!await krist.isMiningEnabled()) throw new errors.ErrorMiningDisabled();
+
   if (!address) throw new errors.ErrorMissingParameter("address");
   if (!krist.isValidKristAddress(address)) 
     throw new errors.ErrorInvalidParameter("address");

@@ -39,3 +39,12 @@ errors.ErrorSolutionIncorrect = function(message) {
 };
 
 util.inherits(errors.ErrorSolutionIncorrect, errors.KristError);
+
+errors.ErrorMiningDisabled = function(message) {
+  errors.KristError.call(this);
+  this.message = message;
+  this.statusCode = 423;
+  this.errorString = "mining_disabled";
+};
+
+util.inherits(errors.ErrorMiningDisabled, errors.KristError);
