@@ -51,7 +51,7 @@ Krist.init = async function() {
   const r = getRedis();
   if (!await r.exists("mining-enabled")) {
     console.log(chalk`{yellow.bold [Krist]} Note: Initialised with mining enabled.`);
-    await r.set("mining-enabled", "true");
+    await r.set("mining-enabled", "false");
   } else {
     const miningEnabled = await Krist.isMiningEnabled();
     if (miningEnabled) console.log(chalk`{green.bold [Krist]} Mining is enabled.`);
@@ -165,18 +165,19 @@ Krist.isValidARecord = function(ar) {
 };
 
 Krist.getMOTD = async function() {
-  try {
-    const r = getRedis();
-    const motd = await r.get("motd");
-    const date = new Date(await r.get("motd:date"));
+  const r = getRedis();
+  const motd = await r.get("motd") || "Welcome to Krist!";
+  const date = new Date(await r.get("motd:date"));
 
-    return {
-      motd,
-      motd_set: date,
-      debug_mode: process.env.NODE_ENV !== "production"
-    };
-  } catch (error) { // Return a generic MOTD if the file was not found
-    console.error(error);
-    return { motd: "Welcome to Krist!" };
-  }
+  return {
+    motd,
+    motd_set: date,
+    debug_mode: process.env.NODE_ENV !== "production"
+  };
 };
+
+Krist.setMOTD = async function(motd) {
+  const r = getRedis();
+  await r.set("motd", motd);
+  await r.set("motd:date", (new Date()).toString());
+}

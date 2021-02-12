@@ -29,6 +29,12 @@ const debugCommands = {
   "freenonce": () => {
     krist.freeNonceSubmission = !krist.freeNonceSubmission;
     console.log(chalk`{bold [Debug]} Free nonce submission is now: {bold ${krist.freeNonceSubmission}}`);
+  },
+
+  "setmotd": async args => {
+    const motd = args[1];
+    await krist.setMOTD(motd);
+    console.log(chalk`{bold [Debug]} Set MOTD to: {bold ${motd}}`);
   }
 };
 
