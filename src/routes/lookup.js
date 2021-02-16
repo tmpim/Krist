@@ -130,8 +130,11 @@ module.exports = function(app) {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning. 
    * 
-	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
+	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
+   * 
+	 * @apiParam (QueryParameter) {String[]} fetchNames When supplied, fetch the 
+   *           count of owned names for each address.
    * 
    * @apiSuccess {Number} found The amount of addresses that were successfully
    *             returned.
@@ -173,20 +176,24 @@ module.exports = function(app) {
    */
   api.get("/addresses/:addresses", async (req, res) => {
     const { addresses: addressesParam } = req.params;
+    const fetchNames = typeof req.query.fetchNames !== "undefined";
 
     // Validate address list
     if (!addressesParam) throw new errors.ErrorMissingParameter("addresses");
     const addressList = validateAddressList(addressesParam);
 
     // Perform the query
-    const rows = await Addresses.lookupAddresses(addressList);
+    const rows = await Addresses.lookupAddresses(addressList, fetchNames);
 
     // Prepare the output object (initialize all supplied addresses with 'null')
     const out = addressList.reduce((obj, address) => (obj[address] = null, obj), {});
 
     // Populate the output object with the addresses we actually found
     for (const address of rows) {
-      out[address.address] = Addresses.addressToJSON(address);
+      out[address.address] = {
+        ...Addresses.addressToJSON(address),
+        ...(fetchNames ? { names: address.names } : {})
+      };
     }
 
     return res.json({
@@ -279,7 +286,7 @@ module.exports = function(app) {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning. 
    * 
-	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
+	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
    * 
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
@@ -363,7 +370,7 @@ module.exports = function(app) {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning. 
    * 
-	 * @apiParam (QueryParameter) {String[]} [addresses] A comma-separated list of
+	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter name owners by.
    * 
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of

@@ -215,26 +215,29 @@ function subscriptionCheck(message) {
   if (!message.event) throw new Error("Missing event type");
   
   switch (message.event) {
-    case "block":
-      const { address } = message.block;
-      return ws => // If the ws is subscribed to 'blocks' or 'ownBlocks'
-        (!ws.isGuest && ws.auth === address && ws.subs.includes("ownBlocks")) 
-        || ws.subs.includes("blocks");
+  case "block": {
+    const { address } = message.block;
+    return ws => // If the ws is subscribed to 'blocks' or 'ownBlocks'
+      (!ws.isGuest && ws.auth === address && ws.subs.includes("ownBlocks")) 
+      || ws.subs.includes("blocks");
+  }
 
-    case "transaction":
-      const { to, from } = message.transaction;
-      return ws => // If the ws is subscribed to 'transactions' or 'ownTransactions'
-        (!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subs.includes("ownTransactions")) 
-        || ws.subs.includes("transactions");
+  case "transaction": {
+    const { to, from } = message.transaction;
+    return ws => // If the ws is subscribed to 'transactions' or 'ownTransactions'
+      (!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subs.includes("ownTransactions")) 
+      || ws.subs.includes("transactions");
+  }
 
-    case "name":
-      const { owner } = message.name;
-      return ws => // If the ws is subscribed to 'names' or 'ownNames'
-        (!ws.isGuest && (ws.auth === owner) && ws.subs.includes("ownNames")) 
-        || ws.subs.includes("names");
+  case "name": {
+    const { owner } = message.name;
+    return ws => // If the ws is subscribed to 'names' or 'ownNames'
+      (!ws.isGuest && (ws.auth === owner) && ws.subs.includes("ownNames")) 
+      || ws.subs.includes("names");
+  }
 
-    default: 
-      throw new Error("Unknown event type " + message.event);
+  default: 
+    throw new Error("Unknown event type " + message.event);
   }
 }
 
@@ -314,23 +317,23 @@ WebsocketsManager.prototype.startIPC = async function() {
 
     let eventData;
     switch (body.event) {
-      case "block":
-        if (!body.block) throw new errors.ErrorMissingParameter("block");
-        eventData = { block: body.block };
-        break;
+    case "block":
+      if (!body.block) throw new errors.ErrorMissingParameter("block");
+      eventData = { block: body.block };
+      break;
 
-      case "transaction":
-        if (!body.transaction) throw new errors.ErrorMissingParameter("transaction");
-        eventData = { transaction: body.transaction };
-        break;
+    case "transaction":
+      if (!body.transaction) throw new errors.ErrorMissingParameter("transaction");
+      eventData = { transaction: body.transaction };
+      break;
 
-      case "name":
-        if (!body.name) throw new errors.ErrorMissingParameter("name");
-        eventData = { name: body.name };
-        break;
+    case "name":
+      if (!body.name) throw new errors.ErrorMissingParameter("name");
+      eventData = { name: body.name };
+      break;
 
-      default:
-        throw new errors.ErrorInvalidParameter("event");
+    default:
+      throw new errors.ErrorInvalidParameter("event");
     }
 
     const rawEvent = {
@@ -349,7 +352,7 @@ WebsocketsManager.prototype.startIPC = async function() {
   });
 
   // Error handler
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     utils.sendErrorToRes(req, res, err);
   });
 

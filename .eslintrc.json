@@ -19,6 +19,10 @@
     "no-shadow": ["error"],
     "no-var": ["error"],
     "prefer-const": ["error"],
-    "one-var": ["error", { "separateRequires": true }]
+    "one-var": ["error", { "separateRequires": true }],
+    "no-unused-vars": ["warn", {
+      "ignoreRestSiblings": true,
+      "argsIgnorePattern": "^_"
+    }]
   }
 }

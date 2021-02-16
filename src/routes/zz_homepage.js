@@ -35,7 +35,7 @@ const octokit = process.env.GITHUB_TOKEN ? new Octokit({
 const messageTypeRe = /^(\w+): (.+)/;
 
 async function getCommits() {
-  commits = (await promisify(gitlog)({
+  const commits = (await promisify(gitlog)({
     repo: path.join(__dirname, "../"),
     number: 5,
     fields: [
@@ -47,7 +47,7 @@ async function getCommits() {
   return commits;
 }
 
-async function formatCommits() {
+async function formatCommits(commits) {
   for (const commit of commits) {
     if (!commit.subject) continue;
     

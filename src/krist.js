@@ -180,4 +180,4 @@ Krist.setMOTD = async function(motd) {
   const r = getRedis();
   await r.set("motd", motd);
   await r.set("motd:date", (new Date()).toString());
-}
+};

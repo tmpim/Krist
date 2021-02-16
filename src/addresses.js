@@ -22,8 +22,9 @@
 const chalk     = require("chalk");
 const utils     = require("./utils.js");
 const schemas   = require("./schemas.js");
+const database  = require("./database.js");
 const Sequelize = require("sequelize");
-const { Op }    = require("sequelize");
+const { Op, QueryTypes } = require("sequelize");
 
 const promClient = require("prom-client");
 const promAddressesVerifiedCounter = new promClient.Counter({
@@ -46,8 +47,24 @@ Addresses.getAddresses = function(limit, offset) {
   return schemas.address.findAndCountAll({limit: utils.sanitiseLimit(limit), offset: utils.sanitiseOffset(offset)});
 };
 
-Addresses.lookupAddresses = function(addressList) {
-  return schemas.address.findAll({ where: { address: addressList } });
+Addresses.lookupAddresses = function(addressList, fetchNames) {
+  if (fetchNames) { // TODO: see if this can be done with sequelize
+    return database.getSequelize().query(`
+      SELECT 
+        \`addresses\`.*,
+        COUNT(\`names\`.\`id\`) AS \`names\`
+      FROM \`addresses\`
+      LEFT JOIN \`names\` ON \`addresses\`.\`address\` = \`names\`.\`owner\`
+      WHERE \`addresses\`.\`address\` IN (:addresses)
+      GROUP BY \`addresses\`.\`address\`
+      ORDER BY \`names\` DESC;
+    `, { 
+      replacements: { addresses: addressList },
+      type: QueryTypes.SELECT 
+    });
+  } else {
+    return schemas.address.findAll({ where: { address: addressList } });
+  }
 };
 
 Addresses.getRich = function(limit, offset) {
@@ -58,11 +75,11 @@ Addresses.getRich = function(limit, offset) {
 Addresses.cleanAuthLog = async function() {
   const destroyed = await schemas.authLog.destroy({
     where: {
-      time: { [Op.lte]: Sequelize.literal('NOW() - INTERVAL 30 DAY')}
+      time: { [Op.lte]: Sequelize.literal("NOW() - INTERVAL 30 DAY")}
     }
   });
   console.log(chalk`{cyan [Auth]} Purged {bold ${destroyed}} auth log entries`);
-}
+};
 
 Addresses.logAuth = async function(req, address, type) {
   const { ip, path, logDetails } = utils.getLogDetails(req);
@@ -77,7 +94,7 @@ Addresses.logAuth = async function(req, address, type) {
     where: {
       ip, 
       address,
-      time: { [Op.gte]: Sequelize.literal('NOW() - INTERVAL 30 MINUTE')},
+      time: { [Op.gte]: Sequelize.literal("NOW() - INTERVAL 30 MINUTE")},
       type
     }
   });
@@ -86,7 +103,7 @@ Addresses.logAuth = async function(req, address, type) {
   schemas.authLog.create({
     ip, address, time: new Date(), type
   });
-}
+};
 
 Addresses.verify = async function(req, kristAddress, privatekey) {
   const { path, logDetails } = utils.getLogDetails(req);

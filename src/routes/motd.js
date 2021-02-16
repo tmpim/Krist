@@ -22,7 +22,6 @@
 const package = require("./../../package.json");
 const krist = require("./../krist.js");
 const constants = require("./../constants.js");
-const Krist = require("./../krist.js");
 
 module.exports = function(app) {
   /**
