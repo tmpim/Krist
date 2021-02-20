@@ -31,11 +31,13 @@ Database.getSequelize = function() {
 };
 
 Database.init = async function() {
+  const isTest = process.env.NODE_ENV === "test";
+
   const host = process.env.DB_HOST || "127.0.0.1";
   const port = parseInt(process.env.DB_PORT) || 3306;
-  const db = process.env.DB_NAME || "krist";
-  const user = process.env.DB_USER || "krist";
-  const pass = process.env.DB_PASS;
+  const db = isTest ? (process.env.TEST_DB_NAME || "test_krist") : (process.env.DB_NAME || "krist");
+  const user = isTest ? (process.env.TEST_DB_USER || "test_krist") : (process.env.DB_USER || "krist");
+  const pass = isTest ? process.env.TEST_DB_PASS : process.env.DB_PASS;
 
   console.log(chalk`{cyan [DB]} Connecting to database {bold ${db}} as user {bold ${user}}...`);
 
@@ -52,7 +54,7 @@ Database.init = async function() {
   });
 
   try {
-    Database.sequelize.authenticate();
+    await Database.sequelize.authenticate();
     console.log(chalk`{green [DB]} Connected`);
   } catch (error) {
     console.error(error);

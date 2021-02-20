@@ -146,7 +146,10 @@ module.exports = function(app) {
    */
   app.post("/ws/start", async function(req, res) {
     const { privatekey } = req.body;
-    const scheme = process.env.FORCE_INSECURE === "true" ? "ws" : "wss";
+
+    const publicUrl = process.env.PUBLIC_URL || "localhost:8080";
+    const scheme = publicUrl.startsWith("localhost:") || process.env.FORCE_INSECURE === "true" ? "ws" : "wss";
+    const urlBase = `${scheme}://${process.env.PUBLIC_URL}/`;
 
     if (privatekey) { // Auth as address if privatekey provided
       const { authed, address } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
@@ -156,7 +159,7 @@ module.exports = function(app) {
 
       res.json({
         ok: true,
-        url: `${scheme}://${process.env.PUBLIC_URL}/${token}`,
+        url: urlBase + token,
         expires: 30
       });
     } else { // Auth as guest if no privatekey provided
@@ -164,7 +167,7 @@ module.exports = function(app) {
 
       res.json({
         ok: true,
-        url: `${scheme}://${process.env.PUBLIC_URL}/${token}`,
+        url: urlBase + token,
         expires: 30
       });
     }

@@ -29,7 +29,6 @@ const rateLimit     = require("express-rate-limit");
 const fs            = require("fs");
 const path          = require("path");
 const chalk         = require("chalk");
-const { promisify } = require("util");
 const prometheus    = require("./prometheus");
 
 function Webserver() {}
@@ -117,6 +116,12 @@ Webserver.init = async function() {
   });
 
   const listen = parseInt(process.env.WEB_LISTEN) || 8080;
-  await promisify(app.listen)(listen);
-  console.log(chalk`{green [Webserver]} Listening on {bold ${listen}}`);
+  await new Promise((resolve, reject) => {
+    const server = Webserver.server = app.listen(listen, () => {
+      console.log(chalk`{green [Webserver]} Listening on {bold ${listen}}`);
+      resolve(Webserver.server);
+    });
+
+    server.on("error", reject);    
+  });
 };

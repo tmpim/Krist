@@ -78,10 +78,14 @@ The following optional environment variables may also be specified:
 | `DB_PORT` | `3306` | The port of the database. |
 | `DB_NAME` | `krist` | The name of the database. |
 | `DB_USER` | `krist` | The username of the database user. |
+| `TEST_DB_NAME` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the name of the database. |
+| `TEST_DB_USER` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the username of the database user. |
+| `TEST_DB_PASS` |  | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the password of the database user. |
 | `WEB_LISTEN` | `8080` | The port that the webserver listens on. |
 | `REDIS_HOST` | `127.0.0.1` | The hostname of the redis server. |
 | `REDIS_PORT` | `6379` | The port of the redis server. |
 | `REDIS_PREFIX` | `krist:` | The prefix of the redis keys. |
+| `TEST_REDIS_PREFIX` | `test_krist:` | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the prefix of the redis keys. |
 | `NODE_ENV` | `development` | Either `development` or `production`. If `development`, the Krist server runs in debug mode. |
 | `FORCE_INSECURE` | `false` | If `true`, force the websocket gateway to return `ws://` URLs instead of `wss://`. Used for development only. |
 | `GITHUB_TOKEN` |  | Any valid GitHub token (e.g. a PAT with no scopes) to obtain avatars for the homepage. Completely optional. |

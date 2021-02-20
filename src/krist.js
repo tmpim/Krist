@@ -73,7 +73,7 @@ Krist.init = async function() {
   console.log(chalk`{bold [Krist]} Current work: {green ${await Krist.getWork()}}`);
 
   // Update the work over time every minute
-  setInterval(async function() {
+  Krist.workOverTimeInterval = setInterval(async function() {
     await r.lpush("work-over-time", await Krist.getWork());
     await r.ltrim("work-over-time", 0, 1440);
   }, 60 * 1000);

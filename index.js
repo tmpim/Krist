@@ -42,9 +42,9 @@ if (missing.length) {
   process.exit(1);
 }
 
-const database         = require("./src/database.js");
-const redis            = require("./src/redis.js");
-const webserver        = require("./src/webserver.js");
+const database  = require("./src/database.js");
+const redis     = require("./src/redis.js");
+const webserver = require("./src/webserver.js");
 
 console.log(chalk`Starting {bold ${package.name}} {blue ${package.version}}...`);
 
@@ -53,7 +53,9 @@ async function main() {
   await database.init();
   
   require("./src/krist.js").init();
-  if (process.env.NODE_ENV !== "production") require("./src/debug.js");
+  if (process.env.NODE_ENV !== "production" && process.env.NODE_ENV !== "test") {
+    require("./src/debug.js");
+  }
 
   return webserver.init();
 }

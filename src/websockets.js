@@ -356,9 +356,11 @@ WebsocketsManager.prototype.startIPC = async function() {
     utils.sendErrorToRes(req, res, err);
   });
 
-  app.listen(ipcPath, () => {
+  const server = Websockets.ipcServer = app.listen(ipcPath, () => {
     console.log(chalk`{green [Websockets]} Started IPC server`);
-  }).on("error", err => {
+  });
+  
+  server.on("error", err => {
     console.error(chalk`{red [Websockets]} Error starting IPC:`);
     console.error(err);
   });
@@ -386,14 +388,14 @@ try {
   console.error(err.stack);
 }
 
-if (typeof process.env.WS_IPC_PATH === "string") {
+if (process.env.NODE_ENV !== "test" && typeof process.env.WS_IPC_PATH === "string") {
   Websockets.startIPC().catch(err => {
     console.error(chalk`{red [Websockets]} Error starting IPC:`);
     console.error(err);
   });    
 }
 
-setInterval(function() {
+Websockets.keepaliveInterval = setInterval(function() {
   Websockets.broadcast({
     type: "keepalive",
     server_time: new Date()
