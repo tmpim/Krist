@@ -18,5 +18,13 @@ describe("websocket routes: addresses", () => {
       expect(data.address).to.not.include.any.keys("id", "privatekey", "alert", "locked");
       expect(data.address).to.deep.include({ address: "k8juvewcui", balance: 10 });
     });
+
+    it("should error for missing addresses", async () => {
+      const ws = await newConnection();
+      expect(ws).to.nested.include({ "wsp.isOpened": true });
+
+      const data = await ws.sendAndWait({ type: "address", address: "knotfound0" });
+      expect(data).to.deep.include({ ok: false, error: "address_not_found" });
+    });
   });
 });
