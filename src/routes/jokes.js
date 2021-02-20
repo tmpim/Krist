@@ -20,15 +20,15 @@
  */
 
 module.exports = function(app) {
-  app.get("/cdel", function(req, res) {
+  app.get("/cdel", async function(req, res) {
     res.send("Connor dominates and penetrates Ryan Smith.");
   });
 
-  app.get("/justyn", function(req, res) {
+  app.get("/justyn", async function(req, res) {
     res.send("is gay");
   });
 
-  app.get("/liggy", function(req, res) {
+  app.get("/liggy", async function(req, res) {
     res.header("Content-Type", "text/html");
 
     res.send("<!doctype html>" +

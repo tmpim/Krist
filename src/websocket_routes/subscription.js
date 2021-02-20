@@ -75,7 +75,7 @@ module.exports = function(websockets) {
 	 *     "subscription_level": ["ownTransactions", "blocks"]
      * }
 	 */
-  websockets.addMessageHandler("get_subscription_level", function(ws) {
+  websockets.addMessageHandler("get_subscription_level", async function(ws) {
     return {
       ok: true,
       subscription_level: ws.subs
@@ -100,7 +100,7 @@ module.exports = function(websockets) {
 	 *     "valid_subscription_levels": ["blocks", "ownBlocks", "transactions", "ownTransactions", "names", "ownNames","motd"]
      * }
 	 */
-  websockets.addMessageHandler("get_valid_subscription_levels", () => ({
+  websockets.addMessageHandler("get_valid_subscription_levels", async () => ({
     ok: true,
     valid_subscription_levels: websockets.validSubscriptions
   }));
@@ -130,9 +130,8 @@ module.exports = function(websockets) {
     if (!websockets.validSubscriptions.includes(event))
       throw new errors.ErrorInvalidParameter("event");
 
-    if (ws.subs.includes(event)) {
+    if (ws.subs.includes(event))
       ws.subs.splice(ws.subs.indexOf(event), 1);
-    }
 
     return {
       ok: true,

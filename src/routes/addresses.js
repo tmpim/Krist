@@ -57,15 +57,14 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} addresses.firstseen The date this address was first seen (when the first transaction to it was made).
 	 */
 
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (req.query.getbalance) {
-      addresses.getAddress(req.query.getbalance).then(function(address) {
-        if (address) {
-          res.send(address.balance.toString());
-        } else {
-          res.send("0");
-        }
-      });
+      const address = await addresses.getAddress(req.query.getbalance);
+      if (address) {
+        res.send(address.balance.toString());
+      } else {
+        res.send("0");
+      }
 
       return;
     }
@@ -73,78 +72,74 @@ module.exports = function(app) {
     if (req.query.alert) {
       const from = krist.makeV2Address(req.query.alert);
 
-      addresses.getAddress(from).then(function(address) {
-        if (address) {
-          res.send(address.alert);
-        } else {
-          res.send("");
-        }
-      });
+      const address = await addresses.getAddress(from);
+      if (address) {
+        res.send(address.alert);
+      } else {
+        res.send("");
+      }
 
       return;
     }
 
     if (typeof req.query.richapi !== "undefined") {
-      addresses.getRich().then(function(results) {
-        let out = "";
+      const results = await addresses.getRich();
+      let out = "";
 
-        results.rows.forEach(function(address) {
-          out += address.address.substr(0, 10);
-          out += utils.padDigits(address.balance, 8);
-          out += moment(address.firstseen).format("DD MMM YYYY");
-        });
-
-        res.send(out);
+      results.rows.forEach(function(address) {
+        out += address.address.substr(0, 10);
+        out += utils.padDigits(address.balance, 8);
+        out += moment(address.firstseen).format("DD MMM YYYY");
       });
+
+      res.send(out);
 
       return;
     }
 
     if (req.query.listtx) {
-      addresses.getAddress(req.query.listtx).then(function(address) {
-        if (address) {
-          tx.getTransactionsByAddress(address.address, typeof req.query.overview !== "undefined" ? 3 : 500, 0, true).then(function(results) {
-            let out = "";
+      const address = await addresses.getAddress(req.query.listtx);
+      if (address) {
+        const results = tx.getTransactionsByAddress(address.address, typeof req.query.overview !== "undefined" ? 3 : 500, 0, true);
+        let out = "";
 
-            results.rows.forEach(function (transaction) {
-              out += moment(transaction.time).format("MMM DD HH:mm");
+        results.rows.forEach(function (transaction) {
+          out += moment(transaction.time).format("MMM DD HH:mm");
 
-              let peer = "";
-              let sign = "";
+          let peer = "";
+          let sign = "";
 
-              if (transaction.to === address.address) {
-                peer = transaction.from;
-                sign = "+";
-              } else if (transaction.from === address.address) {
-                peer = transaction.to;
-                sign = "-";
-              }
+          if (transaction.to === address.address) {
+            peer = transaction.from;
+            sign = "+";
+          } else if (transaction.from === address.address) {
+            peer = transaction.to;
+            sign = "-";
+          }
 
-              if (!transaction.from || transaction.from.length < 10) {
-                peer = "N/A(Mined)";
-              }
+          if (!transaction.from || transaction.from.length < 10) {
+            peer = "N/A(Mined)";
+          }
 
-              if (!transaction.to || transaction.to.length < 10) {
-                peer = "N/A(Names)";
-              }
+          if (!transaction.to || transaction.to.length < 10) {
+            peer = "N/A(Names)";
+          }
 
-              out += peer;
-              out += sign;
-              out += utils.padDigits(transaction.value, 8);
+          out += peer;
+          out += sign;
+          out += utils.padDigits(transaction.value, 8);
 
-              if (typeof req.query.id !== "undefined") {
-                out += utils.padDigits(transaction.id, 8);
-              }
-            });
+          if (typeof req.query.id !== "undefined") {
+            out += utils.padDigits(transaction.id, 8);
+          }
+        });
 
-            out += "end";
+        out += "end";
 
-            res.send(out);
-          });
-        } else {
-          res.send("Error4");
-        }
-      });
+        res.send(out);
+      } else {
+        res.send("Error4");
+      }
 
       return;
     }
@@ -188,34 +183,34 @@ module.exports = function(app) {
 	 *  	        },
 	 *  	        ...
 	 */
-  app.get("/addresses", function(req, res) {
-    addressesController.getAddresses(req.query.limit, req.query.offset).then(function(results) {
-      const out = [];
+  app.get("/addresses", async function(req, res) {
+    try {
+      const results = await addressesController.getAddresses(req.query.limit, req.query.offset);
+      const addresses = [];
 
-      results.rows.forEach(function(address) {
-        out.push(addressesController.addressToJSON(address));
-      });
+      results.rows.forEach(address => addresses.push(addressesController.addressToJSON(address)));
 
       res.json({
         ok: true,
-        count: out.length,
+        count: addresses.length,
         total: results.count,
-        addresses: out
+        addresses
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
-  app.post("/addresses/alert", function(req, res) {
-    addressesController.getAlert(req.body.privatekey).then(function(alert) {
+  app.post("/addresses/alert", async function(req, res) {
+    try {
+      const alert = await addressesController.getAlert(req.body.privatekey);
       res.json({
         ok: true,
-        alert: alert
+        alert
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -253,23 +248,22 @@ module.exports = function(app) {
 	 *              },
 	 *              ...
 	 */
-  app.get("/addresses/rich", function(req, res) {
-    addressesController.getRich(req.query.limit, req.query.offset).then(function(results) {
-      const out = [];
+  app.get("/addresses/rich", async function(req, res) {
+    try {
+      const results = await addressesController.getRich(req.query.limit, req.query.offset);
+      const addresses = [];
 
-      results.rows.forEach(function(address) {
-        out.push(addressesController.addressToJSON(address));
-      });
+      results.rows.forEach(address => addresses.push(addressesController.addressToJSON(address)));
 
       res.json({
         ok: true,
-        count: out.length,
+        count: addresses.length,
         total: results.count,
-        addresses: out
+        addresses
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -308,15 +302,16 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-  app.get("/addresses/:address", function(req, res) {
-    addressesController.getAddress(req.params.address).then(function(address) {
+  app.get("/addresses/:address", async function(req, res) {
+    try {
+      const address = await addressesController.getAddress(req.params.address);
       res.json({
         ok: true,
         address: addressesController.addressToJSON(address)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
 
@@ -362,13 +357,12 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-  app.get("/addresses/:address/names", function(req, res) {
-    namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset).then(function(names) {
+  app.get("/addresses/:address/names", async function(req, res) {
+    try {
+      const names = await namesController.getNamesByAddress(req.params.address, req.query.limit, req.query.offset);
       const out = [];
 
-      names.rows.forEach(function (name) {
-        out.push(namesController.nameToJSON(name));
-      });
+      names.rows.forEach(name => out.push(namesController.nameToJSON(name)));
 
       res.json({
         ok: true,
@@ -376,9 +370,9 @@ module.exports = function(app) {
         total: names.count,
         names: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -437,13 +431,12 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-  app.get("/addresses/:address/transactions", function(req, res) {
-    txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset, typeof req.query.excludeMined === "undefined").then(function(transactions) {
+  app.get("/addresses/:address/transactions", async function(req, res) {
+    try {
+      const transactions = await txController.getTransactionsByAddress(req.params.address, req.query.limit, req.query.offset, typeof req.query.excludeMined === "undefined");
       const out = [];
 
-      transactions.rows.forEach(function (transaction) {
-        out.push(txController.transactionToJSON(transaction));
-      });
+      transactions.rows.forEach(transaction => out.push(txController.transactionToJSON(transaction)));
 
       res.json({
         ok: true,
@@ -451,9 +444,9 @@ module.exports = function(app) {
         total: transactions.count,
         transactions: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
 

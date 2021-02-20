@@ -70,146 +70,118 @@ module.exports = function(app) {
    *            `name_a_record`, or `name_transfer`.
 	 */
 
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.recenttx !== "undefined") {
-      tx.getRecentTransactions().then(function(transactions) {
-        let out = "";
+      const transactions = await tx.getRecentTransactions();
+      let out = "";
 
-        transactions.forEach(function (transaction) {
-          out += moment(transaction.time).format("MMM DD HH:mm");
+      transactions.forEach(function (transaction) {
+        out += moment(transaction.time).format("MMM DD HH:mm");
 
-          out += transaction.from;
-          out += transaction.to;
+        out += transaction.from;
+        out += transaction.to;
 
-          out += utils.padDigits(Math.abs(transaction.value), 8);
-        });
-
-        res.send(out);
+        out += utils.padDigits(Math.abs(transaction.value), 8);
       });
+
+      res.send(out);
 
       return;
     }
 
     if (typeof req.query.pushtx !== "undefined") {
-      if (!req.query.amt || isNaN(req.query.amt)) {
+      if (!req.query.amt || isNaN(req.query.amt))
         return res.send("Error3");
-      }
 
-      if (req.query.amt < 1) {
+      if (req.query.amt < 1)
         return res.send("Error2");
-      }
 
       const from = utils.sha256(req.query.pkey).substr(0, 10);
       const amt = parseInt(req.query.amt);
 
-      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
+      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) // webstorm complained
         return res.send("Error5");
+
+      const {authed, address} = await addresses.verify(req, from, req.query.pkey);
+
+      if (!authed)
+        return res.send("Access denied");
+
+      if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+        const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+
+        const name = await names.getNameByName(nameInfo[2]);
+        if (!name)
+          return res.send("Name not found");
+
+        if (!address || address.balance < amt)
+          return res.send("Error1");
+
+        let metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+
+        if (req.query.com)
+          metadata = req.query.com.toLowerCase() + ";" + metadata;
+
+        await tx.pushTransaction(address, name.owner, amt, metadata)
+        res.send("Success");
+      } else {
+        if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString()))
+          return res.send("Error4");
+
+        if (!address || address.balance < amt)
+          return res.send("Error1");
+
+        await tx.pushTransaction(address, req.query.q.toString(), amt, req.query.com);
+        res.send("Success");
       }
-
-      addresses.verify(req, from, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-        const sender = results.address;
-
-        if (!authed) {
-          return res.send("Access denied");
-        }
-
-        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
-
-          names.getNameByName(nameInfo[2]).then(function(name) {
-            if (!name) {
-              return res.send("Name not found");
-            }
-
-            if (!sender || sender.balance < amt) {
-              return res.send("Error1");
-            }
-
-            let metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
-
-            if (req.query.com) {
-              metadata = req.query.com.toLowerCase() + ";" + metadata;
-            }
-
-            tx.pushTransaction(sender, name.owner, amt, metadata).then(function() {
-              res.send("Success");
-            });
-          });
-        } else {
-          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-            return res.send("Error4");
-          }
-
-          if (!sender || sender.balance < amt) {
-            return res.send("Error1");
-          }
-
-          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
-            res.send("Success");
-          });
-        }
-      });
 
       return;
     }
 
     if (typeof req.query.pushtx2 !== "undefined") {
-      if (!req.query.amt || isNaN(req.query.amt)) {
+      if (!req.query.amt || isNaN(req.query.amt))
         return res.send("Error3");
-      }
 
-      if (req.query.amt < 1) {
+      if (req.query.amt < 1)
         return res.send("Error2");
-      }
 
       const from = krist.makeV2Address(req.query.pkey);
       const amt = parseInt(req.query.amt);
 
-      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) {
+      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString()))
         return res.send("Error5");
+
+      const results = await addresses.verify(req, from, req.query.pkey);
+      const authed = results.authed;
+      const sender = results.address;
+
+      if (!authed)
+        return res.send("Access denied");
+
+      if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
+        const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
+
+        const name = await names.getNameByName(nameInfo[2]);
+        if (!name)
+          return res.send("Name not found");
+
+        if (!sender || sender.balance < amt)
+          return res.send("Error1");
+
+        const metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
+
+        await tx.pushTransaction(sender, name.owner, amt, metadata);
+        res.send("Success");
+      } else {
+        if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString()))
+          return res.send("Error4");
+
+        if (!sender || sender.balance < amt)
+          return res.send("Error1");
+
+        await tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com);
+        res.send("Success");
       }
-
-      addresses.verify(req, from, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-        const sender = results.address;
-
-        if (!authed) {
-          return res.send("Access denied");
-        }
-
-        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
-
-          names.getNameByName(nameInfo[2]).then(function (name) {
-            if (!name) {
-              return res.send("Name not found");
-            }
-
-            if (!sender || sender.balance < amt) {
-              return res.send("Error1");
-            }
-
-            const metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
-
-            tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
-              res.send("Success");
-            });
-          });
-        } else {
-          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-            return res.send("Error4");
-          }
-
-          if (!sender || sender.balance < amt) {
-            return res.send("Error1");
-          }
-
-          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function () {
-            res.send("Success");
-          });
-        }
-      });
 
       return;
     }
@@ -259,13 +231,12 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/transactions", function(req, res) {
-    txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === "undefined").then(function(transactions) {
+  app.get("/transactions", async function(req, res) {
+    try {
+      const transactions = await txController.getTransactions(req.query.limit, req.query.offset, true, typeof req.query.excludeMined === "undefined");
       const out = [];
 
-      transactions.rows.forEach(function (transaction) {
-        out.push(txController.transactionToJSON(transaction));
-      });
+      transactions.rows.forEach(transaction => out.push(txController.transactionToJSON(transaction)));
 
       res.json({
         ok: true,
@@ -273,9 +244,9 @@ module.exports = function(app) {
         total: transactions.count,
         transactions: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -320,13 +291,12 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/transactions/latest", function(req, res) {
-    txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === "undefined").then(function(transactions) {
+  app.get("/transactions/latest", async function(req, res) {
+    try {
+      const transactions = await txController.getTransactions(req.query.limit, req.query.offset, false, typeof req.query.excludeMined === "undefined");
       const out = [];
 
-      transactions.rows.forEach(function (transaction) {
-        out.push(txController.transactionToJSON(transaction));
-      });
+      transactions.rows.forEach(transaction => out.push(txController.transactionToJSON(transaction)));
 
       res.json({
         ok: true,
@@ -334,9 +304,9 @@ module.exports = function(app) {
         total: transactions.count,
         transactions: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -364,15 +334,16 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-  app.get("/transactions/:id", function(req, res) {
-    txController.getTransaction(req.params.id).then(function(transaction) {
+  app.get("/transactions/:id", async function(req, res) {
+    try {
+      const transaction = await txController.getTransaction(req.params.id);
       res.json({
         ok: true,
         transaction: txController.transactionToJSON(transaction)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**

@@ -27,38 +27,28 @@ const errors    = require("./../errors/errors.js");
 
 function BlocksController() {}
 
-BlocksController.getBlocks = function(limit, offset, asc) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+BlocksController.getBlocks = async function(limit, offset, asc) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    blocks.getBlocks(limit, offset, asc).then(resolve).catch(reject);
-  });
+  return blocks.getBlocks(limit, offset, asc)
 };
 
-BlocksController.getLastBlock = function() {
-  return new Promise(function(resolve, reject) {
-    blocks.getLastBlock().then(resolve).catch(reject);
-  });
+BlocksController.getLastBlock = async function() {
+  return blocks.getLastBlock();
 };
 
-BlocksController.getBlocksByOrder = function(order, limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+BlocksController.getBlocksByOrder = async function(order, limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    blocks.getBlocksByOrder(order, limit, offset).then(resolve).catch(reject);
-  });
+  return blocks.getBlocksByOrder(order, limit, offset);
 };
 
 BlocksController.getLowestHashes = async function(limit, offset) {
@@ -71,22 +61,17 @@ BlocksController.getLowestHashes = async function(limit, offset) {
   return blocks.getLowestHashes(limit, offset);
 };
 
-BlocksController.getBlock = function(height) {
-  return new Promise(function(resolve, reject) {
-    if (isNaN(height)) {
-      return reject(new errors.ErrorInvalidParameter("height"));
-    }
+BlocksController.getBlock = async function(height) {
+  if (isNaN(height))
+    throw new errors.ErrorInvalidParameter("height");
 
-    height = Math.max(parseInt(height), 0);
+  height = Math.max(parseInt(height), 0);
 
-    blocks.getBlock(height).then(function(result) {
-      if (!result) {
-        return reject(new errors.ErrorBlockNotFound());
-      }
-
-      resolve(result);
-    }).catch(reject);
-  });
+  const result = await blocks.getBlock(height);
+  if (!result)
+    throw new errors.ErrorBlockNotFound();
+  
+  return result;
 };
 
 BlocksController.blockToJSON = function(block) {

@@ -49,18 +49,14 @@ module.exports = function(websockets) {
      *     "error": "insufficient_funds"
      * }
 	 */
-  websockets.addMessageHandler("make_transaction", function(ws, message) {
-    return new Promise(function(resolve, reject) {
-      if (ws.isGuest && !message.privatekey) {
-        return reject(new errors.ErrorMissingParameter("privatekey"));
-      }
+  websockets.addMessageHandler("make_transaction", async function(ws, message) {
+    if (ws.isGuest && !message.privatekey)
+     throw new errors.ErrorMissingParameter("privatekey");
 
-      txController.makeTransaction(ws.req, message.privatekey || ws.privatekey, message.to, message.amount, message.metadata).then(function(transaction) {
-        resolve({
-          ok: true,
-          transaction: txController.transactionToJSON(transaction)
-        });
-      }).catch(reject);
-    });
+    const transaction = await txController.makeTransaction(ws.req, message.privatekey || ws.privatekey, message.to, message.amount, message.metadata)
+    return {
+      ok: true,
+      transaction: txController.transactionToJSON(transaction)
+    }
   });
 };

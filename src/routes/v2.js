@@ -24,10 +24,9 @@ const utils  = require("./../utils.js");
 const errors = require("./../errors/errors.js");
 
 module.exports = function(app) {
-  app.get("/", function(req, res, next) {
-    if (req.query.v2) {
+  app.get("/", async function(req, res, next) {
+    if (req.query.v2)
       return res.send(krist.makeV2Address(req.query.v2));
-    }
 
     next();
   });
@@ -48,10 +47,9 @@ module.exports = function(app) {
 	 *     "address": "kre3w0i79j"
      * }
 	 */
-  app.post("/v2", function(req, res) {
-    if (!req.body.privatekey) {
+  app.post("/v2", async function(req, res) {
+    if (!req.body.privatekey)
       return utils.sendErrorToRes(req, res, new errors.ErrorMissingParameter("privatekey"));
-    }
 
     res.json({
       ok: true,

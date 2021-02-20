@@ -437,9 +437,7 @@ module.exports = function(app) {
 
   // Error handler
   // eslint-disable-next-line no-unused-vars
-  api.use((err, req, res, next) => {
-    utils.sendErrorToRes(req, res, err);
-  });
+  api.use(async (err, req, res, next) => utils.sendErrorToRes(req, res, err));
 
   app.use("/lookup", api);
 };

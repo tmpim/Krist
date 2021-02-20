@@ -25,62 +25,45 @@ const errors    = require("./../errors/errors.js");
 
 function AddressesController() {}
 
-AddressesController.getAddresses = function(limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+AddressesController.getAddresses = async function(limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    addresses.getAddresses(limit, offset).then(resolve).catch(reject);
-  });
+  return addresses.getAddresses(limit, offset);
 };
 
-AddressesController.getRich = function(limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+AddressesController.getRich = async function(limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    addresses.getRich(limit, offset).then(resolve).catch(reject);
-  });
+  return addresses.getRich(limit, offset);
 };
 
-AddressesController.getAddress = function(address) {
-  return new Promise(function(resolve, reject) {
-    if (!krist.isValidKristAddress(address)) {
-      return reject(new errors.ErrorInvalidParameter("address"));
-    }
+AddressesController.getAddress = async function(address) {
+    if (!krist.isValidKristAddress(address))
+      throw new errors.ErrorInvalidParameter("address");
 
-    addresses.getAddress(address).then(function(result) {
-      if (!result) {
-        return reject(new errors.ErrorAddressNotFound());
-      }
+    const result = addresses.getAddress(address);
+    if (!result)
+      throw new errors.ErrorAddressNotFound();
 
-      resolve(result);
-    }).catch(reject);
-  });
+    return result;
 };
 
-AddressesController.getAlert = function(privatekey) {
-  return new Promise(function(resolve, reject) {
-    const address = krist.makeV2Address(privatekey);
+AddressesController.getAlert = async function(privatekey) {
+  const address = krist.makeV2Address(privatekey);
 
-    addresses.getAddress(address).then(function(result) {
-      if (!result) {
-        return reject(new errors.ErrorAddressNotFound());
-      }
+  const result = await addresses.getAddress(address);
+  if (!result)
+   throw new errors.ErrorAddressNotFound();
 
-      resolve(result.alert);
-    }).catch(reject);
-  });
+  return result.alert;
 };
 
 AddressesController.addressToJSON = function(address) {

@@ -34,7 +34,7 @@ module.exports = function(websockets) {
 	 *
 	 * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
 	 */
-  websockets.addMessageHandler("logout", function(ws) {
+  websockets.addMessageHandler("logout", async function(ws) {
     const { logDetails } = utils.getLogDetails(ws.req);
     console.log(chalk`{cyan [Websockets]} Session {bold ${ws.auth}} logged out ${logDetails}`);
 

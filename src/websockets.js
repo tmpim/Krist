@@ -139,7 +139,7 @@ WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pk
     }
   });
 
-  socket.on("message", function(message) {
+  socket.on("message", async function(message) {
     if (message.length > 512) {
       promWebsocketMessagesTotal.inc({ type: "invalid" });
       return socket.send(JSON.stringify({
@@ -182,17 +182,13 @@ WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pk
       });
     }
 
-    const response = Websockets.messageHandlers[type](ws, msg);
-    promWebsocketMessagesTotal.inc({ type });
-
-    if (response instanceof Promise) {
-      response.then(function(resp) {
-        Websockets.sendResponse(socket, msg, resp);
-      }).catch(function(err) {
-        Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
-      });
-    } else if (response) {
-      Websockets.sendResponse(socket, msg, response);
+    try {
+      const response = await Websockets.messageHandlers[type](ws, msg);
+      if (response) Websockets.sendResponse(socket, msg, response);
+    } catch(err) {
+      Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
+    } finally {
+      promWebsocketMessagesTotal.inc({ type });
     }
   });
 
@@ -387,10 +383,12 @@ try {
 }
 
 if (typeof process.env.WS_IPC_PATH === "string") {
-  Websockets.startIPC().catch(err => {
+  try {
+    Websockets.startIPC();
+  } catch(err) {
     console.error(chalk`{red [Websockets]} Error starting IPC:`);
     console.error(err);
-  });    
+  }
 }
 
 setInterval(function() {

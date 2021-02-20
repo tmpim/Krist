@@ -22,11 +22,9 @@
 const krist = require("./../krist.js");
 
 module.exports = function(app) {
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.getmoneysupply !== "undefined") {
-      krist.getMoneySupply().then(function(supply) {
-        res.send(supply);
-      });
+      res.send(await krist.getMoneySupply());
 
       return;
     }

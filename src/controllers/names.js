@@ -27,18 +27,14 @@ const errors    = require("./../errors/errors.js");
 
 function NamesController() {}
 
-NamesController.getNames = function(limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+NamesController.getNames = async function(limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    names.getNames(limit, offset).then(resolve).catch(reject);
-  });
+  return names.getNames(limit, offset);
 };
 
 NamesController.getName = async function(name) {
@@ -50,38 +46,28 @@ NamesController.getName = async function(name) {
   else throw new errors.ErrorNameNotFound();
 };
 
-NamesController.getUnpaidNames = function(limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+NamesController.getUnpaidNames = async function(limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    names.getUnpaidNames(limit, offset).then(resolve).catch(reject);
-  });
+  return names.getUnpaidNames(limit, offset);
 };
 
-NamesController.getNamesByAddress = function(address, limit, offset) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+NamesController.getNamesByAddress = async function(address, limit, offset) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    addresses.getAddress(address).then(function(addr) {
-      if (addr) {
-        names.getNamesByAddress(addr.address, limit, offset).then(resolve).catch(reject);
-      } else {
-        reject(new errors.ErrorAddressNotFound());
-      }
-    }).catch(reject);
-  });
+  const addr = await addresses.getAddress(address);
+  if (!addr)
+    throw new errors.ErrorAddressNotFound();
+  
+  return names.getNamesByAddress(addr.address, limit, offset);
 };
 
 NamesController.registerName = async function(req, desiredName, privatekey) {

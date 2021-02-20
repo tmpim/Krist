@@ -59,75 +59,70 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} blocks.time The time this block was submitted.
 	 */
 
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.lastblock !== "undefined") {
-      blocks.getLastBlock().then(function(block) {
-        res.send(block.hash.substring(0, 12));
-      });
+      const block = await blocks.getLastBlock();
+      res.send(block.hash.substring(0, 12));
 
       return;
     }
 
     if (typeof req.query.getbaseblockvalue !== "undefined") {
-      blocks.getLastBlock().then(function(block) {
-        res.send(blocks.getBaseBlockValue(block.id).toString());
-      });
+      const block = await blocks.getLastBlock();
+      res.send(blocks.getBaseBlockValue(block.id).toString());
 
       return;
     }
 
     if (req.query.getblockvalue) {
-      blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0)).then(function(block) {
-        if (!block) {
-          return res.send("50");
-        }
+      const block = await blocks.getBlock(Math.max(parseInt(req.query.getblockvalue), 0));
+    
+      if (!block)
+        return res.send("50");
 
-        res.send(block.value.toString());
-      });
+      res.send(block.value.toString());
 
       return;
     }
 
     if (typeof req.query.blocks !== "undefined") {
       if (typeof req.query.low !== "undefined") {
-        blocks.getBlocksByOrder([["hash", "ASC"]], 50).then(function(results) {
-          let out = "";
+        const results = await blocks.getBlocksByOrder([["hash", "ASC"]], 50);
+        let out = "";
 
-          results.rows.forEach(function (block) {
-            if (block.hash === null) return;
-            if (block.id === 1) return;
+        results.rows.forEach(function (block) {
+          if (block.hash === null) return;
+          if (block.id === 1) return;
 
-            out += moment(block.time).format("MMM DD").toString();
-            out += utils.padDigits(block.id, 6);
-            out += block.hash.substring(0, 20);
-          });
-
-          res.send(out);
+          out += moment(block.time).format("MMM DD").toString();
+          out += utils.padDigits(block.id, 6);
+          out += block.hash.substring(0, 20);
         });
+
+        res.send(out);
       } else {
-        blocks.getBlocks(50).then(function(results) {
-          let out = "";
+        const results = await blocks.getBlocks(50);
+        let out = "";
 
-          let k = false;
+        let k = false;
 
-          results.rows.forEach(function (block) {
-            if (block.hash === null) return;
-            if (block.id === 1) return;
+        results.rows.forEach(function (block) {
+          if (block.hash === null) return;
+          if (block.id === 1) return;
 
-            if (!k) {
-              out += utils.padDigits(block.id, 8);
-              out += moment(block.time).format("YYYY-MM-DD").toString();
+          if (!k) {
+            out += utils.padDigits(block.id, 8);
+            out += moment(block.time).format("YYYY-MM-DD").toString();
 
-              k  = true;
-            }
+            k  = true;
+          }
 
-            out += moment(block.time).format("HH:mm:ss").toString();
-            out += block.address.substring(0, 10);
-            out += block.hash.substring(0, 12);
-          });
-
-          res.send(out);
+          out += moment(block.time).format("HH:mm:ss").toString();
+          out += block.address.substring(0, 10);
+          out += block.hash.substring(0, 12);
         });
+
+        res.send(out);
       }
 
       return;
@@ -177,8 +172,9 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/blocks", function(req, res) {
-    blocksController.getBlocks(req.query.limit, req.query.offset, true).then(function(results) {
+  app.get("/blocks", async function(req, res) {
+    try {
+      const results = await blocksController.getBlocks(req.query.limit, req.query.offset, true);
       const out = [];
 
       results.rows.forEach(function(block) {
@@ -194,9 +190,9 @@ module.exports = function(app) {
         total: results.count,
         blocks: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -238,8 +234,9 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/blocks/latest", function(req, res) {
-    blocksController.getBlocks(req.query.limit, req.query.offset, false).then(function(results) {
+  app.get("/blocks/latest", async function(req, res) {
+    try {
+      const results = await blocksController.getBlocks(req.query.limit, req.query.offset, false);
       const out = [];
 
       results.rows.forEach(function(block) {
@@ -255,9 +252,9 @@ module.exports = function(app) {
         total: results.count,
         blocks: out
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -339,15 +336,16 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-  app.get("/blocks/last", function(req, res) {
-    blocksController.getLastBlock().then(function(block) {
+  app.get("/blocks/last", async function(req, res) {
+    try {
+      const block = await blocksController.getLastBlock();
       res.json({
         ok: true,
         block: blocksController.blockToJSON(block)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -368,12 +366,11 @@ module.exports = function(app) {
      *     "base_value": 12
      * }
 	 */
-  app.get("/blocks/basevalue", function(req, res) {
-    blocks.getLastBlock().then(function(block) {
-      res.json({
-        ok: true,
-        base_value: blocks.getBaseBlockValue(block.id)
-      });
+  app.get("/blocks/basevalue", async function(req, res) {
+    const block = await blocks.getLastBlock();
+    res.json({
+      ok: true,
+      base_value: blocks.getBaseBlockValue(block.id)
     });
   });
 
@@ -398,15 +395,13 @@ module.exports = function(app) {
      *     "base_value": 1
      * }
 	 */
-  app.get("/blocks/value", function(req, res) {
-    blocks.getLastBlock().then(function(block) {
-      blocks.getBlockValue().then(function (value) {
-        res.json({
-          ok: true,
-          value: value,
-          base_value: blocks.getBaseBlockValue(block.id)
-        });
-      });
+  app.get("/blocks/value", async function(req, res) {
+    const block = await blocks.getLastBlock();
+    const value = blocks.getBlockValue();
+    res.json({
+      ok: true,
+      value: value,
+      base_value: blocks.getBaseBlockValue(block.id)
     });
   });
 
@@ -433,15 +428,16 @@ module.exports = function(app) {
      *     }
      * }
 	 */
-  app.get("/blocks/:height", function(req, res) {
-    blocksController.getBlock(req.params.height).then(function(block) {
+  app.get("/blocks/:height", async function(req, res) {
+    try {
+      const block = await blocksController.getBlock(req.params.height);
       res.json({
         ok: true,
         block: blocksController.blockToJSON(block)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   return app;

@@ -22,10 +22,9 @@
 const krist = require("./../krist.js");
 
 module.exports = function(app) {
-  app.get("/", function(req, res, next) {
-    if (typeof req.query.getwalletversion !== "undefined") {
+  app.get("/", async function(req, res, next) {
+    if (typeof req.query.getwalletversion !== "undefined")
       return res.send(krist.getWalletVersion().toString());
-    }
 
     next();
   });
@@ -44,7 +43,7 @@ module.exports = function(app) {
      *     "walletVersion": 14
      * }
 	 */
-  app.get("/walletversion", function(req, res) {
+  app.get("/walletversion", async function(req, res) {
     res.header("Content-Type", "application/json");
 
     res.json({

@@ -25,9 +25,8 @@ const names = require("./../names.js");
 
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
-    if (typeof req.query.getwork !== "undefined") {
+    if (typeof req.query.getwork !== "undefined")
       return res.send((await krist.getWork()).toString());
-    }
 
     next();
   });

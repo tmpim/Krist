@@ -113,8 +113,9 @@ module.exports = function(app) {
      *     "parameter": "nonce"
      * }
 	 */
-  app.post("/submit", function(req, res) {
-    blocksController.submitBlock(req, req.body.address, req.body.nonce).then(function(result) {
+  app.post("/submit", async function(req, res) {
+    try {
+      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce);
       res.json({
         ok: true,
         success: true,
@@ -122,7 +123,7 @@ module.exports = function(app) {
         address: addressesController.addressToJSON(result.address),
         block: blocksController.blockToJSON(result.block)
       });
-    }).catch(function(error) {
+    } catch(error) {
       if (error instanceof errors.ErrorSolutionIncorrect) {
         res.json({
           ok: true,
@@ -131,7 +132,7 @@ module.exports = function(app) {
       } else {
         utils.sendErrorToRes(req, res, error);
       }
-    });
+    }
   });
 
   return app;

@@ -27,56 +27,41 @@ const errors       = require("./../errors/errors.js");
 
 function TransactionsController() {}
 
-TransactionsController.getTransactions = function (limit, offset, asc, includeMined) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+TransactionsController.getTransactions = async function (limit, offset, asc, includeMined) {
+    if ((limit && isNaN(limit)) || (limit && limit <= 0))
+      throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+    if ((offset && isNaN(offset)) || (offset && offset < 0))
+      throw new errors.ErrorInvalidParameter("offset");
 
-    transactions.getTransactions(limit, offset, asc, includeMined).then(resolve).catch(reject);
-  });
+    return transactions.getTransactions(limit, offset, asc, includeMined);
 };
 
-TransactionsController.getTransactionsByAddress = function(address, limit, offset, includeMined) {
-  return new Promise(function(resolve, reject) {
-    if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
-      return reject(new errors.ErrorInvalidParameter("limit"));
-    }
+TransactionsController.getTransactionsByAddress = async function(address, limit, offset, includeMined) {
+  if ((limit && isNaN(limit)) || (limit && limit <= 0))
+    throw new errors.ErrorInvalidParameter("limit");
 
-    if ((offset && isNaN(offset)) || (offset && offset < 0)) {
-      return reject(new errors.ErrorInvalidParameter("offset"));
-    }
+  if ((offset && isNaN(offset)) || (offset && offset < 0))
+    throw new errors.ErrorInvalidParameter("offset");
 
-    addresses.getAddress(address).then(function(addr) {
-      if (addr) {
-        transactions.getTransactionsByAddress(addr.address, limit, offset, includeMined).then(resolve).catch(reject);
-      } else {
-        reject(new errors.ErrorAddressNotFound());
-      }
-    }).catch(reject);
-  });
+  const addr = await addresses.getAddress(address)
+  if (!addr)
+    throw new errors.ErrorAddressNotFound();
+  
+  return transactions.getTransactionsByAddress(addr.address, limit, offset, includeMined)
 };
 
-TransactionsController.getTransaction = function(id) {
-  return new Promise(function(resolve, reject) {
-    if (isNaN(id)) {
-      return reject(new errors.ErrorInvalidParameter("id"));
-    }
+TransactionsController.getTransaction = async function(id) {
+  if (isNaN(id))
+    throw new errors.ErrorInvalidParameter("id");
 
-    id = Math.max(parseInt(id), 0);
+  id = Math.max(parseInt(id), 0);
 
-    transactions.getTransaction(id).then(function(result) {
-      if (!result) {
-        return reject(new errors.ErrorTransactionNotFound());
-      }
-
-      resolve(result);
-    }).catch(reject);
-  });
+  const result = await transactions.getTransaction(id)
+  if (!result)
+    throw new errors.ErrorTransactionNotFound();
+  
+  return result;
 };
 
 TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata) {

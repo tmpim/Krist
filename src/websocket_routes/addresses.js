@@ -35,14 +35,11 @@ module.exports = function(websockets) {
 	 * @apiUse Address
 	 */
 
-  websockets.addMessageHandler("address", function(ws, message) {
-    return new Promise(function(resolve, reject) {
-      addr.getAddress(message.address).then(function(address) {
-        resolve({
-          ok: true,
-          address: addr.addressToJSON(address)
-        });
-      }).catch(reject);
-    });
+  websockets.addMessageHandler("address", async function(ws, message) {
+    const address = await addr.getAddress(message.address)
+    return {
+      ok: true,
+      address: addr.addressToJSON(address)
+    }
   });
 };

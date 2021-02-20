@@ -48,10 +48,9 @@ module.exports = function(app) {
 	 *     "authed": false
      * }
 	 */
-  app.post("/login", function(req, res) {
-    if (!req.body.privatekey) {
+  app.post("/login", async function(req, res) {
+    if (!req.body.privatekey)
       return utils.sendErrorToRes(req, res, new errors.ErrorMissingParameter("privatekey"));
-    }
 
     const v = parseInt(req.query.v) || 2;
     let address;
@@ -67,20 +66,19 @@ module.exports = function(app) {
       return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter("v"));
     }
 
-    addresses.verify(req, address, req.body.privatekey).then(function(results) {
-      if (results.authed) {
-        return res.json({
-          ok: true,
-          authed: true,
-          address: results.address.address
-        });
-      } else {
-        return res.json({
-          ok: true,
-          authed: false
-        });
-      }
-    });
+    const results = await addresses.verify(req, address, req.body.privatekey);
+    if (results.authed) {
+      return res.json({
+        ok: true,
+        authed: true,
+        address: results.address.address
+      });
+    } else {
+      return res.json({
+        ok: true,
+        authed: false
+      });
+    }
   });
 
   return app;

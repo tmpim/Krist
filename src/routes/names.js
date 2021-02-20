@@ -56,41 +56,38 @@ module.exports = function(app) {
 	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
 	 */
 
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.dumpnames !== "undefined") {
-      names.getNames().then(function(results) {
-        let out = "";
+      const results = await names.getNames();
+      let out = "";
 
-        results.rows.forEach(function(name) {
-          out += name.name + ";";
-        });
-
-        res.send(out);
+      results.rows.forEach(function(name) {
+        out += name.name + ";";
       });
+
+      res.send(out);
 
       return;
     }
 
     if (req.query.a) {
-      names.getNameByName(req.query.a).then(function (name) {
-        if (name) {
-          res.send(name.a);
-        } else {
-          res.send("");
-        }
-      });
+      const name = await names.getNameByName(req.query.a);
+      if (name) {
+        res.send(name.a);
+      } else {
+        res.send("");
+      }
 
       return;
     }
 
     if (req.query.getowner) {
-      names.getNameByName(req.query.getwoenr).then(function (name) {
-        if (name) {
-          res.send(name.owner);
-        } else {
-          res.send("");
-        }
-      });
+      const name = await names.getNameByName(req.query.getowner);
+      if (name) {
+        res.send(name.owner);
+      } else {
+        res.send("");
+      }
 
       return;
     }
@@ -100,57 +97,50 @@ module.exports = function(app) {
     }
 
     if (typeof req.query.namebonus !== "undefined") {
-      names.getUnpaidNameCount().then(function(count) {
-        res.send(count.toString());
-      });
+      res.send((await names.getUnpaidNameCount()).toString())
 
       return;
     }
 
     if (req.query.getnames) {
-      addresses.getAddress(req.query.getnames).then(function(address) {
-        if (address) {
-          names.getNameCountByAddress(address.address).then(function(count) {
-            res.send(count.toString());
-          });
-        } else {
-          res.send("0");
-        }
-      });
+      const address = await addresses.getAddress(req.query.getnames);
+      if (address) {
+        const count = await names.getNameCountByAddress(address.address);
+        res.send(count.toString());
+      } else {
+        res.send("0");
+      }
 
       return;
     }
 
     if (req.query.listnames) {
-      addresses.getAddress(req.query.listnames).then(function(address) {
-        if (address) {
-          names.getNamesByAddress(address.address).then(function(results) {
-            let out = "";
+      const address = await addresses.getAddress(req.query.listnames);
+      if (address) {
+        const results = await names.getNamesByAddress(address.address);
+        let out = "";
 
-            results.rows.forEach(function(name) {
-              out += name.name + ";";
-            });
+        results.rows.forEach(function(name) {
+          out += name.name + ";";
+        });
 
-            res.send(out);
-          });
-        } else {
-          res.send("Error4");
-        }
-      });
+        res.send(out);
+      } else {
+        res.send("Error4");
+      }
 
       return;
     }
 
     if (typeof req.query.getnewdomains !== "undefined") {
-      names.getUnpaidNames().then(function(results) {
-        let out = "";
+      const results = await names.getUnpaidNames();
+      let out = "";
 
-        results.forEach(function(name) {
-          out += name.name + ";";
-        });
-
-        res.send(out);
+      results.forEach(function(name) {
+        out += name.name + ";";
       });
+
+      res.send(out);
 
       return;
     }
@@ -160,13 +150,12 @@ module.exports = function(app) {
         return res.send("0");
       }
 
-      names.getNameByName(req.query.name_check).then(function (name) {
-        if (name) {
-          res.send("0");
-        } else {
-          res.send("01"); // look at Taras's code and you'll know why :^)
-        }
-      });
+      const name = await names.getNameByName(req.query.name_check);
+      if (name) {
+        res.send("0");
+      } else {
+        res.send("01"); // look at Taras's code and you'll know why :^)
+      }
 
       return;
     }
@@ -178,32 +167,29 @@ module.exports = function(app) {
 
       const desiredName = req.query.name.toLowerCase();
 
-      names.getNameByName(desiredName).then(function(name) {
-        if (name) {
-          res.send("Error5");
-        } else {
-          addresses.verify(req, krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
-            const authed = results.authed;
-            const address = results.address;
+      const name = await names.getNameByName(desiredName);
+      if (name) {
+        res.send("Error5");
+      } else {
+        const results = await addresses.verify(req, krist.makeV2Address(req.query.pkey), req.query.pkey);
+        const authed = results.authed;
+        const address = results.address;
 
-            if (!authed) {
-              return res.send("Access denied");
-            }
-
-            if (address.balance < names.getNameCost()) {
-              return res.send("Error1");
-            }
-
-            address.decrement({balance: names.getNameCost()});
-            address.increment({totalout: names.getNameCost()});
-
-            tx.createTransaction("name", address.address, names.getNameCost(), desiredName, null);
-            names.createName(desiredName, address.address).then(function () {
-              res.send("Success");
-            });
-          });
+        if (!authed) {
+          return res.send("Access denied");
         }
-      });
+
+        if (address.balance < names.getNameCost()) {
+          return res.send("Error1");
+        }
+
+        address.decrement({balance: names.getNameCost()});
+        address.increment({totalout: names.getNameCost()});
+
+        tx.createTransaction("name", address.address, names.getNameCost(), desiredName, null);
+        await names.createName(desiredName, address.address);
+        res.send("Success");
+      }
 
       return;
     }
@@ -219,34 +205,29 @@ module.exports = function(app) {
 
       const currentOwner = krist.makeV2Address(req.query.pkey);
 
-      addresses.verify(req, currentOwner, req.query.pkey).then(function(results) {
-        const authed = results.authed;
+      const results = await addresses.verify(req, currentOwner, req.query.pkey);
+      const authed = results.authed;
 
-        if (!authed) {
-          return res.send("Access denied");
-        }
+      if (!authed) {
+        return res.send("Access denied");
+      }
 
-        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-          if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
-            res.send(req.query.name.toLowerCase());
+      const name = await names.getNameByName(req.query.name.toLowerCase());
+      if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
+        res.send(req.query.name.toLowerCase());
 
-            return;
-          }
+        return;
+      }
 
-          const promises = [];
-
-          promises.push(name.update({
-            owner: req.query.q.toLowerCase(),
-            updated: new Date()
-          }));
-
-          promises.push(tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name));
-
-          Promise.all(promises).then(function () {
-            res.send("Success");
-          });
-        });
-      });
+      await Promise.all([
+        name.update({
+          owner: req.query.q.toLowerCase(),
+          updated: new Date()
+        }),
+        tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name)
+      ])
+      
+      res.send("Success");
 
       return;
     }
@@ -262,28 +243,22 @@ module.exports = function(app) {
 
       const owner = krist.makeV2Address(req.query.pkey);
 
-      addresses.verify(req, owner, req.query.pkey).then(function(results) {
-        const authed = results.authed;
+      const results = await addresses.verify(req, owner, req.query.pkey);
+      const authed = results.authed;
 
-        if (!authed) {
-          return res.send("Access denied");
-        }
+      if (!authed) {
+        return res.send("Access denied");
+      }
 
-        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-          if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
-            return res.send(req.query.name.toLowerCase());
-          }
+      const name = await names.getNameByName(req.query.name.toLowerCase());
+      if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
+        return res.send(req.query.name.toLowerCase());
+      }
 
-          name.update({
-            a: req.query.ar,
-            updated: new Date()
-          }).then(function () {
-            res.send("Success");
-          });
+      await name.update({ a: req.query.ar, updated: new Date()})
+      res.send("Success");
 
-          tx.createTransaction("a", owner.toLowerCase(), 0, name.name);
-        });
-      });
+      tx.createTransaction("a", owner.toLowerCase(), 0, name.name);
 
       return;
     }
@@ -291,23 +266,15 @@ module.exports = function(app) {
     next();
   });
 
-  app.get("/names/check/:name", function(req, res) {
+  app.get("/names/check/:name", async function(req, res) {
     if (!krist.isValidName(req.params.name)) {
       return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter("name"));
     }
 
-    names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
-      if (name) {
-        res.json({
-          ok: true,
-          available: false
-        });
-      } else {
-        res.json({
-          ok: true,
-          available: true
-        });
-      }
+    const name = await names.getNameByName(req.params.name.toLowerCase());
+    res.json({
+      ok: true,
+      available: !name
     });
   });
 
@@ -325,7 +292,7 @@ module.exports = function(app) {
 	 *     "name_cost": 500
      * }
 	 */
-  app.get("/names/cost", function(req, res) {
+  app.get("/names/cost", async function(req, res) {
     res.json({
       ok: true,
       name_cost: names.getNameCost()
@@ -349,12 +316,11 @@ module.exports = function(app) {
 	 *     "name_bonus": 12
      * }
 	 */
-  app.get("/names/bonus", function(req, res) {
-    names.getUnpaidNameCount().then(function(count) {
-      res.json({
-        ok: true,
-        name_bonus: count
-      });
+  app.get("/names/bonus", async function(req, res) {
+    const count = await names.getUnpaidNameCount();
+    res.json({
+      ok: true,
+      name_bonus: count
     });
   });
 
@@ -393,23 +359,22 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/names", function(req, res) {
-    namesController.getNames(req.query.limit, req.query.offset).then(function(results) {
-      const out = [];
+  app.get("/names", async function(req, res) {
+    try {
+      const results = await namesController.getNames(req.query.limit, req.query.offset);
+      const names = [];
 
-      results.rows.forEach(function(name) {
-        out.push(namesController.nameToJSON(name));
-      });
+      results.rows.forEach(name => names.push(namesController.nameToJSON(name)));
 
       res.json({
         ok: true,
-        count: out.length,
+        count: names.length,
         total: results.count,
-        names: out
+        names
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -450,23 +415,22 @@ module.exports = function(app) {
      *         },
 	 *  	   ...
 	 */
-  app.get("/names/new", function(req, res) {
-    namesController.getUnpaidNames(req.query.limit, req.query.offset).then(function(results) {
-      const out = [];
+  app.get("/names/new", async function(req, res) {
+    try {
+      const results = await namesController.getUnpaidNames(req.query.limit, req.query.offset);
+      const names = [];
 
-      results.rows.forEach(function(name) {
-        out.push(namesController.nameToJSON(name));
-      });
+      results.rows.forEach(name => names.push(namesController.nameToJSON(name)));
 
       res.json({
         ok: true,
-        count: out.length,
+        count: names.length,
         total: results.count,
-        names: out
+        names
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
   /**
@@ -537,14 +501,15 @@ module.exports = function(app) {
 	 *     "parameter": "name"
 	 * }
 	 */
-  app.post("/names/:name", function(req, res) {
-    namesController.registerName(req, req.params.name, req.body.privatekey).then(function() {
+  app.post("/names/:name", async function(req, res) {
+    try {
+      await namesController.registerName(req, req.params.name, req.body.privatekey);
       res.json({
         ok: true
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
 
@@ -586,26 +551,28 @@ module.exports = function(app) {
 	 *     "error": "not_name_owner"
 	 * }
 	 */
-  app.post("/names/:name/transfer", function(req, res) {
-    namesController.transferName(req, req.params.name, req.body.privatekey, req.body.address).then(function(name) {
+  app.post("/names/:name/transfer", async function(req, res) {
+    try {
+      const name = await namesController.transferName(req, req.params.name, req.body.privatekey, req.body.address);
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
-  function updateName(req, res) {
-    namesController.updateName(req, req.params.name, req.body.privatekey, req.body.a).then(function(name) {
+  async function updateName(req, res) {
+    try {
+      const name = await namesController.updateName(req, req.params.name, req.body.privatekey, req.body.a);
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)
       });
-    }).catch(function(error) {
+    } catch(error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   }
 
   /**

@@ -78,21 +78,17 @@ module.exports = function(websockets) {
      * }
 	 */
 
-  websockets.addMessageHandler("submit_block", function(ws, message) {
-    return new Promise(function(resolve, reject) {
-      if (ws.isGuest && !message.address) {
-        return reject(new errors.ErrorMissingParameter("address"));
-      }
+  websockets.addMessageHandler("submit_block", async function(ws, message) {
+    if (ws.isGuest && !message.address)
+      throw new errors.ErrorMissingParameter("address");
 
-      blocksController.submitBlock(ws.req, message.address || ws.auth, message.nonce).then(function(result) {
-        resolve({
-          ok: true,
-          success: true,
-          work: result.work,
-          address: addressesController.addressToJSON(result.address),
-          block: blocksController.blockToJSON(result.block)
-        });
-      }).catch(reject);
-    });
+    const result = await blocksController.submitBlock(ws.req, message.address || ws.auth, message.nonce)
+    return {
+      ok: true,
+      success: true,
+      work: result.work,
+      address: addressesController.addressToJSON(result.address),
+      block: blocksController.blockToJSON(result.block)
+    }
   });
 };

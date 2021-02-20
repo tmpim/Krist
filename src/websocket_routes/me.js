@@ -55,24 +55,19 @@ module.exports = function(websockets) {
 	 *     }
      * }
 	 */
-  websockets.addMessageHandler("me", function(ws) {
-    return new Promise(function(resolve, reject) {
-      if (ws.isGuest) {
-        resolve({
-          ok: true,
-          isGuest: true
-        });
-      } else {
-        addresses.getAddress(ws.auth).then(function(address) {
-          resolve({
-            ok: true,
-            isGuest: false,
-            address: addresses.addressToJSON(address)
-          });
-        }).catch(function(error) {
-          reject(error);
-        });
+  websockets.addMessageHandler("me", async function(ws) {
+    if (ws.isGuest) {
+      return {
+        ok: true,
+        isGuest: true
       }
-    });
+    } else {
+      const address = await addresses.getAddress(ws.auth)
+      return {
+        ok: true,
+        isGuest: false,
+        address: addresses.addressToJSON(address)
+      }
+    }
   });
 };
