@@ -1,6 +1,6 @@
 {
   "name": "krist",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "The new Krist node written in node.js.",
   "main": "index.js",
   "scripts": {
@@ -59,6 +59,9 @@
       "GetLastBlock",
       "GetBaseValue",
       "GetValue",
+      "GetWork",
+      "GetWorkDay",
+      "GetWorkDetailed",
       "SubmitBlock",
       "TransactionGroup",
       "GetTransactions",

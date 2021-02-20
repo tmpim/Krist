@@ -22,8 +22,9 @@
 const utils      = require("./utils.js");
 const constants  = require("./constants.js");
 const schemas    = require("./schemas.js");
+const database   = require("./database.js");
 const websockets = require("./websockets.js");
-const { Op }     = require("sequelize");
+const { Op, QueryTypes } = require("sequelize");
 
 const promClient = require("prom-client");
 const promNamesPurchasedCounter = new promClient.Counter({
@@ -48,6 +49,14 @@ Names.lookupNames = function(addressList, limit, offset, orderBy, order) {
     offset: utils.sanitiseOffset(offset),
     where: { owner: {[Op.in]: addressList} },
   });
+};
+
+Names.getDetailedUnpaid = function() {
+  return database.getSequelize().query(`
+    SELECT COUNT(*) AS \`count\`, \`unpaid\` FROM \`names\`
+    GROUP BY \`unpaid\`
+    ORDER BY \`unpaid\` ASC;
+  `, { type: QueryTypes.SELECT });
 };
 
 Names.getNameCountByAddress = function(address) {

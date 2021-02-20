@@ -133,7 +133,7 @@ module.exports = function(app) {
 	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
    * 
-	 * @apiParam (QueryParameter) {String[]} fetchNames When supplied, fetch the 
+	 * @apiParam (QueryParameter) {Boolean} fetchNames When supplied, fetch the 
    *           count of owned names for each address.
    * 
    * @apiSuccess {Number} found The amount of addresses that were successfully
