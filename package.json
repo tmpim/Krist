@@ -43,6 +43,7 @@
     "chai": "^4.3.0",
     "chai-http": "^4.3.0",
     "mocha": "^8.3.0",
+    "sinon": "^9.2.4",
     "websocket": "^1.0.33",
     "websocket-as-promised": "^2.0.1"
   },

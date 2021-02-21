@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "Krist's",
     "Lemmy",
     "MOTD",
     "apidoc",
@@ -20,6 +21,7 @@
     "lpush",
     "lrange",
     "ltrim",
+    "metanames",
     "octokit",
     "richapi",
     "sanitise",

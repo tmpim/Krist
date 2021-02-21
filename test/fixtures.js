@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const chai     = require("chai");
 const chaiHttp = require("chai-http");
+const sinon    = require("sinon");
 
 const chalk = require("chalk");
 
@@ -27,4 +28,17 @@ exports.mochaGlobalTeardown = async function() {
   // Clear timers (require here to avoid circular dependency issues)
   clearInterval(require("../src/krist.js").workOverTimeInterval);
   clearInterval(require("../src/websockets.js").keepaliveInterval);
+};
+
+exports.mochaHooks = {
+  beforeEach(done) {
+    // Suppress Krist's rather verbose logging during tests
+    sinon.stub(console, "log");
+    done();
+  },
+  
+  afterEach(done) {
+    console.log.restore();
+    done();
+  }
 };
