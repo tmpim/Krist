@@ -14,6 +14,7 @@ jobs:
           MYSQL_USER: test_krist
           MYSQL_DATABASE: test_krist
           MYSQL_PASSWORD: test_krist
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
