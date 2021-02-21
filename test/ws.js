@@ -1,3 +1,5 @@
+const chalk = require("chalk");
+
 const WebSocketAsPromised = require("websocket-as-promised");
 const W3CWebSocket = require("websocket").w3cwebsocket;
 
@@ -7,7 +9,7 @@ class WrappedWebsocket {
   constructor(url, init) {
     this.url = url;
 
-    this.messageID = 0;
+    this.messageID = 1;
     this.messageResponses = {};
 
     this.wsp = new WebSocketAsPromised(url, {
@@ -26,17 +28,21 @@ class WrappedWebsocket {
   handleMessage(data) {
     if (data.id) {
       const handler = this.messageResponses[data.id];
-      if (!handler) return;
+      if (!handler) {
+        console.error(chalk`{red [Tests]} Websocket message had id {bold ${data.id}} (type: {bold ${typeof data.id}}) which we did not have a handler for!`, data);
+        return;
+      }
+
       handler.resolve(data);
       delete this.messageResponses[data.id];
     }
   }
 
   sendAndWait(data) {
-    const id = ++this.messageID;
-    const message = { id, ...data }; // Allow 'data' to overwrite the ID
+    return new Promise((resolve, reject) => {      
+      const id = ++this.messageID;
+      const message = { id, ...data }; // Allow 'data' to overwrite the ID      
 
-    return new Promise((resolve, reject) => {
       this.messageResponses[id] = { resolve, reject };
       this.wsp.sendPacked(message);
     });

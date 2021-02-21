@@ -226,8 +226,158 @@ describe("v2 routes: names", () => {
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "k8juvewcui", name: "test", value: 0 });
     });
+
+    it("should not have changed the old owner's balance", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const address = await schemas.address.findOne({ where: { address: "k0duvsr4qn" }});
+      expect(address).to.exist;
+      expect(address).to.deep.include({ balance: 24500 });
+    });
+
+    it("should not have changed the new owner's balance", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
+      expect(address).to.exist;
+      expect(address).to.deep.include({ balance: 10 });
+    });
   });
 
-  // TODO: POST /names/:name/update
-  // TODO: PUT /names/:name
+  const nameUpdateValidation = (route, method) => () => {
+    it("should require a privatekey", async () => {
+      const res = await api()[method]("/names/test" + route);
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "privatekey" });
+    });
+
+    it("should reject long names", async () => {
+      const res = await api()[method]("/names/" + "a".repeat(65) + route)
+        .send({ privatekey: "a" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
+    });
+
+    it("should reject names with invalid characters", async () => {
+      const invalidNames = ["test.kst", " ", "te st", "_"];
+      for (const name of invalidNames) { 
+        const res = await api()[method]("/names/" + encodeURIComponent(name) + route)
+          .send({ privatekey: "a" });
+          
+        expect(res).to.be.json;
+        expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
+      }
+    });
+
+    it("should reject invalid a records", async () => {
+      const invalidRecords = ["#foo", "?foo", "foo bar", " foo", "foo ", "a".repeat(256)];
+      for (const record of invalidRecords) { 
+        const res = await api()[method]("/names/test" + route)
+          .send({ privatekey: "a", a: record });
+          
+        expect(res).to.be.json;
+        expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "a" });
+      }
+    });
+
+    it("should not update when auth fails", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "c" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "auth_failed" });
+    });
+
+    it("should reject when the name does not exist", async () => {
+      const res = await api()[method]("/names/notfound" + route)
+        .send({ privatekey: "d", address: "k8juvewcui" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
+    });
+
+    it("should reject when not the owner of the name", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "b", address: "k8juvewcui" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "not_name_owner" });
+    });
+  };
+  
+  const nameUpdate = (route, method) => () => {
+    it("should update a name's a record", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "a", a: "example.com" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com" });
+      expect(res.body.name.updated).to.be.ok;
+    });
+
+    it("should exist in the database", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const name = await schemas.name.findOne();
+      expect(name).to.exist;
+      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com" });
+    });
+
+    it("should have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "example.com", value: 0 });
+    });
+
+    it("should not have changed the owner's balance", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
+      expect(address).to.exist;
+      expect(address).to.deep.include({ balance: 10 });
+    });
+
+    it("should remove a name's a record", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "a" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "" });
+      expect(res.body.name.updated).to.be.ok;
+    });
+
+    it("should exist in the database", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const name = await schemas.name.findOne();
+      expect(name).to.exist;
+      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "" });
+    });
+
+    it("should have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "", value: 0 });
+    });
+
+    it("should not have changed the owner's balance", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
+      expect(address).to.exist;
+      expect(address).to.deep.include({ balance: 10 });
+    });
+  };
+
+  describe("POST /names/:name/update - validation", nameUpdateValidation("/update", "post"));
+  describe("POST /names/:name/update", nameUpdate("/update", "post"));
+  describe("PUT /names/:name - validation", nameUpdateValidation("", "put"));
+  describe("PUT /names/:name", nameUpdate("", "put"));
 });

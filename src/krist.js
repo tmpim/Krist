@@ -161,7 +161,7 @@ Krist.isValidName = function(name) {
 };
 
 Krist.isValidARecord = function(ar) {
-  return aRecordRegex.test(ar);
+  return ar.length > 0 && ar.length <= 255 && aRecordRegex.test(ar);
 };
 
 Krist.getMOTD = async function() {
