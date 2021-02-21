@@ -18,6 +18,12 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
 
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=10s --health-retries=10
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
@@ -32,3 +38,4 @@ jobs:
         run: npm test
         env: 
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          REDIS_PORT: ${{ job.services.redis.ports[3306] }}
