@@ -1,6 +1,6 @@
 name: Test Krist
 
-on: push
+on: [push, pull_request]
 
 jobs:
   test:
@@ -8,14 +8,14 @@ jobs:
     container: node:15
 
     services:
-      mysql:
+      mariadb:
         image: mariadb:10.4
         env:
           MYSQL_USER: test_krist
           MYSQL_DATABASE: test_krist
-          MYSQL_PASSWORD: test_krist
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
-          - 3306
+          - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
 
     steps:
@@ -31,4 +31,4 @@ jobs:
       - name: Run tests
         run: npm test
         env: 
-          TEST_DB_PASS: test_krist
+          DB_PORT: ${{ job.services.mariadb.ports[3306] }}
