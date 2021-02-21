@@ -12,6 +12,8 @@ describe("v1 routes: transactions", () => {
 });
 
 describe("v2 routes: transactions", () => {
+  before(seed);
+  
   // TODO: GET /transactions
   // TODO: GET /transactions/latest
   // TODO: GET /transactions/:id

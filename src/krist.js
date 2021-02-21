@@ -50,7 +50,7 @@ Krist.init = async function() {
   // Check if mining is enabled
   const r = getRedis();
   if (!await r.exists("mining-enabled")) {
-    console.log(chalk`{yellow.bold [Krist]} Note: Initialised with mining enabled.`);
+    console.log(chalk`{yellow.bold [Krist]} Note: Initialised with mining disabled.`);
     await r.set("mining-enabled", "false");
   } else {
     const miningEnabled = await Krist.isMiningEnabled();

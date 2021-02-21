@@ -78,9 +78,9 @@ The following optional environment variables may also be specified:
 | `DB_PORT` | `3306` | The port of the database. |
 | `DB_NAME` | `krist` | The name of the database. |
 | `DB_USER` | `krist` | The username of the database user. |
-| `TEST_DB_NAME` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the name of the database. |
-| `TEST_DB_USER` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the username of the database user. |
-| `TEST_DB_PASS` |  | *Required for testing*. If `NODE_ENV` is `test` (e.g. running Jest), the password of the database user. |
+| `TEST_DB_NAME` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test`, the name of the database. |
+| `TEST_DB_USER` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test`, the username of the database user. |
+| `TEST_DB_PASS` |  | *Required for testing*. If `NODE_ENV` is `test`, the password of the database user. |
 | `WEB_LISTEN` | `8080` | The port that the webserver listens on. |
 | `REDIS_HOST` | `127.0.0.1` | The hostname of the redis server. |
 | `REDIS_PORT` | `6379` | The port of the redis server. |

@@ -117,16 +117,20 @@ const AuthLog = database.getSequelize().define("authlog", {
   ]
 });
 
-Address.sync();
-Block.sync();
-Name.sync();
-Transaction.sync();
-AuthLog.sync();
-
 module.exports = {
   address: Address,
   block: Block,
   name: Name,
   transaction: Transaction,
   authLog: AuthLog,
+
+  sync(force) {
+    return Promise.all([
+      Address.sync({ force }),
+      Block.sync({ force }),
+      Name.sync({ force }),
+      Transaction.sync({ force }),
+      AuthLog.sync({ force })
+    ]);
+  }
 };

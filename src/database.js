@@ -56,6 +56,9 @@ Database.init = async function() {
   try {
     await Database.sequelize.authenticate();
     console.log(chalk`{green [DB]} Connected`);
+    
+    await require("./schemas").sync();
+    console.log(chalk`{green [DB]} Synced schemas`);
   } catch (error) {
     console.error(error);
   }

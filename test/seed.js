@@ -18,7 +18,7 @@ module.exports = {
 
     // Clear the databases
     if (debug) console.log(chalk`{red [Tests]} Clearing the database {bold ${sq.getDatabaseName()}}`);
-    await sq.sync({ force: true });
+    await require("../src/schemas").sync(true);
 
     if (debug) console.log(chalk`{red [Tests]} Seeding the database {bold ${sq.getDatabaseName()}}`);
     await Promise.all([
@@ -48,7 +48,7 @@ module.exports = {
     if (debug) console.log(chalk`{red [Tests]} Clearing {bold ${redisKeys.length}} redis keys with prefix {bold ${redisPrefix}}`);
     await Promise.all(redisKeys.map(key => r.del(key)));
 
-    // Set the work to 100,000
     await r.set("work", 100000);
+    await r.set("mining-enabled", "true");
   }
 };

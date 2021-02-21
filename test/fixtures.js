@@ -17,6 +17,8 @@ exports.mochaGlobalSetup = async function() {
   redis.init();
   await database.init();
   await webserver.init();
+
+  await require("../src/krist.js").init();
 };
 
 exports.mochaGlobalTeardown = async function() {
@@ -33,12 +35,12 @@ exports.mochaGlobalTeardown = async function() {
 exports.mochaHooks = {
   beforeEach(done) {
     // Suppress Krist's rather verbose logging during tests
-    sinon.stub(console, "log");
+    if (!process.env.TEST_DEBUG) sinon.stub(console, "log");
     done();
   },
   
   afterEach(done) {
-    console.log.restore();
+    if (!process.env.TEST_DEBUG) console.log.restore();
     done();
   }
 };

@@ -100,7 +100,7 @@ BlocksController.submitBlock = async function(req, address, rawNonce) {
   if (!krist.isValidKristAddress(address)) 
     throw new errors.ErrorInvalidParameter("address");
 
-  if (!rawNonce) throw new errors.ErrorMissingParameter("rawNonce");
+  if (!rawNonce) throw new errors.ErrorMissingParameter("nonce");
   if (rawNonce.length < 1 || rawNonce.length > constants.nonceMaxSize)
     throw new errors.ErrorInvalidParameter("nonce");
 
