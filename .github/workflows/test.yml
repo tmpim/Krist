@@ -34,5 +34,7 @@ jobs:
       - name: Run tests
         run: npm test
         env: 
+          DB_HOST: mariadb
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          REDIS_HOST: redis
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
