@@ -83,7 +83,7 @@ describe("v2 routes: submission", () => {
     });
   });
 
-  describe("POST /submit - successful", () => {
+  describe("POST /submit", () => {
     it("should submit a block", async () => {
       const res = await api()
         .post("/submit")
@@ -148,6 +148,30 @@ describe("v2 routes: submission", () => {
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697"
       });
+    });
+
+    it("should reset the database", seed);
+
+    it("should decrease unpaid names", async () => {
+      const schemas = require("../../src/schemas");
+      
+      const name = await schemas.name.create({ name: "test", owner: "k0duvsr4qn", registered: new Date(), unpaid: 500 });
+      expect(name).to.exist;
+      expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500 });
+
+      const res = await api()
+        .post("/submit")
+        .send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
+
+      expect(res).to.have.status(200);
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, success: true });
+
+      expect(res.body.block).to.deep.include({ height: 2, value: 26 });
+
+      await name.reload();
+
+      expect(name.unpaid).to.equal(499);
     });
   });  
 });

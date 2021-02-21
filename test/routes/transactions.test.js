@@ -79,7 +79,7 @@ describe("v2 routes: transactions", () => {
     it("should error with a non-existent sender", async () => {
       const res = await api()
         .post("/transactions")
-        .send({ amount: 1, to: "k7oax47quv", privatekey: "d" });
+        .send({ amount: 1, to: "k7oax47quv", privatekey: "notexists" });
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "insufficient_funds" });

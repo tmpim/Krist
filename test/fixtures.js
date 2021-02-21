@@ -24,6 +24,10 @@ exports.mochaGlobalSetup = async function() {
 exports.mochaGlobalTeardown = async function() {
   console.log(chalk`{red [Tests]} Stopping web server and database`);
 
+  // Undo some changes made by the test runner
+  const r = redis.getRedis();
+  await r.set("mining-enabled", "false");
+
   webserver.server.close();
   await database.getSequelize().close();
 

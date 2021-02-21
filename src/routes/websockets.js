@@ -149,7 +149,7 @@ module.exports = function(app) {
 
     const publicUrl = process.env.PUBLIC_URL || "localhost:8080";
     const scheme = publicUrl.startsWith("localhost:") || process.env.FORCE_INSECURE === "true" ? "ws" : "wss";
-    const urlBase = `${scheme}://${process.env.PUBLIC_URL}/`;
+    const urlBase = `${scheme}://${publicUrl}/`;
 
     if (privatekey) { // Auth as address if privatekey provided
       const { authed, address } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
