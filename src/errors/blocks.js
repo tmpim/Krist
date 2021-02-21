@@ -40,6 +40,15 @@ errors.ErrorSolutionIncorrect = function(message) {
 
 util.inherits(errors.ErrorSolutionIncorrect, errors.KristError);
 
+errors.ErrorSolutionDuplicate = function(message) {
+  errors.KristError.call(this);
+  this.message = message;
+  this.statusCode = 409;
+  this.errorString = "solution_duplicate";
+};
+
+util.inherits(errors.ErrorSolutionDuplicate, errors.KristError);
+
 errors.ErrorMiningDisabled = function(message) {
   errors.KristError.call(this);
   this.message = message;

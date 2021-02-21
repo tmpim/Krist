@@ -112,7 +112,17 @@ BlocksController.submitBlock = async function(req, address, rawNonce) {
   const hash = utils.sha256(address, last, nonce);
 
   if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
-    return blocks.submit(req, hash, address, nonce);
+    try {
+      const block = await blocks.submit(req, hash, address, nonce);
+      return block;
+    } catch (err) {
+      // Reject duplicate hashes
+      if (Array.isArray(err.errors) && err.errors[0].type === "unique violation" && err.errors[0].path === "hash")
+        throw new errors.ErrorSolutionDuplicate();
+
+      console.error(err);
+      throw err;
+    }
   } else {
     throw new errors.ErrorSolutionIncorrect();
   }

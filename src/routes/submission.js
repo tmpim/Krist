@@ -123,10 +123,11 @@ module.exports = function(app) {
         block: blocksController.blockToJSON(result.block)
       });
     }).catch(function(error) {
-      if (error instanceof errors.ErrorSolutionIncorrect) {
+      if (error instanceof errors.ErrorSolutionIncorrect || error instanceof errors.ErrorSolutionDuplicate) {
         res.json({
           ok: true,
-          success: false
+          success: false,
+          error: error.errorString || "unknown_error"
         });
       } else {
         utils.sendErrorToRes(req, res, error);

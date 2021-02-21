@@ -132,6 +132,35 @@ describe("v2 routes: submission", () => {
       expect(work).to.be.lessThan(100000);
     });
 
+    it("should reject a duplicate hash", async () => {
+      const schemas = require("../../src/schemas");
+
+      // Remove the genesis block and insert it again, so that the hash will be 
+      // duplicate on submission
+      const oldBlock = await schemas.block.findOne({ where: { hash: "0000000000000000000000000000000000000000000000000000000000000000" }});
+      expect(oldBlock).to.exist;
+      await oldBlock.destroy();
+
+      const block = await schemas.block.create({
+        value: 50,
+        hash: "0000000000000000000000000000000000000000000000000000000000000000",
+        address: "0000000000",
+        nonce: 0,
+        difficulty: 4294967295,
+        time: new Date()
+      });
+      expect(block).to.exist;
+      expect(block.hash).to.equal("0000000000000000000000000000000000000000000000000000000000000000");
+
+      // Submit the duplicate block hash
+      const res = await api()
+        .post("/submit")
+        .send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, success: false, error: "solution_duplicate" });
+    });
+
     it("should reset the database", seed);
 
     it("should submit a block with a binary nonce", async () => {
