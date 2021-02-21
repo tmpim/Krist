@@ -72,6 +72,8 @@ module.exports = function(app) {
 	 * @apiParam (BodyParameter) {String|Number[]} nonce The nonce to submit with.
 	 *
 	 * @apiSuccess {Boolean} success Whether the submission was successful or not.
+	 * @apiSuccess {String} [error] The block submission error (if success was 
+   *   `false`).
 	 * @apiSuccess {Number} [work] The new difficulty for block submission (if the solution was successful).
 	 * @apiUse Address
 	 * @apiUse Block
@@ -80,38 +82,46 @@ module.exports = function(app) {
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
-     *     "ok": true,
-     *     "success": true,
-     *     "work": 18750,
-     *     "address": {
-     *         "address": "kre3w0i79j",
-     *         "balance": 925378,
-     *         "totalin": 925378,
-     *         "totalout": 0,
-     *         "firstseen": "2015-03-13T12:55:18.000Z"
-     *     },
-     *     "block": {
-     *         "height": 122226,
-     *         "address": "kre3w0i79j",
-     *         "hash": "000000007abc9f0cafaa8bf85d19817ee4f5c41ae758de3ad419d62672423ef",
-     *         "short_hash": "000000007ab",
-     *         "value": 14,
-     *         "time": "2016-02-06T19:22:41.746Z"
-     *     }
-     * }
+   *     "ok": true,
+   *     "success": true,
+   *     "work": 18750,
+   *     "address": {
+   *         "address": "kre3w0i79j",
+   *         "balance": 925378,
+   *         "totalin": 925378,
+   *         "totalout": 0,
+   *         "firstseen": "2015-03-13T12:55:18.000Z"
+   *     },
+   *     "block": {
+   *         "height": 122226,
+   *         "address": "kre3w0i79j",
+   *         "hash": "000000007abc9f0cafaa8bf85d19817ee4f5c41ae758de3ad419d62672423ef",
+   *         "short_hash": "000000007ab",
+   *         "value": 14,
+   *         "time": "2016-02-06T19:22:41.746Z"
+   *     }
+   * }
 	 *
 	 * @apiSuccessExample {json} Solution Incorrect
 	 * {
-     *     "ok": true,
-     *     "success": false
-     * }
+   *     "ok": true,
+   *     "success": false,
+   *     "error": "solution_incorrect"
+   * }
+	 *
+	 * @apiSuccessExample {json} Solution Duplicate
+	 * {
+   *     "ok": true,
+   *     "success": false,
+   *     "error": "solution_duplicate"
+   * }
 	 *
 	 * @apiErrorExample {json} Invalid Nonce
 	 * {
-     *     "ok": false,
-     *     "error": "invalid_parameter",
-     *     "parameter": "nonce"
-     * }
+   *     "ok": false,
+   *     "error": "invalid_parameter",
+   *     "parameter": "nonce"
+   * }
 	 */
   app.post("/submit", function(req, res) {
     blocksController.submitBlock(req, req.body.address, req.body.nonce).then(function(result) {
