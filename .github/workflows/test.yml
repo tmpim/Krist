@@ -13,7 +13,7 @@ jobs:
         env:
           MYSQL_USER: test_krist
           MYSQL_DATABASE: test_krist
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_PASSWORD: test_krist
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
@@ -36,5 +36,6 @@ jobs:
         env: 
           DB_HOST: mariadb
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          TEST_DB_PASS: test_krist
           REDIS_HOST: redis
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
