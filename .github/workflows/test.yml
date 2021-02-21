@@ -38,4 +38,4 @@ jobs:
         run: npm test
         env: 
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
-          REDIS_PORT: ${{ job.services.redis.ports[3306] }}
+          REDIS_PORT: ${{ job.services.redis.ports[6379] }}
