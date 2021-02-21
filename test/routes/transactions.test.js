@@ -25,6 +25,7 @@ describe("v2 routes: transactions", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.equal({ ok: false, error: "auth_failed" });
     });
+    
     it("should error with a missing 'privatekey'", async () => {
       const res = await api().post("/transactions");
       expect(res).to.be.json;

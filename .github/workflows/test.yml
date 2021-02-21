@@ -1,0 +1,38 @@
+name: Test Krist
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: node:15
+
+    services:
+      mysql:
+        image: mariadb:10.4
+        env:
+          MYSQL_USER: test_krist
+          MYSQL_DATABASE: test_krist
+          MYSQL_PASSWORD: test_krist
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm ci
+          
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.1.0
+
+      - name: Run tests
+        run: npm test
+        env: 
+          TEST_DB_PASS: test_krist
