@@ -40,3 +40,4 @@ jobs:
           TEST_DB_PASS: test_krist
           REDIS_HOST: redis
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}
+          PUBLIC_URL: localhost:8080
