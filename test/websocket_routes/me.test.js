@@ -3,8 +3,9 @@ const { expect } = require("chai");
 const { seed } = require("../seed");
 const { newConnection } = require("../ws");
 
-describe("websocket routes: me", () => {
+describe("websocket routes: me", function() {
   before(seed);
+  this.retries(4);
   
   describe("me", () => {
     it("should work for guests", async () => {
