@@ -19,9 +19,15 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const express = require("express");
-const Krist   = require("../krist");
-const utils   = require("../utils");
+const express      = require("express");
+const rateLimit    = require("express-rate-limit");
+const Krist        = require("../krist");
+const Addresses    = require("../addresses");
+const Names        = require("../names");
+const Blocks       = require("../blocks");
+const Transactions = require("../transactions");
+const errors       = require("../errors/errors");
+const utils        = require("../utils");
 
 /*
  * interface SearchQueryMatch {
@@ -29,19 +35,20 @@ const utils   = require("../utils");
  *   matchedName: boolean;
  *   matchedBlock: boolean;
  *   matchedTransaction: boolean;
- * 
+ *
  *   strippedName: string;
  * }
- * 
+ *
  * interface SearchResult {
  *   query: SearchQueryMatch;
- * 
+ *
+ *   // TODO: I ended up splitting these
  *   matches: {
  *     exactAddress: KristAddress | boolean;
  *     exactName: KristName | boolean;
  *     exactBlock: KristBlock | boolean;
  *     exactTransaction: KristTransaction | boolean;
- * 
+ *
  *     transactions: {
  *       addressInvolved: number | boolean;
  *       nameInvolved: number | boolean;
@@ -51,17 +58,143 @@ const utils   = require("../utils");
  * }
  */
 
-async function parseQuery(query) {
+function parseQuery(query) {
   const matchAddress = Krist.isValidKristAddress(query);
-  const matchName = Krist.isValidKristAddress(query);
+
+  const strippedName = Krist.stripNameSuffix(query);
+  const matchName = strippedName && Krist.isValidName(strippedName);
+
+  const cleanID = parseInt(query.replace(/[^\d]/g, ""));
+  const hasID = !isNaN(cleanID);
+  const matchBlock = hasID;
+  const matchTransaction = hasID;
+
+  return {
+    originalQuery: query,
+
+    matchAddress,
+    matchName,
+    matchBlock,
+    matchTransaction,
+
+    strippedName,
+    hasID,
+    ...(hasID ? { cleanID } : {})
+  };
 }
 
 async function performSearch(query) {
+  const parsed = parseQuery(query);
+  const {
+    matchAddress, matchName, matchBlock, matchTransaction,
+    strippedName, cleanID
+  } = parsed;
 
+  const [exactAddress, exactName, exactBlock, exactTransaction] = await Promise.all([
+    // exactAddress
+    matchAddress
+      ? Addresses.getAddress(query)
+      : false,
+
+    // exactName
+    matchName
+      ? Names.getNameByName(strippedName)
+      : false,
+
+    // exactBlock
+    matchBlock
+      ? Blocks.getBlock(cleanID)
+      : false,
+
+    // exactBlock
+    matchTransaction
+      ? Transactions.getTransaction(cleanID)
+      : false
+  ]);
+
+  return {
+    query: parsed,
+    matches: {
+      exactAddress: exactAddress ? Addresses.addressToJSON(exactAddress) : false,
+      exactName: exactName ? Names.nameToJSON(exactName) : false,
+      exactBlock: exactBlock ? Blocks.blockToJSON(exactBlock) : false,
+      exactTransaction: exactTransaction ? Transactions.transactionToJSON(exactTransaction) : false
+    }
+  };
+}
+
+async function performExtendedSearch(query) {
+  const parsed = parseQuery(query);
+  const { matchAddress, matchName, strippedName } = parsed;
+
+  // Check if the name exists before attempting to search by name
+  const name = matchName ? await Names.getNameByName(strippedName) : undefined;
+
+  const [addressInvolved, nameInvolved, metadata] = await Promise.all([
+    // addressInvolved
+    matchAddress
+      ? Transactions.getTransactionsByAddress(query, undefined, undefined, true, true)
+      : false,
+
+    // nameInvolved
+    matchName && name
+      ? Transactions.searchByName(name.name, true)
+      : false,
+
+    // metadata
+    Transactions.searchMetadata(query, true)
+  ]);
+
+  return {
+    query: parsed,
+    matches: {
+      transactions: {
+        addressInvolved,
+        nameInvolved,
+        metadata
+      }
+    }
+  };
+}
+
+function validateQuery(req) {
+  const query = req.query.q;
+  if (!query) throw new errors.ErrorMissingParameter("q");
+  if (typeof query !== "string") throw new errors.ErrorInvalidParameter("q");
+
+  const trimmedQuery = query.trim();
+  if (trimmedQuery.length > 256) throw new errors.ErrorInvalidParameter("q");
+
+  return trimmedQuery;
 }
 
 module.exports = function(app) {
   const api = express.Router();
+
+  if (process.env.NODE_ENV === "production") {
+    api.use(rateLimit({
+      windowMs: 30000, delayAfter: 10, delayMs: 250, max: 15,
+      message: "Rate limit hit. Please try again later."
+    }));
+  }
+
+  api.get("/", async (req, res) => {
+    const query = validateQuery(req);
+    const results = await performSearch(query);
+    res.json({
+      ok: true,
+      ...results
+    });
+  });
+
+  api.get("/extended", async (req, res) => {
+    const query = validateQuery(req);
+    const results = await performExtendedSearch(query);
+    res.json({
+      ok: true,
+      ...results
+    });
+  });
 
   // Error handler
   // eslint-disable-next-line no-unused-vars

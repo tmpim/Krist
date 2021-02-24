@@ -63,13 +63,15 @@ Webserver.init = async function() {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
-  app.use(rateLimit({    
-    windowMs: 60000,
-    delayAfter: 240,
-    delayMs: 5,
-    max: 320,
-    message: "Rate limit hit. Please try again later."
-  }));
+  if (process.env.NODE_ENV === "production") {
+    app.use(rateLimit({
+      windowMs: 60000,
+      delayAfter: 240,
+      delayMs: 5,
+      max: 320,
+      message: "Rate limit hit. Please try again later."
+    }));
+  }
 
   app.all("*", function(req, res, next) {
     res.header("X-Robots-Tag", "none");
@@ -122,6 +124,6 @@ Webserver.init = async function() {
       resolve(Webserver.server);
     });
 
-    server.on("error", reject);    
+    server.on("error", reject);
   });
 };

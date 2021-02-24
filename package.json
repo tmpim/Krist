@@ -31,6 +31,7 @@
     "express-ws": "^1.0.0-rc.2",
     "gitlog": "^2.1.2",
     "handy-redis": "^2.1.0",
+    "lodash.escaperegexp": "^4.1.2",
     "moment": "^2.11.1",
     "mysql2": "^2.1.0",
     "node-cron": "^2.0.3",

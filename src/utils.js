@@ -19,9 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const crypto = require("crypto");
-const errors = require("./errors/errors.js");
-const chalk  = require("chalk");
+const crypto   = require("crypto");
+const errors   = require("./errors/errors.js");
+const chalk    = require("chalk");
+const database = require("./database");
 
 function Utils() {}
 
@@ -59,7 +60,7 @@ Utils.errorToJSON = function(error) {
       message: error.message,
       ...(error.info || {})
     };
-  } else if (error.name === "SequelizeUniqueConstraintError") {    
+  } else if (error.name === "SequelizeUniqueConstraintError") {
     console.error(chalk`{red [Error]} Uncaught validation error.`);
     console.error(error.stack);
     console.error(error.errors);
@@ -93,15 +94,35 @@ Utils.sanitiseLimit = function(limit, def, max) {
   def = def || 50;
   max = max || 1000;
 
-  if (limit === null || limit === "" || (typeof limit === "string" && limit.trim() === "")) {
+  if (
+    typeof limit === "undefined"
+    || limit === null
+    || limit === ""
+    || (typeof limit === "string" && limit.trim() === "")
+    || isNaN(parseInt(limit))
+  ) {
     return def;
   }
 
-  return typeof limit !== "undefined" && limit !== null ? Math.min(parseInt(limit) < 0 ? def : parseInt(limit), max) : def;
+  return Math.min(
+    parseInt(limit) < 0 ? def : parseInt(limit),
+    max
+  );
 };
 
 Utils.sanitiseOffset = function(offset) {
   return typeof offset !== "undefined" ? parseInt(offset) : null;
+};
+
+Utils.sanitiseLike = function(query) {
+  if (!query || typeof query !== "string")
+    throw new Error("invalid like");
+
+  const sequelize = database.getSequelize();
+
+  const inputRaw = query.replace(/([_%\\])/g, "\\$1");
+  const inputEscaped = sequelize.escape(`%${inputRaw}%`);
+  return sequelize.literal(inputEscaped);
 };
 
 Utils.sendToWS = function(ws, message) {

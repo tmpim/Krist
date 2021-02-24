@@ -19,11 +19,12 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const utils      = require("./utils.js");
-const schemas    = require("./schemas.js");
-const websockets = require("./websockets.js");
-const addresses  = require("./addresses.js");
-const { Op }     = require("sequelize");
+const utils        = require("./utils.js");
+const schemas      = require("./schemas.js");
+const websockets   = require("./websockets.js");
+const addresses    = require("./addresses.js");
+const { Op }       = require("sequelize");
+const escapeRegExp = require("lodash.escaperegexp");
 
 const promClient = require("prom-client");
 const promTransactionCounter = new promClient.Counter({
@@ -63,18 +64,16 @@ Transactions.getTransactions = function (limit, offset, asc, includeMined) {
 
 Transactions.getRecentTransactions = function(limit, offset) {
   return schemas.transaction.findAll({
-    order: [["id", "DESC"]], 
-    limit: utils.sanitiseLimit(limit, 100), 
-    offset: utils.sanitiseOffset(offset), 
+    order: [["id", "DESC"]],
+    limit: utils.sanitiseLimit(limit, 100),
+    offset: utils.sanitiseOffset(offset),
     where: { from: EXCLUDE_MINED }
   });
 };
 
-Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined) {
-  return schemas.transaction.findAndCountAll({
-    order: [["id", "DESC"]],
-    limit: utils.sanitiseLimit(limit),
-    offset: utils.sanitiseOffset(offset),
+Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined, countOnly) {
+  const fn = countOnly ? "count" : "findAndCountAll";
+  return schemas.transaction[fn]({
     where: includeMined
       // When including mined transactions, we only care if from or to is the
       // queried address:
@@ -87,8 +86,15 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
         { // Non-mined txes to this address
           from: EXCLUDE_MINED, // Non-blank from
           to: address
-        } 
-      ]}
+        }
+      ]},
+
+    // Don't bother including the order, etc. when we only care about the count
+    ...(countOnly ? {} : {
+      order: [["id", "DESC"]],
+      limit: utils.sanitiseLimit(limit),
+      offset: utils.sanitiseOffset(offset)
+    })
   });
 };
 
@@ -101,11 +107,46 @@ Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, 
       ? {[Op.or]: [{ from: {[Op.in]: addressList} }, { to: {[Op.in]: addressList} }]}
       : {[Op.or]: [
         { from: {[Op.in]: addressList} },
-        { 
-          from: EXCLUDE_MINED, 
+        {
+          from: EXCLUDE_MINED,
           to: {[Op.in]: addressList}
-        } 
+        }
       ]}
+  });
+};
+
+Transactions.searchByName = function(query, countOnly, limit, offset, orderBy, order) {
+  const fn = countOnly ? "count" : "findAndCountAll";
+  return schemas.transaction[fn]({
+    where: {
+      [Op.or]: [
+        { name: query },
+        { op: { [Op.regexp]: "^(?:([a-z0-9-_]{1,32})@)?" + escapeRegExp(query) + "\\.kst" } }
+      ]
+    },
+
+    // Don't bother including the order, etc. when we only care about the count
+    ...(countOnly ? {} : {
+      order: [[orderBy || "id", order || "ASC"]],
+      limit: utils.sanitiseLimit(limit),
+      offset: utils.sanitiseOffset(offset)
+    })
+  });
+};
+
+Transactions.searchMetadata = function(query, countOnly, limit, offset, orderBy, order) {
+  const fn = countOnly ? "count" : "findAndCountAll";
+  return schemas.transaction[fn]({
+    where: {
+      op: { [Op.like]: utils.sanitiseLike(query) }
+    },
+
+    // Don't bother including the order, etc. when we only care about the count
+    ...(countOnly ? {} : {
+      order: [[orderBy || "id", order || "ASC"]],
+      limit: utils.sanitiseLimit(limit),
+      offset: utils.sanitiseOffset(offset)
+    })
   });
 };
 
@@ -120,8 +161,8 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
     op
   }, { transaction: dbTx });
 
-  promTransactionCounter.inc({ 
-    type: Transactions.identifyTransactionType(newTransaction) 
+  promTransactionCounter.inc({
+    type: Transactions.identifyTransactionType(newTransaction)
   });
 
   // Broadcast the transaction to websockets subscribed to transactions (async)
@@ -147,7 +188,7 @@ Transactions.pushTransaction = async function(sender, recipientAddress, amount, 
     // Create the transaction
     Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx),
 
-    // Create the recipient if they don't exist, 
+    // Create the recipient if they don't exist,
     !recipient
       ? schemas.address.create({
         address: recipientAddress.toLowerCase(),
