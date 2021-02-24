@@ -18,27 +18,31 @@
  *
  * For more project information, see <https://github.com/tmpim/krist>.
  */
-
-const package = require("./../../package.json");
-const krist = require("./../krist.js");
-const constants = require("./../constants.js");
+const motd = require("../motd");
 
 module.exports = function(app) {
   /**
 	 * @api {get} /motd Get the message of the day
 	 * @apiName GetMOTD
 	 * @apiGroup MiscellaneousGroup
-	 * @apiVersion 2.0.0
+	 * @apiVersion 2.6.4
 	 *
 	 * @apiSuccess {String} motd The message of the day
-	 * @apiSuccess {Date} set The date the MOTD was last changed
-   * 
+	 * @apiSuccess {Date} set The date the MOTD was last changed (provided for
+   *   backwards compatibility)
+	 * @apiSuccess {Date} motd_set The date the MOTD was last changed (ISO-8601)
+	 * @apiSuccess {Date} server_time The current server time (ISO-8601)
+   *
 	 * @apiSuccess {String} public_url The public URL of this Krist node.
 	 * @apiSuccess {Boolean} mining_enabled If mining is enabled on the server,
    *    this will be set to 'true'.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
    *    this will be set to 'true'.
-   * 
+   *
+	 * @apiSuccess {Number} work The current Krist work (difficulty).
+	 * @apiSuccess {Object} last_block The last block mined on the Krist node.
+   *   May be `null`.
+   *
 	 * @apiSuccess {Object} package Information related to this build of the Krist
    *    source code.
 	 * @apiSuccess {String} package.name The name of the package (always `krist`).
@@ -49,7 +53,7 @@ module.exports = function(app) {
    *    (always `GPL-3.0`)
 	 * @apiSuccess {String} package.repository The repository of the Krist server
    *    source code.
-   * 
+   *
 	 * @apiSuccess {Object} constants Constants related to the Krist server
    *    configuration.
    * @apiSuccess {Number} constants.wallet_version The latest version of
@@ -62,13 +66,13 @@ module.exports = function(app) {
    *    value. The work will not automatically go below this.
    * @apiSuccess {Number} constants.max_work The maximum work (block difficulty)
    *    value. The work will not automatically go above this.
-   * @apiSuccess {Number} constants.work_factor Work adjustment rate per block, 
-   *    where 1 means immediate adjustment to target work and 0 means constant 
+   * @apiSuccess {Number} constants.work_factor Work adjustment rate per block,
+   *    where 1 means immediate adjustment to target work and 0 means constant
    *    work.
    * @apiSuccess {Number} constants.seconds_per_block The ideal time between
    *    mined blocks. The Krist server will adjust the difficulty to match this
    *    value.
-   * 
+   *
 	 * @apiSuccess {Object} currency Constants related to the currency that this
    *    server represents.
    * @apiSuccess {String} currency.address_prefix The character that each
@@ -79,15 +83,36 @@ module.exports = function(app) {
    *    currency (e.g. `Krist`).
    * @apiSuccess {String} currency.currency_symbol The shorthand symbol for this
    *    currency (e.g. `KST`).
-   * 
+   *
    * @apiSuccess {String} notice Required copyright notice for the Krist server.
 	 *
 	 * @apiSuccessExample {json} Success
    * {
    *   "ok": true,
-   *   "motd": null,
-   *   "set": "2021-01-01T00:00:00.000Z",
+   *   "server_time": "2021-02-24T08:11:22.628Z",
+   *   "motd": "Welcome to Krist!",
+   *   "set": "2021-02-12T10:02:34.000Z",
+   *   "motd_set": "2021-02-12T10:02:34.000Z",
+   *   "public_url": "localhost:8080",
+   *   "mining_enabled": true,
    *   "debug_mode": true,
+   *   "work": 100000,
+   *   "last_block": {
+   *     "height": 2,
+   *     "address": "k8juvewcui",
+   *     "hash": "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
+   *     "short_hash": "000000012697",
+   *     "value": 29,
+   *     "time": "2021-02-21T05:11:05.000Z",
+   *     "difficulty": 400000000000
+   *   },
+   *   "package": {
+   *     "name": "krist",
+   *     "version": "2.6.4",
+   *     "author": "Lemmmy",
+   *     "licence": "GPL-3.0",
+   *     "repository": "https://github.com/tmpim/Krist"
+   *   },
    *   "constants": {
    *     "wallet_version": 16,
    *     "nonce_max_size": 24,
@@ -102,52 +127,16 @@ module.exports = function(app) {
    *     "name_suffix": "kst",
    *     "currency_name": "Krist",
    *     "currency_symbol": "KST"
-   *   }
+   *   },
+   *   "notice": "Krist was originally created by 3d6 and Lemmmy. It is now owned and operated by tmpim, and licensed under GPL-3.0."
    * }
 	 */
   app.all("/motd", async function(req, res) {
-    const { motd, motd_set, debug_mode } = await krist.getMOTD();
-
+    // Stringify to prettify output
     res.header("Content-Type", "application/json");
     return res.send(JSON.stringify({
       ok: true,
-
-      motd,
-      set: motd_set,
-
-      public_url: process.env.PUBLIC_URL || "localhost:8080",
-      mining_enabled: await krist.isMiningEnabled(),
-      debug_mode,
-
-      package: {
-        name: package.name,
-        version: package.version,
-        author: package.author,
-        licence: package.license,
-        repository: package.repository.url
-      },
-
-      constants: {
-        wallet_version: constants.walletVersion,
-        nonce_max_size: constants.nonceMaxSize,
-        name_cost: constants.nameCost,
-        min_work: constants.minWork,
-        max_work: constants.maxWork,
-        work_factor: constants.workFactor,
-        seconds_per_block: constants.secondsPerBlock
-      },
-
-      currency: {
-        address_prefix: "k",
-        name_suffix: "kst",
-  
-        currency_name: "Krist",
-        currency_symbol: "KST"
-      },
-      
-      // NOTE: It is against the license to modify this string on a fork node
-      notice: "Krist was originally created by 3d6 and Lemmmy. It is now owned"
-            + " and operated by tmpim, and licensed under GPL-3.0."
+      ...await motd.getDetailedMOTD()
     }, null, 2));
   });
 

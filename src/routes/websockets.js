@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const krist      = require("./../krist.js");
-const utils      = require("./../utils.js");
-const errors     = require("./../errors/errors.js");
-const websockets = require("./../websockets.js");
-const addresses  = require("./../addresses.js");
-const blocks     = require("./../controllers/blocks.js");
+const krist      = require("../krist");
+const utils      = require("../utils");
+const errors     = require("../errors/errors");
+const websockets = require("../websockets");
+const addresses  = require("../addresses");
+const motd       = require("../motd");
 const chalk      = require("chalk");
 
 module.exports = function(app) {
@@ -47,16 +47,11 @@ module.exports = function(app) {
       console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} ${logDetails}`);
       websockets.addWebsocket(req, ws, token, address, privatekey);
 
-      const lastBlock = await blocks.getLastBlock();
-      const { motd, motd_set, debug_mode } = await krist.getMOTD();
-      // Send the hello message containing the MOTD and last block
+      // Send the hello message containing the detailed MOTD
       utils.sendToWS(ws, {
         ok: true,
         type: "hello",
-        server_time: new Date(),
-        motd, motd_set, debug_mode,
-        last_block: blocks.blockToJSON(lastBlock),
-        work: await krist.getWork()
+        ...await motd.getDetailedMOTD()
       });
     } catch (error) {
       console.log(chalk`{red [Websockets]} Failed connection using token {bold ${token}} ${logDetails}`);
@@ -113,7 +108,7 @@ module.exports = function(app) {
    * There are several subscription levels for events that are broadcasted to all clients. When you are subscribed
    * to an event you will automatically receive a message with the type `event` in a format similar to the following:
    *
-   *     { "type": "event", "event": "block",  "block": { ... }, "new_work": 100000 }
+   *     { "type": "event", "event": "block", "block": { ... }, "new_work": 100000 }
    *
    * You can unsubscribe and subscribe to certain events to only receive what you wish to.
    *
@@ -154,7 +149,7 @@ module.exports = function(app) {
     if (privatekey) { // Auth as address if privatekey provided
       const { authed, address } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
       if (!authed) return utils.sendErrorToRes(req, res, new errors.ErrorAuthFailed());
-        
+
       const token = await websockets.obtainToken(address.address, privatekey);
 
       res.json({
