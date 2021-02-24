@@ -4,7 +4,7 @@ const { seed } = require("../seed");
 
 const utils = require("../../src/utils");
 
-describe("schema to json", () => {
+describe("utils", () => {
   before(seed);
 
   describe("sanitiseLimit", () => {

@@ -189,6 +189,11 @@ module.exports = function(app) {
 
   api.get("/extended", async (req, res) => {
     const query = validateQuery(req);
+
+    // Don't allow the query to be too short (to not return tens of thousands
+    // of results)
+    if (query.length < 3) throw new errors.ErrorInvalidParameter("q");
+
     const results = await performExtendedSearch(query);
     res.json({
       ok: true,
