@@ -30,14 +30,14 @@ const errors              = require("./../errors/errors.js");
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
     if (typeof req.query.submitblock !== "undefined") {
-      if (!await krist.isMiningEnabled()) 
+      if (!await krist.isMiningEnabled())
         return res.send("Mining disabled");
-        
+
       if (!req.query.address || !krist.isValidKristAddress(req.query.address))
         return res.send("Invalid address");
       if (!req.query.nonce || req.query.nonce.length > constants.nonceMaxSize)
         return res.send("Nonce is too large");
-      
+
       const lastBlock = await blocks.getLastBlock();
 
       const last = lastBlock.hash.substr(0, 12);
@@ -72,7 +72,7 @@ module.exports = function(app) {
 	 * @apiParam (BodyParameter) {String|Number[]} nonce The nonce to submit with.
 	 *
 	 * @apiSuccess {Boolean} success Whether the submission was successful or not.
-	 * @apiSuccess {String} [error] The block submission error (if success was 
+	 * @apiSuccess {String} [error] The block submission error (if success was
    *   `false`).
 	 * @apiSuccess {Number} [work] The new difficulty for block submission (if the solution was successful).
 	 * @apiUse Address
@@ -123,8 +123,10 @@ module.exports = function(app) {
    *     "parameter": "nonce"
    * }
 	 */
-  app.post("/submit", function(req, res) {
-    blocksController.submitBlock(req, req.body.address, req.body.nonce).then(function(result) {
+  app.post("/submit", async function(req, res) {
+    try {
+      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce);
+
       res.json({
         ok: true,
         success: true,
@@ -132,7 +134,7 @@ module.exports = function(app) {
         address: addressesController.addressToJSON(result.address),
         block: blocksController.blockToJSON(result.block)
       });
-    }).catch(function(error) {
+    } catch (error) {
       if (error instanceof errors.ErrorSolutionIncorrect || error instanceof errors.ErrorSolutionDuplicate) {
         res.json({
           ok: true,
@@ -142,7 +144,7 @@ module.exports = function(app) {
       } else {
         utils.sendErrorToRes(req, res, error);
       }
-    });
+    }
   });
 
   return app;

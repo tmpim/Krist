@@ -11,7 +11,7 @@ describe("v1 routes: submission", () => {
 
 describe("v2 routes: submission", () => {
   before(seed);
-  
+
   describe("POST /submit - validation", () => {
     it("should disable mining temporarily", async () => {
       const redis = require("../../src/redis");
@@ -24,7 +24,7 @@ describe("v2 routes: submission", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "mining_disabled" });
     });
-    
+
     it("should re-enable mining", async () => {
       const redis = require("../../src/redis");
       const r = redis.getRedis();
@@ -97,8 +97,8 @@ describe("v2 routes: submission", () => {
       expect(res.body.address).to.deep.include({ address: "k8juvewcui", balance: 35 });
 
       expect(res.body.block).to.be.an("object");
-      expect(res.body.block).to.deep.include({ 
-        height: 2, value: 25, 
+      expect(res.body.block).to.deep.include({
+        height: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697",
         difficulty: 400000000000 // legacy work handling
@@ -110,8 +110,8 @@ describe("v2 routes: submission", () => {
 
       const block = await schemas.block.findOne({ order: [["id", "DESC"]] });
       expect(block).to.exist;
-      expect(block).to.deep.include({ 
-        id: 2, value: 25, 
+      expect(block).to.deep.include({
+        id: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         nonce: "252344455127232b555829",
         difficulty: 100000 // real work value
@@ -135,7 +135,7 @@ describe("v2 routes: submission", () => {
     it("should reject a duplicate hash", async () => {
       const schemas = require("../../src/schemas");
 
-      // Remove the genesis block and insert it again, so that the hash will be 
+      // Remove the genesis block and insert it again, so that the hash will be
       // duplicate on submission
       const oldBlock = await schemas.block.findOne({ where: { hash: "0000000000000000000000000000000000000000000000000000000000000000" }});
       expect(oldBlock).to.exist;
@@ -173,7 +173,7 @@ describe("v2 routes: submission", () => {
       expect(res.body).to.deep.include({ ok: true, success: true });
 
       expect(res.body.block).to.be.an("object");
-      expect(res.body.block).to.deep.include({ 
+      expect(res.body.block).to.deep.include({
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697"
       });
@@ -183,7 +183,7 @@ describe("v2 routes: submission", () => {
 
     it("should decrease unpaid names", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const name = await schemas.name.create({ name: "test", owner: "k0duvsr4qn", registered: new Date(), unpaid: 500 });
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500 });
@@ -202,5 +202,5 @@ describe("v2 routes: submission", () => {
 
       expect(name.unpaid).to.equal(499);
     });
-  });  
+  });
 });

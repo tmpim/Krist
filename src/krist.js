@@ -95,7 +95,7 @@ Krist.getWorkOverTime = async function() {
     .reverse();
 };
 
-Krist.setWork = async function(work) {  
+Krist.setWork = async function(work) {
   await getRedis().set("work", work);
 };
 
@@ -161,7 +161,15 @@ Krist.isValidName = function(name) {
 };
 
 Krist.isValidARecord = function(ar) {
-  return ar.length > 0 && ar.length <= 255 && aRecordRegex.test(ar);
+  return ar && ar.length > 0 && ar.length <= 255 && aRecordRegex.test(ar);
+};
+
+Krist.stripNameSuffix = function(name) {
+  if (!name) return "";
+
+  // TODO: Support custom name suffixes (see KristWeb v2 code for safe RegExp
+  //       compilation and memoization)
+  return name.replace(/\.kst$/, "");
 };
 
 Krist.getMOTD = async function() {
