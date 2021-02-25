@@ -19,9 +19,6 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const krist        = require("./../krist.js");
-const addresses    = require("./../addresses.js");
-const names        = require("./../names.js");
 const tx           = require("./../transactions.js");
 const txController = require("./../controllers/transactions.js");
 const utils        = require("./../utils.js");
@@ -48,7 +45,7 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transaction.time The time this transaction this was made.
 	 * @apiSuccess {String} [transaction.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transaction.metadata] Transaction metadata, or null.
-	 * @apiSuccess {String} transaction.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`, 
+	 * @apiSuccess {String} transaction.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`,
    *            `name_a_record`, or `name_transfer`.
 	 */
 
@@ -66,11 +63,11 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transactions.time The time this transaction this was made.
 	 * @apiSuccess {String} [transactions.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transactions.metadata] Transaction metadata, or null.
-	 * @apiSuccess {String} transactions.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`, 
+	 * @apiSuccess {String} transactions.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`,
    *            `name_a_record`, or `name_transfer`.
 	 */
 
-  app.get("/", function(req, res, next) {
+  app.get("/", async function(req, res, next) {
     if (typeof req.query.recenttx !== "undefined") {
       tx.getRecentTransactions().then(function(transactions) {
         let out = "";
@@ -91,125 +88,38 @@ module.exports = function(app) {
     }
 
     if (typeof req.query.pushtx !== "undefined") {
-      if (!req.query.amt || isNaN(req.query.amt)) {
-        return res.send("Error3");
-      }
-
-      if (req.query.amt < 1) {
-        return res.send("Error2");
-      }
-
-      const from = utils.sha256(req.query.pkey).substr(0, 10);
-      const amt = parseInt(req.query.amt);
-
-      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) { // webstorm complained
-        return res.send("Error5");
-      }
-
-      addresses.verify(req, from, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-        const sender = results.address;
-
-        if (!authed) {
-          return res.send("Access denied");
-        }
-
-        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
-
-          names.getNameByName(nameInfo[2]).then(function(name) {
-            if (!name) {
-              return res.send("Name not found");
-            }
-
-            if (!sender || sender.balance < amt) {
-              return res.send("Error1");
-            }
-
-            let metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
-
-            if (req.query.com) {
-              metadata = req.query.com.toLowerCase() + ";" + metadata;
-            }
-
-            tx.pushTransaction(sender, name.owner, amt, metadata).then(function() {
-              res.send("Success");
-            });
-          });
-        } else {
-          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-            return res.send("Error4");
-          }
-
-          if (!sender || sender.balance < amt) {
-            return res.send("Error1");
-          }
-
-          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function() {
-            res.send("Success");
-          });
-        }
-      });
-
-      return;
+      return res.send("v1 transactions disabled. Contact Krist team");
     }
 
     if (typeof req.query.pushtx2 !== "undefined") {
-      if (!req.query.amt || isNaN(req.query.amt)) {
-        return res.send("Error3");
-      }
+      try {
+        const privatekey = req.query.pkey;
+        const to = req.query.q;
+        const amount = req.query.amt;
+        const metadata = req.query.com;
 
-      if (req.query.amt < 1) {
-        return res.send("Error2");
-      }
-
-      const from = krist.makeV2Address(req.query.pkey);
-      const amt = parseInt(req.query.amt);
-
-      if (req.query.com && !/^[\x20-\x7F]+$/i.test(req.query.com.toString())) {
-        return res.send("Error5");
-      }
-
-      addresses.verify(req, from, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-        const sender = results.address;
-
-        if (!authed) {
+        await txController.makeTransaction(req, privatekey, to, amount, metadata);
+        res.send("Success");
+      } catch (err) {
+        // Convert v2 errors to legacy API errors
+        if (err.errorString === "auth_failed")
           return res.send("Access denied");
-        }
+        if (err.errorString === "insufficient_funds")
+          return res.send("Error1"); // "Insufficient funds available"
+        if (err.parameter === "amount")
+          return res.send("Error2"); // "Not enough KST in transaction"
+        if (err.parameter === "to")
+          return res.send("Error4"); // "Invalid recipient address"
+        if (err.parameter === "privatekey")
+          return res.send("Missing privatekey");
+        if (err.parameter === "metadata")
+          return res.send("Invalid metadata");
+        if (err.errorString === "name_not_found")
+          return res.send("Name not found");
 
-        if (krist.nameMetaRegex.test(req.query.q.toLowerCase())) {
-          const nameInfo = krist.nameMetaRegex.exec(req.query.q.toLowerCase());
-
-          names.getNameByName(nameInfo[2]).then(function (name) {
-            if (!name) {
-              return res.send("Name not found");
-            }
-
-            if (!sender || sender.balance < amt) {
-              return res.send("Error1");
-            }
-
-            const metadata = req.query.com ? req.query.q.toLowerCase() + ";" + req.query.com.substring(0, 255) : req.query.q.toLowerCase();
-
-            tx.pushTransaction(sender, name.owner, amt, metadata).then(function () {
-              res.send("Success");
-            });
-          });
-        } else {
-          if (!req.query.q || !krist.isValidKristAddress(req.query.q.toString())) {
-            return res.send("Error4");
-          }
-
-          if (!sender || sender.balance < amt) {
-            return res.send("Error1");
-          }
-
-          tx.pushTransaction(sender, req.query.q.toString(), amt, req.query.com).then(function () {
-            res.send("Success");
-          });
-        }
-      });
+        console.error(err);
+        return res.send("Unknown error");
+      }
 
       return;
     }

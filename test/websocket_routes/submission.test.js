@@ -12,7 +12,7 @@ describe("websocket routes: submission", function() {
     expect(ws).to.nested.include({ "wsp.isOpened": true });
 
     const res = await ws.sendAndWait({ type: "submit_block", ...data });
-    expect(res).to.exist;
+    expect(res).to.be.an("object");
     return res;
   }
 
@@ -26,7 +26,7 @@ describe("websocket routes: submission", function() {
       const res = await send({}, "a");
       expect(res).to.not.deep.include({ ok: false, error: "missing_parameter", parameter: "address" });
     });
-    
+
     it("should disable mining temporarily", async () => {
       const redis = require("../../src/redis");
       const r = redis.getRedis();
@@ -37,7 +37,7 @@ describe("websocket routes: submission", function() {
       const res = await send({ address: "k8juvewcui" });
       expect(res).to.deep.include({ ok: false, error: "mining_disabled" });
     });
-    
+
     it("should re-enable mining", async () => {
       const redis = require("../../src/redis");
       const r = redis.getRedis();
@@ -69,31 +69,31 @@ describe("websocket routes: submission", function() {
       expect(res).to.deep.include({ ok: true, success: false });
     });
   });
-  
+
   describe("submit_block", () => {
     it("should submit a block", async () => {
       const res = await send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
       expect(res).to.deep.include({ ok: true, success: true });
-      
+
       expect(res.address).to.be.an("object");
       expect(res.address).to.deep.include({ address: "k8juvewcui", balance: 35 });
 
       expect(res.block).to.be.an("object");
-      expect(res.block).to.deep.include({ 
-        height: 2, value: 25, 
+      expect(res.block).to.deep.include({
+        height: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697",
         difficulty: 400000000000 // legacy work handling
       });
-    });  
-    
+    });
+
     it("should exist in the database", async () => {
       const schemas = require("../../src/schemas");
 
       const block = await schemas.block.findOne({ order: [["id", "DESC"]] });
       expect(block).to.exist;
-      expect(block).to.deep.include({ 
-        id: 2, value: 25, 
+      expect(block).to.deep.include({
+        id: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         nonce: "252344455127232b555829",
         difficulty: 100000 // real work value
@@ -113,11 +113,11 @@ describe("websocket routes: submission", function() {
       const work = await Krist.getWork();
       expect(work).to.be.lessThan(100000);
     });
-    
+
     it("should reject a duplicate hash", async () => {
       const schemas = require("../../src/schemas");
 
-      // Remove the genesis block and insert it again, so that the hash will be 
+      // Remove the genesis block and insert it again, so that the hash will be
       // duplicate on submission
       const oldBlock = await schemas.block.findOne({ where: { hash: "0000000000000000000000000000000000000000000000000000000000000000" }});
       expect(oldBlock).to.exist;
@@ -146,7 +146,7 @@ describe("websocket routes: submission", function() {
       expect(res).to.deep.include({ ok: true, success: true });
 
       expect(res.block).to.be.an("object");
-      expect(res.block).to.deep.include({ 
+      expect(res.block).to.deep.include({
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697"
       });
@@ -156,7 +156,7 @@ describe("websocket routes: submission", function() {
 
     it("should decrease unpaid names", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const name = await schemas.name.create({ name: "test", owner: "k0duvsr4qn", registered: new Date(), unpaid: 500 });
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500 });
@@ -176,31 +176,31 @@ describe("websocket routes: submission", function() {
     it("should submit a block when authed", async () => {
       const res = await send({ nonce: "%#DEQ'#+UX)" }, "a");
       expect(res).to.deep.include({ ok: true, success: true });
-      
+
       expect(res.address).to.be.an("object");
       expect(res.address).to.deep.include({ address: "k8juvewcui", balance: 35 });
 
       expect(res.block).to.be.an("object");
-      expect(res.block).to.deep.include({ 
-        height: 2, value: 25, 
+      expect(res.block).to.deep.include({
+        height: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697",
         difficulty: 400000000000 // legacy work handling
       });
-    });  
+    });
 
     it("should reset the database", seed);
 
     it("should submit a block as another address when authed", async () => {
       const res = await send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" }, "d");
       expect(res).to.deep.include({ ok: true, success: true });
-      
+
       expect(res.address).to.be.an("object");
       expect(res.address).to.deep.include({ address: "k8juvewcui", balance: 35 });
 
       expect(res.block).to.be.an("object");
-      expect(res.block).to.deep.include({ 
-        height: 2, value: 25, 
+      expect(res.block).to.deep.include({
+        height: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         short_hash: "000000012697",
         difficulty: 400000000000 // legacy work handling
