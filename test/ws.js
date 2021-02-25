@@ -12,6 +12,8 @@ class WrappedWebsocket {
     this.messageID = 1;
     this.messageResponses = {};
 
+    this.finalClosed = false;
+
     this.wsp = new WebSocketAsPromised(url, {
       createWebSocket: u => new W3CWebSocket(u),
       packMessage: data => JSON.stringify(data),
@@ -39,13 +41,23 @@ class WrappedWebsocket {
   }
 
   sendAndWait(data) {
-    return new Promise((resolve, reject) => {      
+    return new Promise((resolve, reject) => {
       const id = ++this.messageID;
-      const message = { id, ...data }; // Allow 'data' to overwrite the ID      
+      const message = { id, ...data }; // Allow 'data' to overwrite the ID
 
       this.messageResponses[id] = { resolve, reject };
       this.wsp.sendPacked(message);
     });
+  }
+
+  close() {
+    // Close after 100ms to allow the server to send whatever it has to
+    setTimeout(() => {
+      if (!this.finalClosed && this.wsp && this.wsp.isOpened && !this.wsp.isClosing && !this.wsp.isClosed) {
+        this.wsp.close();
+        this.finalClosed = true;
+      }
+    }, 100);
   }
 }
 
@@ -54,6 +66,12 @@ module.exports = {
     const res = await api().post("/ws/start").send({ privatekey });
     const ws = new WrappedWebsocket(res.body.url, init);
     await ws.wsp.open();
+
+    setTimeout(() => {
+      // Close after 2 seconds (the default test timeout) just in case it wasn't
+      // done manually
+      if (ws) ws.close();
+    }, 2000);
 
     return ws;
   }

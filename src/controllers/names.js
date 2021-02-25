@@ -96,7 +96,7 @@ NamesController.registerName = async function(req, desiredName, privatekey) {
   if (!authed) throw new errors.ErrorAuthFailed();
 
   // Check if the name already exists
-  if (await names.getNameByName(desiredName)) 
+  if (await names.getNameByName(desiredName))
     throw new errors.ErrorNameTaken();
 
   // Reject insufficient funds
@@ -127,7 +127,7 @@ NamesController.transferName = async function(req, name, privatekey, address) {
   if (!address) throw new errors.ErrorMissingParameter("address");
 
   if (!krist.isValidName(name)) throw new errors.ErrorInvalidParameter("name");
-  if (!krist.isValidKristAddress(address)) throw new errors.ErrorInvalidParameter("address");
+  if (!krist.isValidKristAddress(address, true)) throw new errors.ErrorInvalidParameter("address");
 
   // Address auth validation
   const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);

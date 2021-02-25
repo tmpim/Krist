@@ -84,19 +84,20 @@ TransactionsController.makeTransaction = async function(req, privatekey, to, amo
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
   if (!to) throw new errors.ErrorMissingParameter("to");
   if (!amount) throw new errors.ErrorMissingParameter("amount");
-  
+
   // Check if we're paying to a name
   const isName = krist.nameMetaRegex.test(to.toLowerCase());
   let nameInfo;
 
   if (isName) {
     nameInfo = krist.nameMetaRegex.exec(to.toLowerCase());
-  } else { // Verify this is a valid address
-    if (!krist.isValidKristAddress(to)) throw new errors.ErrorInvalidParameter("to");
+  } else if (!krist.isValidKristAddress(to, true)) {
+    // Verify this is a valid v2 address
+    throw new errors.ErrorInvalidParameter("to");
   }
-  
+
   if (isNaN(amount) || amount < 1) throw new errors.ErrorInvalidParameter("amount");
-  if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata) || metadata.length > 255)) 
+  if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata) || metadata.length > 255))
     throw new errors.ErrorInvalidParameter("metadata");
 
   const from = krist.makeV2Address(privatekey);
@@ -115,7 +116,7 @@ TransactionsController.makeTransaction = async function(req, privatekey, to, amo
     const dbName = await names.getNameByName(nameInfo[2]);
     if (!dbName) throw new errors.ErrorNameNotFound();
 
-    // Add the original name spec to the metadata 
+    // Add the original name spec to the metadata
     if (metadata) { // Append with a semicolon if we already have metadata
       metadata = to.toLowerCase() + ";" + metadata;
     } else { // Set new metadata otherwise

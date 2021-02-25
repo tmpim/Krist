@@ -6,7 +6,7 @@ const { newConnection } = require("../ws");
 describe("websocket routes: me", function() {
   before(seed);
   this.retries(4);
-  
+
   describe("me", () => {
     it("should work for guests", async () => {
       const ws = await newConnection();
@@ -14,6 +14,8 @@ describe("websocket routes: me", function() {
 
       const data = await ws.sendAndWait({ type: "me" });
       expect(data).to.deep.include({ ok: true, isGuest: true });
+
+      ws.close();
     });
 
     it("should work for authed users", async () => {
@@ -26,6 +28,8 @@ describe("websocket routes: me", function() {
       expect(data.address).to.include.all.keys("address", "balance", "totalin", "totalout", "firstseen");
       expect(data.address).to.not.include.any.keys("id", "privatekey", "alert", "locked");
       expect(data.address).to.deep.include({ address: "k8juvewcui", balance: 10 });
+
+      ws.close();
     });
   });
 });

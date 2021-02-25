@@ -97,7 +97,7 @@ BlocksController.submitBlock = async function(req, address, rawNonce) {
   if (!await krist.isMiningEnabled()) throw new errors.ErrorMiningDisabled();
 
   if (!address) throw new errors.ErrorMissingParameter("address");
-  if (!krist.isValidKristAddress(address))
+  if (!krist.isValidKristAddress(address, true))
     throw new errors.ErrorInvalidParameter("address");
 
   if (!rawNonce) throw new errors.ErrorMissingParameter("nonce");

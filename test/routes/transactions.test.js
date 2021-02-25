@@ -110,6 +110,12 @@ describe("v1 routes: transactions", () => {
       expect(res.text).to.equal("Error4");
     });
 
+    it("should error when sending to a v1 address", async () => {
+      const res = await api().get("/?pushtx2").query({ amt: 1, pkey: "a", q: "a5dfb396d3" });
+      expect(res).to.be.text;
+      expect(res.text).to.equal("Error4");
+    });
+
     it("should error with insufficient funds", async () => {
       const res = await api().get("/?pushtx2").query({ amt: 1, pkey: "b", q: "k8juvewcui" });
       expect(res).to.be.text;
@@ -300,6 +306,15 @@ describe("v2 routes: transactions", () => {
       const res = await api()
         .post("/transactions")
         .send({ amount: 1, to: "kfartoolong", privatekey: "a" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "to" });
+    });
+
+    it("should error when paying to a v1 address", async () => {
+      const res = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "a5dfb396d3", privatekey: "a" });
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "to" });
