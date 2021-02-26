@@ -95,7 +95,9 @@
       "LookupAddresses",
       "LookupBlocks",
       "LookupTransactions",
-      "LookupNames"
+      "LookupNames",
+      "Search",
+      "SearchExtended"
     ]
   }
 }

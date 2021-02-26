@@ -178,6 +178,144 @@ module.exports = function(app) {
     }));
   }
 
+  /**
+   * @apiDefine SearchQuery
+   *
+   * @apiSuccess {Object} query Information about the way the search query was
+   *   interpreted.
+   * @apiSuccess {String} query.originalQuery The original (sanitised) query
+   *   text.
+   * @apiSuccess {Boolean} query.matchAddress Whether or not the query exactly
+   *   matches the format of a Krist address.
+   * @apiSuccess {Boolean} query.matchName Whether or not the query exactly
+   *   matches the format of a Krist name (with or without the `.kst`) suffix.
+   * @apiSuccess {Boolean} query.matchBlock Whether or not the query exactly
+   *   matches the format of a block ID (with all non-numbers removed).
+   * @apiSuccess {Boolean} query.matchTransaction Whether or not the query
+   *   exactly matches the format of a transaction ID (with all non-numbers
+   *   removed).
+   * @apiSuccess {String} query.strippedName The query with the `.kst` suffix
+   *   stripped, if it was present.
+   * @apiSuccess {Boolean} query.hasID Whether or not the query looks like an ID
+   *   number (e.g. for blocks or transactions).
+   * @apiSuccess {Number} [query.cleanID] If hasID is true, this is the query,
+   *   sanitised and converted to a number.
+   */
+
+  /**
+   * @api {get} /search Search the Krist network
+   * @apiName Search
+   * @apiGroup LookupGroup
+   * @apiVersion 2.8.0
+   *
+   * @apiDescription Search the Krist network for objects that match the given
+   * query, including addresses, names, blocks, and transactions.
+   *
+   * - Addresses are searched by exact address match only
+   * - Names are searched by their name with and without the `.kst` suffix
+   * - Blocks are searched by ID
+   * - Transactions are searched by ID
+   *
+   * For more advanced transaction searches (by involved addresses and
+   * metadata), see the `/search/extended` endpoint.
+   *
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning.
+   *
+	 * @apiParam (QueryParameter) {String} q The search query.
+   *
+   * @apiUse SearchQuery
+   *
+   * @apiSuccess {Object} matches The results of the search query.
+   * @apiSuccess {Object} matches.exactAddress An exact address match - this
+   *   will be an Address object if the query looked like a valid Krist address,
+   *   and that address exists in the database. Otherwise, if there is no
+   *   result, it will be `false`.
+   * @apiSuccess {Object} matches.exactName An exact name match - this will be a
+   *   Name object if the query looked like a valid Krist name (with or without
+   *   the `.kst` suffix), and that name exists in the database. Otherwise, if
+   *   there is no result, it will be `false`.
+   * @apiSuccess {Object} matches.exactBlock An exact block match - this will be
+   *   a Block object if the query looked like a valid Krist block ID, and that
+   *   block exists in the database. Otherwise, if there is no result, it will
+   *   be `false`.
+   * @apiSuccess {Object} matches.exactTransaction An exact transaction match -
+   *   this will be a Transaction object if the query looked like a valid Krist
+   *   transaction ID, and that transaction exists in the database. Otherwise,
+   *   if there is no result, it will be `false`.
+   *
+   * @apiSuccessExample {json} Success - Name result
+   * {
+   *   "ok": true,
+   *   "query": {
+   *     "originalQuery": "example",
+   *     "matchAddress": false,
+   *     "matchName": true,
+   *     "matchBlock": false,
+   *     "matchTransaction": false,
+   *     "strippedName": "example",
+   *     "hasID": false
+   *   },
+   *   "matches": {
+   *     "exactAddress": false,
+   *     "exactName": {
+   *       "name": "example",
+   *       "owner": "kxxxxxxxxx",
+   *       "registered": "2015-05-24T00:49:04.000Z",
+   *       "updated": "2020-01-04T05:09:11.000Z",
+   *       "a": null
+   *     },
+   *     "exactBlock": false,
+   *     "exactTransaction": false
+   *   }
+   * }
+   *
+   * @apiSuccessExample {json} Success - ID lookup result
+   * {
+   *   "ok": true,
+   *   "query": {
+   *     "originalQuery": "1234",
+   *     "matchAddress": false,
+   *     "matchName": true,
+   *     "matchBlock": true,
+   *     "matchTransaction": true,
+   *     "strippedName": "1234",
+   *     "hasID": true,
+   *     "cleanID": 1234
+   *   },
+   *   "matches": {
+   *     "exactAddress": false,
+   *     "exactName": {
+   *       "name": "1234",
+   *       "owner": "krazedrugz",
+   *       "registered": "2016-10-07T15:55:48.000Z",
+   *       "updated": "2016-10-07T15:55:48.000Z",
+   *       "a": null
+   *     },
+   *     "exactBlock": {
+   *       "height": 1234,
+   *       "address": "2bbb037a6f",
+   *       "hash": "01b1b4b7162ec67061760a0f013282b34053b803ad85181d696e8767ed4fa442",
+   *       "short_hash": "01b1b4b7162e",
+   *       "value": 50,
+   *       "time": "2015-02-15T05:37:44.000Z",
+   *       "difficulty": 2000000000000
+   *     },
+   *     "exactTransaction": {
+   *       "id": 1234,
+   *       "from": null,
+   *       "to": "2bbb037a6f",
+   *       "value": 50,
+   *       "time": "2015-02-15T05:37:40.000Z",
+   *       "name": null,
+   *       "metadata": null,
+   *       "sent_metaname": null,
+   *       "sent_name": null,
+   *       "type": "mined"
+   *     }
+   *   }
+   * }
+   */
   api.get("/", async (req, res) => {
     const query = validateQuery(req);
     const results = await performSearch(query);
@@ -187,6 +325,43 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * @api {get} /search/extended Search transactions
+   * @apiName SearchExtended
+   * @apiGroup LookupGroup
+   * @apiVersion 2.8.0
+   *
+   * @apiDescription Search the Krist network for transactions that match the
+   * given query. The search is more in-depth (and thus slower) than `/search`.
+   *
+   * - Transactions are searched by address involved (from, to)
+   * - Transactions are searched by name involved (either a name
+   *   transfer/update, or a transaction to a name)
+   * - Transactions are searched by raw metadata (exact query match anywhere in
+   *   the metadata)
+   *
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning.
+   *
+	 * @apiParam (QueryParameter) {String} q The search query.
+   *
+   * @apiUse SearchQuery
+   *
+   * @apiSuccess {Object} matches The results of the search query.
+   * @apiSuccess {Object} matches.transactions Information about transaction
+   *   matches for the search query.
+   * @apiSuccess {Number|Boolean} matches.transactions.addressInvolved The
+   *   number of transactions that involve the query address (either in the
+   *   `from` field or the `to` field), or `false` if the query isn't a valid
+   *   Krist address.
+   * @apiSuccess {Number|Boolean} matches.transactions.nameInvolved The number
+   *   of transactions that involve the query name (either as a direct
+   *   transfer/update, or as a transaction sent to a name; the `name` and
+   *   `sent_name` fields respectively), or `false` if the query isn't a valid
+   *   Krist name.
+   * @apiSuccess {Number|Boolean} matches.transactions.metadata The number of
+   *   transactions with metadata containing the query string.
+   */
   api.get("/extended", async (req, res) => {
     const query = validateQuery(req);
 

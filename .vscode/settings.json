@@ -35,6 +35,7 @@
     "recenttx",
     "richapi",
     "sanitise",
+    "sanitised",
     "setwork",
     "submitblock",
     "subprotocol",
