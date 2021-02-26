@@ -95,9 +95,7 @@ Addresses.logAuth = async function(req, address, type) {
       ip,
       address,
       time: { [Op.gte]: Sequelize.literal("NOW() - INTERVAL 30 MINUTE")},
-      type,
-      useragent: userAgent,
-      origin
+      type
     }
   });
   if (existing) return;
