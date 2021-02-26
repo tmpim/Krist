@@ -63,9 +63,9 @@ Transactions.getTransactions = function (limit, offset, asc, includeMined) {
 
 Transactions.getRecentTransactions = function(limit, offset) {
   return schemas.transaction.findAll({
-    order: [["id", "DESC"]], 
-    limit: utils.sanitiseLimit(limit, 100), 
-    offset: utils.sanitiseOffset(offset), 
+    order: [["id", "DESC"]],
+    limit: utils.sanitiseLimit(limit, 100),
+    offset: utils.sanitiseOffset(offset),
     where: { from: EXCLUDE_MINED }
   });
 };
@@ -87,7 +87,7 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
         { // Non-mined txes to this address
           from: EXCLUDE_MINED, // Non-blank from
           to: address
-        } 
+        }
       ]}
   });
 };
@@ -101,15 +101,15 @@ Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, 
       ? {[Op.or]: [{ from: {[Op.in]: addressList} }, { to: {[Op.in]: addressList} }]}
       : {[Op.or]: [
         { from: {[Op.in]: addressList} },
-        { 
-          from: EXCLUDE_MINED, 
+        {
+          from: EXCLUDE_MINED,
           to: {[Op.in]: addressList}
-        } 
+        }
       ]}
   });
 };
 
-Transactions.createTransaction = async function (to, from, value, name, op, dbTx) {
+Transactions.createTransaction = async function (to, from, value, name, op, dbTx, useragent, origin) {
   // Create the new transaction object
   const newTransaction = await schemas.transaction.create({
     to,
@@ -117,11 +117,13 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
     value,
     name,
     time: new Date(),
-    op
+    op,
+    useragent,
+    origin
   }, { transaction: dbTx });
 
-  promTransactionCounter.inc({ 
-    type: Transactions.identifyTransactionType(newTransaction) 
+  promTransactionCounter.inc({
+    type: Transactions.identifyTransactionType(newTransaction)
   });
 
   // Broadcast the transaction to websockets subscribed to transactions (async)
@@ -134,7 +136,7 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
   return newTransaction;
 };
 
-Transactions.pushTransaction = async function(sender, recipientAddress, amount, metadata, name, dbTx) {
+Transactions.pushTransaction = async function(sender, recipientAddress, amount, metadata, name, dbTx, userAgent, origin) {
   const recipient = await addresses.getAddress(recipientAddress);
 
   // Do these in parallel:
@@ -145,9 +147,9 @@ Transactions.pushTransaction = async function(sender, recipientAddress, amount, 
     sender.increment({ totalout: amount }, { transaction: dbTx }),
 
     // Create the transaction
-    Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx),
+    Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx, userAgent, origin),
 
-    // Create the recipient if they don't exist, 
+    // Create the recipient if they don't exist,
     !recipient
       ? schemas.address.create({
         address: recipientAddress.toLowerCase(),

@@ -79,7 +79,7 @@ TransactionsController.getTransaction = function(id) {
   });
 };
 
-TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata) {
+TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata, userAgent, origin) {
   // Input validation
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
   if (!to) throw new errors.ErrorMissingParameter("to");
@@ -124,10 +124,10 @@ TransactionsController.makeTransaction = async function(req, privatekey, to, amo
     }
 
     // Create the transaction to the name's owner
-    return transactions.pushTransaction(sender, dbName.owner, amount, metadata);
+    return transactions.pushTransaction(sender, dbName.owner, amount, metadata, undefined, undefined, userAgent, origin);
   } else {
     // Create the transaction to the provided address
-    return transactions.pushTransaction(sender, to, amount, metadata);
+    return transactions.pushTransaction(sender, to, amount, metadata, undefined, undefined, userAgent, origin);
   }
 };
 

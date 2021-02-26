@@ -59,7 +59,7 @@ Utils.errorToJSON = function(error) {
       message: error.message,
       ...(error.info || {})
     };
-  } else if (error.name === "SequelizeUniqueConstraintError") {    
+  } else if (error.name === "SequelizeUniqueConstraintError") {
     console.error(chalk`{red [Error]} Uncaught validation error.`);
     console.error(error.stack);
     console.error(error.errors);
@@ -93,16 +93,32 @@ Utils.sanitiseLimit = function(limit, def, max) {
   def = def || 50;
   max = max || 1000;
 
-  if (limit === null || limit === "" || (typeof limit === "string" && limit.trim() === "")) {
+  if (
+    typeof limit === "undefined"
+    || limit === null
+    || limit === ""
+    || (typeof limit === "string" && limit.trim() === "")
+    || isNaN(parseInt(limit))
+  ) {
     return def;
   }
 
-  return typeof limit !== "undefined" && limit !== null ? Math.min(parseInt(limit) < 0 ? def : parseInt(limit), max) : def;
+  return Math.min(
+    parseInt(limit) < 0 ? def : parseInt(limit),
+    max
+  );
 };
 
 Utils.sanitiseOffset = function(offset) {
   return typeof offset !== "undefined" ? parseInt(offset) : null;
 };
+
+Utils.sanitiseUserAgent = function(userAgent) {
+  if (!userAgent || typeof userAgent !== "string") return;
+  if (userAgent.length > 255) return userAgent.substr(0, 255);
+  return userAgent;
+};
+Utils.sanitiseOrigin = Utils.sanitiseUserAgent;
 
 Utils.sendToWS = function(ws, message) {
   ws.send(JSON.stringify(message));
@@ -123,11 +139,19 @@ Utils.sendErrorToWSWithID = function(ws, id, error) {
 
 Utils.getLogDetails = function(req) {
   const ip = req.ip;
-  const origin = req.header("Origin");
+  const { userAgent, origin } = Utils.getReqDetails(req);
   const path = req.path && req.path.startsWith("/.websocket//") ? "WS" : req.path;
-  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}})`;
+  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}})`;
 
-  return { ip, origin, path, logDetails };
+  return { ip, origin, userAgent, path, logDetails };
+};
+
+Utils.getReqDetails = function(req) {
+  if (!req) return { userAgent: undefined, origin: undefined };
+
+  const userAgent = Utils.sanitiseUserAgent(req.header("User-Agent"));
+  const origin = Utils.sanitiseOrigin(req.header("Origin"));
+  return { userAgent, origin };
 };
 
 module.exports = Utils;

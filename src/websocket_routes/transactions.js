@@ -20,7 +20,8 @@
  */
 
 const errors       = require("../errors/errors.js");
-const txController = require("./../controllers/transactions.js");
+const txController = require("../controllers/transactions.js");
+const utils        = require("../utils");
 
 module.exports = function(websockets) {
   /**
@@ -53,7 +54,8 @@ module.exports = function(websockets) {
     if (ws.isGuest && !message.privatekey)
       throw new errors.ErrorMissingParameter("privatekey");
 
-    const transaction = await txController.makeTransaction(ws.req, message.privatekey || ws.privatekey, message.to, message.amount, message.metadata);
+    const { userAgent, origin } = utils.getReqDetails(ws.req);
+    const transaction = await txController.makeTransaction(ws.req, message.privatekey || ws.privatekey, message.to, message.amount, message.metadata, userAgent, origin);
 
     return {
       ok: true,

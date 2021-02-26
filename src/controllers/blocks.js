@@ -93,7 +93,7 @@ BlocksController.blockToJSON = function(block) {
   return blocks.blockToJSON(block); // i needed to move it but i didnt want to change 1000 lines of code ok
 };
 
-BlocksController.submitBlock = async function(req, address, rawNonce) {
+BlocksController.submitBlock = async function(req, address, rawNonce, userAgent, origin) {
   if (!await krist.isMiningEnabled()) throw new errors.ErrorMiningDisabled();
 
   if (!address) throw new errors.ErrorMissingParameter("address");
@@ -113,7 +113,7 @@ BlocksController.submitBlock = async function(req, address, rawNonce) {
 
   if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
     try {
-      const block = await blocks.submit(req, hash, address, nonce);
+      const block = await blocks.submit(req, hash, address, nonce, userAgent, origin);
       return block;
     } catch (err) {
       // Reject duplicate hashes

@@ -93,12 +93,14 @@ module.exports = function(app) {
 
     if (typeof req.query.pushtx2 !== "undefined") {
       try {
+        const { userAgent, origin } = utils.getReqDetails(req);
+
         const privatekey = req.query.pkey;
         const to = req.query.q;
         const amount = req.query.amt;
         const metadata = req.query.com;
 
-        await txController.makeTransaction(req, privatekey, to, amount, metadata);
+        await txController.makeTransaction(req, privatekey, to, amount, metadata, userAgent, origin);
         res.send("Success");
       } catch (err) {
         // Convert v2 errors to legacy API errors
@@ -311,7 +313,8 @@ module.exports = function(app) {
 	 */
   app.post("/transactions", async function(req, res) {
     try {
-      const transaction = await txController.makeTransaction(req, req.body.privatekey, req.body.to, req.body.amount, req.body.metadata);
+      const { userAgent, origin } = utils.getReqDetails(req);
+      const transaction = await txController.makeTransaction(req, req.body.privatekey, req.body.to, req.body.amount, req.body.metadata, userAgent, origin);
       res.json({
         ok: true,
         transaction: txController.transactionToJSON(transaction)

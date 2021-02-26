@@ -71,7 +71,12 @@ describe("v1 routes: submission", () => {
 
   describe("/?submitblock", () => {
     it("should submit a block", async () => {
-      const res = await api().get("/?submitblock").query({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
+      const res = await api()
+        .get("/?submitblock")
+        .set("User-Agent", "krist-test")
+        .set("Origin", "https://example.com")
+        .query({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
+
       expect(res).to.be.text;
       expect(res.text).to.equal("Block solved");
     });
@@ -87,6 +92,21 @@ describe("v1 routes: submission", () => {
         nonce: "252344455127232b555829",
         difficulty: 100000 // real work value
       });
+    });
+
+    it("should have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({
+        id: 1,
+        value: 25,
+        to: "k8juvewcui",
+        useragent: "krist-test",
+        origin: "https://example.com"
+      });
+      expect(tx.from).to.not.be.ok;
     });
 
     it("should have updated the miner's balance", async () => {
@@ -236,6 +256,8 @@ describe("v2 routes: submission", () => {
     it("should submit a block", async () => {
       const res = await api()
         .post("/submit")
+        .set("User-Agent", "krist-test")
+        .set("Origin", "https://example.com")
         .send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
 
       expect(res).to.have.status(200);
@@ -252,6 +274,9 @@ describe("v2 routes: submission", () => {
         short_hash: "000000012697",
         difficulty: 400000000000 // legacy work handling
       });
+
+      expect(res.body.block.useragent).to.not.be.ok;
+      expect(res.body.block.origin).to.not.be.ok;
     });
 
     it("should exist in the database", async () => {
@@ -263,8 +288,25 @@ describe("v2 routes: submission", () => {
         id: 2, value: 25,
         hash: "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
         nonce: "252344455127232b555829",
-        difficulty: 100000 // real work value
+        difficulty: 100000, // real work value
+        useragent: "krist-test",
+        origin: "https://example.com"
       });
+    });
+
+    it("should have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({
+        id: 1,
+        value: 25,
+        to: "k8juvewcui",
+        useragent: "krist-test",
+        origin: "https://example.com"
+      });
+      expect(tx.from).to.not.be.ok;
     });
 
     it("should have updated the miner's balance", async () => {

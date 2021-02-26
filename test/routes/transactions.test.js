@@ -3,13 +3,15 @@ const { expect } = require("chai");
 const { seed } = require("../seed");
 const { api } = require("../api");
 
-const expectTransactionExist = (id, to, metadata) => async () => {
+const expectTransactionExist = (id, to, metadata, useragent, origin) => async () => {
   const schemas = require("../../src/schemas");
 
   const tx = await schemas.transaction.findByPk(id);
   expect(tx).to.exist;
   expect(tx).to.deep.include({ id, from: "k8juvewcui", to: to || "k7oax47quv", value: 1 });
   if (metadata) expect(tx.op).to.equal(metadata);
+  if (useragent) expect(tx.useragent).to.equal(useragent);
+  if (origin) expect(tx.origin).to.equal(origin);
 };
 
 describe("v1 routes: transactions", () => {
@@ -343,6 +345,8 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction.time).to.be.a("string");
       expect(res.body.transaction.name).to.not.be.ok;
       expect(res.body.transaction.metadata).to.not.be.ok;
+      expect(res.body.transaction.useragent).to.not.be.ok;
+      expect(res.body.transaction.origin).to.not.be.ok;
     });
     it("should exist in the database", expectTransactionExist(1));
 
@@ -445,5 +449,21 @@ describe("v2 routes: transactions", () => {
       expect(address).to.exist;
       expect(address.balance).to.equal(1);
     });
+
+    it("should submit a transaction with a user-agent and origin", async () => {
+      const res = await api()
+        .post("/transactions")
+        .set("User-Agent", "krist-test")
+        .set("Origin", "https://example.com")
+        .send({ amount: 1, to: "k7oax47quv", privatekey: "a" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.transaction).to.be.an("object");
+      expect(res.body.transaction).to.deep.include({ id: 8, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
+      expect(res.body.transaction.useragent).to.not.be.ok;
+      expect(res.body.transaction.origin).to.not.be.ok;
+    });
+    it("should exist in the database", expectTransactionExist(8, undefined, undefined, "krist-test", "https://example.com"));
   });
 });

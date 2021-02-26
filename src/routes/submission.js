@@ -28,10 +28,11 @@ const errors              = require("./../errors/errors.js");
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
     if (typeof req.query.submitblock !== "undefined") {
+      const { userAgent, origin } = utils.getReqDetails(req);
       const { address, nonce } = req.query;
 
       try {
-        await blocksController.submitBlock(req, address, nonce);
+        await blocksController.submitBlock(req, address, nonce, userAgent, origin);
         res.send("Block solved");
       } catch (err) {
         // Convert v2 errors to legacy API errors
@@ -123,7 +124,8 @@ module.exports = function(app) {
 	 */
   app.post("/submit", async function(req, res) {
     try {
-      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce);
+      const { userAgent, origin } = utils.getReqDetails(req);
+      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce, userAgent, origin);
 
       res.json({
         ok: true,
