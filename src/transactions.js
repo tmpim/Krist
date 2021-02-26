@@ -121,11 +121,7 @@ Transactions.searchByName = function(query, countOnly, limit, offset, orderBy, o
     where: {
       [Op.or]: [
         { name: query },
-
-        // TODO: just store the metaname + name as two columns in the database
-        //       so that this isn't necessary (though, it seems to run in ~200ms
-        //       on ~1.9mil transactions, ~140k of which have metadata)
-        { op: { [Op.regexp]: "^(?:([a-z0-9-_]{1,32})@)?" + escapeRegExp(query) + "\\.kst" } }
+        { sent_name: query }
       ]
     },
 

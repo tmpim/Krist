@@ -171,7 +171,7 @@ function validateQuery(req) {
 module.exports = function(app) {
   const api = express.Router();
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV !== "test") {
     api.use(rateLimit({
       windowMs: 30000, delayAfter: 10, delayMs: 250, max: 15,
       message: "Rate limit hit. Please try again later."
