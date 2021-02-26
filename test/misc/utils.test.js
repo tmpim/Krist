@@ -81,4 +81,22 @@ describe("utils", () => {
     it("should escape percent", async () =>
       expect(utils.sanitiseLike("foo%bar")).to.deep.equal({ val: "'%foo\\\\%bar%'" }));
   });
+
+  describe("sanitiseUserAgent", () => {
+    it("should return undefined for undefined", async () =>
+      expect(utils.sanitiseUserAgent()).to.be.undefined);
+    it("should allow a valid string", async () =>
+      expect(utils.sanitiseUserAgent("a")).to.equal("a"));
+    it("should truncate a long string", async () =>
+      expect(utils.sanitiseUserAgent("a".repeat(256))).to.equal("a".repeat(255)));
+  });
+
+  describe("sanitiseOrigin", () => {
+    it("should return undefined for undefined", async () =>
+      expect(utils.sanitiseOrigin()).to.be.undefined);
+    it("should allow a valid string", async () =>
+      expect(utils.sanitiseOrigin("a")).to.equal("a"));
+    it("should truncate a long string", async () =>
+      expect(utils.sanitiseOrigin("a".repeat(256))).to.equal("a".repeat(255)));
+  });
 });

@@ -64,8 +64,8 @@ Blocks.getLowestHashes = function(limit, offset) {
         { id: { [Op.gt]: 10 } } // Ignore the genesis block
       ]
     },
-    order: [["hash", "ASC"]], 
-    limit: utils.sanitiseLimit(limit), 
+    order: [["hash", "ASC"]],
+    limit: utils.sanitiseLimit(limit),
     offset: utils.sanitiseOffset(offset)
   });
 };
@@ -138,7 +138,7 @@ Blocks.getBlockValue = async (t) => {
   return Blocks.getBaseBlockValue(lastBlock.id) + unpaidNames;
 };
 
-Blocks.submit = async function(req, hash, address, nonce) {
+Blocks.submit = async function(req, hash, address, nonce, useragent, origin) {
   if (!await krist.isMiningEnabled())
     throw new Error("WTF: Attempted to submit block while mining is disabled!");
 
@@ -163,8 +163,8 @@ Blocks.submit = async function(req, hash, address, nonce) {
     console.log(chalk`{bold [Krist]} Submitting {bold ${value} KST} block by {bold ${address}} at {cyan ${moment().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
     promBlockCounter.inc();
 
-    const unpaidNames = await schemas.name.findAll({ 
-      where: { 
+    const unpaidNames = await schemas.name.findAll({
+      where: {
         unpaid: { [Op.gt]: 0 }
       }
     }, { transaction: t });
@@ -174,17 +174,19 @@ Blocks.submit = async function(req, hash, address, nonce) {
     const [block] = await Promise.all([
       // Create the new block
       schemas.block.create({
-        hash: hash,
-        address: address,
+        hash,
+        address,
         // Convert a binary nonce to a string if necessary
         nonce: Buffer.from(nonce, "binary").toString("hex"),
-        time: time,
+        time,
         difficulty: oldWork,
-        value: value
+        value,
+        useragent,
+        origin
       }, { transaction: t }),
 
       // Create the transaction
-      tx.createTransaction(address, null, value, null, null, t),
+      tx.createTransaction(address, null, value, null, null, t, useragent, origin),
 
       // Decrement all unpaid name counters
       unpaidNames.map(name => name.decrement({ unpaid: 1 }, { transaction: t }))

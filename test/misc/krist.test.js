@@ -2,7 +2,22 @@ const { expect } = require("chai");
 
 const Krist = () => require("../../src/krist");
 
-describe("krist functions", () => {  
+describe("krist functions", () => {
+  describe("isValidKristAddress", () => {
+    it("should work for a valid v1 address", async () =>
+      expect(Krist().isValidKristAddress("a5dfb396d3")).to.be.true);
+    it("should work for a valid v2 address", async () =>
+      expect(Krist().isValidKristAddress("k8juvewcui")).to.be.true);
+    it("should fail for an invalid address", async () =>
+      expect(Krist().isValidKristAddress("kfartoolong")).to.be.false);
+    it("should fail for a valid v1 address when v2Only", async () =>
+      expect(Krist().isValidKristAddress("a5dfb396d3", true)).to.be.false);
+    it("should work for a valid v2 address when v2Only", async () =>
+      expect(Krist().isValidKristAddress("k8juvewcui", true)).to.be.true);
+    it("should fail for an invalid address when v2Only", async () =>
+      expect(Krist().isValidKristAddress("kfartoolong", true)).to.be.false);
+  });
+
   describe("isValidName", () => {
     it("should work for a valid name", async () =>
       expect(Krist().isValidName("test")).to.be.true);
@@ -23,7 +38,7 @@ describe("krist functions", () => {
   describe("stripNameSuffix", () => {
     it("should strip a .kst suffix", async () =>
       expect(Krist().stripNameSuffix("test.kst")).to.equal("test"));
-    it("not alter a name without a suffix", async () => 
+    it("not alter a name without a suffix", async () =>
       expect(Krist().stripNameSuffix("test")).to.equal("test"));
     it("should only strip the last suffix", async () =>
       expect(Krist().stripNameSuffix("test.kst.kst")).to.equal("test.kst"));

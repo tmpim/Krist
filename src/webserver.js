@@ -26,6 +26,7 @@ const bodyParser    = require("body-parser");
 const expressWs     = require("express-ws");
 const exphbs        = require("express-handlebars");
 const rateLimit     = require("express-rate-limit");
+const cors          = require("cors");
 const fs            = require("fs");
 const path          = require("path");
 const chalk         = require("chalk");
@@ -49,6 +50,8 @@ Webserver.init = async function() {
 
   prometheus.init(app);
 
+  app.use(cors());
+
   app.use(function(req, res, next) {
     delete req.headers["content-encoding"];
     next();
@@ -63,7 +66,7 @@ Webserver.init = async function() {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV !== "test") {
     app.use(rateLimit({
       windowMs: 60000,
       delayAfter: 240,
@@ -76,8 +79,6 @@ Webserver.init = async function() {
   app.all("*", function(req, res, next) {
     res.header("X-Robots-Tag", "none");
     res.header("Content-Type", "application/json");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, UPDATE, DELETE, OPTIONS");
     next();
   });
 

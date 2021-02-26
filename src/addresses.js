@@ -50,7 +50,7 @@ Addresses.getAddresses = function(limit, offset) {
 Addresses.lookupAddresses = function(addressList, fetchNames) {
   if (fetchNames) { // TODO: see if this can be done with sequelize
     return database.getSequelize().query(`
-      SELECT 
+      SELECT
         \`addresses\`.*,
         COUNT(\`names\`.\`id\`) AS \`names\`
       FROM \`addresses\`
@@ -58,9 +58,9 @@ Addresses.lookupAddresses = function(addressList, fetchNames) {
       WHERE \`addresses\`.\`address\` IN (:addresses)
       GROUP BY \`addresses\`.\`address\`
       ORDER BY \`names\` DESC;
-    `, { 
+    `, {
       replacements: { addresses: addressList },
-      type: QueryTypes.SELECT 
+      type: QueryTypes.SELECT
     });
   } else {
     return schemas.address.findAll({ where: { address: addressList } });
@@ -82,7 +82,7 @@ Addresses.cleanAuthLog = async function() {
 };
 
 Addresses.logAuth = async function(req, address, type) {
-  const { ip, path, logDetails } = utils.getLogDetails(req);
+  const { ip, path, userAgent, origin, logDetails } = utils.getLogDetails(req);
 
   if (type === "auth") {
     console.log(chalk`{green [Auth]} ({bold ${path}}) Successful auth on address {bold ${address}} ${logDetails}`);
@@ -92,7 +92,7 @@ Addresses.logAuth = async function(req, address, type) {
   // were any within the last 30 minutes, don't add any new ones.
   const existing = await schemas.authLog.findOne({
     where: {
-      ip, 
+      ip,
       address,
       time: { [Op.gte]: Sequelize.literal("NOW() - INTERVAL 30 MINUTE")},
       type
@@ -101,7 +101,12 @@ Addresses.logAuth = async function(req, address, type) {
   if (existing) return;
 
   schemas.authLog.create({
-    ip, address, time: new Date(), type
+    ip,
+    address,
+    time: new Date(),
+    type,
+    useragent: userAgent,
+    origin
   });
 };
 
@@ -129,8 +134,8 @@ Addresses.verify = async function(req, kristAddress, privatekey) {
   if (address.privatekey) { // Address exists, auth if the privatekey is equal
     const authed = !address.locked && address.privatekey === hash;
 
-    if (authed) Addresses.logAuth(req, kristAddress, "auth");      
-    else console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address {bold ${kristAddress}} ${logDetails}`);      
+    if (authed) Addresses.logAuth(req, kristAddress, "auth");
+    else console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address {bold ${kristAddress}} ${logDetails}`);
 
     promAddressesVerifiedCounter.inc({ type: authed ? "authed" : "failed" });
     return { authed, address };

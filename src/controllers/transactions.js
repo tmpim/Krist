@@ -79,24 +79,27 @@ TransactionsController.getTransaction = function(id) {
   });
 };
 
-TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata) {
+TransactionsController.makeTransaction = async function(req, privatekey, to, amount, metadata, userAgent, origin) {
   // Input validation
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
   if (!to) throw new errors.ErrorMissingParameter("to");
   if (!amount) throw new errors.ErrorMissingParameter("amount");
-  
+
   // Check if we're paying to a name
   const isName = krist.nameMetaRegex.test(to.toLowerCase());
-  let nameInfo;
+  // Handle the potential legacy behaviour of manually paying to a name via the
+  // transaction metadata
+  const metadataIsName = metadata && krist.metanameMetadataRegex.test(metadata);
 
-  if (isName) {
-    nameInfo = krist.nameMetaRegex.exec(to.toLowerCase());
-  } else { // Verify this is a valid address
-    if (!krist.isValidKristAddress(to)) throw new errors.ErrorInvalidParameter("to");
-  }
-  
+  const nameInfo = isName ? krist.nameMetaRegex.exec(to.toLowerCase()) : undefined;
+  const metadataNameInfo = metadataIsName ? krist.metanameMetadataRegex.exec(metadata) : undefined;
+
+  // Verify this is a valid v2 address
+  if (!isName && !krist.isValidKristAddress(to, true))
+    throw new errors.ErrorInvalidParameter("to");
+
   if (isNaN(amount) || amount < 1) throw new errors.ErrorInvalidParameter("amount");
-  if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata) || metadata.length > 255)) 
+  if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata) || metadata.length > 255))
     throw new errors.ErrorInvalidParameter("metadata");
 
   const from = krist.makeV2Address(privatekey);
@@ -110,23 +113,26 @@ TransactionsController.makeTransaction = async function(req, privatekey, to, amo
   if (!sender || sender.balance < amount) throw new errors.ErrorInsufficientFunds();
 
   // If this is a name, pay to the owner of the name
-  if (isName) {
+  if (isName || metadataIsName) {
     // Fetch the name
-    const dbName = await names.getNameByName(nameInfo[2]);
+    const metaname = isName ? nameInfo[1] : metadataNameInfo[1];
+    const dbName = await names.getNameByName(isName ? nameInfo[2] : metadataNameInfo[2]);
     if (!dbName) throw new errors.ErrorNameNotFound();
 
-    // Add the original name spec to the metadata 
-    if (metadata) { // Append with a semicolon if we already have metadata
-      metadata = to.toLowerCase() + ";" + metadata;
-    } else { // Set new metadata otherwise
-      metadata = to.toLowerCase();
+    // Add the original name spec to the metadata
+    if (isName) {
+      if (metadata) { // Append with a semicolon if we already have metadata
+        metadata = to.toLowerCase() + ";" + metadata;
+      } else { // Set new metadata otherwise
+        metadata = to.toLowerCase();
+      }
     }
 
     // Create the transaction to the name's owner
-    return transactions.pushTransaction(sender, dbName.owner, amount, metadata);
+    return transactions.pushTransaction(sender, dbName.owner, amount, metadata, undefined, undefined, userAgent, origin, metaname, dbName.name);
   } else {
     // Create the transaction to the provided address
-    return transactions.pushTransaction(sender, to, amount, metadata);
+    return transactions.pushTransaction(sender, to, amount, metadata, undefined, undefined, userAgent, origin);
   }
 };
 

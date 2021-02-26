@@ -19,8 +19,6 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-const constants           = require("./../constants.js");
-const krist               = require("./../krist.js");
 const utils               = require("./../utils.js");
 const addressesController = require("./../controllers/addresses.js");
 const blocksController    = require("./../controllers/blocks.js");
@@ -30,30 +28,31 @@ const errors              = require("./../errors/errors.js");
 module.exports = function(app) {
   app.get("/", async function(req, res, next) {
     if (typeof req.query.submitblock !== "undefined") {
-      if (!await krist.isMiningEnabled())
-        return res.send("Mining disabled");
+      const { userAgent, origin } = utils.getReqDetails(req);
+      const { address, nonce } = req.query;
 
-      if (!req.query.address || !krist.isValidKristAddress(req.query.address))
-        return res.send("Invalid address");
-      if (!req.query.nonce || req.query.nonce.length > constants.nonceMaxSize)
-        return res.send("Nonce is too large");
-
-      const lastBlock = await blocks.getLastBlock();
-
-      const last = lastBlock.hash.substr(0, 12);
-      const difficulty = await krist.getWork();
-      const hash = utils.sha256(req.query.address + last + req.query.nonce);
-
-      if (parseInt(hash.substr(0, 12), 16) <= difficulty || krist.freeNonceSubmission) {
-        try {
-          await blocks.submit(req, hash, req.query.address, req.query.nonce);
-          res.send("Block solved");
-        } catch (err) {
-          console.error(err);
-          res.send("Solution rejected");
+      try {
+        await blocksController.submitBlock(req, address, nonce, userAgent, origin);
+        res.send("Block solved");
+      } catch (err) {
+        // Convert v2 errors to legacy API errors
+        if (err.errorString === "mining_disabled")
+          return res.send("Mining disabled");
+        if (err.parameter === "address")
+          return res.send("Invalid address");
+        if (err.parameter === "nonce")
+          return res.send("Nonce is too large");
+        if (err.errorString === "solution_duplicate")
+          return res.send("Solution rejected");
+        if (err.errorString === "solution_incorrect") {
+          // v1 API returns address + lastBlockHash + nonce for invalid
+          // solutions, not sure why
+          const lastBlock = await blocks.getLastBlock();
+          return res.send(address + lastBlock.hash.substr(0, 12) + nonce);
         }
-      } else {
-        res.send(req.query.address + last + req.query.nonce);
+
+        console.error(err);
+        return res.send("Unknown error");
       }
 
       return;
@@ -125,7 +124,8 @@ module.exports = function(app) {
 	 */
   app.post("/submit", async function(req, res) {
     try {
-      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce);
+      const { userAgent, origin } = utils.getReqDetails(req);
+      const result = await blocksController.submitBlock(req, req.body.address, req.body.nonce, userAgent, origin);
 
       res.json({
         ok: true,

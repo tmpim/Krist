@@ -55,7 +55,8 @@ const Block = database.getSequelize().define("block", {
   nonce: Sequelize.STRING(constants.nonceMaxSize * 2),
   time: Sequelize.DATE,
   difficulty: Sequelize.INTEGER(10).UNSIGNED,
-  useragent: Sequelize.STRING(255)
+  useragent: Sequelize.STRING(255),
+  origin: Sequelize.STRING(255)
 }, {
   timestamps: false,
   indexes: [
@@ -90,7 +91,11 @@ const Transaction = database.getSequelize().define("transaction", {
   value: Sequelize.INTEGER.UNSIGNED,
   time: Sequelize.DATE,
   name: Sequelize.STRING(128),
-  op: Sequelize.STRING(512)
+  op: Sequelize.STRING(512),
+  origin: Sequelize.STRING(255),
+  useragent: Sequelize.STRING(255),
+  sent_metaname: Sequelize.STRING(32),
+  sent_name: Sequelize.STRING(64)
 }, {
   timestamps: false,
   indexes: [
@@ -107,7 +112,9 @@ const AuthLog = database.getSequelize().define("authlog", {
   address: Sequelize.STRING(10),
   ip: Sequelize.STRING(47),
   time: Sequelize.DATE,
-  type: Sequelize.ENUM("auth", "mining")
+  type: Sequelize.ENUM("auth", "mining"),
+  origin: Sequelize.STRING(255),
+  useragent: Sequelize.STRING(255)
 }, {
   timestamps: false,
   indexes: [

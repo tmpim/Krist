@@ -125,6 +125,13 @@ Utils.sanitiseLike = function(query) {
   return sequelize.literal(inputEscaped);
 };
 
+Utils.sanitiseUserAgent = function(userAgent) {
+  if (!userAgent || typeof userAgent !== "string") return;
+  if (userAgent.length > 255) return userAgent.substr(0, 255);
+  return userAgent;
+};
+Utils.sanitiseOrigin = Utils.sanitiseUserAgent;
+
 Utils.sendToWS = function(ws, message) {
   ws.send(JSON.stringify(message));
 };
@@ -144,11 +151,19 @@ Utils.sendErrorToWSWithID = function(ws, id, error) {
 
 Utils.getLogDetails = function(req) {
   const ip = req.ip;
-  const origin = req.header("Origin");
+  const { userAgent, origin } = Utils.getReqDetails(req);
   const path = req.path && req.path.startsWith("/.websocket//") ? "WS" : req.path;
-  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}})`;
+  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}})`;
 
-  return { ip, origin, path, logDetails };
+  return { ip, origin, userAgent, path, logDetails };
+};
+
+Utils.getReqDetails = function(req) {
+  if (!req) return { userAgent: undefined, origin: undefined };
+
+  const userAgent = Utils.sanitiseUserAgent(req.header("User-Agent"));
+  const origin = Utils.sanitiseOrigin(req.header("Origin"));
+  return { userAgent, origin };
 };
 
 module.exports = Utils;

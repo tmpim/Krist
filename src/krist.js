@@ -34,11 +34,13 @@ const { cleanAuthLog } = require("./addresses.js");
 const cron             = require("node-cron");
 
 const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
+const addressRegexV2 = /^k[a-z0-9]{9}$/;
 const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
 const nameRegex = /^[a-z0-9]{1,64}$/i;
 const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
+Krist.metanameMetadataRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst/i;
 
 Krist.freeNonceSubmission = false;
 
@@ -148,8 +150,10 @@ Krist.makeV2Address = function(key) {
   return prefix;
 };
 
-Krist.isValidKristAddress = function(address) {
-  return addressRegex.test(address);
+Krist.isValidKristAddress = function(address, v2Only) {
+  return v2Only
+    ? addressRegexV2.test(address)
+    : addressRegex.test(address);
 };
 
 Krist.isValidKristAddressList = function(addressList) {

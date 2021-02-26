@@ -49,11 +49,11 @@ describe("v2 routes: names", () => {
 
     it("should reject names with invalid characters", async () => {
       const invalidNames = ["test.kst", " ", "te st", "_"];
-      for (const name of invalidNames) { 
+      for (const name of invalidNames) {
         const res = await api()
           .post("/names/" + encodeURIComponent(name))
           .send({ privatekey: "a" });
-          
+
         expect(res).to.be.json;
         expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
       }
@@ -107,7 +107,7 @@ describe("v2 routes: names", () => {
 
     it("should exist in the database", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const name = await schemas.name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500 });
@@ -115,7 +115,7 @@ describe("v2 routes: names", () => {
 
     it("should have created a transaction", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "name", name: "test", value: 500 });
@@ -123,7 +123,7 @@ describe("v2 routes: names", () => {
 
     it("should have decreased the buyer's balance", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const address = await schemas.address.findOne({ where: { address: "k0duvsr4qn" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 24500 });
@@ -165,6 +165,15 @@ describe("v2 routes: names", () => {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "a", address: "kfartoolong" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "address" });
+    });
+
+    it("should reject v1 addresses", async () => {
+      const res = await api()
+        .post("/names/test/transfer")
+        .send({ privatekey: "a", address: "a5dfb396d3" });
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "address" });
@@ -221,7 +230,7 @@ describe("v2 routes: names", () => {
 
     it("should have created a transaction", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "k8juvewcui", name: "test", value: 0 });
@@ -229,7 +238,7 @@ describe("v2 routes: names", () => {
 
     it("should not have changed the old owner's balance", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const address = await schemas.address.findOne({ where: { address: "k0duvsr4qn" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 24500 });
@@ -237,7 +246,7 @@ describe("v2 routes: names", () => {
 
     it("should not have changed the new owner's balance", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
@@ -261,10 +270,10 @@ describe("v2 routes: names", () => {
 
     it("should reject names with invalid characters", async () => {
       const invalidNames = ["test.kst", " ", "te st", "_"];
-      for (const name of invalidNames) { 
+      for (const name of invalidNames) {
         const res = await api()[method]("/names/" + encodeURIComponent(name) + route)
           .send({ privatekey: "a" });
-          
+
         expect(res).to.be.json;
         expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
       }
@@ -272,10 +281,10 @@ describe("v2 routes: names", () => {
 
     it("should reject invalid a records", async () => {
       const invalidRecords = ["#foo", "?foo", "foo bar", " foo", "foo ", "a".repeat(256)];
-      for (const record of invalidRecords) { 
+      for (const record of invalidRecords) {
         const res = await api()[method]("/names/test" + route)
           .send({ privatekey: "a", a: record });
-          
+
         expect(res).to.be.json;
         expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "a" });
       }
@@ -305,7 +314,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "not_name_owner" });
     });
   };
-  
+
   const nameUpdate = (route, method) => () => {
     it("should update a name's a record", async () => {
       const res = await api()[method]("/names/test" + route)
@@ -319,7 +328,7 @@ describe("v2 routes: names", () => {
 
     it("should exist in the database", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const name = await schemas.name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com" });
@@ -327,7 +336,7 @@ describe("v2 routes: names", () => {
 
     it("should have created a transaction", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "example.com", value: 0 });
@@ -335,7 +344,7 @@ describe("v2 routes: names", () => {
 
     it("should not have changed the owner's balance", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
@@ -353,7 +362,7 @@ describe("v2 routes: names", () => {
 
     it("should exist in the database", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const name = await schemas.name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "" });
@@ -361,7 +370,7 @@ describe("v2 routes: names", () => {
 
     it("should have created a transaction", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "", value: 0 });
@@ -369,7 +378,7 @@ describe("v2 routes: names", () => {
 
     it("should not have changed the owner's balance", async () => {
       const schemas = require("../../src/schemas");
-      
+
       const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
