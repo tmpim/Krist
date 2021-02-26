@@ -3,6 +3,7 @@ dependencies:
   body-parser: 1.19.0
   chalk: 4.1.0
   console-stamp: 0.2.9
+  cors: 2.8.5
   dotenv: 8.2.0
   express: 5.0.0-alpha.8
   express-basic-auth: 1.2.0
@@ -709,6 +710,15 @@ packages:
     dev: true
     resolution:
       integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
+  /cors/2.8.5:
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
+    dev: false
+    engines:
+      node: '>= 0.10'
+    resolution:
+      integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==
   /crypto-random-string/2.0.0:
     dev: true
     engines:
@@ -3271,6 +3281,7 @@ specifiers:
   chai-http: ^4.3.0
   chalk: ^4.1.0
   console-stamp: ^0.2.0
+  cors: ^2.8.5
   dotenv: ^8.2.0
   express: ^5.0.0-alpha.8
   express-basic-auth: ^1.2.0
