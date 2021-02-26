@@ -104,7 +104,10 @@ const Transaction = database.getSequelize().define("transaction", {
     },
     { // Index on 'to'
       fields: ["to"]
-    }
+    },
+    { fields: ["sent_metaname"] },
+    { fields: ["sent_name"] },
+    { fields: ["sent_metaname", "sent_name"] },
   ]
 });
 
