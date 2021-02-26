@@ -27,6 +27,7 @@
     "lrange",
     "ltrim",
     "mariadb",
+    "metaname",
     "metanames",
     "mysqladmin",
     "octokit",

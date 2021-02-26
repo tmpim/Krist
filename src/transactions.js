@@ -109,7 +109,7 @@ Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, 
   });
 };
 
-Transactions.createTransaction = async function (to, from, value, name, op, dbTx, useragent, origin) {
+Transactions.createTransaction = async function (to, from, value, name, op, dbTx, useragent, origin, sent_metaname, sent_name) {
   // Create the new transaction object
   const newTransaction = await schemas.transaction.create({
     to,
@@ -119,7 +119,9 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
     time: new Date(),
     op,
     useragent,
-    origin
+    origin,
+    sent_metaname,
+    sent_name
   }, { transaction: dbTx });
 
   promTransactionCounter.inc({
@@ -136,7 +138,7 @@ Transactions.createTransaction = async function (to, from, value, name, op, dbTx
   return newTransaction;
 };
 
-Transactions.pushTransaction = async function(sender, recipientAddress, amount, metadata, name, dbTx, userAgent, origin) {
+Transactions.pushTransaction = async function(sender, recipientAddress, amount, metadata, name, dbTx, userAgent, origin, sentMetaname, sentName) {
   const recipient = await addresses.getAddress(recipientAddress);
 
   // Do these in parallel:
@@ -147,7 +149,7 @@ Transactions.pushTransaction = async function(sender, recipientAddress, amount, 
     sender.increment({ totalout: amount }, { transaction: dbTx }),
 
     // Create the transaction
-    Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx, userAgent, origin),
+    Transactions.createTransaction(recipientAddress, sender.address, amount, name, metadata, dbTx, userAgent, origin, sentMetaname, sentName),
 
     // Create the recipient if they don't exist,
     !recipient
@@ -187,6 +189,8 @@ Transactions.transactionToJSON = function(transaction) {
     time: transaction.time,
     name: transaction.name,
     metadata: transaction.op,
+    sent_metaname: transaction.sent_metaname,
+    sent_name: transaction.sent_name,
     type: Transactions.identifyTransactionType(transaction)
   };
 };

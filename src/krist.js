@@ -40,6 +40,7 @@ const nameRegex = /^[a-z0-9]{1,64}$/i;
 const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
+Krist.metanameMetadataRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst/i;
 
 Krist.freeNonceSubmission = false;
 

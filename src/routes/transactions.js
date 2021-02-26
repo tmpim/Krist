@@ -45,6 +45,9 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transaction.time The time this transaction this was made.
 	 * @apiSuccess {String} [transaction.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transaction.metadata] Transaction metadata, or null.
+	 * @apiSuccess {String} [transaction.sent_metaname] The metaname (part before '@') of the recipient of this
+   *            transaction, if it was sent to a name.
+	 * @apiSuccess {String} [transaction.sent_name] The name this transaction was sent to, if it was sent to a name.
 	 * @apiSuccess {String} transaction.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`,
    *            `name_a_record`, or `name_transfer`.
 	 */
@@ -63,6 +66,9 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} transactions.time The time this transaction this was made.
 	 * @apiSuccess {String} [transactions.name] The name associated with this transaction, or null.
 	 * @apiSuccess {String} [transactions.metadata] Transaction metadata, or null.
+	 * @apiSuccess {String} [transactions.sent_metaname] The metaname (part before '@') of the recipient of this
+   *            transaction, if it was sent to a name.
+	 * @apiSuccess {String} [transactions.sent_name] The name this transaction was sent to, if it was sent to a name.
 	 * @apiSuccess {String} transactions.type The type of this transaction. May be `mined`, `transfer`, `name_purchase`,
    *            `name_a_record`, or `name_transfer`.
 	 */
@@ -157,6 +163,8 @@ module.exports = function(app) {
      *             "time": "2015-02-14T16:44:40.000Z",
      *             "name": null,
      *             "metadata": null,
+     *             "sent_metaname": null,
+     *             "sent_name": null,
      *             "type": "mined"
      *         },
      *         {
@@ -167,6 +175,8 @@ module.exports = function(app) {
      *             "time": "2015-02-14T23:15:39.000Z",
      *             "name": null,
      *             "metadata": null,
+     *             "sent_metaname": null,
+     *             "sent_name": null,
      *             "type": "transfer"
      *         },
 	 *  	   ...
@@ -218,6 +228,8 @@ module.exports = function(app) {
      *             "time": "2016-02-06T19:22:41.000Z",
      *             "name": null,
      *             "metadata": null,
+     *             "sent_metaname": null,
+     *             "sent_name": null,
      *             "type": "mined"
      *         },
      *         {
@@ -228,6 +240,8 @@ module.exports = function(app) {
      *             "time": "2016-02-06T14:01:19.000Z",
      *             "name": "exam",
      *             "metadata": null,
+     *             "sent_metaname": null,
+     *             "sent_name": null,
      *             "type": "name_purchase"
      *         },
 	 *  	   ...
@@ -272,6 +286,8 @@ module.exports = function(app) {
      *         "time": "2016-02-03T19:15:32.000Z",
      *         "name": null,
      *         "metadata": null,
+     *         "sent_metaname": null,
+     *         "sent_name": null,
      *         "type": "transfer"
      *     }
      * }

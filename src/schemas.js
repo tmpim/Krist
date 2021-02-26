@@ -93,7 +93,9 @@ const Transaction = database.getSequelize().define("transaction", {
   name: Sequelize.STRING(128),
   op: Sequelize.STRING(512),
   origin: Sequelize.STRING(255),
-  useragent: Sequelize.STRING(255)
+  useragent: Sequelize.STRING(255),
+  sent_metaname: Sequelize.STRING(32),
+  sent_name: Sequelize.STRING(64)
 }, {
   timestamps: false,
   indexes: [

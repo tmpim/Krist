@@ -330,6 +330,15 @@ describe("v2 routes: transactions", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
     });
+
+    it("should error when paying to a name that doesn't exist via metadata", async () => {
+      const res = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "k7oax47quv", privatekey: "a", metadata: "notfound.kst" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
+    });
   });
 
   describe("POST /transactions", () => {
@@ -393,6 +402,7 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction).to.be.an("object");
       expect(res.body.transaction).to.deep.include({ id: 3, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
       expect(res.body.transaction.metadata).to.equal("test.kst");
+      expect(res.body.transaction.sent_name).to.equal("test");
     });
 
     it("should preserve existing metadata with a transaction to a name", async () => {
@@ -405,6 +415,7 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction).to.be.an("object");
       expect(res.body.transaction).to.deep.include({ id: 4, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
       expect(res.body.transaction.metadata).to.equal("test.kst;Hello, world!");
+      expect(res.body.transaction.sent_name).to.equal("test");
     });
 
     it("should support metanames", async () => {
@@ -417,6 +428,8 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction).to.be.an("object");
       expect(res.body.transaction).to.deep.include({ id: 5, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
       expect(res.body.transaction.metadata).to.equal("meta@test.kst");
+      expect(res.body.transaction.sent_metaname).to.equal("meta");
+      expect(res.body.transaction.sent_name).to.equal("test");
     });
 
     it("should support metanames and preserve metadata", async () => {
@@ -429,6 +442,8 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction).to.be.an("object");
       expect(res.body.transaction).to.deep.include({ id: 6, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
       expect(res.body.transaction.metadata).to.equal("meta@test.kst;Hello, world!");
+      expect(res.body.transaction.sent_metaname).to.equal("meta");
+      expect(res.body.transaction.sent_name).to.equal("test");
     });
 
     it("should transact to a new address", async () => {
@@ -465,5 +480,31 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction.origin).to.not.be.ok;
     });
     it("should exist in the database", expectTransactionExist(8, undefined, undefined, "krist-test", "https://example.com"));
+
+    it("should transact to a name's owner via metadata", async () => {
+      const res = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "k7oax47quv", privatekey: "a", metadata: "test.kst" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.transaction).to.be.an("object");
+      expect(res.body.transaction).to.deep.include({ id: 9, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
+      expect(res.body.transaction.metadata).to.equal("test.kst");
+      expect(res.body.transaction.sent_name).to.equal("test");
+    });
+
+    it("should transact to a name's owner even when metadata is present", async () => {
+      const res = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "test.kst", privatekey: "a", metadata: "notfound.kst" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.transaction).to.be.an("object");
+      expect(res.body.transaction).to.deep.include({ id: 10, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
+      expect(res.body.transaction.metadata).to.equal("test.kst;notfound.kst");
+      expect(res.body.transaction.sent_name).to.equal("test");
+    });
   });
 });
