@@ -48,7 +48,14 @@
   </p>
   
   <div class="whats-new">
-    {{#>new date="2021-02-27" hash="af04c1c" new="true"}}
+    {{#>new date="2021-02-27" hash="9bad309" new="true"}}
+      The {{#>link url="/docs/#api-LookupGroup-Search"}}Search API{{/link}} has
+      been added. Results pagination hasn't yet been added, but it can be used
+      to find addresses, transactions, names and blocks that match a given 
+      search query. More coming soon!
+    {{/new}}
+    
+    {{#>new date="2021-02-26" hash="af04c1c" new="true"}}
       Transactions now return the name and metaname they were originally sent
       to, via the <code>sent_name</code> and <code>sent_metaname</code> fields.
       Now you no longer have to parse the metadata!
