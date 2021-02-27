@@ -138,7 +138,10 @@ Transactions.searchMetadata = function(query, countOnly, limit, offset, orderBy,
   const fn = countOnly ? "count" : "findAndCountAll";
   return schemas.transaction[fn]({
     where: {
-      op: { [Op.like]: utils.sanitiseLike(query) }
+      [Op.and]: [
+        { op: { [Op.ne]: null }},
+        { op: { [Op.like]: utils.sanitiseLike(query) }}
+      ]
     },
 
     // Don't bother including the order, etc. when we only care about the count
