@@ -361,6 +361,27 @@ module.exports = function(app) {
    *   Krist name.
    * @apiSuccess {Number|Boolean} matches.transactions.metadata The number of
    *   transactions with metadata containing the query string.
+   *
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "query": {
+   *     "originalQuery": "sc.kst",
+   *     "matchAddress": false,
+   *     "matchName": true,
+   *     "matchBlock": false,
+   *     "matchTransaction": false,
+   *     "strippedName": "sc",
+   *     "hasID": false
+   *   },
+   *   "matches": {
+   *     "transactions": {
+   *       "addressInvolved": false,
+   *       "nameInvolved": 3361,
+   *       "metadata": 3404
+   *     }
+   *   }
+   * }
    */
   api.get("/extended", async (req, res) => {
     const query = validateQuery(req);
