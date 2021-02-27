@@ -108,6 +108,7 @@ const Transaction = database.getSequelize().define("transaction", {
     // This index is used not to actually search the metadata, but to optimise
     // searching for it when it is NOT NULL
     { fields: ["op"] },
+    { fields: ["name"] },
     { fields: ["sent_metaname"] },
     { fields: ["sent_name"] },
     { fields: ["sent_metaname", "sent_name"] },
