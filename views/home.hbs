@@ -1,24 +1,34 @@
 <section id="left">
   <ul class="links">
-    <li><a href="http://www.computercraft.info/forums2/index.php?/topic/22201-krist-minable-currency-that-works-across-servers/page__p__207703#entry207703">Forum Thread</a></li>
-    <li><a href="/docs">API Documentation</a></li>
-    <li><a href="https://krist.club/">Web Wallet</a></li>
+    <li>{{#>link url="http://www.computercraft.info/forums2/index.php?/topic/22201-krist-minable-currency-that-works-across-servers/page__p__207703#entry207703"}}
+      Forum Thread
+    {{/link}}</li>
+    <li>{{#>link url="/docs"}}API Documentation{{/link}}</li>
+    <li>{{#>link url="https://krist.club/"}}Web Wallet{{/link}}</li>
   </ul>
 
   <br /><br />
   <h3>Miners</h3>
 
   <ul class="links smaller">
-    <li><a href="https://github.com/tmpim/kristforge">(<b>CPU + GPU, recommended</b>) kristforge by dana</a></li>
-    <li><a href="https://github.com/1lann/krist-miner">(<b>CPU only</b>) krist-miner by 1lann</a></li>
+    <li>{{#>link url="https://github.com/tmpim/kristforge"}}
+      (<b>CPU + GPU, recommended</b>) kristforge by dana
+    {{/link}}</li>
+    <li>{{#>link url="https://github.com/1lann/krist-miner"}}
+      (<b>CPU only</b>) krist-miner by 1lann
+    {{/link}}</li>
   </ul>
 
   <br />
   <h3>Wallets</h3>
 
   <ul class="links smaller">
-    <li><a href="https://krist.club/">(<b>Web</b>) KristWeb by Lemmmy</a></li>
-    <li><a href="https://pastebin.com/CChWjRx6">(<b>ComputerCraft</b>) kristwallet by 3d6</a></li>
+    <li>{{#>link url="https://krist.club/"}}
+      (<b>Web</b>) KristWeb by Lemmmy
+    {{/link}}</li>
+    <li>{{#>link url="https://pastebin.com/CChWjRx6"}}
+      (<b>ComputerCraft</b>) kristwallet by 3d6
+    {{/link}}</li>
   </ul>
 
   <br /><br />
@@ -30,13 +40,59 @@
   </p>
 </section>
 
-{{#if commits}}
-  <section id="right">
-    <h3>What's New <a href="https://github.com/tmpim/Krist/"><i class="fa fa-github github-icon"></i></a></h3>
+<section id="right">
+  <h3>What's New</h3>
+  <p>
+    A lot of new features have been added to the Krist API starting in 2020.
+    Here's a showcase of some of the new things!
+  </p>
+  
+  <div class="whats-new">
+    {{#>new date="2021-02-27" hash="af04c1c" new="true"}}
+      Transactions now return the name and metaname they were originally sent
+      to, via the <code>sent_name</code> and <code>sent_metaname</code> fields.
+      Now you no longer have to parse the metadata!
+    {{/new}}
+
+    {{#>new date="2021-02-24" hash="aaeb0a7"}}
+      {{#>link url="/motd"}}/motd{{/link}} now returns a lot more info about the
+      Krist node and its configuration. It also returns this for websockets
+      when they first connect, via the <code>hello</code> message.
+    {{/new}}
+
+    {{#>new date="2021-02-20" hash="4dd187f"}}
+      A new endpoint ({{#>link url="/work/detailed"}}/work/detailed{{/link}}) 
+      has been added to provide quick detailed information about when the block
+      value will next decrease if a name has been recently purchased.
+    {{/new}}
+
+    {{#>new date="2020-12-23" hash="8356043"}}
+      Transactions now return their type (e.g. <code>mined</code>, 
+      <code>transfer</code>) everywhere in the API.
+    {{/new}}
+
+    {{#>new date="2020-10-01" hash="38f0753" authorUsername="dmarcuse" authorName="Dana Marcuse" }}
+      Block submission now supports binary nonces, up to 24 bytes long.
+    {{/new}}    
+
+    {{#>new date="2020-09-15" hash="../compare/79117d1303099607a20b0cd73be76f11b100a7e5...55e6b749dfdcde5a6ae5232c485719b60cd0bc2a"}}
+      The {{#>link url="/docs/#api-LookupGroup"}}Lookup API{{/link}} has been
+      added, allowing you to look up events in bulk (e.g. multiple addresses
+      at once, transactions for multiple addresses).
+    {{/new}}
+  </div>
+
+  {{#if commits}}
+    <h3>
+      Recent Commits 
+      {{#>link url="https://github.com/tmpim/Krist/"}}
+        <i class="fa fa-github github-icon"></i>
+      {{/link}}
+    </h3>
 
     <div class="git-commits">
       {{#each commits}}
-        <a href="https://github.com/tmpim/Krist/commit/{{hash}}">
+        <a href="https://github.com/tmpim/Krist/commit/{{hash}}" target="_blank" rel="noreferrer noopener">
           <div class="commit">
             <div class="commit-bar"></div>
             <div class="commit-info">
@@ -57,5 +113,5 @@
         </a>
       {{/each}}
     </div>
-  </section>
-{{/if}}
+  {{/if}}
+</section>
