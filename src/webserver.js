@@ -59,7 +59,16 @@ Webserver.init = async function() {
 
   app.use(express.static("static"));
 
-  app.engine(".hbs", exphbs({ extname: ".hbs" }));
+  app.engine(".hbs", exphbs({
+    extname: ".hbs",
+    helpers: {
+      concat(str, suffix) {
+        if (typeof str === "string" && typeof suffix === "string")
+          return str + suffix;
+        return str;
+      }
+    }
+  }));
   app.set("view engine", ".hbs");
   app.locals.debug = process.env.NODE_ENV !== "production";
 

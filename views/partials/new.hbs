@@ -1,0 +1,19 @@
+<div class="new {{#if new}}newest{{/if}}">
+  <div class="content">
+    {{#if new}}<b class="new-tag">New!</b>{{/if}}
+    {{> @partial-block }}
+  </div>
+
+  <div class="commit">
+    {{#>link url=(concat "https://github.com/tmpim/Krist/commit/" hash)}}
+      {{#if authorUsername}}<img class="commit-avatar" src="https://github.com/{{authorUsername}}.png?size=16" />{{/if}}
+      {{#if authorName}}
+        {{authorName}}
+        <span class="sep">&ndash;</span>
+      {{/if}}      
+      <span class="date">
+        {{date}}
+      </span>
+    {{/link}}
+  </div>
+</div>
