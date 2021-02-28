@@ -53,8 +53,8 @@ const utils        = require("../utils");
  *       addressInvolved: number | boolean;
  *       nameInvolved: number | boolean;
  *       metadata: number | boolean;
- *     }
- *   }
+ *     };
+ *   };
  * }
  */
 
@@ -173,8 +173,11 @@ module.exports = function(app) {
 
   if (process.env.NODE_ENV !== "test") {
     api.use(rateLimit({
-      windowMs: 30000, delayAfter: 10, delayMs: 250, max: 15,
-      message: "Rate limit hit. Please try again later."
+      windowMs: 10000, max: 40,
+      message: { ok: false, error: "rate_limit_hit" },
+
+      // Rate limit each route individually
+      keyGenerator: (req) => `${req.ip}/${req.route}`
     }));
   }
 

@@ -26,6 +26,7 @@ const bodyParser    = require("body-parser");
 const expressWs     = require("express-ws");
 const exphbs        = require("express-handlebars");
 const rateLimit     = require("express-rate-limit");
+const slowDown      = require("express-slow-down");
 const cors          = require("cors");
 const fs            = require("fs");
 const path          = require("path");
@@ -77,12 +78,11 @@ Webserver.init = async function() {
 
   if (process.env.NODE_ENV !== "test") {
     app.use(rateLimit({
-      windowMs: 60000,
-      delayAfter: 240,
-      delayMs: 5,
-      max: 320,
-      message: "Rate limit hit. Please try again later."
+      windowMs: 60000, max: 320,
+      message: { ok: false, error: "rate_limit_hit" },
     }));
+
+    app.use(slowDown({ windowMs: 60000, delayAfter: 240, delayMs: 100, maxDelayMs: 2000 }));
   }
 
   app.all("*", function(req, res, next) {

@@ -8,10 +8,12 @@ dependencies:
   express: 5.0.0-alpha.8
   express-basic-auth: 1.2.0
   express-handlebars: 5.2.1
-  express-rate-limit: 2.14.2
+  express-rate-limit: 5.2.6
+  express-slow-down: 1.4.0
   express-ws: 1.0.0_express@5.0.0-alpha.8
   gitlog: 2.4.0
   handy-redis: 2.2.1
+  lodash.escaperegexp: 4.1.2
   moment: 2.29.1
   mysql2: 2.2.5
   node-cron: 2.0.3
@@ -1043,12 +1045,16 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-PTp5YZDcuJPqE01Qv5VAAS1DevNJLn6vwglerCwPKQC7wfLH6zr2uh1gwgTlWCqIjqJLLzMgOEE9YA5o0nBCmA==
-  /express-rate-limit/2.14.2:
+  /express-rate-limit/5.2.6:
+    dev: false
+    resolution:
+      integrity: sha512-nE96xaxGfxiS5jP3tD3kIW1Jg9yQgX0rXCs3rCkZtmbWHEGyotwaezkLj7bnB41Z0uaOLM8W4AX6qHao4IZ2YA==
+  /express-slow-down/1.4.0:
     dependencies:
       defaults: 1.0.3
     dev: false
     resolution:
-      integrity: sha512-aVYzfYU2Bv+v6ry/fBpTrX8MorM0p/TeDnx4CqiLevg9ftG8eW+pyuZ6JEreGdG2t1vXyTGHuSNRKLeYixuqZg==
+      integrity: sha512-Tw5aa0plPj2STiuc2SyMw2VSjMvBgLGQHHoPhkIL4iPQcFZDueWBaiLxFZ3SrwrJhiu3b3sHNcsP6lXeWnbwAw==
   /express-ws/1.0.0_express@5.0.0-alpha.8:
     dependencies:
       express: 5.0.0-alpha.8
@@ -1751,6 +1757,10 @@ packages:
     dev: false
     resolution:
       integrity: sha1-DZnzzNem0mHRm9rrkkUAXShYCOc=
+  /lodash.escaperegexp/4.1.2:
+    dev: false
+    resolution:
+      integrity: sha1-ZHYsSGGAglGKw99Mz11YhtriA0c=
   /lodash.get/4.4.2:
     dev: true
     resolution:
@@ -3286,10 +3296,12 @@ specifiers:
   express: ^5.0.0-alpha.8
   express-basic-auth: ^1.2.0
   express-handlebars: ^5.2.0
-  express-rate-limit: ^2.1.0
+  express-rate-limit: ^5.2.6
+  express-slow-down: ^1.4.0
   express-ws: ^1.0.0-rc.2
   gitlog: ^2.1.2
   handy-redis: ^2.1.0
+  lodash.escaperegexp: ^4.1.2
   mocha: ^8.3.0
   moment: ^2.11.1
   mysql2: ^2.1.0
