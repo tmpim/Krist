@@ -64,7 +64,7 @@ function parseQuery(query) {
   const strippedName = Krist.stripNameSuffix(query);
   const matchName = strippedName && Krist.isValidName(strippedName);
 
-  const cleanID = parseInt(query.replace(/[^\d]/g, ""));
+  const cleanID = parseInt(query.replace(/[^\w]/g, ""));
   const hasID = !isNaN(cleanID);
   const matchBlock = hasID;
   const matchTransaction = hasID;
