@@ -120,6 +120,24 @@ Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, 
   });
 };
 
+Transactions.lookupTransactionsToName = function(name, limit, offset, orderBy, order) {
+  return schemas.transaction.findAndCountAll({
+    order: [[orderBy || "id", order || "ASC"]],
+    limit: utils.sanitiseLimit(limit),
+    offset: utils.sanitiseOffset(offset),
+    where: { sent_name: name }
+  });
+};
+
+Transactions.lookupNameHistory = function(name, limit, offset, orderBy, order) {
+  return schemas.transaction.findAndCountAll({
+    order: [[orderBy || "id", order || "ASC"]],
+    limit: utils.sanitiseLimit(limit),
+    offset: utils.sanitiseOffset(offset),
+    where: { name }
+  });
+};
+
 Transactions.searchByName = function(query, countOnly, limit, offset, orderBy, order) {
   const fn = countOnly ? "count" : "findAndCountAll";
   return schemas.transaction[fn]({

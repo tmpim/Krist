@@ -454,6 +454,171 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * @api {get} /lookup/names/:name/history Lookup name history
+   * @apiName LookupNameHistory
+   * @apiGroup LookupGroup
+   * @apiVersion 2.8.9
+   *
+   * @apiDescription Return all the transactions directly involving the given
+   *   name. This is any transaction with the type `name_purchase`,
+   *   `name_a_record` or `name_transfer`.
+   *
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning.
+   *
+	 * @apiParam (URLParameter) {String} name The name to return history for.
+   *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+   *           results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+   *           results.
+	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
+   *           `sent_name` or `sent_metaname`.
+	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+   *           the results in. Must be one of `ASC` or `DESC`.
+   *
+   * @apiSuccess {Number} count The count of results returned.
+   * @apiSuccess {Number} total The total count of results available.
+   * @apiUse Transactions
+   *
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "count": 20,
+   *   "total": 50,
+   *   "transactions": [
+   *     {
+   *       "id": 892595,
+   *       "from": "khugepoopy",
+   *       "to": "kqxhx5yn9v",
+   *       "value": 7000,
+   *       "time": "2018-12-29T13:02:05.000Z",
+   *       "name": null,
+   *       "metadata": "lignum@switchcraft.kst",
+   *       "type": "transfer"
+   *     },
+   *     {
+   *       "id": 1454706,
+   *       "from": "k5cfswitch",
+   *       "to": "khugepoopy",
+   *       "value": 5050,
+   *       "time": "2020-01-20T00:01:47.000Z",
+   *       "name": null,
+   *       "metadata": "",
+   *       "type": "transfer"
+   *     },
+   *     ...
+   */
+  api.get("/names/:name/history", async (req, res) => {
+    const { name } = req.params;
+
+    // Query filtering parameters
+    const limit = validateLimit(req.query.limit);
+    const offset = validateOffset(req.query.offset);
+    const orderBy = validateOrderBy(TRANSACTION_FIELDS, req.query.orderBy);
+    const order = validateOrder(req.query.order);
+
+    // Perform the query. `time` is replaced with `id` as usual.
+    const { rows, count } = await Transactions.lookupNameHistory(
+      name,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order
+    );
+
+    return res.json({
+      ok: true,
+      count: rows.length,
+      total: count,
+      transactions: rows.map(Transactions.transactionToJSON)
+    });
+  });
+
+
+  /**
+   * @api {get} /lookup/names/:name/transactions Lookup name transactions
+   * @apiName LookupNameTransactions
+   * @apiGroup LookupGroup
+   * @apiVersion 2.8.9
+   *
+   * @apiDescription Return all the transactions sent to the given name.
+   *
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning.
+   *
+	 * @apiParam (URLParameter) {String} name The name to return transactions for.
+   *
+	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+   *           results to return.
+	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+   *           results.
+	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
+   *           `sent_name` or `sent_metaname`.
+	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+   *           the results in. Must be one of `ASC` or `DESC`.
+   *
+   * @apiSuccess {Number} count The count of results returned.
+   * @apiSuccess {Number} total The total count of results available.
+   * @apiUse Transactions
+   *
+   * @apiSuccessExample {json} Success
+   * {
+   *   "ok": true,
+   *   "count": 20,
+   *   "total": 50,
+   *   "transactions": [
+   *     {
+   *       "id": 892595,
+   *       "from": "khugepoopy",
+   *       "to": "kqxhx5yn9v",
+   *       "value": 7000,
+   *       "time": "2018-12-29T13:02:05.000Z",
+   *       "name": null,
+   *       "metadata": "lignum@switchcraft.kst",
+   *       "type": "transfer"
+   *     },
+   *     {
+   *       "id": 1454706,
+   *       "from": "k5cfswitch",
+   *       "to": "khugepoopy",
+   *       "value": 5050,
+   *       "time": "2020-01-20T00:01:47.000Z",
+   *       "name": null,
+   *       "metadata": "",
+   *       "type": "transfer"
+   *     },
+   *     ...
+   */
+  api.get("/names/:name/transactions", async (req, res) => {
+    const { name } = req.params;
+
+    // Query filtering parameters
+    const limit = validateLimit(req.query.limit);
+    const offset = validateOffset(req.query.offset);
+    const orderBy = validateOrderBy(TRANSACTION_FIELDS, req.query.orderBy);
+    const order = validateOrder(req.query.order);
+
+    // Perform the query. `time` is replaced with `id` as usual.
+    const { rows, count } = await Transactions.lookupTransactionsToName(
+      name,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order
+    );
+
+    return res.json({
+      ok: true,
+      count: rows.length,
+      total: count,
+      transactions: rows.map(Transactions.transactionToJSON)
+    });
+  });
+
   // Error handler
   // eslint-disable-next-line no-unused-vars
   api.use((err, req, res, next) => {
