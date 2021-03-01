@@ -276,12 +276,13 @@ module.exports = function(app) {
   });
 
   /**
-   * @api {get} /lookup/transactions/:addresses Lookup transactions
+   * @api {get} /lookup/transactions/:addresses? Lookup transactions
    * @apiName LookupTransactions
    * @apiGroup LookupGroup
    * @apiVersion 2.3.0
    *
-   * @apiDescription Return all the transactions to/from the given address(es).
+   * @apiDescription Return all the transactions to/from the given address(es),
+   *   or the whole network if no addresses are specified.
    *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
@@ -333,12 +334,11 @@ module.exports = function(app) {
    *     },
    *     ...
    */
-  api.get("/transactions/:addresses", async (req, res) => {
+  api.get("/transactions/:addresses?", async (req, res) => {
     const { addresses: addressesParam } = req.params;
 
     // Validate address list
-    if (!addressesParam) throw new errors.ErrorMissingParameter("addresses");
-    const addressList = validateAddressList(addressesParam);
+    const addressList = addressesParam ? validateAddressList(addressesParam) : undefined;
 
     // Query filtering parameters
     const limit = validateLimit(req.query.limit);
@@ -361,12 +361,13 @@ module.exports = function(app) {
   });
 
   /**
-   * @api {get} /lookup/names/:addresses Lookup names
+   * @api {get} /lookup/names/:addresses? Lookup names
    * @apiName LookupNames
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
    *
-   * @apiDescription Return all the names owned by the given address(es).
+   * @apiDescription Return all the names owned by the given address(es),
+   *   or the whole network if no addresses are specified.
    *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
@@ -410,12 +411,11 @@ module.exports = function(app) {
    *     },
    *     ...
    */
-  api.get("/names/:addresses", async (req, res) => {
+  api.get("/names/:addresses?", async (req, res) => {
     const { addresses: addressesParam } = req.params;
 
     // Validate address list
-    if (!addressesParam) throw new errors.ErrorMissingParameter("addresses");
-    const addressList = validateAddressList(addressesParam);
+    const addressList = addressesParam ? validateAddressList(addressesParam) : undefined;
 
     // Query filtering parameters
     const limit = validateLimit(req.query.limit);

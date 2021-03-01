@@ -47,7 +47,7 @@ Names.lookupNames = function(addressList, limit, offset, orderBy, order) {
     order: [[orderBy || "name", order || "ASC"]],
     limit: utils.sanitiseLimit(limit),
     offset: utils.sanitiseOffset(offset),
-    where: { owner: {[Op.in]: addressList} },
+    where: addressList ? { owner: {[Op.in]: addressList} } : undefined,
   });
 };
 

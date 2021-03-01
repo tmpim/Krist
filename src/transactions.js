@@ -103,15 +103,20 @@ Transactions.lookupTransactions = function(addressList, limit, offset, orderBy, 
     order: [[orderBy || "id", order || "ASC"]],
     limit: utils.sanitiseLimit(limit),
     offset: utils.sanitiseOffset(offset),
-    where: includeMined
-      ? {[Op.or]: [{ from: {[Op.in]: addressList} }, { to: {[Op.in]: addressList} }]}
-      : {[Op.or]: [
-        { from: {[Op.in]: addressList} },
-        {
-          from: EXCLUDE_MINED,
-          to: {[Op.in]: addressList}
-        }
-      ]}
+    where: addressList
+      ? (includeMined
+        ? {[Op.or]: [
+          { from: {[Op.in]: addressList} },
+          { to: {[Op.in]: addressList} }
+        ]}
+        : {[Op.or]: [
+          { from: {[Op.in]: addressList} },
+          {
+            from: EXCLUDE_MINED,
+            to: {[Op.in]: addressList}
+          }
+        ]})
+      : includeMined ? {} : { from: EXCLUDE_MINED }
   });
 };
 
