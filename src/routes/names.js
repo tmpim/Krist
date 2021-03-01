@@ -40,6 +40,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Object} name
 	 * @apiSuccess {String} name.name The name.
 	 * @apiSuccess {String} name.owner The address that currently owns this name.
+	 * @apiSuccess {String} [name.original_owner] The address that originally
+   *   purchased this name.
 	 * @apiSuccess {Date} name.registered The time this name was registered.
 	 * @apiSuccess {Date} name.updated The time this name was last updated.
 	 * @apiSuccess {String} name.a The A record (or CNAME record) of this name.
@@ -51,6 +53,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Object[]} names
 	 * @apiSuccess {String} names.name The name.
 	 * @apiSuccess {String} names.owner The address that currently owns this name.
+	 * @apiSuccess {String} [names.original_owner] The address that originally
+   *   purchased this name.
 	 * @apiSuccess {Date} names.registered The time this name was registered.
 	 * @apiSuccess {Date} names.updated The time this name was last updated.
 	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
@@ -172,120 +176,15 @@ module.exports = function(app) {
     }
 
     if (typeof req.query.name_new !== "undefined") {
-      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-        return res.send("Error6");
-      }
-
-      const desiredName = req.query.name.toLowerCase();
-
-      names.getNameByName(desiredName).then(function(name) {
-        if (name) {
-          res.send("Error5");
-        } else {
-          addresses.verify(req, krist.makeV2Address(req.query.pkey), req.query.pkey).then(function(results) {
-            const authed = results.authed;
-            const address = results.address;
-
-            if (!authed) {
-              return res.send("Access denied");
-            }
-
-            if (address.balance < names.getNameCost()) {
-              return res.send("Error1");
-            }
-
-            address.decrement({balance: names.getNameCost()});
-            address.increment({totalout: names.getNameCost()});
-
-            tx.createTransaction("name", address.address, names.getNameCost(), desiredName, null);
-            names.createName(desiredName, address.address).then(function () {
-              res.send("Success");
-            });
-          });
-        }
-      });
-
-      return;
+      return res.send("Please use the new API");
     }
 
     if (typeof req.query.name_transfer !== "undefined") {
-      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-        return res.send("Error6");
-      }
-
-      if (!req.query.q || !krist.isValidKristAddress(req.query.q)) {
-        return res.send("Error4");
-      }
-
-      const currentOwner = krist.makeV2Address(req.query.pkey);
-
-      addresses.verify(req, currentOwner, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-
-        if (!authed) {
-          return res.send("Access denied");
-        }
-
-        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-          if (!name || name.owner.toLowerCase() !== currentOwner.toLowerCase()) {
-            res.send(req.query.name.toLowerCase());
-
-            return;
-          }
-
-          const promises = [];
-
-          promises.push(name.update({
-            owner: req.query.q.toLowerCase(),
-            updated: new Date()
-          }));
-
-          promises.push(tx.pushTransaction(req.query.q.toLowerCase(), currentOwner.toLowerCase(), 0, name.name));
-
-          Promise.all(promises).then(function () {
-            res.send("Success");
-          });
-        });
-      });
-
-      return;
+      return res.send("Please use the new API");
     }
 
     if (typeof req.query.name_update !== "undefined") {
-      if (!req.query.name || !req.query.pkey || !krist.isValidName(req.query.name)) {
-        return res.send("Error6");
-      }
-
-      if (!req.query.ar || !krist.isValidARecord(req.query.ar)) {
-        return res.send("Error8");
-      }
-
-      const owner = krist.makeV2Address(req.query.pkey);
-
-      addresses.verify(req, owner, req.query.pkey).then(function(results) {
-        const authed = results.authed;
-
-        if (!authed) {
-          return res.send("Access denied");
-        }
-
-        names.getNameByName(req.query.name.toLowerCase()).then(function (name) {
-          if (!name || name.owner.toLowerCase() !== owner.toLowerCase()) {
-            return res.send(req.query.name.toLowerCase());
-          }
-
-          name.update({
-            a: req.query.ar,
-            updated: new Date()
-          }).then(function () {
-            res.send("Success");
-          });
-
-          tx.createTransaction("a", owner.toLowerCase(), 0, name.name);
-        });
-      });
-
-      return;
+      return res.send("Please use the new API");
     }
 
     next();
@@ -379,9 +278,10 @@ module.exports = function(app) {
      *     "names": [
      *         {
      *             "name": "0",
-     *             "owner": "k9qyx784k7",
+     *             "owner": "kxxxxxxxxx",
+     *             "original_owner": "kmr20h6bvb",
      *             "registered": "2015-05-10T20:56:37.000Z",
-     *             "updated": "2015-05-24T22:54:21.000Z",
+     *             "updated": "2020-01-04T05:07:45.000Z",
      *             "a": null
      *         },
      *         {
@@ -436,14 +336,16 @@ module.exports = function(app) {
      *     "names": [
      *         {
      *             "name": "0",
-     *             "owner": "k9qyx784k7",
+     *             "owner": "kxxxxxxxxx",
+     *             "original_owner": "kmr20h6bvb",
      *             "registered": "2015-05-10T20:56:37.000Z",
-     *             "updated": "2015-05-24T22:54:21.000Z",
+     *             "updated": "2020-01-04T05:07:45.000Z",
      *             "a": null
      *         },
      *         {
      *             "name": "00",
      *             "owner": "k9qyx784k7",
+     *             "original_owner": "k9qyx784k7",
      *             "registered": "2015-05-14T14:35:40.000Z",
      *             "updated": "2015-05-24T22:47:56.000Z",
      *             "a": null
@@ -485,6 +387,7 @@ module.exports = function(app) {
      *     "name": {
      *         "name": "00",
      *         "owner": "k9qyx784k7",
+     *         "original_owner": "k9qyx784k7",
      *         "registered": "2015-05-14T14:35:40.000Z",
      *         "updated": "2015-05-24T22:47:56.000Z",
      *         "a": null
@@ -494,7 +397,7 @@ module.exports = function(app) {
   app.get("/names/:name", async function(req, res) {
     try {
       const dbName = await namesController.getName(req.params.name);
-      
+
       res.json({
         ok: true,
         name: namesController.nameToJSON(dbName)
@@ -568,6 +471,7 @@ module.exports = function(app) {
      *     "name": {
      *         "name": "example",
      *         "owner": "kre3w0i79j",
+     *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
      *         "updated": "2016-02-06T14:08:36.000Z",
      *         "a": null,
@@ -628,6 +532,7 @@ module.exports = function(app) {
      *     "name": {
      *         "name": "example",
      *         "owner": "kre3w0i79j",
+     *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
      *         "updated": "2016-02-06T14:08:36.000Z",
      *         "a": "krist.ceriat.net",
@@ -668,6 +573,7 @@ module.exports = function(app) {
      *     "name": {
      *         "name": "example",
      *         "owner": "kre3w0i79j",
+     *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
      *         "updated": "2016-02-06T14:08:36.000Z",
      *         "a": "krist.ceriat.net",

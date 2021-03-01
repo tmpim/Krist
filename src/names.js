@@ -44,7 +44,7 @@ Names.getNamesByAddress = function(address, limit, offset) {
 
 Names.lookupNames = function(addressList, limit, offset, orderBy, order) {
   return schemas.name.findAndCountAll({
-    order: [[orderBy || "name", order || "ASC"]], 
+    order: [[orderBy || "name", order || "ASC"]],
     limit: utils.sanitiseLimit(limit),
     offset: utils.sanitiseOffset(offset),
     where: { owner: {[Op.in]: addressList} },
@@ -83,13 +83,14 @@ Names.createName = async function(name, owner) {
   const dbName = await schemas.name.create({
     name,
     owner,
+    original_owner: owner,
     registered: new Date(),
     updated: new Date(),
     unpaid: Names.getNameCost()
   });
 
   promNamesPurchasedCounter.inc();
-  
+
   websockets.broadcastEvent({
     type: "event",
     event: "name",
@@ -103,6 +104,7 @@ Names.nameToJSON = function(name) {
   return {
     name: name.name,
     owner: name.owner,
+    original_owner: name.original_owner,
     registered: name.registered,
     updated: name.updated,
     a: name.a

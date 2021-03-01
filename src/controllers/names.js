@@ -141,9 +141,16 @@ NamesController.transferName = async function(req, name, privatekey, address) {
   // Do these actions in parallel
   await Promise.all([
     // Update the name's owner
+    // NOTE: original_owner is only updated if it was previously null. There's
+    //       only a small number of names that the original owner couldn't be
+    //       found for.
     dbName.update({
       owner: address,
-      updated: new Date()
+      updated: new Date(),
+
+      // If the name did not have an original owner for some reason, use the
+      // current owner.
+      ...(dbName.original_owner ? {} : { original_owner: dbName.owner })
     }),
 
     // Add a name meta transaction

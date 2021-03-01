@@ -75,13 +75,16 @@ const Name = database.getSequelize().define("name", {
   registered: Sequelize.DATE,
   updated: Sequelize.DATE,
   a: Sequelize.STRING(255),
-  unpaid: Sequelize.INTEGER.UNSIGNED
+  unpaid: Sequelize.INTEGER.UNSIGNED,
+  original_owner: Sequelize.STRING(10),
 }, {
   timestamps: false,
   indexes: [
     { // Index on 'owner'
       fields: ["owner"]
-    }
+    },
+    { fields: ["unpaid"] },
+    { fields: ["original_owner"] }
   ]
 });
 

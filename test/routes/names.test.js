@@ -15,9 +15,30 @@ describe("v1 routes: names", () => {
   // TODO: /?listnames
   // TODO: /?getnewdomains
   // TODO: /?name_check
-  // TODO: /?name_new
-  // TODO: /?name_transfer
-  // TODO: /?name_update
+
+  describe("/?name_new", () => {
+    it("should be removed", async () => {
+      const res = await api().get("/?name_new");
+      expect(res).to.be.text;
+      expect(res.text).to.equal("Please use the new API");
+    });
+  });
+
+  describe("/?name_transfer", () => {
+    it("should be removed", async () => {
+      const res = await api().get("/?name_transfer");
+      expect(res).to.be.text;
+      expect(res.text).to.equal("Please use the new API");
+    });
+  });
+
+  describe("/?name_update", () => {
+    it("should be removed", async () => {
+      const res = await api().get("/?name_update");
+      expect(res).to.be.text;
+      expect(res.text).to.equal("Please use the new API");
+    });
+  });
 });
 
 describe("v2 routes: names", () => {
@@ -110,7 +131,7 @@ describe("v2 routes: names", () => {
 
       const name = await schemas.name.findOne();
       expect(name).to.exist;
-      expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500 });
+      expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500, original_owner: "k0duvsr4qn" });
     });
 
     it("should have created a transaction", async () => {
@@ -215,7 +236,7 @@ describe("v2 routes: names", () => {
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
-      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui" });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
       expect(res.body.name.updated).to.be.ok;
     });
 
@@ -224,7 +245,7 @@ describe("v2 routes: names", () => {
 
       const name = await schemas.name.findOne({ where: { name: "test" }});
       expect(name).to.exist;
-      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui" });
+      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
       expect(name.updated).to.be.ok;
     });
 
@@ -322,7 +343,7 @@ describe("v2 routes: names", () => {
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
-      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com" });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
       expect(res.body.name.updated).to.be.ok;
     });
 
@@ -331,7 +352,7 @@ describe("v2 routes: names", () => {
 
       const name = await schemas.name.findOne();
       expect(name).to.exist;
-      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com" });
+      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
     });
 
     it("should have created a transaction", async () => {
