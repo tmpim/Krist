@@ -45,6 +45,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} name.registered The time this name was registered.
 	 * @apiSuccess {Date} name.updated The time this name was last updated.
 	 * @apiSuccess {String} name.a The A record (or CNAME record) of this name.
+	 * @apiSuccess {Number} name.unpaid The number of blocks until this name has
+   *   been paid off.
 	 */
 
   /**
@@ -58,6 +60,8 @@ module.exports = function(app) {
 	 * @apiSuccess {Date} names.registered The time this name was registered.
 	 * @apiSuccess {Date} names.updated The time this name was last updated.
 	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
+	 * @apiSuccess {Number} names.unpaid The number of blocks until this name has
+   *   been paid off.
 	 */
 
   app.get("/", function(req, res, next) {

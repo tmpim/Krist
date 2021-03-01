@@ -34,9 +34,9 @@ const ADDRESS_LIST_LIMIT = 128;
 // Valid fields to order block lookups by
 const BLOCK_FIELDS = ["height", "address", "hash", "value", "time", "difficulty"];
 // Valid fields to order transaction lookups by
-const TRANSACTION_FIELDS = ["id", "from", "to", "value", "time"];
+const TRANSACTION_FIELDS = ["id", "from", "to", "value", "time", "sent_name", "sent_metaname"];
 // Valid fields to order name lookups by
-const NAME_FIELDS = ["name", "owner", "registered", "updated"];
+const NAME_FIELDS = ["name", "owner", "original_owner", "registered", "updated", "a", "unpaid"];
 
 /** Validate a comma-separated list of addresses, returning an array of them
  * if it is valid, or throwing an error if it is not. */
@@ -69,10 +69,10 @@ function validateOrder(order) {
   // Ignore unsupplied parameter
   if (typeof order === "undefined") return "ASC";
 
-  if (typeof order !== "string" 
+  if (typeof order !== "string"
   || (order.toUpperCase() !== "ASC" && order.toUpperCase() !== "DESC"))
     throw new errors.ErrorInvalidParameter("order");
-    
+
   return order.toUpperCase();
 }
 
@@ -111,9 +111,9 @@ module.exports = function(app) {
 	 * @apiDefine LookupGroup Lookup API
 	 *
 	 * Advanced bulk lookup queries designed for KristWeb v2.
-   * 
+   *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning. 
+   * time without warning.
 	 */
 
   /**
@@ -126,23 +126,23 @@ module.exports = function(app) {
    * addresses that do not exist on the Krist server (i.e. they have not been
    * logged in to, or have not received Krist) will be assigned `null` in the
    * object.
-   * 
+   *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning. 
-   * 
+   * time without warning.
+   *
 	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
-   * 
-	 * @apiParam (QueryParameter) {Boolean} fetchNames When supplied, fetch the 
+   *
+	 * @apiParam (QueryParameter) {Boolean} fetchNames When supplied, fetch the
    *           count of owned names for each address.
-   * 
+   *
    * @apiSuccess {Number} found The amount of addresses that were successfully
    *             returned.
    * @apiSuccess {Number} notFound The amount of addresses that were not
    *             returned.
    * @apiSuccess {Object} addresses Object keyed by address containing their
-   *             data, or `null` if the address was not found. 
-   * 
+   *             data, or `null` if the address was not found.
+   *
    * @apiSuccessExample {json} Success
    * {
    *   "ok": true,
@@ -211,10 +211,10 @@ module.exports = function(app) {
    * @apiVersion 2.1.3
    *
    * @apiDescription Return all the blocks.
-   * 
+   *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning. 
-   * 
+   * time without warning.
+   *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
    *           results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
@@ -224,11 +224,11 @@ module.exports = function(app) {
    *           `time` or `difficulty`.
 	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
-   * 
+   *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
    * @apiUse Blocks
-   * 
+   *
    * @apiSuccessExample {json} Success
    * {
    *   "ok": true,
@@ -282,28 +282,29 @@ module.exports = function(app) {
    * @apiVersion 2.3.0
    *
    * @apiDescription Return all the transactions to/from the given address(es).
-   * 
+   *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning. 
-   * 
+   * time without warning.
+   *
 	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
-   * 
+   *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
    *           results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
    *           results.
 	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
-   *           results by. Must be one of `id`, `from`, `to`, `value` or `time`.
+   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
+   *           `sent_name` or `sent_metaname`.
 	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
 	 * @apiParam (QueryParameter) {Boolean} [includeMined] If supplied,
    *           transactions from mining will be included.
-   * 
+   *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
    * @apiUse Transactions
-   * 
+   *
    * @apiSuccessExample {json} Success
    * {
    *   "ok": true,
@@ -366,27 +367,27 @@ module.exports = function(app) {
    * @apiVersion 2.1.3
    *
    * @apiDescription Return all the names owned by the given address(es).
-   * 
+   *
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning. 
-   * 
+   * time without warning.
+   *
 	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
    *           addresses to filter name owners by.
-   * 
+   *
 	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
    *           results to return.
 	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
    *           results.
 	 * @apiParam (QueryParameter) {String} [orderBy=name] The field to order the
-   *           results by. Must be one of `name`, `owner`, `registered` or 
-   *           `updated`.
+   *           results by. Must be one of `name`, `owner`, `original_owner`,
+   *           `registered` `updated`, `a` or `unpaid`.
 	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
-   * 
+   *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
    * @apiUse Names
-   * 
+   *
    * @apiSuccessExample {json} Success
    * {
    *   "ok": true,

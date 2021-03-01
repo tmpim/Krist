@@ -107,7 +107,8 @@ Names.nameToJSON = function(name) {
     original_owner: name.original_owner,
     registered: name.registered,
     updated: name.updated,
-    a: name.a
+    a: name.a,
+    unpaid: name.unpaid || 0
   };
 };
 
