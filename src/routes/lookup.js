@@ -262,9 +262,19 @@ module.exports = function(app) {
     const orderBy = validateOrderBy(BLOCK_FIELDS, req.query.orderBy);
     const order = validateOrder(req.query.order);
 
-    // Perform the query (replace 'height' with 'id')
+    // Perform the query
+    // NOTE: `height` is replaced with `id` to maintain compatibility with what
+    //       the API typically returns for block objects.
+    // NOTE: `time` is replaced with `id` as `time` is typically not indexed.
+    //       While blocks are not _guaranteed_ to be monotonic, they generally
+    //       are, so this is a worthwhile performance tradeoff.
     const { rows, count } = await Blocks.lookupBlocks(
-      limit, offset, orderBy === "height" ? "id" : orderBy, order
+      limit,
+      offset,
+      orderBy === "height"
+        ? "id"
+        : (orderBy === "time" ? "id" : orderBy),
+      order
     );
 
     return res.json({
@@ -348,8 +358,16 @@ module.exports = function(app) {
     const includeMined = typeof req.query.includeMined !== "undefined";
 
     // Perform the query
+    // NOTE: `time` is replaced with `id` as `time` is typically not indexed.
+    //       While transactions are not _guaranteed_ to be monotonic, they
+    //       generally are, so this is a worthwhile performance tradeoff.
     const { rows, count } = await Transactions.lookupTransactions(
-      addressList, limit, offset, orderBy, order, includeMined
+      addressList,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order,
+      includeMined
     );
 
     return res.json({
