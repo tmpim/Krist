@@ -71,8 +71,18 @@ Blocks.getLowestHashes = function(limit, offset) {
 };
 
 Blocks.lookupBlocks = function(limit, offset, orderBy, order) {
+  // This is a hack, but during 2020-03 to 2020-07, there were block hashes lost
+  // due to a database reconstruction. They are currently marked as NULL in the
+  // database. In Blocks.getLowestHashes, null hashes are ignored, but here,
+  // they are still returned. As such, this pushes the nulls to the end of the
+  // result set if sorting by hash ascending.
+  const sq = Database.getSequelize();
+  const dbOrder = orderBy === "hash" && order === "ASC"
+    ? [sq.fn("isnull", sq.col("hash")), ["hash", "ASC"]]
+    : [[orderBy || "id", order || "ASC"]];
+
   return schemas.block.findAndCountAll({
-    order: [[orderBy || "id", order || "ASC"]],
+    order: dbOrder,
     limit: utils.sanitiseLimit(limit),
     offset: utils.sanitiseOffset(offset),
   });
