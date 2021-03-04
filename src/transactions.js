@@ -163,6 +163,7 @@ Transactions.searchMetadata = function(query, countOnly, limit, offset, orderBy,
     where: {
       [Op.and]: [
         { op: { [Op.ne]: null }},
+        { op: { [Op.ne]: "" }},
         { op: { [Op.like]: utils.sanitiseLike(query) }}
       ]
     },
