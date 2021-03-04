@@ -28,6 +28,7 @@ const Blocks       = require("../blocks");
 const Transactions = require("../transactions");
 const errors       = require("../errors/errors");
 const utils        = require("../utils");
+const lookup       = require("./lookup").utils;
 
 /*
  * interface SearchQueryMatch {
@@ -155,6 +156,61 @@ async function performExtendedSearch(query) {
       }
     }
   };
+}
+
+// Type must be one of "address", "name", "metadata"
+async function getExtendedSearchResults(query, type, limit, offset, orderBy, order, includeMined) {
+  const parsed = parseQuery(query);
+  const { matchAddress, matchName, strippedName } = parsed;
+
+  // Perform the appropriate lookup based on the type
+  switch (type) {
+  case "address": {
+    if (!matchAddress) return { rows: [], count: 0 };
+
+    // Perform the query. `time` is replaced with `id` as usual.
+    return Transactions.getTransactionsByAddress(
+      query,
+      limit,
+      offset,
+      includeMined,
+      false,
+      orderBy === "time" ? "id" : orderBy,
+      order
+    );
+  }
+  case "name": {
+    if (!matchName) return { rows: [], count: 0 };
+
+    // Check if the name exists before attempting to search by name
+    const name = type === "name" && matchName
+      ? await Names.getNameByName(strippedName)
+      : undefined;
+    if (!name) throw new errors.ErrorNameNotFound();
+
+    // Perform the query. `time` is replaced with `id` as usual.
+    return Transactions.searchByName(
+      name.name,
+      false,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order
+    );
+  }
+  case "metadata": {
+    // Perform the query. `time` is replaced with `id` as usual.
+    return Transactions.searchMetadata(
+      query,
+      false,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order
+    );
+  }
+  default: throw new errors.ErrorInvalidParameter("type");
+  }
 }
 
 function validateQuery(req) {
@@ -397,6 +453,76 @@ module.exports = function(app) {
     res.json({
       ok: true,
       ...results
+    });
+  });
+
+  /**
+   * @api {get} /search/extended/results/transactions/:type Search transaction results
+   * @apiName SearchExtendedResults
+   * @apiGroup LookupGroup
+   * @apiVersion 2.8.11
+   *
+   * @apiDescription Search the Krist network for transactions that match the
+   * given query and return the results. The type can be either `address`,
+   * `name` or `metadata`.
+   *
+   * - `address` - Transactions are searched by address involved (from, to)
+   * - `name` - Transactions are searched by name involved (either a name
+   *   transfer/update, or a transaction to a name)
+   * - `metadata` - Transactions are searched by raw metadata (exact query match
+   *   anywhere in the metadata)
+   *
+   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
+   * time without warning.
+   *
+	 * @apiParam (URLParameter) {String} type The type of search query to execute.
+   *   Must be either `address`, `name` or `metadata`.
+   *
+	 * @apiParam (QueryParameter) {String} q The search query.
+	 * @apiParam (QueryParameter) {Boolean} [includeMined] If supplied,
+   *           transactions from mining will be included (only for `address`
+   *           searches).
+   *
+   * @apiUse Transactions
+   *
+   * @apiSuccess {Number} count The count of results returned.
+   * @apiSuccess {Number} total The total count of results available.
+   */
+  api.get("/extended/results/transactions/:type", async (req, res) => {
+    const query = validateQuery(req);
+
+    const type = req.params.type;
+    if (!["address", "name", "metadata"].includes(type))
+      throw new errors.ErrorInvalidParameter("type");
+
+    // Don't need to perform the length limit check on names because it's an
+    // indexed field anyway, and addresses are always 10 characters. So this
+    // basically only matters for metadata
+    if (type !== "name" && query.length < 3)
+      throw new errors.ErrorInvalidParameter("q");
+
+    // Query filtering parameters, see lookup API
+    const limit = lookup.validateLimit(req.query.limit);
+    const offset = lookup.validateOffset(req.query.offset);
+    const orderBy = lookup.validateOrderBy(lookup.TRANSACTION_FIELDS, req.query.orderBy);
+    const order = lookup.validateOrder(req.query.order);
+    const includeMined = typeof req.query.includeMined !== "undefined";
+
+    const { rows, count } = await getExtendedSearchResults(
+      query,
+      type,
+      limit,
+      offset,
+      orderBy === "time" ? "id" : orderBy,
+      order,
+      includeMined
+    );
+
+    return res.json({
+      ok: true,
+      count: rows.length,
+      total: count,
+      transactions: rows.map(Transactions.transactionToJSON)
     });
   });
 

@@ -71,7 +71,7 @@ Transactions.getRecentTransactions = function(limit, offset) {
   });
 };
 
-Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined, countOnly) {
+Transactions.getTransactionsByAddress = function(address, limit, offset, includeMined, countOnly, orderBy, order) {
   const fn = countOnly ? "count" : "findAndCountAll";
   return schemas.transaction[fn]({
     where: includeMined
@@ -91,7 +91,7 @@ Transactions.getTransactionsByAddress = function(address, limit, offset, include
 
     // Don't bother including the order, etc. when we only care about the count
     ...(countOnly ? {} : {
-      order: [["id", "DESC"]],
+      order: [[orderBy || "id", order || "DESC"]],
       limit: utils.sanitiseLimit(limit),
       offset: utils.sanitiseOffset(offset)
     })

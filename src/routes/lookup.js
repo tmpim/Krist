@@ -627,3 +627,11 @@ module.exports = function(app) {
 
   app.use("/lookup", api);
 };
+
+module.exports.utils = {
+  ADDRESS_LIST_LIMIT,
+  BLOCK_FIELDS, TRANSACTION_FIELDS, NAME_FIELDS,
+  validateAddressList,
+  validateOrderBy, validateOrder,
+  validateLimit, validateOffset
+};
