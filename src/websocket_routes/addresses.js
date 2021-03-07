@@ -29,7 +29,7 @@ module.exports = function(websockets) {
 	 * @apiVersion 2.0.4
 	 *
 	 * @apiParam (WebsocketParameter) {Number} id
-	 * @apiParam (WebsocketParameter) {String="login"} type
+	 * @apiParam (WebsocketParameter) {String="address"} type
 	 * @apiParam (WebsocketParameter) {String} address
 	 *
 	 * @apiUse Address
