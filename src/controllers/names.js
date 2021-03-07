@@ -42,7 +42,7 @@ NamesController.getNames = function(limit, offset) {
 };
 
 NamesController.getName = async function(name) {
-  if (!krist.isValidName(name))
+  if (!krist.isValidName(name, true))
     throw new errors.ErrorInvalidParameter("name");
 
   const dbName = await names.getNameByName(name);

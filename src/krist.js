@@ -37,6 +37,7 @@ const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
 const addressRegexV2 = /^k[a-z0-9]{9}$/;
 const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
 const nameRegex = /^[a-z0-9]{1,64}$/i;
+const nameFetchRegex = /^(?:xn--)?[a-z0-9]{1,64}$/i;
 const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
 Krist.nameMetaRegex = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
@@ -160,8 +161,9 @@ Krist.isValidKristAddressList = function(addressList) {
   return addressListRegex.test(addressList);
 };
 
-Krist.isValidName = function(name) {
-  return nameRegex.test(name) && name.length > 0 && name.length < 65;
+Krist.isValidName = function(name, fetching) {
+  const re = fetching ? nameFetchRegex : nameRegex;
+  return re.test(name) && name.length > 0 && name.length < 65;
 };
 
 Krist.isValidARecord = function(ar) {

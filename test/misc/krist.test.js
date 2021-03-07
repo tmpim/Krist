@@ -33,6 +33,10 @@ describe("krist functions", () => {
       expect(Krist().isValidName("a".repeat(65))).to.be.false);
     it("should error with undefined", async () =>
       expect(() => Krist().isValidName()).to.throw(TypeError));
+    it("should not allow punycode prefixes", async () =>
+      expect(Krist().isValidName("xn--test")).to.be.false);
+    it("should allow punycode prefixes with fetching=true", async () =>
+      expect(Krist().isValidName("xn--test", true)).to.be.true);
   });
 
   describe("stripNameSuffix", () => {
