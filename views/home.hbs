@@ -48,50 +48,11 @@
   </p>
   
   <div class="whats-new">
-    {{#>new date="2021-03-01" hash="73097b6" new="true"}}
-      Names now store their original owner in the <code>original_owner</code>
-      field. Now you can check if they have been transferred by simply comparing
-      these fields.
-    {{/new}}
-
-    {{#>new date="2021-02-27" hash="9bad309"}}
-      The {{#>link url="/docs/#api-LookupGroup-Search"}}Search API{{/link}} has
-      been added. It can be used to find addresses, transactions, names and 
-      blocks that match a given search query.
-    {{/new}}
-    
-    {{#>new date="2021-02-26" hash="af04c1c"}}
-      Transactions now return the name and metaname they were originally sent
-      to, via the <code>sent_name</code> and <code>sent_metaname</code> fields.
-      Now you no longer have to parse the metadata!
-    {{/new}}
-
-    {{#>new date="2021-02-24" hash="aaeb0a7"}}
-      {{#>link url="/motd"}}/motd{{/link}} now returns a lot more info about the
-      Krist node and its configuration. It also returns this for websockets
-      when they first connect, via the <code>hello</code> message.
-    {{/new}}
-
-    {{#>new date="2021-02-20" hash="4dd187f"}}
-      A new endpoint ({{#>link url="/work/detailed"}}/work/detailed{{/link}}) 
-      has been added to provide quick detailed information about when the block
-      value will next decrease if a name has been recently purchased.
-    {{/new}}
-
-    {{#>new date="2020-12-23" hash="8356043"}}
-      Transactions now return their type (e.g. <code>mined</code>, 
-      <code>transfer</code>) everywhere in the API.
-    {{/new}}
-
-    {{#>new date="2020-10-01" hash="38f0753" authorUsername="dmarcuse" authorName="Dana Marcuse" }}
-      Block submission now supports binary nonces, up to 24 bytes long.
-    {{/new}}    
-
-    {{#>new date="2020-09-15" hash="../compare/79117d1303099607a20b0cd73be76f11b100a7e5...55e6b749dfdcde5a6ae5232c485719b60cd0bc2a"}}
-      The {{#>link url="/docs/#api-LookupGroup"}}Lookup API{{/link}} has been
-      added, allowing you to look up events in bulk (e.g. multiple addresses
-      at once, transactions for multiple addresses).
-    {{/new}}
+    {{#each whatsNew}}
+      {{#>new}}
+        {{{marked body}}}
+      {{/new}}
+    {{/each}}
   </div>
 
   {{#if commits}}

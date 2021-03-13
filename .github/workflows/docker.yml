@@ -11,7 +11,7 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v2
         with:
-          fetch-depth: 5
+          fetch-depth: 10
 
       - name: Add Docker tags
         id: docker_meta

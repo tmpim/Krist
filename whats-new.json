@@ -1,0 +1,38 @@
+{
+  "new": [{
+    "commitHash": "73097b66492728e9228123ae069dbc12aa7070f2",
+    "date": "2021-03-01T11:46:43+00:00",
+    "new": true,
+    "body": "Names now store their original owner in the `original_owner` field. Now you can check if they have been transferred by simply comparing these fields."
+  }, {
+    "commitHash": "9bad309b9ae0bc4e7e9b23496aff7b7ec7ea6bc5",
+    "date": "2021-02-26T12:10:34+00:00",
+    "body": "The [Search API](/docs/#api-LookupGroup-Search) has been added. It can be used to find addresses, transactions, names and blocks that match a given search query."
+  }, {
+    "commitHash": "af04c1c3a35ad3d1d0202f34387ed47e37ebdd25",
+    "date": "2021-02-26T07:04:36+00:00",
+    "body": "Transactions now return the name and metaname they were originally sent to, via the `sent_name` and `sent_metaname` fields. Now you no longer have to parse the metadata!"
+  }, {
+    "commitHash": "aaeb0a734157935c41a26847529f2a4b453509db",
+    "date": "2021-02-24T08:25:25+00:00",
+    "body": "[/motd](/motd) now returns a lot more info about the Krist node and its configuration. It also returns this for websockets when they first connect, via the `hello` message."
+  }, {
+    "commitHash": "4dd187f8038c43098f6c5b14f186393c043e3625",
+    "date": "2021-02-20T02:29:30+00:00",
+    "body": "A new endpoint ([/work/detailed](/work/detailed)) has been added to provide quick detailed information about when the block value will next decrease if a name has been recently purchased."
+  }, {
+    "commitHash": "83560438f13d16cff9d927d591763ec78db3239e",
+    "date": "2020-12-23T02:39:13+00:00",
+    "body": "Transactions now return their type (e.g. `mined`, `transfer`) in the API."
+  }, {
+    "commitHash": "38f0753f0322b13837ca7f093723d58d634dc501",
+    "date": "2020-09-30T23:59:40-04:00",
+    "authorUsername": "dmarcuse",
+    "authorName": "Dana Marcuse",
+    "body": "Block submission now supports binary nonces, up to 24 bytes long."
+  }, {
+    "commitHash": "../compare/79117d1303099607a20b0cd73be76f11b100a7e5...55e6b749dfdcde5a6ae5232c485719b60cd0bc2a",
+    "date": "2020-09-15T18:48:23+01:00",
+    "body": "The [Lookup API](/docs/#api-LookupGroup) has been added, allowing you to look up events in bulk (e.g. multiple addresses at once, transactions for multiple addresses)."
+  }]
+}

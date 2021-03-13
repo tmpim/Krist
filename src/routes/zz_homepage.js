@@ -28,36 +28,61 @@ const { Octokit }   = require("@octokit/rest");
 const { getRedis }  = require("../redis");
 const { promisify } = require("util");
 
+const marked       = require("marked");
+const sanitizeHtml = require("sanitize-html");
+const Handlebars   = require("handlebars");
+const whatsNew     = require("../../whats-new.json");
+
 const octokit = process.env.GITHUB_TOKEN ? new Octokit({
   auth: process.env.GITHUB_TOKEN,
   userAgent: "https://github.com/tmpim/Krist"
 }) : null;
 const messageTypeRe = /^(\w+): (.+)/;
 
+marked.setOptions({
+  base_url: process.env.PUBLIC_URL
+});
+
 async function getCommits() {
   const commits = (await promisify(gitlog)({
     repo: path.join(__dirname, "../"),
-    number: 5,
+    number: 10,
     fields: [
       "subject", "body", "hash",
-      "authorName", "authorEmail", "authorDateRel"
+      "authorName", "authorEmail", "authorDate", "authorDateRel"
     ]
   }));
-  await formatCommits(commits);
-  return commits;
+
+  return formatCommits(commits);
 }
 
 async function formatCommits(commits) {
+  const newCommits = [];
+
   for (const commit of commits) {
     if (!commit.subject) continue;
-    
+
     const [, type, rest] = messageTypeRe.exec(commit.subject) || [];
     if (type) {
       commit.type = type;
       commit.subject = rest;
       commit.avatar = await getAvatar(commit);
     }
+
+    newCommits.push({
+      type: commit.type,
+      subject: commit.subject,
+      body: commit.body,
+      hash: commit.hash,
+      authorName: commit.authorName,
+      authorEmail: commit.authorEmail,
+      authorDate: commit.authorDate,
+      authorDateRel: commit.authorDateRel,
+      avatar: commit.avatar,
+    });
   }
+
+  return newCommits;
 }
 
 async function getAvatar(commit) {
@@ -95,6 +120,18 @@ module.exports = function(app) {
     }
 
     res.header("Content-Type", "text/html");
-    res.render("home", { commits });
+    res.render("home", {
+      commits,
+      whatsNew: whatsNew.new,
+
+      helpers: {
+        // Render markdown (sanitised by sanitize-html)
+        marked(data) {
+          return new Handlebars.SafeString(sanitizeHtml(marked(data)));
+        }
+      }
+    });
   });
 };
+
+module.exports.getCommits = getCommits;

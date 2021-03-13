@@ -357,7 +357,7 @@ h3 {
   max-width: 720px;
 }
 
-#right p {
+#right > p {
   text-align: left;
   font-size: 80%;
   margin-bottom: 0.6rem;
