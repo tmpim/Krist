@@ -77,7 +77,8 @@ async function formatCommits(commits) {
       hash: commit.hash,
       authorName: commit.authorName,
       authorEmail: commit.authorEmail,
-      authorDate: commit.authorDate,
+      // Git dates are not strict ISO-8601 by default
+      authorDate: new Date(commit.authorDate).toISOString(),
       authorDateRel: commit.authorDateRel,
       avatar: commit.avatar,
     });
