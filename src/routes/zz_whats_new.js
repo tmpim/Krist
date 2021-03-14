@@ -27,6 +27,7 @@ module.exports = function(app) {
     const commits = await getCommits();
 
     res.json({
+      ok: true,
       commits,
       whatsNew: whatsNew.new
     });

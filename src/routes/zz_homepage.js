@@ -66,8 +66,9 @@ async function formatCommits(commits) {
     if (type) {
       commit.type = type;
       commit.subject = rest;
-      commit.avatar = await getAvatar(commit);
     }
+
+    commit.avatar = await getAvatar(commit);
 
     newCommits.push({
       type: commit.type,
