@@ -279,6 +279,8 @@ module.exports = function(app) {
 	 * @apiVersion 2.0.0
 	 *
 	 * @apiParam (URLParameter) {String} address The address.
+	 * @apiParam (QueryParameter) {Boolean} [fetchNames] When supplied, fetch the
+   *   count of names owned by the address.
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiUse Address
@@ -308,15 +310,20 @@ module.exports = function(app) {
 	 *     "parameter": "address"
 	 * }
 	 */
-  app.get("/addresses/:address", function(req, res) {
-    addressesController.getAddress(req.params.address).then(function(address) {
+  app.get("/addresses/:address", async function(req, res) {
+    const fetchNames = typeof req.query.fetchNames !== "undefined";
+
+    try {
+      const address = await addressesController.getAddress(
+        req.params.address, fetchNames);
+
       res.json({
         ok: true,
         address: addressesController.addressToJSON(address)
       });
-    }).catch(function(error) {
-      utils.sendErrorToRes(req, res, error);
-    });
+    } catch (err) {
+      utils.sendErrorToRes(req, res, err);
+    }
   });
 
 

@@ -39,8 +39,28 @@ promAddressesVerifiedCounter.inc({ type: "authed" }, 0);
 
 function Addresses() {}
 
-Addresses.getAddress = function(address) {
-  return schemas.address.findOne({where: {address: address}});
+Addresses.getAddress = async function(address, fetchNames) {
+  if (fetchNames) {
+    // Fetch the name count if requested
+    const rows = await database.getSequelize().query(`
+      SELECT
+        \`addresses\`.*,
+        COUNT(\`names\`.\`id\`) AS \`names\`
+      FROM \`addresses\`
+      LEFT JOIN \`names\` ON \`addresses\`.\`address\` = \`names\`.\`owner\`
+      WHERE \`addresses\`.\`address\` = :address
+      LIMIT 1
+    `, {
+      replacements: { address },
+      type: QueryTypes.SELECT
+    });
+
+    // Only return the first result
+    return rows && rows.length ? rows[0] : null;
+  } else {
+    // Perform the regular lookup
+    return schemas.address.findOne({ where: { address: address } });
+  }
 };
 
 Addresses.getAddresses = function(limit, offset) {
@@ -57,7 +77,7 @@ Addresses.lookupAddresses = function(addressList, fetchNames) {
       LEFT JOIN \`names\` ON \`addresses\`.\`address\` = \`names\`.\`owner\`
       WHERE \`addresses\`.\`address\` IN (:addresses)
       GROUP BY \`addresses\`.\`address\`
-      ORDER BY \`names\` DESC;
+      ORDER BY \`names\` DESC
     `, {
       replacements: { addresses: addressList },
       type: QueryTypes.SELECT
@@ -154,7 +174,12 @@ Addresses.addressToJSON = function(address) {
     balance: address.balance,
     totalin: address.totalin,
     totalout: address.totalout,
-    firstseen: address.firstseen
+    firstseen: address.firstseen,
+
+    // Add the name count, but only if it was requested
+    ...(typeof address.names !== "undefined"
+      ? { names: address.names }
+      : {})
   };
 };
 

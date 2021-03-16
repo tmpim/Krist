@@ -31,18 +31,18 @@ module.exports = function(websockets) {
 	 * @apiParam (WebsocketParameter) {Number} id
 	 * @apiParam (WebsocketParameter) {String="login"} type
 	 * @apiParam (WebsocketParameter) {String} address
+	 * @apiParam (WebsocketParameter) {Boolean} [fetchNames] When supplied, fetch
+   *   the count of names owned by the address.
 	 *
 	 * @apiUse Address
 	 */
 
-  websockets.addMessageHandler("address", function(ws, message) {
-    return new Promise(function(resolve, reject) {
-      addr.getAddress(message.address).then(function(address) {
-        resolve({
-          ok: true,
-          address: addr.addressToJSON(address)
-        });
-      }).catch(reject);
-    });
+  websockets.addMessageHandler("address", async function(ws, message) {
+    const fetchNames = !!message.fetchNames;
+    const address = await addr.getAddress(message.address, fetchNames);
+    return {
+      ok: true,
+      address: addr.addressToJSON(address)
+    };
   });
 };

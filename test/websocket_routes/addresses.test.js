@@ -22,6 +22,18 @@ describe("websocket routes: addresses", function() {
       ws.close();
     });
 
+    it("should get an address with names", async () => {
+      const ws = await newConnection();
+      expect(ws).to.nested.include({ "wsp.isOpened": true });
+
+      const data = await ws.sendAndWait({ type: "address", address: "k8juvewcui", fetchNames: true });
+      expect(data).to.deep.include({ ok: true });
+      expect(data.address).to.be.an("object");
+      expect(data.address.names).to.equal(0);
+
+      ws.close();
+    });
+
     it("should error for missing addresses", async () => {
       const ws = await newConnection();
       expect(ws).to.nested.include({ "wsp.isOpened": true });

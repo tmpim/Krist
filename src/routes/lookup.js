@@ -190,10 +190,7 @@ module.exports = function(app) {
 
     // Populate the output object with the addresses we actually found
     for (const address of rows) {
-      out[address.address] = {
-        ...Addresses.addressToJSON(address),
-        ...(fetchNames ? { names: address.names } : {})
-      };
+      out[address.address] = Addresses.addressToJSON(address);
     }
 
     return res.json({

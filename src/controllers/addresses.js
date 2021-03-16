@@ -53,20 +53,14 @@ AddressesController.getRich = function(limit, offset) {
   });
 };
 
-AddressesController.getAddress = function(address) {
-  return new Promise(function(resolve, reject) {
-    if (!krist.isValidKristAddress(address)) {
-      return reject(new errors.ErrorInvalidParameter("address"));
-    }
+AddressesController.getAddress = async function(address, fetchNames) {
+  if (!krist.isValidKristAddress(address))
+    throw new errors.ErrorInvalidParameter("address");
 
-    addresses.getAddress(address).then(function(result) {
-      if (!result) {
-        return reject(new errors.ErrorAddressNotFound());
-      }
+  const result = await addresses.getAddress(address, !!fetchNames);
+  if (!result) throw new errors.ErrorAddressNotFound();
 
-      resolve(result);
-    }).catch(reject);
-  });
+  return result;
 };
 
 AddressesController.getAlert = function(privatekey) {
