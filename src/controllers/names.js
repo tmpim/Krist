@@ -138,6 +138,9 @@ NamesController.transferName = async function(req, name, privatekey, address) {
   if (!dbName) throw new errors.ErrorNameNotFound();
   if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
 
+  // Disallow "bumping" names, don't change anything and respond as usual
+  if (dbName.owner === address) return dbName;
+
   // Do these actions in parallel
   await Promise.all([
     // Update the name's owner
@@ -179,6 +182,9 @@ NamesController.updateName = async function(req, name, privatekey, a) {
   const dbName = await names.getNameByName(name);
   if (!dbName) throw new errors.ErrorNameNotFound();
   if (dbName.owner !== dbAddress.address) throw new errors.ErrorNotNameOwner();
+
+  // Disallow "bumping" names, don't change anything and respond as usual
+  if (dbName.a === a) return dbName;
 
   // Do these actions in parallel
   await Promise.all([

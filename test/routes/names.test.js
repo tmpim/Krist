@@ -272,6 +272,24 @@ describe("v2 routes: names", () => {
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
     });
+
+    it("should not bump a name", async () => {
+      const res = await api()
+        .post("/names/test/transfer")
+        .send({ privatekey: "a", address: "k8juvewcui" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
+    });
+
+    it("should not have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "k8juvewcui", name: "test", value: 0 });
+    });
   });
 
   const nameUpdateValidation = (route, method) => () => {
@@ -355,12 +373,14 @@ describe("v2 routes: names", () => {
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
     });
 
+    let tID = -1;
     it("should have created a transaction", async () => {
       const schemas = require("../../src/schemas");
 
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "example.com", value: 0 });
+      tID = tx.id;
     });
 
     it("should not have changed the owner's balance", async () => {
@@ -369,6 +389,23 @@ describe("v2 routes: names", () => {
       const address = await schemas.address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
+    });
+
+    it("should not bump a name", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "a", a: "example.com" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
+    });
+
+    it("should not have created a transaction", async () => {
+      const schemas = require("../../src/schemas");
+
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({ id: tID, op: "example.com" });
     });
 
     it("should remove a name's a record", async () => {
