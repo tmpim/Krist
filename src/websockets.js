@@ -187,12 +187,12 @@ WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pk
 
     if (response instanceof Promise) {
       response.then(function(resp) {
-        Websockets.sendResponse(socket, msg, resp);
+        Websockets.sendResponse(socket, msg, { type: "response", ...resp });
       }).catch(function(err) {
-        Websockets.sendResponse(socket, msg, utils.errorToJSON(err));
+        Websockets.sendResponse(socket, msg, { type: "error", ...utils.errorToJSON(err) });
       });
     } else if (response) {
-      Websockets.sendResponse(socket, msg, response);
+      Websockets.sendResponse(socket, msg, { type: "response", ...response });
     }
   });
 
@@ -213,30 +213,30 @@ WebsocketsManager.prototype.broadcast = function(message) {
  * given websocket should receive the event. */
 function subscriptionCheck(message) {
   if (!message.event) throw new Error("Missing event type");
-  
+
   switch (message.event) {
   case "block": {
     const { address } = message.block;
     return ws => // If the ws is subscribed to 'blocks' or 'ownBlocks'
-      (!ws.isGuest && ws.auth === address && ws.subs.includes("ownBlocks")) 
+      (!ws.isGuest && ws.auth === address && ws.subs.includes("ownBlocks"))
       || ws.subs.includes("blocks");
   }
 
   case "transaction": {
     const { to, from } = message.transaction;
     return ws => // If the ws is subscribed to 'transactions' or 'ownTransactions'
-      (!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subs.includes("ownTransactions")) 
+      (!ws.isGuest && (ws.auth === to || ws.auth === from) && ws.subs.includes("ownTransactions"))
       || ws.subs.includes("transactions");
   }
 
   case "name": {
     const { owner } = message.name;
     return ws => // If the ws is subscribed to 'names' or 'ownNames'
-      (!ws.isGuest && (ws.auth === owner) && ws.subs.includes("ownNames")) 
+      (!ws.isGuest && (ws.auth === owner) && ws.subs.includes("ownNames"))
       || ws.subs.includes("names");
   }
 
-  default: 
+  default:
     throw new Error("Unknown event type " + message.event);
   }
 }
@@ -247,7 +247,7 @@ WebsocketsManager.prototype.broadcastEvent = function(message) {
 
   const subCheck = subscriptionCheck(message);
   const stringified = JSON.stringify(message);
-  
+
   let recipients = 0;
   Websockets.websockets.forEach(ws => {
     if (!subCheck(ws)) return;
@@ -300,7 +300,7 @@ WebsocketsManager.prototype.useToken = function(token) {
 const fileExists = f => fs.promises.access(f, fs.constants.F_OK).then(() => true).catch(() => false);
 WebsocketsManager.prototype.startIPC = async function() {
   console.log(chalk`{cyan [Websockets]} Starting IPC server`);
-  
+
   const ipcPath = process.env.WS_IPC_PATH;
   if (await fileExists(ipcPath)) {
     console.log(chalk`{cyan [Websockets]} Cleaning up existing IPC socket`);
@@ -359,7 +359,7 @@ WebsocketsManager.prototype.startIPC = async function() {
   const server = Websockets.ipcServer = app.listen(ipcPath, () => {
     console.log(chalk`{green [Websockets]} Started IPC server`);
   });
-  
+
   server.on("error", err => {
     console.error(chalk`{red [Websockets]} Error starting IPC:`);
     console.error(err);
@@ -392,7 +392,7 @@ if (process.env.NODE_ENV !== "test" && typeof process.env.WS_IPC_PATH === "strin
   Websockets.startIPC().catch(err => {
     console.error(chalk`{red [Websockets]} Error starting IPC:`);
     console.error(err);
-  });    
+  });
 }
 
 Websockets.keepaliveInterval = setInterval(function() {
