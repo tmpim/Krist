@@ -55,11 +55,15 @@ module.exports = function(app) {
       });
     } catch (error) {
       console.log(chalk`{red [Websockets]} Failed connection using token {bold ${token}} ${logDetails}`);
-
-      utils.sendErrorToWS(ws, error);
       console.error(error);
 
-      ws.close();
+      if (ws.readyState === ws.OPEN) {
+        utils.sendErrorToWS(ws, error);
+        ws.close();
+      } else {
+        // Just in case
+        websockets.removeWebsocket(ws, token);
+      }
     }
   });
 

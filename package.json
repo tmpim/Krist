@@ -1,6 +1,6 @@
 {
   "name": "krist",
-  "version": "2.9.3",
+  "version": "2.9.4",
   "description": "The new Krist node written in node.js.",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "express-handlebars": "^5.2.0",
     "express-rate-limit": "^5.2.6",
     "express-slow-down": "^1.4.0",
-    "express-ws": "^1.0.0-rc.2",
+    "express-ws": "^5.0.2",
     "gitlog": "^2.1.2",
     "handlebars": "^4.7.7",
     "handy-redis": "^2.1.0",

@@ -132,11 +132,7 @@ WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pk
   promWebsocketConnectionsTotal.inc({ type: ws.isGuest ? "guest" : "authed" });
 
   socket.on("close", function() {
-    const id = Websockets.websockets.indexOf(ws);
-
-    if (id !== -1) {
-      Websockets.websockets.splice(id, 1);
-    }
+    Websockets.removeWebsocket(ws);
   });
 
   socket.on("message", function(message) {
@@ -196,7 +192,21 @@ WebsocketsManager.prototype.addWebsocket = function(req, socket, token, auth, pk
     }
   });
 
+  socket.on("error", function(err) {
+    console.error("Fatal websocket error:", err);
+  });
+
   Websockets.websockets.push(ws);
+};
+
+WebsocketsManager.prototype.removeWebsocket = function(socket, token) {
+  const id = token
+    ? this.websockets.findIndex(v => v.token == token)
+    : this.websockets.indexOf(socket);
+
+  if (id !== -1) {
+    this.websockets.splice(id, 1);
+  }
 };
 
 WebsocketsManager.prototype.broadcast = function(message) {
