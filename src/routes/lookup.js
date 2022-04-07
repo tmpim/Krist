@@ -36,7 +36,7 @@ const BLOCK_FIELDS = ["height", "address", "hash", "value", "time", "difficulty"
 // Valid fields to order transaction lookups by
 const TRANSACTION_FIELDS = ["id", "from", "to", "value", "time", "sent_name", "sent_metaname"];
 // Valid fields to order name lookups by
-const NAME_FIELDS = ["name", "owner", "original_owner", "registered", "updated", "a", "unpaid"];
+const NAME_FIELDS = ["name", "owner", "original_owner", "registered", "updated", "transferred", "a", "unpaid"];
 
 /** Validate a comma-separated list of addresses, returning an array of them
  * if it is valid, or throwing an error if it is not. */
@@ -396,7 +396,7 @@ module.exports = function(app) {
    *           results.
 	 * @apiParam (QueryParameter) {String} [orderBy=name] The field to order the
    *           results by. Must be one of `name`, `owner`, `original_owner`,
-   *           `registered` `updated`, `a` or `unpaid`.
+   *           `registered` `updated`, `transferred`, `a` or `unpaid`.
 	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
    *
@@ -415,14 +415,18 @@ module.exports = function(app) {
    *       "owner": "khugepoopy",
    *       "registered": "2016-06-12T13:21:41.000Z",
    *       "updated": "2018-04-06T16:54:53.000Z",
-   *       "a": ""
+   *       "transferred": "2018-04-06T16:54:53.000Z",
+   *       "a": null,
+   *       "unpaid": 0
    *     },
    *     {
    *       "name": "antiblock",
    *       "owner": "kreichdyes",
    *       "registered": "2020-01-25T12:18:14.000Z",
    *       "updated": "2020-01-25T12:18:14.000Z",
-   *       "a": null
+   *       "transferred": null,
+   *       "a": null,
+   *       "unpaid": 0
    *     },
    *     ...
    */

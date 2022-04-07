@@ -1,8 +1,12 @@
 {
   "new": [{
+    "commitHash": "5fed5626e6ce0e24c6a4a3c574ce73d5a6cca69e",
+    "date": "2022-04-07T23:24:01+01:00",
+    "new": true,
+    "body": "Names have a new `transferred` field that returns when they were last transferred to a new owner."
+  }, {
     "commitHash": "73097b66492728e9228123ae069dbc12aa7070f2",
     "date": "2021-03-01T11:46:43+00:00",
-    "new": true,
     "body": "Names now store their original owner in the `original_owner` field. Now you can check if they have been transferred by simply comparing these fields."
   }, {
     "commitHash": "9bad309b9ae0bc4e7e9b23496aff7b7ec7ea6bc5",
