@@ -132,6 +132,9 @@ describe("v2 routes: names", () => {
       const name = await schemas.name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500, original_owner: "k0duvsr4qn" });
+      expect(name.registered).to.be.ok;
+      expect(name.updated).to.be.ok;
+      expect(name.transferred).to.be.null;
     });
 
     it("should have created a transaction", async () => {
@@ -238,6 +241,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: true });
       expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
       expect(res.body.name.updated).to.be.ok;
+      expect(res.body.name.transferred).to.be.ok;
     });
 
     it("should have updated the database", async () => {
@@ -274,6 +278,13 @@ describe("v2 routes: names", () => {
     });
 
     it("should not bump a name", async () => {
+      const schemas = require("../../src/schemas");
+      const name = await schemas.name.findOne({ where: { name: "test" }});
+      const oldUpdated = name.updated;
+      const oldTransferred = name.transferred;
+      expect(oldUpdated).to.be.ok;
+      expect(oldTransferred).to.be.ok;
+
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "a", address: "k8juvewcui" });
@@ -281,6 +292,8 @@ describe("v2 routes: names", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
       expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
+      expect(res.body.name.updated).to.equal(oldUpdated.toISOString());
+      expect(res.body.name.transferred).to.equal(oldTransferred.toISOString());
     });
 
     it("should not have created a transaction", async () => {
@@ -318,16 +331,16 @@ describe("v2 routes: names", () => {
       }
     });
 
-    it("should reject invalid a records", async () => {
-      const invalidRecords = ["#foo", "?foo", "foo bar", " foo", "foo ", "a".repeat(256)];
-      for (const record of invalidRecords) {
+    const invalidRecords = ["#foo", "?foo", "foo bar", "a".repeat(256)];
+    for (const record of invalidRecords) {
+      it(`should reject invalid a records - ${JSON.stringify(record)}`, async () => {
         const res = await api()[method]("/names/test" + route)
           .send({ privatekey: "a", a: record });
 
         expect(res).to.be.json;
         expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "a" });
-      }
-    });
+      });
+    }
 
     it("should not update when auth fails", async () => {
       const res = await api()[method]("/names/test" + route)
@@ -392,12 +405,18 @@ describe("v2 routes: names", () => {
     });
 
     it("should not bump a name", async () => {
+      const schemas = require("../../src/schemas");
+      const name = await schemas.name.findOne({ where: { name: "test" }});
+      const oldUpdated = name.updated;
+      expect(oldUpdated).to.be.ok;
+
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "a", a: "example.com" });
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
       expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
+      expect(res.body.name.updated).to.equal(oldUpdated.toISOString());
     });
 
     it("should not have created a transaction", async () => {
@@ -414,7 +433,7 @@ describe("v2 routes: names", () => {
 
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
-      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "" });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: null });
       expect(res.body.name.updated).to.be.ok;
     });
 
@@ -423,7 +442,7 @@ describe("v2 routes: names", () => {
 
       const name = await schemas.name.findOne();
       expect(name).to.exist;
-      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "" });
+      expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: null });
     });
 
     it("should have created a transaction", async () => {
@@ -431,7 +450,7 @@ describe("v2 routes: names", () => {
 
       const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
-      expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "", value: 0 });
+      expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: null, value: 0 });
     });
 
     it("should not have changed the owner's balance", async () => {
@@ -441,6 +460,28 @@ describe("v2 routes: names", () => {
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
     });
+
+    it("should nullify the a record if it is an empty string", async () => {
+      const res = await api()[method]("/names/test" + route)
+        .send({ privatekey: "a", a: "" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: null });
+      expect(res.body.name.updated).to.be.ok;
+    });
+
+    const trimRecords = [" foo", "foo ", " foo "];
+    for (const record of trimRecords) {
+      it(`should trim a records - ${JSON.stringify(record)}`, async () => {
+        const res = await api()[method]("/names/test" + route)
+          .send({ privatekey: "a", a: record });
+
+        expect(res).to.be.json;
+        expect(res.body).to.deep.include({ ok: true });
+        expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "foo" });
+      });
+    }
   };
 
   describe("POST /names/:name/update - validation", nameUpdateValidation("/update", "post"));

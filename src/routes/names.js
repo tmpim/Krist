@@ -22,7 +22,6 @@
 const krist           = require("./../krist.js");
 const utils           = require("./../utils.js");
 const addresses       = require("./../addresses.js");
-const tx              = require("./../transactions.js");
 const names           = require("./../names.js");
 const errors          = require("./../errors/errors.js");
 const namesController = require("./../controllers/names.js");
@@ -40,11 +39,14 @@ module.exports = function(app) {
 	 * @apiSuccess {Object} name
 	 * @apiSuccess {String} name.name The name.
 	 * @apiSuccess {String} name.owner The address that currently owns this name.
-	 * @apiSuccess {String} [name.original_owner] The address that originally
+	 * @apiSuccess {String} name.original_owner The address that originally
    *   purchased this name.
 	 * @apiSuccess {Date} name.registered The time this name was registered.
-	 * @apiSuccess {Date} name.updated The time this name was last updated.
-	 * @apiSuccess {String} name.a The A record (or CNAME record) of this name.
+	 * @apiSuccess {Date} name.updated The time this name was last updated -
+   *   either the A record changed, or it was transferred to a new owner.
+	 * @apiSuccess {Date} [name.transferred] The time this name was last
+   *   transferred to a new owner.
+	 * @apiSuccess {String} [name.a] The A record (or CNAME record) of this name.
 	 * @apiSuccess {Number} name.unpaid The number of blocks until this name has
    *   been paid off.
 	 */
@@ -58,7 +60,10 @@ module.exports = function(app) {
 	 * @apiSuccess {String} [names.original_owner] The address that originally
    *   purchased this name.
 	 * @apiSuccess {Date} names.registered The time this name was registered.
-	 * @apiSuccess {Date} names.updated The time this name was last updated.
+	 * @apiSuccess {Date} names.updated The time this name was last updated -
+   *   either the A record changed, or it was transferred to a new owner.
+	 * @apiSuccess {Date} [names.transferred] The time this name was last
+   *   transferred to a new owner.
 	 * @apiSuccess {String} names.a The A record (or CNAME record) of this name.
 	 * @apiSuccess {Number} names.unpaid The number of blocks until this name has
    *   been paid off.
@@ -226,7 +231,7 @@ module.exports = function(app) {
 	 * {
 	 *     "ok": true,
 	 *     "name_cost": 500
-     * }
+   * }
 	 */
   app.get("/names/cost", function(req, res) {
     res.json({
@@ -250,7 +255,7 @@ module.exports = function(app) {
 	 * {
 	 *     "ok": true,
 	 *     "name_bonus": 12
-     * }
+   * }
 	 */
   app.get("/names/bonus", function(req, res) {
     names.getUnpaidNameCount().then(function(count) {
@@ -286,14 +291,18 @@ module.exports = function(app) {
      *             "original_owner": "kmr20h6bvb",
      *             "registered": "2015-05-10T20:56:37.000Z",
      *             "updated": "2020-01-04T05:07:45.000Z",
-     *             "a": null
+		 *             "transferred": "2020-01-04T05:07:45.000Z",
+     *             "a": null,
+     *             "unpaid": 0
      *         },
      *         {
      *             "name": "00",
      *             "owner": "k9qyx784k7",
      *             "registered": "2015-05-14T14:35:40.000Z",
      *             "updated": "2015-05-24T22:47:56.000Z",
-     *             "a": null
+		 *             "transferred": "2015-05-24T22:36:54.000Z",
+     *             "a": null,
+     *             "unpaid": 0
      *         },
 	 *  	   ...
 	 */
@@ -344,7 +353,9 @@ module.exports = function(app) {
      *             "original_owner": "kmr20h6bvb",
      *             "registered": "2015-05-10T20:56:37.000Z",
      *             "updated": "2020-01-04T05:07:45.000Z",
-     *             "a": null
+		 *             "transferred": "2020-01-04T05:07:45.000Z",
+     *             "a": null,
+     *             "unpaid": 0
      *         },
      *         {
      *             "name": "00",
@@ -352,7 +363,9 @@ module.exports = function(app) {
      *             "original_owner": "k9qyx784k7",
      *             "registered": "2015-05-14T14:35:40.000Z",
      *             "updated": "2015-05-24T22:47:56.000Z",
-     *             "a": null
+		 *             "transferred": "2015-05-24T22:36:54.000Z",
+     *             "a": null,
+     *             "unpaid": 0
      *         },
 	 *  	   ...
 	 */
@@ -394,7 +407,9 @@ module.exports = function(app) {
      *         "original_owner": "k9qyx784k7",
      *         "registered": "2015-05-14T14:35:40.000Z",
      *         "updated": "2015-05-24T22:47:56.000Z",
-     *         "a": null
+     *         "transferred": "2015-05-24T22:36:54.000Z",
+     *         "a": null,
+     *         "unpaid": 0
      *     }
      * }
 	 */
@@ -478,7 +493,9 @@ module.exports = function(app) {
      *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
      *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "transferred": "2016-02-06T14:08:36.000Z",
      *         "a": null,
+     *         "unpaid": 0
      *     }
      * }
 	 *
@@ -525,7 +542,9 @@ module.exports = function(app) {
 	 * @apiDescription Updates the A record of a name.
 	 *
 	 * @apiParam (URLParameter) {String} name The name you want to update.
-	 * @apiParam (BodyParameter) {String} a The A record you want to set for the name.
+	 * @apiParam (BodyParameter) {String} [a] The A record you want to set for the
+   *    name. You may pass an empty string (`""`), `null` (in JSON requests), or
+   *    omit the `a` parameter entirely to remove the A record.
 	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
 	 *
 	 * @apiUse Name
@@ -538,8 +557,10 @@ module.exports = function(app) {
      *         "owner": "kre3w0i79j",
      *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
-     *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "updated": "2016-02-07T15:30:10.000Z",
+     *         "transferred": "2016-02-06T14:08:36.000Z",
      *         "a": "krist.ceriat.net",
+     *         "unpaid": 0
      *     }
      * }
 	 *
@@ -566,7 +587,9 @@ module.exports = function(app) {
 	 * @apiDescription Updates the A record of a name.
 	 *
 	 * @apiParam (URLParameter) {String} name The name you want to update.
-	 * @apiParam (BodyParameter) {String} a The A record you want to set for the name.
+	 * @apiParam (BodyParameter) {String} [a] The A record you want to set for the
+   *    name. You may pass an empty string (`""`), `null` (in JSON requests), or
+   *    omit the `a` parameter entirely to remove the A record.
 	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
 	 *
 	 * @apiUse Name
@@ -579,8 +602,10 @@ module.exports = function(app) {
      *         "owner": "kre3w0i79j",
      *         "original_owner": "kre3w0i79j",
      *         "registered": "2016-02-06T14:01:19.000Z",
-     *         "updated": "2016-02-06T14:08:36.000Z",
+     *         "updated": "2016-02-07T15:30:10.000Z",
+     *         "transferred": "2016-02-06T14:08:36.000Z",
      *         "a": "krist.ceriat.net",
+     *         "unpaid": 0
      *     }
      * }
 	 *

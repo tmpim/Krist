@@ -86,6 +86,7 @@ Names.createName = async function(name, owner) {
     original_owner: owner,
     registered: new Date(),
     updated: new Date(),
+    transferred: null,
     unpaid: Names.getNameCost()
   });
 
@@ -107,6 +108,7 @@ Names.nameToJSON = function(name) {
     original_owner: name.original_owner,
     registered: name.registered,
     updated: name.updated,
+    transferred: name.transferred || null,
     a: name.a,
     unpaid: name.unpaid || 0
   };

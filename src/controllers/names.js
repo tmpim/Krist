@@ -141,15 +141,18 @@ NamesController.transferName = async function(req, name, privatekey, address) {
   // Disallow "bumping" names, don't change anything and respond as usual
   if (dbName.owner === address) return dbName;
 
+  const date = new Date();
+
   // Do these actions in parallel
   await Promise.all([
-    // Update the name's owner
+    // Update the name's owner and transferred date
     // NOTE: original_owner is only updated if it was previously null. There's
     //       only a small number of names that the original owner couldn't be
     //       found for.
     dbName.update({
       owner: address,
-      updated: new Date(),
+      updated: date,
+      transferred: date,
 
       // If the name did not have an original owner for some reason, use the
       // current owner.
@@ -165,14 +168,18 @@ NamesController.transferName = async function(req, name, privatekey, address) {
 };
 
 NamesController.updateName = async function(req, name, privatekey, a) {
-  a = a || ""; // Replace with an empty string if given anything falsy
+  // Clean A record
+  if (typeof a === "string") a = a.trim();
+  if (typeof a === "undefined" || a === "") a = null;
 
   // Input validation
   if (!name) throw new errors.ErrorMissingParameter("name");
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
-  if (!krist.isValidName(name)) throw new errors.ErrorInvalidParameter("name");
-  if (a.trim() && !krist.isValidARecord(a)) throw new errors.ErrorInvalidParameter("a");
+  if (!krist.isValidName(name))
+    throw new errors.ErrorInvalidParameter("name");
+  if (a !== null && !krist.isValidARecord(a))
+    throw new errors.ErrorInvalidParameter("a");
 
   // Address auth validation
   const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);

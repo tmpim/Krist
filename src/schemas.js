@@ -74,6 +74,7 @@ const Name = database.getSequelize().define("name", {
   owner: Sequelize.STRING(10),
   registered: Sequelize.DATE,
   updated: Sequelize.DATE,
+  transferred: Sequelize.DATE,
   a: Sequelize.STRING(255),
   unpaid: Sequelize.INTEGER.UNSIGNED,
   original_owner: Sequelize.STRING(10),
