@@ -199,24 +199,22 @@ module.exports = function(app) {
     next();
   });
 
-  app.get("/names/check/:name", function(req, res) {
+  app.get("/names/check/:name", async function(req, res) {
     if (!krist.isValidName(req.params.name)) {
       return utils.sendErrorToRes(req, res, new errors.ErrorInvalidParameter("name"));
     }
 
-    names.getNameByName(req.params.name.toLowerCase()).then(function (name) {
-      if (name) {
-        res.json({
-          ok: true,
-          available: false
-        });
-      } else {
-        res.json({
-          ok: true,
-          available: true
-        });
-      }
-    });
+    try {
+      const dbName = await names.getNameByName(req.params.name.toLowerCase());
+
+      res.json({
+        ok: true,
+        available: !dbName
+      });
+    } catch (error) {
+      console.error("Error during name exists check:", error);
+      return res.json({ ok: true, available: false });
+    }
   });
 
   /**
@@ -459,14 +457,22 @@ module.exports = function(app) {
 	 *     "parameter": "name"
 	 * }
 	 */
-  app.post("/names/:name", function(req, res) {
-    namesController.registerName(req, req.params.name, req.body.privatekey).then(function() {
+  app.post("/names/:name", async function(req, res) {
+    try {
+      const { userAgent, origin } = utils.getReqDetails(req);
+
+      const name = await namesController.registerName(
+        req, req.params.name, req.body.privatekey,
+        userAgent, origin
+      );
+
       res.json({
-        ok: true
+        ok: true,
+        name: namesController.nameToJSON(name)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
 
@@ -511,26 +517,40 @@ module.exports = function(app) {
 	 *     "error": "not_name_owner"
 	 * }
 	 */
-  app.post("/names/:name/transfer", function(req, res) {
-    namesController.transferName(req, req.params.name, req.body.privatekey, req.body.address).then(function(name) {
+  app.post("/names/:name/transfer", async function(req, res) {
+    try  {
+      const { userAgent, origin } = utils.getReqDetails(req);
+
+      const name = await namesController.transferName(
+        req, req.params.name, req.body.privatekey, req.body.address,
+        userAgent, origin
+      );
+
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   });
 
-  function updateName(req, res) {
-    namesController.updateName(req, req.params.name, req.body.privatekey, req.body.a).then(function(name) {
+  async function updateName(req, res) {
+    try  {
+      const { userAgent, origin } = utils.getReqDetails(req);
+
+      const name = await namesController.updateName(
+        req, req.params.name, req.body.privatekey, req.body.a,
+        userAgent, origin
+      );
+
       res.json({
         ok: true,
         name: namesController.nameToJSON(name)
       });
-    }).catch(function(error) {
+    } catch (error) {
       utils.sendErrorToRes(req, res, error);
-    });
+    }
   }
 
   /**

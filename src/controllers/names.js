@@ -84,12 +84,20 @@ NamesController.getNamesByAddress = function(address, limit, offset) {
   });
 };
 
-NamesController.registerName = async function(req, desiredName, privatekey) {
+NamesController.registerName = async function(req, desiredName, privatekey, userAgent, origin) {
   // Input validation
   if (!desiredName) throw new errors.ErrorMissingParameter("name");
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
 
   if (!krist.isValidName(desiredName)) throw new errors.ErrorInvalidParameter("name");
+
+  // Convert to lowercase
+  try {
+    desiredName = desiredName.toLowerCase();
+  } catch (e) {
+    console.error("Could not convert name to lowercase:", e);
+    throw new errors.ErrorInvalidParameter("name");
+  }
 
   // Address auth validation
   const { authed, address: dbAddress } = await addresses.verify(req, krist.makeV2Address(privatekey), privatekey);
@@ -110,7 +118,7 @@ NamesController.registerName = async function(req, desiredName, privatekey) {
     dbAddress.increment({ totalout: names.getNameCost() }),
 
     // Create the name transaction
-    tx.createTransaction("name", dbAddress.address, names.getNameCost(), desiredName, null),
+    tx.createTransaction("name", dbAddress.address, names.getNameCost(), desiredName, null, null, userAgent, origin),
 
     // Create the name itself
     names.createName(desiredName, dbAddress.address)
@@ -120,7 +128,7 @@ NamesController.registerName = async function(req, desiredName, privatekey) {
   return dbName;
 };
 
-NamesController.transferName = async function(req, name, privatekey, address) {
+NamesController.transferName = async function(req, name, privatekey, address, userAgent, origin) {
   // Input validation
   if (!name) throw new errors.ErrorMissingParameter("name");
   if (!privatekey) throw new errors.ErrorMissingParameter("privatekey");
@@ -160,14 +168,14 @@ NamesController.transferName = async function(req, name, privatekey, address) {
     }),
 
     // Add a name meta transaction
-    tx.pushTransaction(dbAddress, address, 0, null, dbName.name)
+    tx.pushTransaction(dbAddress, address, 0, null, dbName.name, null, userAgent, origin)
   ]);
 
   // Return the updated name
   return dbName.reload();
 };
 
-NamesController.updateName = async function(req, name, privatekey, a) {
+NamesController.updateName = async function(req, name, privatekey, a, userAgent, origin) {
   // Clean A record
   if (typeof a === "string") a = a.trim();
   if (typeof a === "undefined" || a === "") a = null;
@@ -202,7 +210,7 @@ NamesController.updateName = async function(req, name, privatekey, a) {
     }),
 
     // Add a name meta transaction
-    tx.createTransaction("a", dbName.owner, 0, dbName.name, a)
+    tx.createTransaction("a", dbName.owner, 0, dbName.name, a, null, userAgent, origin)
   ]);
 
   // Return the updated name

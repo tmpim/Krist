@@ -158,6 +158,23 @@ describe("v2 routes: names", () => {
       const value = await Blocks.getBlockValue();
       expect(value).to.equal(26);
     });
+
+    it("should convert names to lowercase", async () => {
+      const schemas = require("../../src/schemas");
+
+      const res = await api()
+        .post("/names/TestUppercase")
+        .send({ privatekey: "d" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true });
+      expect(res.body.name).to.be.ok;
+      expect(res.body.name).to.deep.include({ name: "testuppercase" });
+
+      const tx = await schemas.transaction.findOne({ order: [["id", "DESC"]] });
+      expect(tx).to.exist;
+      expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "name", name: "testuppercase", value: 500 });
+    });
   });
 
   describe("POST /names/:name/transfer - validation", () => {
@@ -266,7 +283,7 @@ describe("v2 routes: names", () => {
 
       const address = await schemas.address.findOne({ where: { address: "k0duvsr4qn" }});
       expect(address).to.exist;
-      expect(address).to.deep.include({ balance: 24500 });
+      expect(address).to.deep.include({ balance: 24000 });
     });
 
     it("should not have changed the new owner's balance", async () => {

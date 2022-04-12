@@ -36,7 +36,7 @@ const cron             = require("node-cron");
 const addressRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})$/;
 const addressRegexV2 = /^k[a-z0-9]{9}$/;
 const addressListRegex = /^(?:k[a-z0-9]{9}|[a-f0-9]{10})(?:,(?:k[a-z0-9]{9}|[a-f0-9]{10}))*$/;
-const nameRegex = /^[a-z0-9]{1,64}$/i;
+const nameRegex = /^[a-z0-9]{1,64}$/;
 const nameFetchRegex = /^(?:xn--)?[a-z0-9]{1,64}$/i;
 const aRecordRegex = /^[^\s.?#].[^\s]*$/i;
 
@@ -163,6 +163,7 @@ Krist.isValidKristAddressList = function(addressList) {
 
 Krist.isValidName = function(name, fetching) {
   const re = fetching ? nameFetchRegex : nameRegex;
+  name = name.toLowerCase();
   return re.test(name) && name.length > 0 && name.length < 65;
 };
 
