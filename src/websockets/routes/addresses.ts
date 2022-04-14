@@ -30,10 +30,10 @@ import { WebSocketEventHandler } from "../types";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.4
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="address"} type
- * @apiParam (WebsocketParameter) {String} address
- * @apiParam (WebsocketParameter) {Boolean} [fetchNames] When supplied, fetch
+ * @apiBody {Number} id
+ * @apiBody {String="address"} type
+ * @apiBody {String} address
+ * @apiBody {Boolean} [fetchNames] When supplied, fetch
  *   the count of names owned by the address.
  *
  * @apiUse Address

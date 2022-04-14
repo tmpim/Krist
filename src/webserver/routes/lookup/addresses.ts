@@ -44,10 +44,10 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-   * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
+   * @apiParam {String[]} [addresses] A comma-separated list of
    *           addresses to filter transactions to/from.
    *
-   * @apiParam (QueryParameter) {Boolean} fetchNames When supplied, fetch the
+   * @apiQuery {Boolean} fetchNames When supplied, fetch the
    *           count of owned names for each address.
    *
    * @apiSuccess {Number} found The amount of addresses that were successfully

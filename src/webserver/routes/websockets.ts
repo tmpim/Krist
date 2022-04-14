@@ -154,7 +154,7 @@ export default (): Router => {
    *
    *
    *
-   * @apiParam (BodyParameter) {String} [privatekey] The privatekey to
+   * @apiBody {String} [privatekey] The privatekey to
    *   authenticate with.
    *
    * @apiSuccess {String} url The address to connect to

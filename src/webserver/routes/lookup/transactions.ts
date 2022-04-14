@@ -35,7 +35,7 @@ export default (): Router => {
   const router = Router();
 
   /**
-   * @api {get} /lookup/transactions/:addresses? Lookup transactions
+   * @api {get} /lookup/transactions/:addresses Lookup transactions
    * @apiName LookupTransactions
    * @apiGroup LookupGroup
    * @apiVersion 2.3.0
@@ -46,19 +46,20 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
-   *           addresses to filter transactions to/from.
+	 * @apiParam {String[]} [addresses] A comma-separated list of
+   *           addresses to filter transactions to/from. If not provided, the
+   *           whole network is queried.
    *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
    *           results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
    *           results.
-	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.
-	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+	 * @apiQuery {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
-	 * @apiParam (QueryParameter) {Boolean} [includeMined] If supplied,
+	 * @apiQuery {Boolean} [includeMined] If supplied,
    *           transactions from mining will be included.
    *
    * @apiSuccess {Number} count The count of results returned.

@@ -38,7 +38,7 @@ export default (): Router => {
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (BodyParameter) {String} privatekey The private key to turn into
+	 * @apiBody {String} privatekey The private key to turn into
 	 *   an address
 	 *
 	 * @apiSuccess {String} address The address from the private key

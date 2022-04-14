@@ -87,7 +87,7 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (QueryParameter) {String} q The search query.
+	 * @apiQuery {String} q The search query.
    *
    * @apiUse SearchQuery
    *

@@ -37,7 +37,7 @@ export default (): Router => {
   const router = Router();
 
   /**
-   * @api {get} /lookup/names/:addresses? Lookup names
+   * @api {get} /lookup/names/:addresses Lookup names
    * @apiName LookupNames
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
@@ -48,17 +48,18 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (URLParameter) {String[]} [addresses] A comma-separated list of
-   *           addresses to filter name owners by.
+	 * @apiParam {String[]} [addresses] A comma-separated list of
+   *           addresses to filter name owners by. If not provided, the whole
+   *           network is queried.
    *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
    *           results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
    *           results.
-	 * @apiParam (QueryParameter) {String} [orderBy=name] The field to order the
+	 * @apiQuery {String} [orderBy=name] The field to order the
    *           results by. Must be one of `name`, `owner`, `original_owner`,
    *           `registered` `updated`, `transferred`, `a` or `unpaid`.
-	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+	 * @apiQuery {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.
@@ -130,16 +131,16 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (URLParameter) {String} name The name to return history for.
+	 * @apiParam {String} name The name to return history for.
    *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
    *           results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
    *           results.
-	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.
-	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+	 * @apiQuery {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.
@@ -211,16 +212,16 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (URLParameter) {String} name The name to return transactions for.
+	 * @apiParam {String} name The name to return transactions for.
    *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
    *           results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
    *           results.
-	 * @apiParam (QueryParameter) {String} [orderBy=id] The field to order the
+	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.
-	 * @apiParam (QueryParameter) {String} [order=ASC] The direction to order
+	 * @apiQuery {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.

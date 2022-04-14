@@ -32,14 +32,14 @@ import { ErrorMissingParameter } from "../../errors";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.7
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="make_transaction"} type
- * @apiParam (WebsocketParameter) {String} [privatekey] The privatekey of your
+ * @apiBody {Number} id
+ * @apiBody {String="make_transaction"} type
+ * @apiBody {String} [privatekey] The privatekey of your
  *   address.
- * @apiParam (WebsocketParameter) {String} to The recipient of the transaction.
- * @apiParam (WebsocketParameter) {Number} amount The amount to send to the
+ * @apiBody {String} to The recipient of the transaction.
+ * @apiBody {Number} amount The amount to send to the
  *   recipient.
- * @apiParam (WebsocketParameter) {String} [metadata] Optional metadata to
+ * @apiBody {String} [metadata] Optional metadata to
  *   include in the transaction.
  *
  * @apiUse Transaction

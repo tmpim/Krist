@@ -29,8 +29,8 @@ import { ErrorAddressNotFound } from "../../errors";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="me"} type
+ * @apiBody {Number} id
+ * @apiBody {String="me"} type
  *
  * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
  * @apiUse Address

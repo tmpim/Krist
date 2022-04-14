@@ -156,7 +156,7 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (QueryParameter) {String} q The search query.
+	 * @apiQuery {String} q The search query.
    *
    * @apiUse SearchQuery
    *
@@ -229,11 +229,11 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiParam (URLParameter) {String} type The type of search query to execute.
+	 * @apiParam {String} type The type of search query to execute.
    *   Must be either `address`, `name` or `metadata`.
    *
-	 * @apiParam (QueryParameter) {String} q The search query.
-	 * @apiParam (QueryParameter) {Boolean} [includeMined] If supplied,
+	 * @apiQuery {String} q The search query.
+	 * @apiQuery {Boolean} [includeMined] If supplied,
    *           transactions from mining will be included (only for `address`
    *           searches).
    *

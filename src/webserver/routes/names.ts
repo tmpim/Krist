@@ -87,6 +87,8 @@ export default (): Router => {
 	 * @apiName CheckName
 	 * @apiGroup NameGroup
 	 * @apiVersion 3.0.0
+   *
+	 * @apiParam name The name to check the availability of.
 	 *
 	 * @apiSuccess {Boolean} available Whether or not the name is available
 	 *
@@ -155,9 +157,9 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -206,9 +208,9 @@ export default (): Router => {
 	 *   name is "paid off" after the submission of 500 blocks after its
 	 *   registration.
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -255,7 +257,7 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.1
 	 *
-	 * @apiParam (URLParameter) name The name to get.
+	 * @apiParam name The name to get.
 	 *
 	 * @apiUse Name
 	 *
@@ -288,8 +290,8 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (URLParameter) {String} name The name you want to register.
-	 * @apiParam (BodyParameter) {String} privatekey The private key to your address.
+	 * @apiParam {String} name The name you want to register.
+	 * @apiBody {String} privatekey The private key to your address.
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {
@@ -333,10 +335,10 @@ export default (): Router => {
 	 *
 	 * @apiDescription Transfers the name to another owner.
 	 *
-	 * @apiParam (URLParameter) {String} name The name you want to transfer.
-	 * @apiParam (BodyParameter) {String} address The address you want to transfer
+	 * @apiParam {String} name The name you want to transfer.
+	 * @apiBody {String} address The address you want to transfer
 	 *   the name to.
-	 * @apiParam (BodyParameter) {String} privatekey The private key to your
+	 * @apiBody {String} privatekey The private key to your
 	 *   address.
 	 *
 	 * @apiUse Name
@@ -396,11 +398,11 @@ export default (): Router => {
 	 *
 	 * @apiDescription Updates the data of a name.
 	 *
-	 * @apiParam (URLParameter) {String} name The name you want to update.
-	 * @apiParam (BodyParameter) {String} [a] The data you want to set for the
+	 * @apiParam {String} name The name you want to update.
+	 * @apiBody {String} [a] The data you want to set for the
    *   name. You may pass an empty string (`""`), `null` (in JSON requests), or
    *   omit the `a` parameter entirely to remove the data.
-	 * @apiParam (BodyParameter) {String} privatekey The private key to your
+	 * @apiBody {String} privatekey The private key to your
    *   address.
 	 *
 	 * @apiUse Name
@@ -442,11 +444,11 @@ export default (): Router => {
 	 *
 	 * @apiDescription Updates the data of a name.
 	 *
-	 * @apiParam (URLParameter) {String} name The name you want to update.
-	 * @apiParam (BodyParameter) {String} [a] The data you want to set for the
+	 * @apiParam {String} name The name you want to update.
+	 * @apiBody {String} [a] The data you want to set for the
    *   name. You may pass an empty string (`""`), `null` (in JSON requests), or
    *   omit the `a` parameter entirely to remove the data.
-	 * @apiParam (BodyParameter) {String} privatekey The private key to your
+	 * @apiBody {String} privatekey The private key to your
    *   address.
 	 *
 	 * @apiUse Name

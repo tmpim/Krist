@@ -44,9 +44,9 @@ export default (): Router => {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (BodyParameter) {String} address The address to send the reward
+	 * @apiBody {String} address The address to send the reward
 	 *   to, if successful.
-	 * @apiParam (BodyParameter) {String|Number[]} nonce The nonce to submit with.
+	 * @apiBody {String|Number[]} nonce The nonce to submit with.
 	 *
 	 * @apiSuccess {Boolean} success Whether the submission was successful or not.
 	 * @apiSuccess {String} [error] The block submission error (if success was

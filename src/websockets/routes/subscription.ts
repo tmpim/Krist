@@ -30,9 +30,9 @@ import {
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="subscribe"} type
- * @apiParam (WebsocketParameter) {String} event
+ * @apiBody {Number} id
+ * @apiBody {String="subscribe"} type
+ * @apiBody {String} event
  *
  * @apiSuccess {String[]} subscription_level The current subscription level
  *
@@ -65,8 +65,8 @@ export const wsSubscribe: WebSocketEventHandler<{
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="get_subscription_level"} type
+ * @apiBody {Number} id
+ * @apiBody {String="get_subscription_level"} type
  *
  * @apiSuccess {String[]} subscription_level The current subscription level
  *
@@ -90,8 +90,8 @@ export const wsGetSubscriptionLevel: WebSocketEventHandler = async ws => {
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="get_valid_subscription_levels"} type
+ * @apiBody {Number} id
+ * @apiBody {String="get_valid_subscription_levels"} type
  *
  * @apiSuccess {String[]} valid_subscription_levels All valid subscription levels
  *
@@ -115,9 +115,9 @@ export const wsGetValidSubscriptionLevels: WebSocketEventHandler = async () => {
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="subscribe"} type
- * @apiParam (WebsocketParameter) {String} event
+ * @apiBody {Number} id
+ * @apiBody {String="subscribe"} type
+ * @apiBody {String} event
  *
  * @apiSuccess {String[]} subscription_level The current subscription level
  *

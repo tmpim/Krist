@@ -29,8 +29,8 @@ import { WebSocketEventHandler } from "../types";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.1
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="work"} type
+ * @apiBody {Number} id
+ * @apiBody {String="work"} type
  *
  * @apiSuccess {Number} work The current Krist work (difficulty)
  *

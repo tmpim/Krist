@@ -35,9 +35,9 @@ import { getLogDetails } from "../../utils";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.3
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="login"} type
- * @apiParam (WebsocketParameter) {String} privatekey
+ * @apiBody {Number} id
+ * @apiBody {String="login"} type
+ * @apiBody {String} privatekey
  *
  * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
  * @apiUse Address

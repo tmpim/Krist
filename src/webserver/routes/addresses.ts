@@ -80,9 +80,9 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -130,9 +130,9 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -173,8 +173,8 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (URLParameter) {String} address The address.
-	 * @apiParam (QueryParameter) {Boolean} [fetchNames] When supplied, fetch the
+	 * @apiParam {String} address The address.
+	 * @apiQuery {Boolean} [fetchNames] When supplied, fetch the
    *   count of names owned by the address.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -221,11 +221,11 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (URLParameter) {String} address The address.
+	 * @apiParam {String} address The address.
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -272,13 +272,13 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (URLParameter) {String} address The address.
+	 * @apiParam {String} address The address.
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
-	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified,
+	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.

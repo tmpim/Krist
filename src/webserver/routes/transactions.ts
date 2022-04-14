@@ -97,11 +97,11 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.3.0
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
-	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified,
+	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -158,11 +158,11 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.3.0
 	 *
-	 * @apiParam (QueryParameter) {Number} [limit=50] The maximum amount of
+	 * @apiQuery {Number} [limit=50] The maximum amount of
 	 *   results to return.
-	 * @apiParam (QueryParameter) {Number} [offset=0] The amount to offset the
+	 * @apiQuery {Number} [offset=0] The amount to offset the
 	 *   results.
-	 * @apiParam (QueryParameter) {Boolean} [excludeMined] If specified,
+	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *
 	 * @apiSuccess {Number} count The count of results.
@@ -219,7 +219,7 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.3.0
 	 *
-	 * @apiParam (URLParameter) {Number} id The ID of the transaction to get.
+	 * @apiParam {Number} id The ID of the transaction to get.
 	 *
 	 * @apiUse Transaction
 	 *
@@ -254,12 +254,12 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam (BodyParameter) {String} privatekey The privatekey of your
+	 * @apiBody {String} privatekey The privatekey of your
 	 *   address.
-	 * @apiParam (BodyParameter) {String} to The recipient of the transaction.
-	 * @apiParam (BodyParameter) {Number} amount The amount to send to the
+	 * @apiBody {String} to The recipient of the transaction.
+	 * @apiBody {Number} amount The amount to send to the
 	 *   recipient.
-	 * @apiParam (BodyParameter) {String} [metadata] Optional metadata to include
+	 * @apiBody {String} [metadata] Optional metadata to include
 	 *   in the transaction.
 	 *
 	 * @apiUse Transaction

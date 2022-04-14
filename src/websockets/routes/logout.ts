@@ -31,8 +31,8 @@ import { getLogDetails } from "../../utils";
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.3
  *
- * @apiParam (WebsocketParameter) {Number} id
- * @apiParam (WebsocketParameter) {String="logout"} type
+ * @apiBody {Number} id
+ * @apiBody {String="logout"} type
  *
  * @apiSuccess {Boolean} isGuest Whether the current user is a guest or not
  */
