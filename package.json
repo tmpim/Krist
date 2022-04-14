@@ -118,6 +118,7 @@
       "GetNewNames",
       "GetNameCost",
       "GetNameBonus",
+      "CheckName",
       "RegisterName",
       "TransferName",
       "MiscellaneousGroup",

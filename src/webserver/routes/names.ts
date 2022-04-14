@@ -157,10 +157,7 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of names.
@@ -208,10 +205,7 @@ export default (): Router => {
 	 *   name is "paid off" after the submission of 500 blocks after its
 	 *   registration.
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of names registered in the last

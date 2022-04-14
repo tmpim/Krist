@@ -97,10 +97,7 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.3.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *
@@ -158,10 +155,7 @@ export default (): Router => {
 	 * @apiGroup TransactionGroup
 	 * @apiVersion 2.3.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *

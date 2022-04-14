@@ -50,10 +50,7 @@ export default (): Router => {
    *           addresses to filter transactions to/from. If not provided, the
    *           whole network is queried.
    *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-   *           results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-   *           results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.

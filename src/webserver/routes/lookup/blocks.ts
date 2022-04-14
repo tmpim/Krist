@@ -44,10 +44,7 @@ export default (): Router => {
    * **WARNING:** The Lookup API is in Beta, and is subject to change at any
    * time without warning.
    *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-   *           results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-   *           results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=height] The field to order the
    *           results by. Must be one of `height`, `address`, `hash`, `value`,
    *           `time` or `difficulty`.

@@ -52,10 +52,7 @@ export default (): Router => {
    *           addresses to filter name owners by. If not provided, the whole
    *           network is queried.
    *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-   *           results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-   *           results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=name] The field to order the
    *           results by. Must be one of `name`, `owner`, `original_owner`,
    *           `registered` `updated`, `transferred`, `a` or `unpaid`.
@@ -133,10 +130,7 @@ export default (): Router => {
    *
 	 * @apiParam {String} name The name to return history for.
    *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-   *           results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-   *           results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.
@@ -214,10 +208,7 @@ export default (): Router => {
    *
 	 * @apiParam {String} name The name to return transactions for.
    *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-   *           results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-   *           results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=id] The field to order the
    *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
    *           `sent_name` or `sent_metaname`.

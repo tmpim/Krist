@@ -26,6 +26,24 @@ import { ErrorInvalidParameter } from "../errors";
 import { isNaN } from "lodash";
 import { Literal } from "sequelize/types/utils";
 
+/**
+ * @apiDefine Limit
+ * @apiQuery {Number{1-1000}} [limit=50] The maximum amount of results to
+ *   return. Must be between 1 and 1000.
+ */
+
+/**
+ * @apiDefine Offset
+ * @apiQuery {Number} [offset=0] The amount to offset the results, useful to
+ *   paginate results, and in conjunction with `limit`.
+ */
+
+/**
+ * @apiDefine LimitOffset
+ * @apiUse Limit
+ * @apiUse Offset
+ */
+
 export async function validateLimit(limit: Limit): Promise<void> {
   if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
     throw new ErrorInvalidParameter("limit");

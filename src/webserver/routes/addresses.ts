@@ -80,10 +80,7 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total count of addresses.
@@ -130,10 +127,7 @@ export default (): Router => {
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total count of addresses.
@@ -223,10 +217,7 @@ export default (): Router => {
 	 *
 	 * @apiParam {String} address The address.
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of names owned by this address.
@@ -274,10 +265,7 @@ export default (): Router => {
 	 *
 	 * @apiParam {String} address The address.
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 * @apiQuery {Boolean} [excludeMined] If specified,
 	 *   transactions from mining will be excluded.
 	 *

@@ -73,10 +73,7 @@ export default (): Router => {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiSuccess {Number} total The total amount of blocks.
@@ -117,10 +114,7 @@ export default (): Router => {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiUse Blocks
@@ -159,10 +153,7 @@ export default (): Router => {
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiQuery {Number} [limit=50] The maximum amount of
-	 *   results to return.
-	 * @apiQuery {Number} [offset=0] The amount to offset the
-	 *   results.
+	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
 	 * @apiUse Blocks
