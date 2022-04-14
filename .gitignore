@@ -29,3 +29,10 @@ npm-debug.log
 /static/kristwallet
 
 .env
+.env*
+npm-debug.log*
+.eslintcache
+dist
+coverage
+mochawesome-report
+.nyc_output

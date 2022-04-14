@@ -5,7 +5,8 @@ charset = utf-8
 end_of_line = lf
 insert_final_newline = true
 
-[*.{js,jsx,ts,tsx,css,scss,json,swig,html}]
+[*.{js,jsx,ts,tsx,css,scss,json,swig,html,hbs}]
+quote_type = double
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true

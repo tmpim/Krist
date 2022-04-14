@@ -1,4 +1,5 @@
 {
-  "require": "test/fixtures.js",
+  "require": "test/fixtures.ts",
+  "reporter": "mochawesome",
   "exit": true
 }

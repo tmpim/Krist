@@ -2,5 +2,9 @@ node_modules
 static
 views
 data
+dist
 config.js
 config.example.js
+coverage
+mochawesome-report
+.nyc_output

@@ -1,6 +1,6 @@
 # Krist
 
-This is the new official Krist node. It is written in Node.js.
+This is the new official Krist node. It is written in Node.js and TypeScript.
 
 ## Repo Guidelines
 - All code and commits are made in British English (Not Simplified American English)
