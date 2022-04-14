@@ -257,8 +257,7 @@ export default (): Router => {
   });
 
   /**
-	 * @api {get} /addresses/:address/transactions Get the recent transactions
-	 *   from an address
+	 * @api {get} /addresses/:address/transactions Get the recent transactions from an address
 	 * @apiName GetAddressTransactions
 	 * @apiGroup AddressGroup
 	 * @apiVersion 2.0.0
