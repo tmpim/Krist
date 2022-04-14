@@ -2,14 +2,15 @@
 
 This is the new official Krist node. It is written in Node.js and TypeScript.
 
-## Repo Guidelines
-- All code and commits are made in British English (Not Simplified American English)
-- As of 2020, commits are made with [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+## Conventional Commits
 
-## API Documentation
+Commit messages are written with 
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-The documentation is generated with [apiDoc](http://apidocjs.com). You can find 
-a live copy of the API documentation [here](http://krist.ceriat.net/docs).
+## [API Documentation](https://krist.ceriat.net/docs)
+
+The documentation is generated with [apiDoc](https://apidocjs.com). You can find 
+a live copy of the API documentation [here](https://krist.ceriat.net/docs).
 
 ## Docker Installation
 
@@ -43,14 +44,9 @@ services:
 
 ### Requirements
 
-- Node.js v14
+- Node.js v16
 - MySQL or MariaDB
 - Redis
-
-### Installation
-
-Installation is fairly straight-forward. Simply clone the project, run 
-`npm i` to install the required dependencies and then run `node .`.
 
 #### Webserver Configuration
 
