@@ -23,7 +23,7 @@ import chalk from "chalk";
 import { Sequelize } from "sequelize-typescript";
 import { Transaction } from "sequelize";
 
-import { DB_NAME, DB_USER, DB_PASS, DB_HOST, DB_PORT } from "../utils/constants";
+import { DB_NAME, DB_USER, DB_PASS, DB_HOST, DB_PORT, TEST } from "../utils/constants";
 import { SCHEMAS } from "./schemas";
 
 export let db: Sequelize;
@@ -32,7 +32,7 @@ export let db: Sequelize;
 // Init database
 // =============================================================================
 export async function initDatabase(): Promise<void> {
-  console.log(chalk`{cyan [DB]} Connecting to database {bold ${DB_NAME}} as user {bold ${DB_USER}}...`);
+  console.log(chalk`{cyan [DB]} Connecting to database {bold ${DB_NAME}} at {bold ${DB_HOST}}:{bold ${DB_PORT}} as user {bold ${DB_USER}} (env: ${process.env.NODE_ENV}, test: ${TEST ? "TRUE" : "false"})...`);
 
   db = new Sequelize({
     dialect: "mysql",

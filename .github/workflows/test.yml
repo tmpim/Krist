@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: node:15
+    container: node:16
 
     services:
       mariadb:
@@ -30,13 +30,15 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Run tests
         run: npm test
         env: 
           DB_HOST: mariadb
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          TEST_DB_HOST: mariadb
+          TEST_DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           TEST_DB_PASS: test_krist
           REDIS_HOST: redis
           REDIS_PORT: ${{ job.services.redis.ports[6379] }}

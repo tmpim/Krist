@@ -23,7 +23,7 @@ import "dotenv/config";
 
 import * as chai from "chai";
 import chaiHttp from "chai-http";
-import sinon, { SinonSandbox, SinonStub } from "sinon";
+import sinon, { SinonSandbox } from "sinon";
 
 import chalk from "chalk";
 

@@ -49,4 +49,4 @@
  * All other endpoints.
  */
 
-export {}
+export {};

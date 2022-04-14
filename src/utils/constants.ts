@@ -32,19 +32,17 @@ export const MAIN_DB_NAME = process.env.DB_NAME as string | undefined || "krist"
 export const MAIN_DB_USER = process.env.DB_USER as string | undefined || "krist";
 export const MAIN_DB_PASS = process.env.DB_PASS as string;
 export const MAIN_DB_HOST = process.env.DB_HOST as string | undefined || "127.0.0.1";
-export const MAIN_DB_PORT = process.env.DB_PORT as string | undefined || "3306";
 
 export const TEST_DB_NAME = process.env.TEST_DB_NAME as string | undefined || "test_krist";
 export const TEST_DB_USER = process.env.TEST_DB_USER as string | undefined || "test_krist";
 export const TEST_DB_PASS = process.env.TEST_DB_PASS as string;
 export const TEST_DB_HOST = process.env.TEST_DB_HOST as string | undefined || "127.0.0.1";
-export const TEST_DB_PORT = process.env.TEST_DB_PORT as string | undefined || "3306";
 
 export const DB_NAME = TEST ? TEST_DB_NAME : MAIN_DB_NAME;
 export const DB_USER = TEST ? TEST_DB_USER : MAIN_DB_USER;
 export const DB_PASS = TEST ? TEST_DB_PASS : MAIN_DB_PASS;
 export const DB_HOST = TEST ? TEST_DB_HOST : MAIN_DB_HOST;
-export const DB_PORT = parseInt(TEST ? TEST_DB_PORT : MAIN_DB_PORT);
+export const DB_PORT = parseInt(process.env.DB_PORT ?? "3306");
 
 export const REDIS_HOST = process.env.REDIS_HOST as string | undefined || "127.0.0.1";
 export const REDIS_PORT = parseInt(process.env.REDIS_PORT as string | undefined || "6379");
