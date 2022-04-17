@@ -21,7 +21,7 @@
 
 import { Request } from "express";
 
-import { Limit, Offset, PaginatedResult, Transaction } from "../database";
+import { db, Limit, Offset, PaginatedResult, Transaction } from "../database";
 
 import { getAddress } from "../krist/addresses";
 import { verifyAddress } from "../krist/addresses/verify";
@@ -38,8 +38,7 @@ import {
 } from "../errors";
 
 import {
-  getReqDetails, isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE,
-  validateLimitOffset
+  isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, validateLimitOffset
 } from "../utils";
 
 import { isNaN } from "lodash";
@@ -92,34 +91,35 @@ export async function ctrlGetTransaction(
 export async function ctrlMakeTransaction(
   req: Request,
   privatekey?: string,
-  to?: string,
+  recipient?: string,
   amount?: string | number,
   metadata?: string
 ): Promise<Transaction> {
-  const { userAgent, origin } = getReqDetails(req);
-
   // Input validation
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
-  if (!to) throw new ErrorMissingParameter("to");
+  if (!recipient) throw new ErrorMissingParameter("to");
   if (!amount) throw new ErrorMissingParameter("amount");
 
   // Check if we're paying to a name
-  const isName = NAME_META_RE.test(to.toLowerCase());
+  const isName = NAME_META_RE.test(recipient.toLowerCase());
   // Handle the potential legacy behavior of manually paying to a name via the
   // transaction metadata
   const metadataIsName = metadata && METANAME_METADATA_RE.test(metadata);
 
-  const nameInfo = isName ? NAME_META_RE.exec(to.toLowerCase()) : undefined;
+  const nameInfo = isName
+    ? NAME_META_RE.exec(recipient.toLowerCase()) : undefined;
   const metadataNameInfo = metadata && metadataIsName
     ? METANAME_METADATA_RE.exec(metadata) : undefined;
 
   // Verify this is a valid v2 address
-  if (!isName && !isValidKristAddress(to, true))
+  if (!isName && !isValidKristAddress(recipient, true))
     throw new ErrorInvalidParameter("to");
 
-  amount = typeof amount === "string" ? parseInt(amount) : amount;
+  const finalAmount = typeof amount === "string" ? parseInt(amount) : amount;
 
-  if (isNaN(amount) || amount < 1) throw new ErrorInvalidParameter("amount");
+  if (isNaN(finalAmount) || finalAmount < 1)
+    throw new ErrorInvalidParameter("amount");
+
   if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata)
     || metadata.length > 255)) {
     throw new ErrorInvalidParameter("metadata");
@@ -130,7 +130,8 @@ export async function ctrlMakeTransaction(
   if (!authed) throw new ErrorAuthFailed();
 
   // Reject insufficient funds
-  if (!sender || sender.balance < amount) throw new ErrorInsufficientFunds();
+  if (!sender || sender.balance < finalAmount)
+    throw new ErrorInsufficientFunds();
 
   // If this is a name, pay to the owner of the name
   if (isName || metadataIsName) {
@@ -143,33 +144,36 @@ export async function ctrlMakeTransaction(
     // Add the original name spec to the metadata
     if (isName) {
       if (metadata) { // Append with a semicolon if we already have metadata
-        metadata = to.toLowerCase() + ";" + metadata;
+        metadata = recipient.toLowerCase() + ";" + metadata;
       } else { // Set new metadata otherwise
-        metadata = to.toLowerCase();
+        metadata = recipient.toLowerCase();
       }
     }
 
     // Create the transaction to the name's owner
-    return pushTransaction(
-      sender,
-      dbName.owner,
-      amount,
-      metadata,
-      undefined,
-      undefined,
-      userAgent, origin,
-      metaname, dbName.name
-    );
+    return await db.transaction(async dbTx => {
+      return await pushTransaction(
+        req,
+        dbTx,
+        sender.address,
+        dbName.owner,
+        finalAmount,
+        metadata,
+        undefined,
+        metaname, dbName.name
+      );
+    });
   } else {
     // Create the transaction to the provided address
-    return pushTransaction(
-      sender,
-      to,
-      amount,
-      metadata,
-      undefined,
-      undefined,
-      userAgent, origin
-    );
+    return await db.transaction(async dbTx => {
+      return await pushTransaction(
+        req,
+        dbTx,
+        sender.address,
+        recipient,
+        finalAmount,
+        metadata
+      );
+    });
   }
 }

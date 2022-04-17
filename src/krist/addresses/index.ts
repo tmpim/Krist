@@ -28,7 +28,10 @@ export interface AddressWithNames extends Address {
   names?: number;
 }
 
-export async function getAddress(address: string, fetchNames?: boolean): Promise<AddressWithNames | null> {
+export async function getAddress(
+  address: string,
+  fetchNames?: boolean
+): Promise<AddressWithNames | null> {
   if (fetchNames) {
     // Fetch the name count if requested
     const rows = await db.query<Address>(`

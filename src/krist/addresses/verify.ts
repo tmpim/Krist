@@ -29,6 +29,7 @@ import { logAuth } from "../authLog";
 import { getLogDetails, makeV2Address, sha256 } from "../../utils";
 
 import promClient from "prom-client";
+import { criticalLog } from "../../utils/criticalLog";
 
 const promAddressesVerifiedCounter = new promClient.Counter({
   name: "krist_addresses_verified_total",
@@ -74,8 +75,18 @@ export async function verifyAddress(
   if (address.privatekey) { // Address exists, auth if the privatekey is equal
     const authed = !address.locked && address.privatekey === hash;
 
-    if (authed) logAuth(req, kristAddress, "auth");
-    else console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address {bold ${kristAddress}} ${logDetails}`);
+    if (authed) {
+      logAuth(req, kristAddress, "auth");
+    } else {
+      const reason = address.locked
+        ? `(locked, alert: ${address.alert ?? "none"})`
+        : "(incorrect privatekey hash)";
+      console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address `
+        + chalk`{bold ${kristAddress}} for reason {bold ${reason}} `
+        + chalk`${logDetails}`);
+      criticalLog(req, `Auth failed on address **${kristAddress}**. Reason: `
+        + reason, false);
+    }
 
     promAddressesVerifiedCounter.inc({ type: authed ? "authed" : "failed" });
     return { authed, address };

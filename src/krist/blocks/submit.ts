@@ -145,15 +145,7 @@ export async function createBlock(
     }, { transaction: dbTx });
 
     // Create the transaction
-    await createTransaction(
-      address,
-      null,
-      value,
-      null,
-      null,
-      dbTx,
-      userAgent, origin
-    ),
+    await createTransaction(req, dbTx, address, null, value);
 
     // Decrement all unpaid name counters
     Name.decrement(

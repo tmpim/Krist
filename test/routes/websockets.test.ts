@@ -29,13 +29,16 @@ describe("websocket connection", () => {
   before(seed);
 
   describe("POST /ws/start", () => {
+    const wsRe = new RegExp("ws:\\/\\/"
+      + (process.env.PUBLIC_URL || "localhost:8080") + "\\/[0-9a-f]{18}");
+
     it("should return a guest token", async () => {
       const res = await api().post("/ws/start");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, expires: 30 });
       expect(res.body.url).to.be.a("string");
-      expect(res.body.url).to.match(/ws:\/\/localhost:8080\/[0-9a-f]{18}/);
+      expect(res.body.url).to.match(wsRe);
     });
 
     it("should return an authed token", async () => {
@@ -44,7 +47,7 @@ describe("websocket connection", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, expires: 30 });
       expect(res.body.url).to.be.a("string");
-      expect(res.body.url).to.match(/ws:\/\/localhost:8080\/[0-9a-f]{18}/);
+      expect(res.body.url).to.match(wsRe);
     });
 
     it("should return an error if auth fails", async () => {
@@ -90,7 +93,7 @@ describe("websocket connection", () => {
       expect(helloData.set).to.be.ok; // backwards compat for the HTTP API
       expect(helloData.motd_set).to.be.ok;
 
-      expect(helloData.public_url).to.equal("localhost:8080");
+      expect(helloData.public_url).to.equal(process.env.PUBLIC_URL || "localhost:8080");
       expect(helloData.mining_enabled).to.be.true;
       expect(helloData.debug_mode).to.be.true;
 

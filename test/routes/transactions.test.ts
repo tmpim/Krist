@@ -522,3 +522,35 @@ describe("v2 routes: transactions", () => {
     });
   });
 });
+
+describe("transaction edge cases", () => {
+  before(seed);
+
+  it("should not allow multiple simultaneous transactions", async () => {
+    async function sendTx() {
+      return await api()
+        .post("/transactions")
+        .send({ amount: 25000, to: "kwsgj3x184", privatekey: "d" });
+    }
+
+    const results = await Promise.all([sendTx(), sendTx(), sendTx()]);
+    let succeeded = 0, failed = 0;
+    for (const res of results) {
+      if (res.body.ok && !res.body.error) {
+        succeeded++;
+      } else {
+        failed++;
+      }
+    }
+
+    expect(succeeded).to.equal(1);
+    expect(failed).to.equal(2);
+
+    const addr1 = await Address.findOne({ where: { address: "k0duvsr4qn" }});
+    expect(addr1).to.be.ok;
+    expect(addr1!.balance).to.equal(0);
+    const addr2 = await Address.findOne({ where: { address: "kwsgj3x184" }});
+    expect(addr2).to.be.ok;
+    expect(addr2!.balance).to.equal(25000);
+  });
+});

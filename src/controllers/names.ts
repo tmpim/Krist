@@ -35,7 +35,7 @@ import {
 import { createTransaction, pushTransaction } from "../krist/transactions/create";
 
 import {
-  getReqDetails, isValidARecord, isValidKristAddress, isValidName, validateLimitOffset
+  isValidARecord, isValidKristAddress, isValidName, validateLimitOffset
 } from "../utils";
 import { NAME_COST } from "../utils/constants";
 
@@ -103,8 +103,6 @@ export async function ctrlRegisterName(
   desiredName?: string,
   privatekey?: string
 ): Promise<Name> {
-  const { userAgent, origin } = getReqDetails(req);
-
   // Input validation
   if (!desiredName) throw new ErrorMissingParameter("name");
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
@@ -125,28 +123,23 @@ export async function ctrlRegisterName(
   // Reject insufficient funds
   if (dbAddress.balance < NAME_COST) throw new ErrorInsufficientFunds();
 
-  return await db.transaction(async t => {
-    // Do these actions in parallel
-    const [,,, dbName] = await Promise.all([
-      // Decrease the purchaser's balance and increase their totalout
-      dbAddress.decrement({ balance: NAME_COST }, { transaction: t }),
-      dbAddress.increment({ totalout: NAME_COST }, { transaction: t }),
+  return await db.transaction(async dbTx => {
+    // Decrease the buyer's balance and increase their totalout
+    await dbAddress.decrement({ balance: NAME_COST }, { transaction: dbTx });
+    await dbAddress.increment({ totalout: NAME_COST }, { transaction: dbTx });
 
-      // Create the name transaction
-      createTransaction(
-        "name",
-        dbAddress.address,
-        NAME_COST,
-        finalName,
-        null,
-        t,
-        userAgent,
-        origin
-      ),
+    // Create the name transaction
+    await createTransaction(
+      req,
+      dbTx,
+      "name",
+      dbAddress.address,
+      NAME_COST,
+      finalName
+    );
 
-      // Create the name itself
-      createName(finalName, dbAddress.address, t)
-    ]);
+    // Create the new name
+    const dbName = await createName(finalName, dbAddress.address, dbTx);
 
     // Return the new name
     return dbName;
@@ -159,8 +152,6 @@ export async function ctrlTransferName(
   privatekey?: string,
   address?: string
 ): Promise<Name> {
-  const { userAgent, origin } = getReqDetails(req);
-
   // Input validation
   if (!name) throw new ErrorMissingParameter("name");
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
@@ -186,35 +177,31 @@ export async function ctrlTransferName(
 
   const date = new Date();
 
-  await db.transaction(async t => {
-    // Do these actions in parallel
-    await Promise.all([
-      // Update the name's owner and transferred date
-      // NOTE: original_owner is only updated if it was previously null. There's
-      //       only a small number of names that the original owner couldn't be
-      //       found for.
-      dbName.update({
-        owner: address,
-        updated: date,
-        transferred: date,
+  await db.transaction(async dbTx => {
+    // Update the name's owner and transferred date
+    // NOTE: original_owner is only updated if it was previously null. There's
+    //       only a small number of names that the original owner couldn't be
+    //       found for.
+    await dbName.update({
+      owner: address,
+      updated: date,
+      transferred: date,
 
-        // If the name did not have an original owner for some reason, use the
-        // current owner.
-        ...(dbName.original_owner ? {} : { original_owner: dbName.owner })
-      }, { transaction: t }),
+      // If the name did not have an original owner for some reason, use the
+      // current owner.
+      ...(dbName.original_owner ? {} : { original_owner: dbName.owner })
+    }, { transaction: dbTx });
 
-      // Add a name meta transaction
-      pushTransaction(
-        dbAddress,
-        address,
-        0,
-        null,
-        dbName.name,
-        t,
-        userAgent,
-        origin
-      )
-    ]);
+    // Add a name meta transaction
+    await pushTransaction(
+      req,
+      dbTx,
+      dbAddress.address,
+      address,
+      0,
+      null,
+      dbName.name
+    );
   });
 
   // Return the updated name
@@ -227,8 +214,6 @@ export async function ctrlUpdateName(
   privatekey?: string,
   a?: string | null
 ): Promise<Name> {
-  const { userAgent, origin } = getReqDetails(req);
-
   // Clean name data
   if (typeof a === "string") a = a.trim();
   if (a === undefined || a === "") a = null;
@@ -256,27 +241,23 @@ export async function ctrlUpdateName(
   // Disallow "bumping" names, don't change anything and respond as usual
   if (dbName.a === a) return dbName;
 
-  await db.transaction(async t => {
-    // Do these actions in parallel
-    await Promise.all([
-      // Update the name's data
-      dbName.update({
-        a,
-        updated: new Date()
-      }, { transaction: t }),
+  await db.transaction(async dbTx => {
+    // Update the name's data
+    await dbName.update({
+      a,
+      updated: new Date()
+    }, { transaction: dbTx });
 
-      // Add a name meta transaction
-      createTransaction(
-        "a",
-        dbName.owner,
-        0,
-        dbName.name,
-        a,
-        t,
-        userAgent,
-        origin
-      )
-    ]);
+    // Add a name meta transaction
+    await createTransaction(
+      req,
+      dbTx,
+      "a",
+      dbName.owner,
+      0,
+      dbName.name,
+      a
+    );
   });
 
   // Return the updated name
