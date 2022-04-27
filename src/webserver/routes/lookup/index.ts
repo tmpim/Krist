@@ -42,9 +42,11 @@ export const TRANSACTION_FIELDS: TransactionLookupFields[] = ["id", "from",
   "to", "value", "time", "sent_name", "sent_metaname"];
 // Valid fields to order name lookups by
 export type NameLookupFields = "name" | "owner" | "original_owner" |
-  "registered" | "updated" | "transferred" | "a" | "unpaid";
+  "registered" | "updated" | "transferred" | "transferredOrRegistered" | "a" |
+  "unpaid";
 export const NAME_FIELDS: NameLookupFields[] = ["name", "owner",
-  "original_owner", "registered", "updated", "transferred", "a", "unpaid"];
+  "original_owner", "registered", "updated", "transferred",
+  "transferredOrRegistered", "a", "unpaid"];
 
 export type LookupQuery<T = unknown> = ReqQuery<{
   limit?: string;

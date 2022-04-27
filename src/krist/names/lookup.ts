@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Limit, Offset, Name, PaginatedResult } from "../../database";
+import { Limit, Offset, Name, PaginatedResult, db } from "../../database";
 import { InferAttributes, Op } from "sequelize";
 
 import { sanitiseLimit, sanitiseOffset } from "../../utils";
@@ -28,11 +28,20 @@ export async function lookupNames(
   addressList: string[] | undefined,
   limit: Limit,
   offset: Offset,
-  orderBy: keyof InferAttributes<Name> = "name",
+  orderBy: (keyof InferAttributes<Name>) | "transferredOrRegistered" = "name",
   order: "ASC" | "DESC" = "ASC"
 ): Promise<PaginatedResult<Name>> {
   return Name.findAndCountAll({
-    order: [[orderBy, order]],
+    order: [[
+      // Ordering by `transferred` can return null results and may not be the
+      // desireable ordering for the user, so `transferredOrRegistered` is an
+      // alternative option that falls back to `registered` if `transferred` is
+      // null.
+      orderBy === "transferredOrRegistered"
+        ? db.fn("COALESCE", db.col("transferred"), db.col("registered"))
+        : orderBy,
+      order
+    ]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),
     where: addressList ? { owner: {[Op.in]: addressList} } : undefined,

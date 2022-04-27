@@ -55,7 +55,8 @@ export default (): Router => {
 	 * @apiUse LimitOffset
 	 * @apiQuery {String} [orderBy=name] The field to order the
    *           results by. Must be one of `name`, `owner`, `original_owner`,
-   *           `registered` `updated`, `transferred`, `a` or `unpaid`.
+   *           `registered` `updated`, `transferred`, `transferredOrRegistered`,
+   *           `a` or `unpaid`.
 	 * @apiQuery {String} [order=ASC] The direction to order
    *           the results in. Must be one of `ASC` or `DESC`.
    *
