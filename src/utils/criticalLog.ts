@@ -26,6 +26,7 @@ import { CRITICAL_LOG_URL } from "./constants";
 import { getLogDetails } from "./log";
 
 import dayjs from "dayjs";
+import chalk from "chalk";
 
 export async function criticalLog(
   req: Request,
@@ -34,22 +35,26 @@ export async function criticalLog(
 ): Promise<void> {
   if (!CRITICAL_LOG_URL) return;
 
-  const { ip, origin, userAgent } = getLogDetails(req);
+  try {
+    const { ip, origin, userAgent } = getLogDetails(req);
 
-  axios.post(CRITICAL_LOG_URL, {
-    content: urgent ? `@everyone **[URGENT]**` : undefined,
-    embeds: [{
-      description: message,
-      fields: [
-        { name: "Path", value: req.path, inline: true },
-        { name: "Method", value: req.method, inline: true },
-        { name: "IP", value: ip, inline: true },
-        { name: "Origin", value: origin, inline: true },
-        { name: "User Agent", value: userAgent, inline: true },
-        { name: "Time",
-          value: dayjs().format("HH:mm:ss DD/MM/YYYY"),
-          inline: true },
-      ]
-    }]
-  });
+    axios.post(CRITICAL_LOG_URL, {
+      content: urgent ? `@everyone **[URGENT]**` : undefined,
+      embeds: [{
+        description: message ?? "(null)",
+        fields: [
+          { name: "Path", value: req.path ?? "(null)", inline: true },
+          { name: "Method", value: req.method ?? "(null)", inline: true },
+          { name: "IP", value: ip ?? "(null)", inline: true },
+          { name: "Origin", value: origin ?? "(null)", inline: true },
+          { name: "User Agent", value: userAgent ?? "(null)", inline: true },
+          { name: "Time",
+            value: dayjs().format("HH:mm:ss DD/MM/YYYY"),
+            inline: true },
+        ]
+      }]
+    });
+  } catch (err) {
+    console.error(chalk`{red [CRITICAL]} Error submitting critical log:`, err);
+  }
 }
