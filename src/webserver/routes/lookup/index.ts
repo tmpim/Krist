@@ -60,8 +60,7 @@ export type LookupQuery<T = unknown> = ReqQuery<{
  *
  * Advanced bulk lookup queries designed for KristWeb v2.
  *
- * **WARNING:** The Lookup API is in Beta, and is subject to change at any time
- * without warning.
+ * **NOTE:** The Lookup API is in Beta, and may be subject to future amendments.
  */
 export default (): Router => {
   const router = Router();
