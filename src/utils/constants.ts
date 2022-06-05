@@ -67,6 +67,8 @@ export const GITHUB_TOKEN = process.env.GITHUB_TOKEN as string | undefined;
 
 export const CRITICAL_LOG_URL = process.env.CRITICAL_LOG_URL as string | undefined;
 
+export const IDEMPOTENCY_TTL_SECS = 86400;
+
 // =============================================================================
 // Krist
 // =============================================================================

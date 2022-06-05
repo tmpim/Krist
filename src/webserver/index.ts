@@ -38,6 +38,7 @@ import { errorToJson } from "../errors";
 import { ErrorRouteNotFound } from "../errors/webserver";
 
 import { TEST, WEB_LISTEN } from "../utils/constants";
+import { idempotency } from "./idempotency";
 
 export let app: Express;
 export let ws: expressWs.Instance;
@@ -78,6 +79,8 @@ export async function initWebserver(): Promise<void> {
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+
+  app.use(idempotency());
 
   if (!TEST) {
     app.use(rateLimit({
