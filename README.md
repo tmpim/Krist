@@ -10,7 +10,9 @@ Commit messages are written with
 ## [API Documentation](https://krist.dev/docs)
 
 The documentation is generated with [apiDoc](https://apidocjs.com). You can find 
-a live copy of the API documentation [here](https://krist.dev/docs).
+a live copy of the API documentation [here](https://krist.dev/docs). Additional
+documentation for Krist itself and libraries can be found 
+[here](https://docs.krist.dev).
 
 ## Docker Installation
 
