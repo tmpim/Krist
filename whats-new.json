@@ -1,8 +1,12 @@
 {
   "new": [{
+    "commitHash": "a7e1844f85ade36f5f7c8487713ed2e03caf0315",
+    "date": "2022-07-17T19:37:00+01:00",
+    "new": true,
+    "body": "The API URL has been changed to `krist.dev`."
+  }, {
     "commitHash": "5fed5626e6ce0e24c6a4a3c574ce73d5a6cca69e",
     "date": "2022-04-07T23:24:01+01:00",
-    "new": true,
     "body": "Names have a new `transferred` field that returns when they were last transferred to a new owner."
   }, {
     "commitHash": "73097b66492728e9228123ae069dbc12aa7070f2",
