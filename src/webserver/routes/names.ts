@@ -411,7 +411,7 @@ export default (): Router => {
    *         "registered": "2016-02-06T14:01:19.000Z",
    *         "updated": "2016-02-07T15:30:10.000Z",
    *         "transferred": "2016-02-06T14:08:36.000Z",
-   *         "a": "krist.ceriat.net",
+   *         "a": "krist.dev",
    *         "unpaid": 0
    *     }
    * }
@@ -457,7 +457,7 @@ export default (): Router => {
    *         "registered": "2016-02-06T14:01:19.000Z",
    *         "updated": "2016-02-07T15:30:10.000Z",
    *         "transferred": "2016-02-06T14:08:36.000Z",
-   *         "a": "krist.ceriat.net",
+   *         "a": "krist.dev",
    *         "unpaid": 0
    *     }
    * }

@@ -7,10 +7,10 @@ This is the new official Krist node. It is written in Node.js and TypeScript.
 Commit messages are written with 
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-## [API Documentation](https://krist.ceriat.net/docs)
+## [API Documentation](https://krist.dev/docs)
 
 The documentation is generated with [apiDoc](https://apidocjs.com). You can find 
-a live copy of the API documentation [here](https://krist.ceriat.net/docs).
+a live copy of the API documentation [here](https://krist.dev/docs).
 
 ## Docker Installation
 
@@ -32,7 +32,7 @@ services:
     image: "ghcr.io/tmpim/krist:latest"
     environment:
       - DB_PASS=${DB_PASS}
-      - PUBLIC_URL=krist.ceriat.net
+      - PUBLIC_URL=krist.dev
       - DB_HOST=172.17.0.1
       - REDIS_HOST=172.17.0.1
     ports:
@@ -63,7 +63,7 @@ following environment variables:
 | Variable     | Default      | Description                                             |
 |--------------|--------------|---------------------------------------------------------|
 | `DB_PASS`    | **required** | The password of the database user.                      |
-| `PUBLIC_URL` | **required** | The FQDN of the Krist server (e.g. `krist.ceriat.net`). |
+| `PUBLIC_URL` | **required** | The FQDN of the Krist server (e.g. `krist.dev`). |
 
 
 The following optional environment variables may also be specified:

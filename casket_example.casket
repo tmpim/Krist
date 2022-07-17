@@ -1,9 +1,8 @@
-# Support both HTTP and HTTPS (older CC versions don't support LetsEncrypt)
-https://krist.ceriat.net, http://krist.ceriat.net {
-    root /var/www/krist.ceriat.net/static
+krist.dev {
+    root /var/www/krist.dev/static
 
-    log /var/log/casket/krist.ceriat.net.access.log
-    errors /var/log/casket/krist.ceriat.net.error.log {
+    log /var/log/casket/krist.dev.access.log
+    errors /var/log/casket/krist.dev.error.log {
         502 down.html
     }
 

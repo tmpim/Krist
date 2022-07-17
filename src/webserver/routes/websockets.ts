@@ -162,7 +162,7 @@ export default (): Router => {
    * @apiSuccessExample {json} Success
    * {
    *     "ok": true,
-   *     "url": "wss://krist.ceriat.net/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf",
+   *     "url": "wss://krist.dev/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf",
    *     "expires": 30
    * }
    */
