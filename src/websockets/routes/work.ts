@@ -24,7 +24,7 @@ import { getWork } from "../../krist/work";
 import { WebSocketEventHandler } from "../types";
 
 /**
- * @api {ws} //ws:"type":"work" Get the current work
+ * @api {ws} /type/work Get the current work
  * @apiName WSGetWork
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.1

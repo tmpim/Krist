@@ -30,7 +30,7 @@ import {
 } from "../../errors";
 
 /**
- * @api {ws} //ws:"type":"submit_block" Submit a block
+ * @api {ws} /type/submit_block Submit a block
  * @apiName WSSubmitBlock
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.8

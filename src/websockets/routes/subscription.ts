@@ -25,7 +25,7 @@ import {
 } from "../types";
 
 /**
- * @api {ws} //ws:"type":"subscribe" Subscribe to an event
+ * @api {ws} /type/subscribe Subscribe to an event
  * @apiName WSSubscribe
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
@@ -60,7 +60,7 @@ export const wsSubscribe: WebSocketEventHandler<{
 };
 
 /**
- * @api {ws} //ws:"type":"get_subscription_level" Get the current subscription level
+ * @api {ws} /type/get_subscription_level Get the current subscription level
  * @apiName WSGetSubscriptionLevel
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
@@ -85,7 +85,7 @@ export const wsGetSubscriptionLevel: WebSocketEventHandler = async ws => {
 };
 
 /**
- * @api {ws} //ws:"type":"get_valid_subscription_levels" Get all valid  subscription levels
+ * @api {ws} /type/get_valid_subscription_levels Get all valid  subscription levels
  * @apiName WSGetValidSubscriptionLevels
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2
@@ -110,7 +110,7 @@ export const wsGetValidSubscriptionLevels: WebSocketEventHandler = async () => {
 };
 
 /**
- * @api {ws} //ws:"type":"unsubscribe" Unsubscribe from an event
+ * @api {ws} /type/unsubscribe Unsubscribe from an event
  * @apiName WSUnsubscribe
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2

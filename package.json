@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "npm run build; node dist/src/index.js",
-    "docs": "apidoc -i src -o static/docs",
+    "docs": "apidoc -v -t apidoc-template -i src -o static/docs",
     "test": "TS_NODE_PROJECT='./tsconfig.test.json' NODE_ENV=test ts-mocha 'test/**/*.test.ts'",
     "test:coverage": "nyc npm run test",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
@@ -72,7 +72,7 @@
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
-    "apidoc": "^0.51.0",
+    "apidoc": "^0.51.1",
     "chai": "^4.3.0",
     "chai-http": "^4.3.0",
     "eslint": "^8.13.0",

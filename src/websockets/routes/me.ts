@@ -24,7 +24,7 @@ import { WebSocketEventHandler } from "../types";
 import { ErrorAddressNotFound } from "../../errors";
 
 /**
- * @api {ws} //ws:"type":"me" Get information about the user
+ * @api {ws} /type/me Get information about the user
  * @apiName WSMe
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.2

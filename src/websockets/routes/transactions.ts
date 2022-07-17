@@ -27,7 +27,7 @@ import { WebSocketEventHandler } from "../types";
 import { ErrorMissingParameter } from "../../errors";
 
 /**
- * @api {ws} //ws:"type":"make_transaction" Make a transaction
+ * @api {ws} /type/make_transaction Make a transaction
  * @apiName WSMakeTransaction
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.7

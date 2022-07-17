@@ -25,7 +25,7 @@ import { addressToJson } from "../../krist/addresses";
 import { WebSocketEventHandler } from "../types";
 
 /**
- * @api {ws} //ws:"type":"address" Get an address
+ * @api {ws} /type/address Get an address
  * @apiName WSGetAddress
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.4

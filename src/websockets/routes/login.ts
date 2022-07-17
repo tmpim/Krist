@@ -30,7 +30,7 @@ import { ErrorMissingParameter } from "../../errors";
 import { getLogDetails } from "../../utils";
 
 /**
- * @api {ws} //ws:"type":"login" Login to a wallet (upgrade connection)
+ * @api {ws} /type/login Login to a wallet (upgrade connection)
  * @apiName WSLogin
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.3

@@ -26,7 +26,7 @@ import { WebSocketEventHandler } from "../types";
 import { getLogDetails } from "../../utils";
 
 /**
- * @api {ws} //ws:"type":"logout" Log out back to guest (downgrade connection)
+ * @api {ws} /type/logout Log out back to guest (downgrade connection)
  * @apiName WSLogout
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.3
