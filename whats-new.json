@@ -1,5 +1,10 @@
 {
   "new": [{
+    "commitHash": "2fdb8f64e0cb81b08e825858369b1458d119f042",
+    "date": "2022-07-19T21:52:31+01:00",
+    "new": true,
+    "body": "Block submission is now disabled."
+  }, {
     "commitHash": "a7e1844f85ade36f5f7c8487713ed2e03caf0315",
     "date": "2022-07-17T19:37:00+01:00",
     "new": true,
