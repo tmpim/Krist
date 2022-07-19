@@ -43,6 +43,7 @@ export default (): Router => {
 	 * @apiName SubmitBlock
 	 * @apiGroup BlockGroup
 	 * @apiVersion 2.0.0
+   * @apiDeprecated Block submission is currently disabled.
 	 *
 	 * @apiBody {String} address The address to send the reward
 	 *   to, if successful.

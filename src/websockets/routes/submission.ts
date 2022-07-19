@@ -34,6 +34,7 @@ import {
  * @apiName WSSubmitBlock
  * @apiGroup WebsocketGroup
  * @apiVersion 2.0.8
+ * @apiDeprecated Block submission is currently disabled.
  *
  * @apiBody {Number} id
  * @apiBody {String="submit_block"} type
