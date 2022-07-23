@@ -50,7 +50,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Number} address.totalout The total amount of Krist that has ever
  *   gone out of this address.
  * @apiSuccess {Date} address.firstseen The date this address was first seen
- *   (when the first transaction to it was made).
+ *   (when the first transaction to it was made), as an ISO-8601 string.
  */
 
 /**
@@ -65,7 +65,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Number} addresses.totalout The total amount of Krist that has
  *   ever gone out of this address.
  * @apiSuccess {Date} addresses.firstseen The date this address was first seen
- *   (when the first transaction to it was made).
+ *   (when the first transaction to it was made), as an ISO-8601 string.
  */
 
 export default (): Router => {

@@ -101,7 +101,7 @@ export async function createBlock(
 ): Promise<SubmitBlockResponse> {
   if (!await isMiningEnabled()) throw new ErrorMiningDisabled();
 
-  const { logDetails, userAgent, origin } = getLogDetails(req);
+  const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
   logAuth(req, address, "mining");
 
   const {
@@ -141,6 +141,7 @@ export async function createBlock(
       difficulty: oldWork,
       value,
       useragent: userAgent,
+      library_agent: libraryAgent,
       origin
     }, { transaction: dbTx });
 

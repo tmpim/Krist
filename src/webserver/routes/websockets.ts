@@ -79,9 +79,13 @@ export default (): Router => {
    * @apiGroup WebsocketGroup
    * @apiVersion 2.0.0
    *
-   * @apiDescription The token returned by this method will expire after 30
-   * seconds. You will have to connect to the supplied URL within that time
-   * frame.
+   * @apiDescription ## Connecting to the Websocket server
+   *
+   * To initiate a websocket connection, you must first make a POST request to
+   * `/ws/start`. The response will contain a `url` parameter (of the form
+   * `wss://krist.dev/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf`) that can be used to
+   * connect to the websocket. This URL will expire after 30 seconds. You will
+   * have to connect to the supplied URL within that time frame.
    *
    * There are two types of websockets:
    *
@@ -92,7 +96,7 @@ export default (): Router => {
    * basic API calls such as getters and submitblock.
    *
    * An **authed session** is a session linked to an address. The privatekey is
-   * supplied as a POST body parameter during /ws/start. It has access to most
+   * supplied as a POST body parameter during `/ws/start`. It has access to most
    * API calls, including transactions and name registration. **Authed
    * websockets only work with v2 addresses.**
    *
@@ -102,13 +106,13 @@ export default (): Router => {
    * ## Requests and responses
    *
    * The websockets follow a specific request-response subprotocol. Messages
-   * sent to a websocket must always be in a valid JSON format
-   * (prettified/minified does not matter), and must supply an `id` and `type`
-   * parameter.
+   * sent to a websocket must always be in a valid JSON format (either
+   * prettified or minified, it does not matter), and must supply an `id` and
+   * `type` parameter.
    *
-   * `id` should be unique. When the server responds to you message, it will
-   * respond back with the same ID. This is so that you know which messages the
-   * server is responding to.
+   * `id` should be a unique, automatically incrementing integer. When the
+   * server responds to you message, it will respond back with the same ID. This
+   * is so that you know which messages the server is responding to.
    *
    * `type` must be any valid message type specified in the documentation below.
    *
@@ -127,6 +131,7 @@ export default (): Router => {
    * receive a message with the type `event` in a format similar to the
    * following:
    *
+   * ```json
    *   {
    *     "ok": "true",
    *     "type": "event",
@@ -134,28 +139,25 @@ export default (): Router => {
    *     "block": { ... },
    *     "new_work": 100000
    *   }
+   * ```
    *
    * You can unsubscribe and subscribe to certain events to only receive what
    * you wish to.
    *
    * ### Subscription Levels & Event List
    *
-   * | Subscription Name |     Events    |                                       Description                                      |
-   * |:-----------------:|:-------------:|:--------------------------------------------------------------------------------------:|
-   * |      `blocks`     |    `block`    | Block events whenever a block is mined by anybody on the node                          |
-   * |    `ownBlocks`    |    `block`    | Block events whenever the authed user mines a block                                    |
-   * |   `transactions`  | `transaction` | Transaction events whenever a transaction is made by anybody on the node               |
-   * | `ownTransactions` | `transaction` | Transaction events whenever a transaction is made to or from the authed user           |
-   * |      `names`      |     `name`    | Name events whenever a name is created, modified or transferred by anybody on the node |
-   * |     `ownNames`    |     `name`    | Name events whenever the authed user creates, modifies or transfers a name             |
-   * |       `motd`      |     `motd`    | Event fired whenever the message of the day changes                                    |
+   * | Subscription Name | Events        | Description                                                                               |
+   * | ----------------- | ------------- | ----------------------------------------------------------------------------------------- |
+   * | `blocks`          | `block`       | Block events whenever a block is mined by anybody on the node.                            |
+   * | `ownBlocks`       | `block`       | Block events whenever the authed user mines a block.                                      |
+   * | `transactions`    | `transaction` | Transaction events whenever a transaction is made by anybody on the node.                 |
+   * | `ownTransactions` | `transaction` | Transaction events whenever a transaction is made to or from the authed user.             |
+   * | `names`           | `name`        | Name events whenever a name is purchased, modified or transferred by anybody on the node. |
+   * | `ownNames`        | `name`        | Name events whenever the authed user purchases, modifies or transfers a name.             |
    *
    * ## Examples
    *
-   *
-   *
-   * @apiBody {String} [privatekey] The privatekey to
-   *   authenticate with.
+   * @apiBody {String} [privatekey] The privatekey to authenticate with.
    *
    * @apiSuccess {String} url The address to connect to
    *

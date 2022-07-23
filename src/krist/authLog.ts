@@ -51,7 +51,7 @@ export async function logAuth(
   address: string,
   type: AuthLogType
 ): Promise<void> {
-  const { ip, path, userAgent, origin, logDetails } = getLogDetails(req);
+  const { ip, path, userAgent, libraryAgent, origin, logDetails } = getLogDetails(req);
 
   if (type === "auth") {
     console.log(chalk`{green [Auth]} ({bold ${path}}) Successful auth on address {bold ${address}} ${logDetails}`);
@@ -75,6 +75,7 @@ export async function logAuth(
     time: new Date(),
     type,
     useragent: userAgent,
+    library_agent: libraryAgent,
     origin
   });
 }

@@ -27,6 +27,7 @@ import { sanitiseUserAgent, sanitiseOrigin } from "./validation";
 export interface ReqDetails {
   origin?: string;
   userAgent?: string;
+  libraryAgent?: string;
 }
 
 export interface LogDetails extends ReqDetails {
@@ -39,15 +40,16 @@ export function getReqDetails(req?: Request): ReqDetails {
   if (!req) return { userAgent: undefined, origin: undefined };
 
   const userAgent = sanitiseUserAgent(req.header("User-Agent"));
+  const libraryAgent = sanitiseUserAgent(req.header("Library-Agent"));
   const origin = sanitiseOrigin(req.header("Origin"));
-  return { userAgent, origin };
+  return { userAgent, libraryAgent, origin };
 }
 
 export function getLogDetails(req: Request): LogDetails {
   const ip = req.ip;
-  const { userAgent, origin } = getReqDetails(req);
+  const { userAgent, libraryAgent, origin } = getReqDetails(req);
   const path = req.path && req.path.startsWith("/.websocket//") ? "WS" : req.path;
-  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}})`;
+  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}} library agent: {bold ${libraryAgent}})`;
 
-  return { ip, origin, userAgent, path, logDetails };
+  return { ip, origin, userAgent, libraryAgent, path, logDetails };
 }

@@ -79,6 +79,8 @@ export class Block extends Model {
   @Column({ type: DataTypes.STRING(255) })
     useragent?: string | null;
   @Column({ type: DataTypes.STRING(255) })
+    library_agent?: string | null;
+  @Column({ type: DataTypes.STRING(255) })
     origin?: string | null;
 }
 
@@ -147,6 +149,8 @@ export class Transaction extends Model {
     origin?: string | null;
   @Column({ type: DataTypes.STRING(255) })
     useragent?: string | null;
+  @Column({ type: DataTypes.STRING(255) })
+    library_agent?: string | null;
 
   @Index
   @Index("transactions_sent_metaname_sent_name")
@@ -186,6 +190,8 @@ export class AuthLog extends Model {
     origin?: string | null;
   @Column({ type: DataTypes.STRING(255) })
     useragent?: string | null;
+  @Column({ type: DataTypes.STRING(255) })
+    library_agent?: string | null;
 }
 
 export const SCHEMAS = [Address, Block, Name, Transaction, AuthLog];

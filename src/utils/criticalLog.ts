@@ -36,7 +36,7 @@ export async function criticalLog(
   if (!CRITICAL_LOG_URL) return;
 
   try {
-    const { ip, origin, userAgent } = getLogDetails(req);
+    const { ip, origin, userAgent, libraryAgent } = getLogDetails(req);
 
     axios.post(CRITICAL_LOG_URL, {
       content: urgent ? `@everyone **[URGENT]**` : undefined,
@@ -48,6 +48,7 @@ export async function criticalLog(
           { name: "IP", value: ip ?? "(null)", inline: true },
           { name: "Origin", value: origin ?? "(null)", inline: true },
           { name: "User Agent", value: userAgent ?? "(null)", inline: true },
+          { name: "Library Agent", value: libraryAgent ?? "(null)", inline: true },
           { name: "Time",
             value: dayjs().format("HH:mm:ss DD/MM/YYYY"),
             inline: true },

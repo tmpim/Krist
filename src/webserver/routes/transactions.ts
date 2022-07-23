@@ -39,21 +39,22 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object} transaction
  * @apiSuccess {Number} transaction.id The ID of this transaction.
  * @apiSuccess {String} transaction.from The sender of this transaction. This
- *   may be `null` if the transaction was a block mining reward, or `"a"` if it
- *   was a name's data change.
+ *   may be `null` if the transaction was a block mining reward.
  * @apiSuccess {String} transaction.to The recipient of this transaction. This
- *   may be `"name"` if the transaction was a name purchase.
+ *   may be `"name"` if the transaction was a name purchase, or `"a"` if it was
+ *   a name's data change.
  * @apiSuccess {Number} transaction.value The amount of Krist transferred in
  *   this transaction. Can be `0`, notably if the transaction was a name's data
  *   change.
- * @apiSuccess {Date} transaction.time The time this transaction this was made.
+ * @apiSuccess {Date} transaction.time The time this transaction this was made,
+ *   as an ISO-8601 string.
  * @apiSuccess {String} [transaction.name] The name associated with this
- *   transaction, or null.
- * @apiSuccess {String} [transaction.metadata] Transaction metadata, or null.
+ *   transaction, without the `.kst` suffix, or `null`.
+ * @apiSuccess {String} [transaction.metadata] Transaction metadata, or `null`.
  * @apiSuccess {String} [transaction.sent_metaname] The metaname (part before
- *   '@') of the recipient of this transaction, if it was sent to a name.
+ *   the `"@"`) of the recipient of this transaction, if it was sent to a name.
  * @apiSuccess {String} [transaction.sent_name] The name this transaction was
- * sent to, if it was sent to a name.
+ *   sent to, without the `.kst` suffix, if it was sent to a name.
  * @apiSuccess {String} transaction.type The type of this transaction. May be
  *   `mined`, `transfer`, `name_purchase`, `name_a_record`, or `name_transfer`.
  *   Note that `name_a_record` refers to a name's data changing.
@@ -65,21 +66,22 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object[]} transactions
  * @apiSuccess {Number} transactions.id The ID of this transaction.
  * @apiSuccess {String} transactions.from The sender of this transaction. This
- *   may be `null` if the transaction was a block mining reward, or `"a"` if it
- *   was a name's data change.
+ *   may be `null` if the transaction was a block mining reward.
  * @apiSuccess {String} transactions.to The recipient of this transaction. This
- *   may be `"name"` if the transaction was a name purchase.
+ *   may be `"name"` if the transaction was a name purchase, or `"a"` if it was
+ *   a name's data change.
  * @apiSuccess {Number} transactions.value The amount of Krist transferred in
  *   this transaction. Can be `0`, notably if the transaction was a name's data
  *   change.
- * @apiSuccess {Date} transactions.time The time this transaction this was made.
+ * @apiSuccess {Date} transactions.time The time this transaction this was made,
+ *   as an ISO-8601 string.
  * @apiSuccess {String} [transactions.name] The name associated with this
- *   transaction, or null.
- * @apiSuccess {String} [transactions.metadata] Transaction metadata, or null.
+ *   transaction, without the `.kst` suffix, or `null`.
+ * @apiSuccess {String} [transactions.metadata] Transaction metadata, or `null`.
  * @apiSuccess {String} [transactions.sent_metaname] The metaname (part before
- *   '@') of the recipient of this transaction, if it was sent to a name.
+ *   the `"@"`) of the recipient of this transaction, if it was sent to a name.
  * @apiSuccess {String} [transactions.sent_name] The name this transaction was
- * sent to, if it was sent to a name.
+ *   sent to, without the `.kst` suffix, if it was sent to a name.
  * @apiSuccess {String} transactions.type The type of this transaction. May be
  *   `mined`, `transfer`, `name_purchase`, `name_a_record`, or `name_transfer`.
  *   Note that `name_a_record` refers to a name's data changing.

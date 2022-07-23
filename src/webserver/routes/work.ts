@@ -40,7 +40,7 @@ export default (): Router => {
    * @apiGroup MiscellaneousGroup
    * @apiVersion 2.0.5
    *
-   * @apiSuccess {Number} work The current Krist work (difficulty)
+   * @apiSuccess {Number} work The current Krist work (difficulty).
    *
    * @apiSuccessExample {json} Success
    * {
@@ -83,20 +83,20 @@ export default (): Router => {
    * @apiGroup MiscellaneousGroup
    * @apiVersion 2.6.0
    *
-   * @apiSuccess {Number} work The current Krist work (difficulty)
-   * @apiSuccess {Number} unpaid The current number of unpaid names
+   * @apiSuccess {Number} work The current Krist work (difficulty).
+   * @apiSuccess {Number} unpaid The current number of unpaid names.
    *
-   * @apiSuccess {Number} base_value The base block value
-   * @apiSuccess {Number} block_value The current block value (base + unpaid)
+   * @apiSuccess {Number} base_value The base block value.
+   * @apiSuccess {Number} block_value The current block value (base + unpaid).
    *
    * @apiSuccess {Object} decrease Information about the next block value
-   *   decrease
+   *   decrease.
    * @apiSuccess {Number} decrease[value] How much Krist the block value will
-   *   decrease by when the next name(s) expire
+   *   decrease by when the next name(s) expire.
    * @apiSuccess {Number} decrease[blocks] How many blocks before the next block
-   *   value decrease
+   *   value decrease.
    * @apiSuccess {Number} decrease[reset] How many blocks before the block value
-   *   will completely reset to the base value
+   *   will completely reset to the base value.
    *
    * @apiSuccessExample {json} Success
    * {

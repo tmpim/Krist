@@ -47,15 +47,17 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiDefine Name
  *
  * @apiSuccess {Object} name
- * @apiSuccess {String} name.name The name.
+ * @apiSuccess {String} name.name The name, without the `.kst` suffix.
  * @apiSuccess {String} name.owner The address that currently owns this name.
  * @apiSuccess {String} name.original_owner The address that originally
  *   purchased this name.
- * @apiSuccess {Date} name.registered The time this name was registered.
+ * @apiSuccess {Date} name.registered The time this name was registered, as an
+ *   ISO-8601 string.
  * @apiSuccess {Date} name.updated The time this name was last updated - either
- *   the data changed, or it was transferred to a new owner.
+ *   the data changed, or it was transferred to a new owner, as an ISO-8601
+ *   string.
  * @apiSuccess {Date} [name.transferred] The time this name was last transferred
- *   to a new owner.
+ *   to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} [name.a] The name's data.
  * @apiSuccess {Number} name.unpaid The number of blocks until this name has
  *   been paid off.
@@ -65,15 +67,17 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiDefine Names
  *
  * @apiSuccess {Object[]} names
- * @apiSuccess {String} names.name The name.
+ * @apiSuccess {String} names.name The name, without the `.kst` suffix.
  * @apiSuccess {String} names.owner The address that currently owns this name.
  * @apiSuccess {String} [names.original_owner] The address that originally
  *   purchased this name.
- * @apiSuccess {Date} names.registered The time this name was registered.
+ * @apiSuccess {Date} names.registered The time this name was registered, as an
+ *   ISO-8601 string.
  * @apiSuccess {Date} names.updated The time this name was last updated - either
- *   the data changed, or it was transferred to a new owner.
+ *   the data changed, or it was transferred to a new owner, as an ISO-8601
+ *   string.
  * @apiSuccess {Date} [names.transferred] The time this name was last
- *   transferred to a new owner.
+ *   transferred to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} names.a The name's data.
  * @apiSuccess {Number} names.unpaid The number of blocks until this name has
  *   been paid off.
@@ -88,7 +92,8 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 3.0.0
    *
-	 * @apiParam name The name to check the availability of.
+	 * @apiParam name The name to check the availability of, without the `.kst`
+   *   suffix.
 	 *
 	 * @apiSuccess {Boolean} available Whether or not the name is available
 	 *
@@ -284,7 +289,8 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiParam {String} name The name you want to register.
+	 * @apiParam {String} name The name you want to register, without the `.kst`
+   *   suffix.
 	 * @apiBody {String} privatekey The private key to your address.
 	 *
 	 * @apiSuccessExample {json} Success
@@ -329,7 +335,8 @@ export default (): Router => {
 	 *
 	 * @apiDescription Transfers the name to another owner.
 	 *
-	 * @apiParam {String} name The name you want to transfer.
+	 * @apiParam {String} name The name you want to transfer, without the `.kst`
+   *   suffix.
 	 * @apiBody {String} address The address you want to transfer
 	 *   the name to.
 	 * @apiBody {String} privatekey The private key to your
@@ -392,7 +399,8 @@ export default (): Router => {
 	 *
 	 * @apiDescription Updates the data of a name.
 	 *
-	 * @apiParam {String} name The name you want to update.
+	 * @apiParam {String} name The name you want to update, without the `.kst`
+   *   suffix.
 	 * @apiBody {String} [a] The data you want to set for the
    *   name. You may pass an empty string (`""`), `null` (in JSON requests), or
    *   omit the `a` parameter entirely to remove the data.
@@ -438,7 +446,8 @@ export default (): Router => {
 	 *
 	 * @apiDescription Updates the data of a name.
 	 *
-	 * @apiParam {String} name The name you want to update.
+	 * @apiParam {String} name The name you want to update, without the `.kst`
+   *   suffix.
 	 * @apiBody {String} [a] The data you want to set for the
    *   name. You may pass an empty string (`""`), `null` (in JSON requests), or
    *   omit the `a` parameter entirely to remove the data.

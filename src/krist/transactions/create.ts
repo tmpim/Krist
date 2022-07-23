@@ -153,7 +153,7 @@ export async function createTransaction(
   sentMetaname?: string | null,
   sentName?: string | null
 ): Promise<Transaction> {
-  const { logDetails, userAgent, origin } = getLogDetails(req);
+  const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
 
   console.log(chalk`{bold [Krist]} Creating {bold ${value} KST} transaction `
     + chalk`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
@@ -170,6 +170,7 @@ export async function createTransaction(
     sent_metaname: sentMetaname,
     sent_name: sentName,
     useragent: userAgent,
+    library_agent: libraryAgent,
     origin
   }, { transaction: dbTx });
 

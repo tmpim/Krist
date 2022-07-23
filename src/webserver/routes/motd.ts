@@ -26,7 +26,7 @@ export default (): Router => {
   const router = Router();
 
   /**
-	 * @api {get} /motd Get the message of the day
+	 * @api {get} /motd Get information about the Krist server (MOTD)
 	 * @apiName GetMOTD
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.6.4
@@ -34,18 +34,20 @@ export default (): Router => {
 	 * @apiSuccess {String} motd The message of the day
 	 * @apiSuccess {Date} set The date the MOTD was last changed (provided for
    *   backwards compatibility)
-	 * @apiSuccess {Date} motd_set The date the MOTD was last changed (ISO-8601)
-	 * @apiSuccess {Date} server_time The current server time (ISO-8601)
+	 * @apiSuccess {Date} motd_set The date the MOTD was last changed, as an
+	 *   ISO-8601 string
+	 * @apiSuccess {Date} server_time The current server time, as an ISO-8601
+	 *   string
    *
 	 * @apiSuccess {String} public_url The public URL of this Krist node.
 	 * @apiSuccess {Boolean} mining_enabled If mining is enabled on the server,
-   *    this will be set to 'true'.
+   *    this will be set to `true`.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
-   *    this will be set to 'true'.
+   *    this will be set to `true`.
    *
 	 * @apiSuccess {Number} work The current Krist work (difficulty).
-	 * @apiSuccess {Object} last_block The last block mined on the Krist node.
-   *   May be `null`.
+	 * @apiSuccess {Object} last_block The last block mined on the Krist node. May
+   *   be `null`.
    *
 	 * @apiSuccess {Object} package Information related to this build of the Krist
    *    source code.
@@ -64,8 +66,8 @@ export default (): Router => {
    *    KristWallet.
    * @apiSuccess {Number} constants.nonce_max_size The maximum size, in bytes,
    *    of a block nonce.
-   * @apiSuccess {Number} constants.name_cost The cost, in KST, of purchasing
-   *    a new name.
+   * @apiSuccess {Number} constants.name_cost The cost, in KST, of purchasing a
+   *    new name.
    * @apiSuccess {Number} constants.min_work The minimum work (block difficulty)
    *    value. The work will not automatically go below this.
    * @apiSuccess {Number} constants.max_work The maximum work (block difficulty)
@@ -92,47 +94,27 @@ export default (): Router => {
 	 *
 	 * @apiSuccessExample {json} Success
    * {
-   *   "ok": true,
-   *   "server_time": "2021-02-24T08:11:22.628Z",
-   *   "motd": "Welcome to Krist!",
-   *   "set": "2021-02-12T10:02:34.000Z",
-   *   "motd_set": "2021-02-12T10:02:34.000Z",
-   *   "public_url": "localhost:8080",
-   *   "mining_enabled": true,
-   *   "debug_mode": true,
-   *   "work": 100000,
-   *   "last_block": {
-   *     "height": 2,
-   *     "address": "k8juvewcui",
-   *     "hash": "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
-   *     "short_hash": "000000012697",
-   *     "value": 29,
-   *     "time": "2021-02-21T05:11:05.000Z",
-   *     "difficulty": 400000000000
+   *   "ok": true, "server_time": "2021-02-24T08:11:22.628Z", "motd": "Welcome
+   *   to Krist!", "set": "2021-02-12T10:02:34.000Z", "motd_set":
+   *   "2021-02-12T10:02:34.000Z", "public_url": "localhost:8080",
+   *   "mining_enabled": true, "debug_mode": true, "work": 100000, "last_block":
+   *   { "height": 2, "address": "k8juvewcui", "hash":
+   *   "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
+   *   "short_hash": "000000012697", "value": 29, "time":
+   *   "2021-02-21T05:11:05.000Z", "difficulty": 400000000000
    *   },
-   *   "package": {
-   *     "name": "krist",
-   *     "version": "2.6.4",
-   *     "author": "Lemmmy",
-   *     "licence": "GPL-3.0",
-   *     "repository": "https://github.com/tmpim/Krist"
+   *   "package": { "name": "krist", "version": "2.6.4", "author": "Lemmmy",
+   *     "licence": "GPL-3.0", "repository": "https://github.com/tmpim/Krist"
    *   },
-   *   "constants": {
-   *     "wallet_version": 16,
-   *     "nonce_max_size": 24,
-   *     "name_cost": 500,
-   *     "min_work": 100,
-   *     "max_work": 100000,
-   *     "work_factor": 0.025,
+   *   "constants": { "wallet_version": 16, "nonce_max_size": 24, "name_cost":
+   *     500, "min_work": 100, "max_work": 100000, "work_factor": 0.025,
    *     "seconds_per_block": 60
    *   },
-   *   "currency": {
-   *     "address_prefix": "k",
-   *     "name_suffix": "kst",
-   *     "currency_name": "Krist",
-   *     "currency_symbol": "KST"
+   *   "currency": { "address_prefix": "k", "name_suffix": "kst",
+   *     "currency_name": "Krist", "currency_symbol": "KST"
    *   },
-   *   "notice": "Krist was originally created by 3d6 and Lemmmy. It is now owned and operated by tmpim, and licensed under GPL-3.0."
+   *   "notice": "Krist was originally created by 3d6 and Lemmmy. It is now
+	 *   owned and operated by tmpim, and licensed under GPL-3.0."
    * }
 	 */
   router.all("/motd", async (req, res) => {

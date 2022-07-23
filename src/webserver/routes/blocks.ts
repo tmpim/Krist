@@ -45,7 +45,8 @@ import { getBaseBlockValue, padDigits } from "../../utils";
  * @apiSuccess {Number} block.value The reward value of this block.
  * @apiSuccess {Number} block.difficulty The difficulty at the time the block
  * was mined.
- * @apiSuccess {Date} block.time The time this block was submitted.
+ * @apiSuccess {Date} block.time The time this block was submitted, as an
+ * ISO-8601 string.
  */
 
 /**
@@ -61,7 +62,8 @@ import { getBaseBlockValue, padDigits } from "../../utils";
  * @apiSuccess {Number} blocks.value The reward value of this block.
  * @apiSuccess {Number} blocks.difficulty The difficulty at the time the block
  * was mined.
- * @apiSuccess {Date} blocks.time The time this block was submitted.
+ * @apiSuccess {Date} blocks.time The time this block was submitted, as an
+ * ISO-8601 string.
  */
 
 export default (): Router => {
