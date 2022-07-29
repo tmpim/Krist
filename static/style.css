@@ -80,6 +80,9 @@ header #logo {
 	width: 86px;
 	height: 86px;
 	margin-right: 2rem;
+
+  top: 1px;
+  position: relative;
 }
 
 header h1 {
