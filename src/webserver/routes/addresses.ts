@@ -169,9 +169,8 @@ export default (): Router => {
 	 *
 	 * @apiParam {String} address The address.
 	 * @apiQuery {Boolean} [fetchNames] When supplied, fetch the
-   *   count of names owned by the address.
+	 *   count of names owned by the address.
 	 *
-	 * @apiSuccess {Number} count The count of results.
 	 * @apiUse Address
 	 *
 	 * @apiSuccessExample {json} Success
