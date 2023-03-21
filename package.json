@@ -1,6 +1,6 @@
 {
   "name": "krist",
-  "version": "3.2.3",
+  "version": "3.2.4",
   "description": "The new Krist node written in TypeScript.",
   "main": "dist/src/index.js",
   "scripts": {

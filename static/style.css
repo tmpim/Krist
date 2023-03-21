@@ -293,8 +293,10 @@ b {
   border-radius: 3px;
 }
 
-.git-commits .commit-type.commit-type-fix  { background: #3498db; }
-.git-commits .commit-type.commit-type-feat { background: #2ecc71; }
+.git-commits .commit-type.commit-type-fix   { background: #3498db; }
+.git-commits .commit-type.commit-type-feat  { background: #2ecc71; }
+.git-commits .commit-type.commit-type-docs  { background: #7585d9; }
+.git-commits .commit-type.commit-type-chore { background: #eba946; }
 
 .git-commits .commit .author, .whats-new .commit .author {
 	font-weight: 300;
