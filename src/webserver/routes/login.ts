@@ -32,7 +32,7 @@ export default (): Router => {
 	 * @apiGroup MiscellaneousGroup
 	 * @apiVersion 2.7.0
 	 *
-	 * @apiSuccess {Number} privatekey The privatekey to auth with
+	 * @apiBody {String} privatekey The privatekey to auth with
 	 *
 	 * @apiSuccessExample {json} Success, Authed
 	 * {
