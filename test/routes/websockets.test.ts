@@ -94,7 +94,7 @@ describe("websocket connection", () => {
       expect(helloData.motd_set).to.be.ok;
 
       expect(helloData.public_url).to.equal(process.env.PUBLIC_URL || "localhost:8080");
-      expect(helloData.mining_enabled).to.be.true;
+      expect(helloData.mining_enabled).to.be.false;
       expect(helloData.debug_mode).to.be.true;
 
       expect(helloData.work).to.equal(100000);
