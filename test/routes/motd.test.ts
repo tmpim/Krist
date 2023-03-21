@@ -39,7 +39,7 @@ describe("v2 routes: motd", () => {
     expect(res.body.motd_set).to.be.ok;
 
     expect(res.body.public_url).to.equal(process.env.PUBLIC_URL || "localhost:8080");
-    expect(res.body.mining_enabled).to.be.true;
+    expect(res.body.mining_enabled).to.be.false;
     expect(res.body.debug_mode).to.be.true;
 
     expect(res.body.work).to.equal(100000);

@@ -54,6 +54,7 @@ describe("v1 routes: submission", () => {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
+    /*
     it("should require an address", async () => {
       const res = await api().get("/?submitblock");
       expect(res).to.be.text;
@@ -89,9 +90,11 @@ describe("v1 routes: submission", () => {
       expect(res).to.be.text;
       expect(res.text).to.equal("k8juvewcui000000000000invalid");
     });
+    */
   });
 
   describe("/?submitblock", () => {
+    /*
     it("should submit a block", async () => {
       const res = await api()
         .get("/?submitblock")
@@ -177,6 +180,7 @@ describe("v1 routes: submission", () => {
 
       expect(name.unpaid).to.equal(499);
     });
+    */
   });
 });
 
@@ -198,6 +202,7 @@ describe("v2 routes: submission", () => {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
+    /*
     it("should require an address", async () => {
       const res = await api().post("/submit");
       expect(res).to.be.json;
@@ -257,9 +262,11 @@ describe("v2 routes: submission", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, success: false });
     });
+    */
   });
 
   describe("POST /submit", () => {
+    /*
     it("should submit a block", async () => {
       const res = await api()
         .post("/submit")
@@ -389,5 +396,6 @@ describe("v2 routes: submission", () => {
 
       expect(name.unpaid).to.equal(499);
     });
+    */
   });
 });

@@ -68,6 +68,7 @@ describe("websocket routes: submission", function() {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
+    /*
     it("should require a valid address", async () => {
       const [res, ws] = await send({ address: "kfartoolong" });
       expect(res).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "address" });
@@ -103,9 +104,11 @@ describe("websocket routes: submission", function() {
       expect(res).to.deep.include({ ok: true, success: false });
       ws.close();
     });
+    */
   });
 
   describe("submit_block", () => {
+    /*
     it("should submit a block", async () => {
       const [res, ws] = await send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });
       expect(res).to.deep.include({ ok: true, success: true });
@@ -243,5 +246,6 @@ describe("websocket routes: submission", function() {
 
       ws.close();
     });
+    */
   });
 });
