@@ -56,6 +56,7 @@ export const REDIS_PREFIX = TEST
 // =============================================================================
 export const WEB_LISTEN = parseInt(process.env.WEB_LISTEN as string | undefined || "8080");
 export const PUBLIC_URL = process.env.PUBLIC_URL || "localhost:8080";
+export const PUBLIC_WS_URL = process.env.PUBLIC_WS_URL || PUBLIC_URL;
 export const FORCE_INSECURE = process.env.FORCE_INSECURE === "true";
 
 export const USE_PROMETHEUS = process.env.USE_PROMETHEUS === "true";

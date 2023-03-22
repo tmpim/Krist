@@ -35,6 +35,7 @@ services:
     environment:
       - DB_PASS=${DB_PASS}
       - PUBLIC_URL=krist.dev
+      - PUBLIC_WS_URL=ws.krist.dev
       - DB_HOST=172.17.0.1
       - REDIS_HOST=172.17.0.1
     ports:
@@ -80,6 +81,7 @@ The following optional environment variables may also be specified:
 | `TEST_DB_USER` | `test_krist` | *Required for testing*. If `NODE_ENV` is `test`, the username of the database user. |
 | `TEST_DB_PASS` |  | *Required for testing*. If `NODE_ENV` is `test`, the password of the database user. |
 | `WEB_LISTEN` | `8080` | The port that the webserver listens on. |
+| `PUBLIC_URL` | `localhost:8080` | The public URL of the websocket gateway. |
 | `REDIS_HOST` | `127.0.0.1` | The hostname of the redis server. |
 | `REDIS_PORT` | `6379` | The port of the redis server. |
 | `REDIS_PREFIX` | `krist:` | The prefix of the redis keys. |

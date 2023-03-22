@@ -40,6 +40,7 @@ export default (): Router => {
 	 *   string
    *
 	 * @apiSuccess {String} public_url The public URL of this Krist node.
+	 * @apiSuccess {String} public_ws_url The public URL of the Websocket gateway.
 	 * @apiSuccess {Boolean} mining_enabled If mining is enabled on the server,
    *    this will be set to `true`.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
@@ -94,27 +95,48 @@ export default (): Router => {
 	 *
 	 * @apiSuccessExample {json} Success
    * {
-   *   "ok": true, "server_time": "2021-02-24T08:11:22.628Z", "motd": "Welcome
-   *   to Krist!", "set": "2021-02-12T10:02:34.000Z", "motd_set":
-   *   "2021-02-12T10:02:34.000Z", "public_url": "localhost:8080",
-   *   "mining_enabled": true, "debug_mode": true, "work": 100000, "last_block":
-   *   { "height": 2, "address": "k8juvewcui", "hash":
-   *   "000000012697b461b9939933d5dec0cae546b7ec61b2d09a92226474711f0819",
-   *   "short_hash": "000000012697", "value": 29, "time":
-   *   "2021-02-21T05:11:05.000Z", "difficulty": 400000000000
-   *   },
-   *   "package": { "name": "krist", "version": "2.6.4", "author": "Lemmmy",
-   *     "licence": "GPL-3.0", "repository": "https://github.com/tmpim/Krist"
-   *   },
-   *   "constants": { "wallet_version": 16, "nonce_max_size": 24, "name_cost":
-   *     500, "min_work": 100, "max_work": 100000, "work_factor": 0.025,
-   *     "seconds_per_block": 60
-   *   },
-   *   "currency": { "address_prefix": "k", "name_suffix": "kst",
-   *     "currency_name": "Krist", "currency_symbol": "KST"
-   *   },
-   *   "notice": "Krist was originally created by 3d6 and Lemmmy. It is now
-	 *   owned and operated by tmpim, and licensed under GPL-3.0."
+   *    "ok": true,
+   *    "server_time": "2023-03-22T21:14:29.483Z",
+   *    "motd": "The API URL has changed to https://krist.dev\n\nBlock submission is disabled ([more info](https://discord.sc3.io))",
+   *    "set": "2023-03-22T21:14:06.000Z",
+   *    "motd_set": "2023-03-22T21:14:06.000Z",
+   *    "public_url": "krist.dev",
+   *    "public_ws_url": "ws.krist.dev",
+   *    "mining_enabled": false,
+   *    "debug_mode": false,
+   *    "work": 100000,
+   *    "last_block": {
+   *       "height": 2121616,
+   *       "address": "kristdeath",
+   *       "hash": "00000000009f16ac5ded918793310016ea2d61a29d5a328e244cd8478da6924c",
+   *       "short_hash": "00000000009f",
+   *       "value": 1,
+   *       "time": "2022-07-19T20:43:09.000Z",
+   *       "difficulty": 551
+   *    },
+   *    "package": {
+   *       "name": "krist",
+   *       "version": "3.3.0",
+   *       "author": "Lemmmy",
+   *       "licence": "GPL-3.0",
+   *       "repository": "https://github.com/tmpim/Krist"
+   *    },
+   *    "constants": {
+   *       "wallet_version": 16,
+   *       "nonce_max_size": 24,
+   *       "name_cost": 500,
+   *       "min_work": 100,
+   *       "max_work": 100000,
+   *       "work_factor": 0.025,
+   *       "seconds_per_block": 60
+   *    },
+   *    "currency": {
+   *       "address_prefix": "k",
+   *       "name_suffix": "kst",
+   *       "currency_name": "Krist",
+   *       "currency_symbol": "KST"
+   *    },
+   *    "notice": "Krist was originally created by 3d6 and Lemmmy. It is now owned and operated by tmpim, and licensed under GPL-3.0."
    * }
 	 */
   router.all("/motd", async (req, res) => {

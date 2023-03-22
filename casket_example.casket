@@ -1,17 +1,33 @@
 krist.dev {
-    root /var/www/krist.dev/static
+  root /var/www/krist.dev/static
 
-    log /var/log/casket/krist.dev.access.log
-    errors /var/log/casket/krist.dev.error.log {
-        502 down.html
-    }
+  log /var/log/casket/krist.dev.access.log
+  errors /var/log/casket/krist.dev.error.log {
+    502 down.html
+  }
 
-    proxy / 127.0.0.1:8080 {
-        transparent
-        websocket
-        except /style.css
-    }
+  proxy / 127.0.0.1:8080 {
+    transparent
+    except /style.css
+  }
 
-    cors
-    gzip
+  cors
+  gzip
+}
+
+ws.krist.dev {
+  root /var/www/krist.dev/static
+  
+  log /var/log/casket/ws.krist.dev.access.log
+  errors /var/log/casket/ws.krist.dev.error.log {
+    502 down.html
+  }
+
+  proxy /ws/gateway 127.0.0.1:8080 {
+    transparent
+    websocket
+  }
+
+  cors
+  gzip
 }

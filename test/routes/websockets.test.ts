@@ -30,7 +30,8 @@ describe("websocket connection", () => {
 
   describe("POST /ws/start", () => {
     const wsRe = new RegExp("ws:\\/\\/"
-      + (process.env.PUBLIC_URL || "localhost:8080") + "\\/[0-9a-f]{18}");
+      + (process.env.PUBLIC_WS_URL || process.env.PUBLIC_URL || "localhost:8080")
+      + "\\/ws\\/gateway\\/[0-9a-f]{18}");
 
     it("should return a guest token", async () => {
       const res = await api().post("/ws/start");

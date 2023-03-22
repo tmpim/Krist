@@ -30,7 +30,7 @@ import { verifyAddress } from "../../krist/addresses/verify";
 
 import { ErrorAuthFailed, errorToJson } from "../../errors";
 import { getLogDetails } from "../../utils";
-import { FORCE_INSECURE, PUBLIC_URL } from "../../utils/constants";
+import { FORCE_INSECURE, PUBLIC_WS_URL } from "../../utils/constants";
 
 /**
  * @apiDefine WebsocketGroup Websockets
@@ -42,7 +42,7 @@ export default (): Router => {
   wsInstance.applyTo(router);
 
   // Primary websocket connection handler - handles token verification
-  router.ws("/:token", async (ws, req) => {
+  router.ws("/ws/gateway/:token", async (ws, req) => {
     const { token } = req.params;
     const { logDetails } = getLogDetails(req);
 
@@ -83,9 +83,10 @@ export default (): Router => {
    *
    * To initiate a websocket connection, you must first make a POST request to
    * `/ws/start`. The response will contain a `url` parameter (of the form
-   * `wss://krist.dev/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf`) that can be used to
-   * connect to the websocket. This URL will expire after 30 seconds. You will
-   * have to connect to the supplied URL within that time frame.
+   * `wss://ws.krist.dev/ws/gateway/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf`) that
+   * can be used to connect to the websocket. This URL will expire after 30
+   * seconds. You will have to connect to the supplied URL within that time
+   * frame.
    *
    * There are two types of websockets:
    *
@@ -164,14 +165,14 @@ export default (): Router => {
    * @apiSuccessExample {json} Success
    * {
    *     "ok": true,
-   *     "url": "wss://krist.dev/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf",
+   *     "url": "wss://ws.krist.dev/ws/gateway/ba90ad70-cdfa-11e5-8cca-e1d2a26eabaf",
    *     "expires": 30
    * }
    */
   router.post("/ws/start", async (req, res) => {
     const { privatekey } = req.body;
 
-    const publicUrl = PUBLIC_URL;
+    const publicUrl = PUBLIC_WS_URL;
     const scheme = publicUrl.startsWith("localhost:")
       || FORCE_INSECURE ? "ws" : "wss";
     const urlBase = `${scheme}://${publicUrl}/`;

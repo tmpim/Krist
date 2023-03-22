@@ -29,7 +29,7 @@ import { BlockJson, blockToJson, getLastBlock } from "./blocks";
 
 import {
   WALLET_VERSION, NONCE_MAX_SIZE, NAME_COST, MIN_WORK, MAX_WORK, WORK_FACTOR,
-  SECONDS_PER_BLOCK
+  SECONDS_PER_BLOCK, PUBLIC_URL, PUBLIC_WS_URL
 } from "../utils/constants";
 
 export interface Motd {
@@ -46,6 +46,7 @@ export interface DetailedMotd {
   motd_set: string | null;
 
   public_url: string;
+  public_ws_url: string;
   mining_enabled: boolean;
   debug_mode: boolean;
 
@@ -104,7 +105,8 @@ export async function getDetailedMotd(): Promise<DetailedMotd> {
     set: motd_set, // support for backwards compatibility
     motd_set,
 
-    public_url: process.env.PUBLIC_URL || "localhost:8080",
+    public_url: PUBLIC_URL,
+    public_ws_url: PUBLIC_WS_URL,
     mining_enabled: await isMiningEnabled(),
     debug_mode,
 
