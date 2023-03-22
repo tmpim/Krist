@@ -175,7 +175,7 @@ export default (): Router => {
     const publicUrl = PUBLIC_WS_URL;
     const scheme = publicUrl.startsWith("localhost:")
       || FORCE_INSECURE ? "ws" : "wss";
-    const urlBase = `${scheme}://${publicUrl}/`;
+    const urlBase = `${scheme}://${publicUrl}/ws/gateway/`;
 
     if (privatekey) { // Auth as address if privatekey provided
       const { authed, address } = await verifyAddress(req, privatekey);
