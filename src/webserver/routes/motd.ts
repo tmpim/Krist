@@ -41,14 +41,8 @@ export default (): Router => {
    *
 	 * @apiSuccess {String} public_url The public URL of this Krist node.
 	 * @apiSuccess {String} public_ws_url The public URL of the Websocket gateway.
-	 * @apiSuccess {Boolean} mining_enabled If mining is enabled on the server,
-   *    this will be set to `true`.
 	 * @apiSuccess {Boolean} debug_mode If the server is running in debug mode,
    *    this will be set to `true`.
-   *
-	 * @apiSuccess {Number} work The current Krist work (difficulty).
-	 * @apiSuccess {Object} last_block The last block mined on the Krist node. May
-   *   be `null`.
    *
 	 * @apiSuccess {Object} package Information related to this build of the Krist
    *    source code.
@@ -65,20 +59,8 @@ export default (): Router => {
    *    configuration.
    * @apiSuccess {Number} constants.wallet_version The latest version of
    *    KristWallet.
-   * @apiSuccess {Number} constants.nonce_max_size The maximum size, in bytes,
-   *    of a block nonce.
    * @apiSuccess {Number} constants.name_cost The cost, in KST, of purchasing a
    *    new name.
-   * @apiSuccess {Number} constants.min_work The minimum work (block difficulty)
-   *    value. The work will not automatically go below this.
-   * @apiSuccess {Number} constants.max_work The maximum work (block difficulty)
-   *    value. The work will not automatically go above this.
-   * @apiSuccess {Number} constants.work_factor Work adjustment rate per block,
-   *    where 1 means immediate adjustment to target work and 0 means constant
-   *    work.
-   * @apiSuccess {Number} constants.seconds_per_block The ideal time between
-   *    mined blocks. The Krist server will adjust the difficulty to match this
-   *    value.
    *
 	 * @apiSuccess {Object} currency Constants related to the currency that this
    *    server represents.

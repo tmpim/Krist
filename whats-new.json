@@ -5,10 +5,6 @@
     "new": true,
     "body": "The websocket gateway returned by `/ws/start` is now `wss://ws.krist.dev`. You should connect to the URL returned by `/ws/start` instead of hardcoding the URL."
   }, {
-    "commitHash": "2fdb8f64e0cb81b08e825858369b1458d119f042",
-    "date": "2022-07-19T21:52:31+01:00",
-    "body": "Block submission is now disabled."
-  }, {
     "commitHash": "a7e1844f85ade36f5f7c8487713ed2e03caf0315",
     "date": "2022-07-17T19:37:00+01:00",
     "body": "The API URL has been changed to `krist.dev`."

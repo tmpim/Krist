@@ -29,60 +29,6 @@ import {
   ErrorMissingParameter, ErrorSolutionDuplicate, ErrorSolutionIncorrect
 } from "../../errors";
 
-/**
- * @api {ws} /type/submit_block Submit a block
- * @apiName WSSubmitBlock
- * @apiGroup WebsocketGroup
- * @apiVersion 2.0.8
- * @apiDeprecated Block submission is currently disabled.
- *
- * @apiBody {Number} id
- * @apiBody {String="submit_block"} type
- * @apiBody {String} [address]
- * @apiBody {String|Number[]} nonce
- *
- * @apiSuccess {Boolean} success Whether the submission was successful or not.
- * @apiSuccess {Number} [work] The new difficulty for block submission (if the solution was successful).
- * @apiUse Address
- * @apiUse Block
- * @apiSuccess {Object} [address] The address of the solver (if the solution was successful).
- * @apiSuccess {Object} [block] The block which was just submitted (if the solution was successful).
- *
- * @apiSuccessExample {json} Success
- * {
- *     "ok": true,
- *     "success": true,
- *     "work": 18750,
- *     "address": {
- *         "address": "kre3w0i79j",
- *         "balance": 925378,
- *         "totalin": 925378,
- *         "totalout": 0,
- *         "firstseen": "2015-03-13T12:55:18.000Z"
- *     },
- *     "block": {
- *         "height": 122226,
- *         "address": "kre3w0i79j",
- *         "hash": "000000007abc9f0cafaa8bf85d19817ee4f5c41ae758de3ad419d62672423ef",
- *         "short_hash": "000000007ab",
- *         "value": 14,
- *         "time": "2016-02-06T19:22:41.746Z"
- *     }
- * }
- *
- * @apiSuccessExample {json} Solution Incorrect
- * {
- *     "ok": true,
- *     "success": false
- * }
- *
- * @apiErrorExample {json} Invalid Nonce
- * {
- *     "ok": false,
- *     "error": "invalid_parameter",
- *     "parameter": "nonce"
- * }
- */
 export const wsSubmitBlock: WebSocketEventHandler<{
   address?: string;
   nonce?: number[] | string;

@@ -39,7 +39,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object} transaction
  * @apiSuccess {Number} transaction.id The ID of this transaction.
  * @apiSuccess {String} transaction.from The sender of this transaction. This
- *   may be `null` if the transaction was a block mining reward.
+ *   may be `null`.
  * @apiSuccess {String} transaction.to The recipient of this transaction. This
  *   may be `"name"` if the transaction was a name purchase, or `"a"` if it was
  *   a name's data change.
@@ -66,7 +66,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object[]} transactions
  * @apiSuccess {Number} transactions.id The ID of this transaction.
  * @apiSuccess {String} transactions.from The sender of this transaction. This
- *   may be `null` if the transaction was a block mining reward.
+ *   may be `null`.
  * @apiSuccess {String} transactions.to The recipient of this transaction. This
  *   may be `"name"` if the transaction was a name purchase, or `"a"` if it was
  *   a name's data change.

@@ -74,11 +74,10 @@ export default (): Router => {
    * @apiVersion 2.8.0
    *
    * @apiDescription Search the Krist network for objects that match the given
-   * query, including addresses, names, blocks, and transactions.
+   * query, including addresses, names, and transactions.
    *
    * - Addresses are searched by exact address match only
    * - Names are searched by their name with and without the `.kst` suffix
-   * - Blocks are searched by ID
    * - Transactions are searched by ID
    *
    * For more advanced transaction searches (by involved addresses and
@@ -100,10 +99,7 @@ export default (): Router => {
    *   Name object if the query looked like a valid Krist name (with or without
    *   the `.kst` suffix), and that name exists in the database. Otherwise, if
    *   there is no result, it will be `false`.
-   * @apiSuccess {Object} matches.exactBlock An exact block match - this will be
-   *   a Block object if the query looked like a valid Krist block ID, and that
-   *   block exists in the database. Otherwise, if there is no result, it will
-   *   be `false`.
+   * @apiSuccess {Object} matches.exactBlock Currently unused.
    * @apiSuccess {Object} matches.exactTransaction An exact transaction match -
    *   this will be a Transaction object if the query looked like a valid Krist
    *   transaction ID, and that transaction exists in the database. Otherwise,

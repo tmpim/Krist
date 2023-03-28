@@ -28,6 +28,7 @@ import { redis, rKey } from "../database/redis";
 import { GITHUB_TOKEN } from "./constants";
 
 const MESSAGE_TYPE_RE = /^(\w+): (.+)/;
+const EXCLUDE_COMMITS_RE = /block|submi/gi;
 
 const octokit = GITHUB_TOKEN ? new Octokit({
   auth: GITHUB_TOKEN,
@@ -44,7 +45,7 @@ export interface FormattedCommit extends CommitBase {
 export async function getCommits(): Promise<FormattedCommit[]> {
   const commits = await gitlog({
     repo: path.join(__dirname, "../../"),
-    number: 10,
+    number: 20,
     fields: [
       "subject", "body", "hash",
       "authorName", "authorEmail", "authorDate", "authorDateRel"
@@ -60,7 +61,13 @@ async function formatCommits(commits: CommitBase[]): Promise<FormattedCommit[]> 
   for (const baseCommit of commits) {
     const commit: FormattedCommit = { ...baseCommit };
 
-    if (!commit.subject) continue;
+    if (
+      !commit.subject
+      || EXCLUDE_COMMITS_RE.test(commit.subject)
+      || (commit.body && EXCLUDE_COMMITS_RE.test(commit.body))
+    ) {
+      continue;
+    }
 
     const [, type, rest] = MESSAGE_TYPE_RE.exec(commit.subject) || [];
     if (type) {
@@ -84,7 +91,7 @@ async function formatCommits(commits: CommitBase[]): Promise<FormattedCommit[]> 
     });
   }
 
-  return newCommits;
+  return newCommits.slice(0, 10);
 }
 
 async function getAvatar(commit: FormattedCommit): Promise<string | undefined> {

@@ -59,8 +59,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Date} [name.transferred] The time this name was last transferred
  *   to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} [name.a] The name's data.
- * @apiSuccess {Number} name.unpaid The number of blocks until this name has
- *   been paid off.
+ * @apiSuccess {Number} name.unpaid Currently unused.
  */
 
 /**
@@ -79,8 +78,7 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Date} [names.transferred] The time this name was last
  *   transferred to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} names.a The name's data.
- * @apiSuccess {Number} names.unpaid The number of blocks until this name has
- *   been paid off.
+ * @apiSuccess {Number} names.unpaid Currently unused.
  */
 
 export default (): Router => {
@@ -131,24 +129,6 @@ export default (): Router => {
     });
   });
 
-  /**
-	 * @api {get} /names/bonus Get the name bonus
-	 * @apiName GetNameBonus
-	 * @apiGroup NameGroup
-	 * @apiVersion 2.0.1
-	 *
-	 * @apiDescription Returns the amount of KST that is currently added to the
-	 *   base block reward. Essentially, this is the count of names registered in
-	 *   the last 500 blocks.
-	 *
-	 * @apiSuccess {Number} name_bonus The name bonus.
-	 *
-	 * @apiSuccessExample {json} Success
-	 * {
-	 *     "ok": true,
-	 *     "name_bonus": 12
-   * }
-	 */
   router.get("/names/bonus", async (req, res) => {
     res.json({
       ok: true,
@@ -206,15 +186,10 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 2.0.0
 	 *
-	 * @apiDescription *Note*: This only returns names that are **unpaid**. An
-	 *   name is "paid off" after the submission of 500 blocks after its
-	 *   registration.
-	 *
 	 * @apiUse LimitOffset
 	 *
 	 * @apiSuccess {Number} count The count of results.
-	 * @apiSuccess {Number} total The total amount of names registered in the last
-	 *   500 blocks.
+	 * @apiSuccess {Number} total The total amount of new names returned.
 	 * @apiUse Names
 	 *
 	 * @apiSuccessExample {json} Success

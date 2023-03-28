@@ -615,3 +615,10 @@ body.container-fluid {
   top: -1px;
   overflow: hidden;
 }
+
+#logo {
+	display: inline;
+	width: 24px;
+	height: 24px;
+	margin-right: 2rem;
+}

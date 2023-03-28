@@ -94,7 +94,7 @@ export default (): Router => {
    * * Authed Sessions
    *
    * A **guest session** is a session without a privatekey. It has access to
-   * basic API calls such as getters and submitblock.
+   * basic API calls such as `address`.
    *
    * An **authed session** is a session linked to an address. The privatekey is
    * supplied as a POST body parameter during `/ws/start`. It has access to most
@@ -136,9 +136,8 @@ export default (): Router => {
    *   {
    *     "ok": "true",
    *     "type": "event",
-   *     "event": "block",
-   *     "block": { ... },
-   *     "new_work": 100000
+   *     "event": "transaction",
+   *     "transaction": { ... }
    *   }
    * ```
    *
@@ -149,8 +148,6 @@ export default (): Router => {
    *
    * | Subscription Name | Events        | Description                                                                               |
    * | ----------------- | ------------- | ----------------------------------------------------------------------------------------- |
-   * | `blocks`          | `block`       | Block events whenever a block is mined by anybody on the node.                            |
-   * | `ownBlocks`       | `block`       | Block events whenever the authed user mines a block.                                      |
    * | `transactions`    | `transaction` | Transaction events whenever a transaction is made by anybody on the node.                 |
    * | `ownTransactions` | `transaction` | Transaction events whenever a transaction is made to or from the authed user.             |
    * | `names`           | `name`        | Name events whenever a name is purchased, modified or transferred by anybody on the node. |

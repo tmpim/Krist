@@ -50,15 +50,14 @@ export type ReqSearchQuery = LookupQuery<{
  *   matches the format of a Krist address.
  * @apiSuccess {Boolean} query.matchName Whether or not the query exactly
  *   matches the format of a Krist name (with or without the `.kst`) suffix.
- * @apiSuccess {Boolean} query.matchBlock Whether or not the query exactly
- *   matches the format of a block ID (with all non-numbers removed).
+ * @apiSuccess {Boolean} query.matchBlock Currently unused.
  * @apiSuccess {Boolean} query.matchTransaction Whether or not the query
  *   exactly matches the format of a transaction ID (with all non-numbers
  *   removed).
  * @apiSuccess {String} query.strippedName The query with the `.kst` suffix
  *   stripped, if it was present.
  * @apiSuccess {Boolean} query.hasID Whether or not the query looks like an ID
- *   number (e.g. for blocks or transactions).
+ *   number (e.g. for transactions).
  * @apiSuccess {Number} [query.cleanID] If hasID is true, this is the query,
  *   sanitised and converted to a number.
  */

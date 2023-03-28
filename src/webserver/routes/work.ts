@@ -34,20 +34,6 @@ export default (): Router => {
   // ===========================================================================
   // API v2
   // ===========================================================================
-  /**
-   * @api {get} /work Get the current work
-   * @apiName GetWork
-   * @apiGroup MiscellaneousGroup
-   * @apiVersion 2.0.5
-   *
-   * @apiSuccess {Number} work The current Krist work (difficulty).
-   *
-   * @apiSuccessExample {json} Success
-   * {
-   *     "ok": true,
-   *     "work": 18750
-   * }
-   */
   router.get("/work", async (req, res) => {
     res.json({
       ok: true,
@@ -55,21 +41,6 @@ export default (): Router => {
     });
   });
 
-  /**
-   * @api {get} /work/day Get the work over the past 24 hours
-   * @apiName GetWorkDay
-   * @apiGroup MiscellaneousGroup
-   * @apiVersion 2.0.5
-   *
-   * @apiSuccess {Number[]} work The work every minute for the past 24 hours,
-   *   starting with 24 hours ago.
-   *
-   * @apiSuccessExample {json} Success
-   * {
-   *     "ok": true,
-   *     "work": [18750, 19250, ...]
-   * }
-   */
   router.get("/work/day", async (req, res) => {
     res.json({
       ok: true,
@@ -77,41 +48,6 @@ export default (): Router => {
     });
   });
 
-  /**
-   * @api {get} /work/detailed Get detailed work and block value information
-   * @apiName GetWorkDetailed
-   * @apiGroup MiscellaneousGroup
-   * @apiVersion 2.6.0
-   *
-   * @apiSuccess {Number} work The current Krist work (difficulty).
-   * @apiSuccess {Number} unpaid The current number of unpaid names.
-   *
-   * @apiSuccess {Number} base_value The base block value.
-   * @apiSuccess {Number} block_value The current block value (base + unpaid).
-   *
-   * @apiSuccess {Object} decrease Information about the next block value
-   *   decrease.
-   * @apiSuccess {Number} decrease[value] How much Krist the block value will
-   *   decrease by when the next name(s) expire.
-   * @apiSuccess {Number} decrease[blocks] How many blocks before the next block
-   *   value decrease.
-   * @apiSuccess {Number} decrease[reset] How many blocks before the block value
-   *   will completely reset to the base value.
-   *
-   * @apiSuccessExample {json} Success
-   * {
-   *   "ok": true,
-   *   "work": 92861,
-   *   "unpaid": 3,
-   *   "base_value": 1,
-   *   "block_value": 4,
-   *   "decrease": {
-   *     "value": 2,
-   *     "blocks": 496,
-   *     "reset": 500
-   *   }
-   * }
-   */
   router.get("/work/detailed", async (req, res) => {
     const lastBlock = await getLastBlock();
     if (!lastBlock) throw new ErrorBlockNotFound();
