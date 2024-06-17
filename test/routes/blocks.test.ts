@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,7 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { expect } from "chai";
-
-import { seed } from "../seed";
-import { api } from "../api";
+import { seed } from "../seed.js";
 
 describe("v1 routes: blocks", () => {
   before(seed);

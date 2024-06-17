@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,24 +20,27 @@
  */
 
 import { Request } from "express";
-import { db, Limit, Name, Offset, PaginatedResult } from "../database";
+import { db, Limit, Name, Offset, PaginatedResult } from "../database/index.js";
 import {
-  ErrorAddressNotFound, ErrorAuthFailed, ErrorInsufficientFunds,
-  ErrorInvalidParameter, ErrorMissingParameter, ErrorNameNotFound,
-  ErrorNameTaken, ErrorNotNameOwner
-} from "../errors";
-import { getAddress } from "../krist/addresses";
-import { verifyAddress } from "../krist/addresses/verify";
-
-import {
-  createName, getName, getNames, getNamesByAddress, getUnpaidNames
-} from "../krist/names";
-import { createTransaction, pushTransaction } from "../krist/transactions/create";
-
-import {
-  isValidARecord, isValidKristAddress, isValidName, validateLimitOffset
-} from "../utils";
-import { NAME_COST } from "../utils/constants";
+  ErrorAddressNotFound,
+  ErrorAuthFailed,
+  ErrorInsufficientFunds,
+  ErrorInvalidParameter,
+  ErrorMissingParameter,
+  ErrorNameNotFound,
+  ErrorNameTaken,
+  ErrorNotNameOwner,
+  ErrorRateLimitHit,
+  ErrorTransactionsDisabled
+} from "../errors/index.js";
+import { getAddress } from "../krist/addresses/index.js";
+import { verifyAddress } from "../krist/addresses/verify.js";
+import { createName, getName, getNames, getNamesByAddress, getUnpaidNames } from "../krist/names/index.js";
+import { areTransactionsEnabled } from "../krist/switches.js";
+import { createTransaction, pushTransaction } from "../krist/transactions/create.js";
+import { checkTxRateLimits } from "../krist/transactions/index.js";
+import { isValidARecord, isValidKristAddress, isValidName, validateLimitOffset } from "../utils/index.js";
+import { NAME_COST } from "../utils/vars.js";
 
 function cleanNameInput(name: string): string {
   return name.trim().toLowerCase();
@@ -103,6 +106,8 @@ export async function ctrlRegisterName(
   desiredName?: string,
   privatekey?: string
 ): Promise<Name> {
+  if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
+
   // Input validation
   if (!desiredName) throw new ErrorMissingParameter("name");
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
@@ -116,6 +121,10 @@ export async function ctrlRegisterName(
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
   if (!authed) throw new ErrorAuthFailed();
+
+  // Rate limit check - apply a 2x cost to name events
+  if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))
+    throw new ErrorRateLimitHit();
 
   // Check if the name already exists
   if (await getName(finalName)) throw new ErrorNameTaken(finalName);
@@ -139,10 +148,7 @@ export async function ctrlRegisterName(
     );
 
     // Create the new name
-    const dbName = await createName(finalName, dbAddress.address, dbTx);
-
-    // Return the new name
-    return dbName;
+    return await createName(finalName, dbAddress.address, dbTx);
   });
 }
 
@@ -152,6 +158,8 @@ export async function ctrlTransferName(
   privatekey?: string,
   address?: string
 ): Promise<Name> {
+  if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
+
   // Input validation
   if (!name) throw new ErrorMissingParameter("name");
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
@@ -166,6 +174,10 @@ export async function ctrlTransferName(
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
   if (!authed) throw new ErrorAuthFailed();
+
+  // Rate limit check - apply a 2x cost to name events
+  if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))
+    throw new ErrorRateLimitHit();
 
   // Get the name from the database
   const dbName = await getName(name);
@@ -214,6 +226,8 @@ export async function ctrlUpdateName(
   privatekey?: string,
   a?: string | null
 ): Promise<Name> {
+  if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
+  
   // Clean name data
   if (typeof a === "string") a = a.trim();
   if (a === undefined || a === "") a = null;
@@ -232,6 +246,10 @@ export async function ctrlUpdateName(
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
   if (!authed) throw new ErrorAuthFailed();
+
+  // Rate limit check - apply a 2x cost to name events
+  if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))
+    throw new ErrorRateLimitHit();
 
   // Get the name from the database
   const dbName = await getName(name);

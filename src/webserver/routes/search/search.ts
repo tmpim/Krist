@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,16 +20,13 @@
  */
 
 import { Router } from "express";
-
-import { ReqSearchQuery } from ".";
-import { parseQuery, validateQuery } from "./utils";
-
-import { addressToJson, getAddress } from "../../../krist/addresses";
-import { blockToJson, getBlock } from "../../../krist/blocks";
-import { getTransaction, transactionToJson } from "../../../krist/transactions";
-import { getName, nameToJson } from "../../../krist/names";
-
-import { isObject } from "lodash";
+import { isObject } from "lodash-es";
+import { addressToJson, getAddress } from "../../../krist/addresses/index.js";
+import { blockToJson, getBlock } from "../../../krist/blocks/index.js";
+import { getName, nameToJson } from "../../../krist/names/index.js";
+import { getTransaction, transactionToJson } from "../../../krist/transactions/index.js";
+import { ReqSearchQuery } from "./index.js";
+import { parseQuery, validateQuery } from "./utils.js";
 
 async function performSearch(query: string) {
   const parsed = parseQuery(query);
@@ -73,37 +70,30 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.8.0
    *
-   * @apiDescription Search the Krist network for objects that match the given
-   * query, including addresses, names, and transactions.
+   * @apiDescription Search the Krist network for objects that match the given query, including addresses, names, and
+   * transactions.
    *
    * - Addresses are searched by exact address match only
    * - Names are searched by their name with and without the `.kst` suffix
    * - Transactions are searched by ID
    *
-   * For more advanced transaction searches (by involved addresses and
-   * metadata), see the `/search/extended` endpoint.
-   *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
+   * For more advanced transaction searches (by involved addresses and metadata), see the `/search/extended` endpoint.
    *
 	 * @apiQuery {String} q The search query.
    *
    * @apiUse SearchQuery
    *
    * @apiSuccess {Object} matches The results of the search query.
-   * @apiSuccess {Object} matches.exactAddress An exact address match - this
-   *   will be an Address object if the query looked like a valid Krist address,
-   *   and that address exists in the database. Otherwise, if there is no
-   *   result, it will be `false`.
-   * @apiSuccess {Object} matches.exactName An exact name match - this will be a
-   *   Name object if the query looked like a valid Krist name (with or without
-   *   the `.kst` suffix), and that name exists in the database. Otherwise, if
-   *   there is no result, it will be `false`.
+   * @apiSuccess {Object} matches.exactAddress An exact address match - this will be an Address object if the query
+   *   looked like a valid Krist address, and that address exists in the database. Otherwise, if there is no result, it
+   *   will be `false`.
+   * @apiSuccess {Object} matches.exactName An exact name match - this will be a Name object if the query looked like a
+   *   valid Krist name (with or without the `.kst` suffix), and that name exists in the database. Otherwise, if there
+   *   is no result, it will be `false`.
    * @apiSuccess {Object} matches.exactBlock Currently unused.
-   * @apiSuccess {Object} matches.exactTransaction An exact transaction match -
-   *   this will be a Transaction object if the query looked like a valid Krist
-   *   transaction ID, and that transaction exists in the database. Otherwise,
-   *   if there is no result, it will be `false`.
+   * @apiSuccess {Object} matches.exactTransaction An exact transaction match - this will be a Transaction object if the
+   *   query looked like a valid Krist transaction ID, and that transaction exists in the database. Otherwise, if there
+   *   is no result, it will be `false`.
    *
    * @apiSuccessExample {json} Success - Name result
    * {

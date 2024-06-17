@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,34 +19,38 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-import { createClient, RedisClientType } from "redis";
+import chalkT from "chalk-template";
+import { createClient } from "redis";
 
-import { REDIS_HOST, REDIS_PORT, REDIS_PASS, REDIS_PREFIX } from "../utils/constants";
+import { REDIS_HOST, REDIS_PASS, REDIS_PORT, REDIS_PREFIX } from "../utils/vars.js";
 
-export let redis: RedisClientType;
+export let redis = createClient({
+  socket: {
+    host: REDIS_HOST,
+    port: REDIS_PORT
+  },
+  password: REDIS_PASS
+});
+
+redis.on("ready", () =>
+  console.log(chalkT`{green [Redis]} Connected`));
+redis.on("error", (err: Error) =>
+  console.error(chalkT`{red [Redis]} Error:`, err));
+redis.on("end", () =>
+  console.error(chalkT`{red [Redis]} Disconnected`));
+redis.on("reconnecting", () =>
+  console.error(chalkT`{cyan [Redis]} Reconnecting`));
 
 export async function initRedis(): Promise<void> {
-  console.log(chalk`{cyan [Redis]} Connecting to redis`);
-  redis = createClient({
-    socket: {
-      host: REDIS_HOST,
-      port: REDIS_PORT
-    },
-    password: REDIS_PASS
-  });
-
-  redis.on("ready", () =>
-    console.log(chalk`{green [Redis]} Connected`));
-  redis.on("error", (err: Error) =>
-    console.error(chalk`{red [Redis]} Error:`, err));
-  redis.on("end", () =>
-    console.error(chalk`{red [Redis]} Disconnected`));
-  redis.on("reconnecting", () =>
-    console.error(chalk`{cyan [Redis]} Reconnecting`));
-
+  console.log(chalkT`{cyan [Redis]} Connecting to redis`);
   await redis.connect();
   await redis.ping();
+}
+
+export async function shutdownRedis(): Promise<void> {
+  console.log(chalkT`{cyan [Redis]} Disconnecting from redis`);
+  await redis.disconnect();
+  console.log(chalkT`{green [Redis]} Disconnected`);
 }
 
 export const rKey = (key: string): string => `${REDIS_PREFIX}${key}`;

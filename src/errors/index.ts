@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-export * from "./addresses";
-export * from "./blocks";
-export * from "./generic";
-export * from "./KristError";
-export * from "./names";
-export * from "./sendErrors";
-export * from "./transactions";
-export * from "./webserver";
-export * from "./websockets";
+export * from "./addresses.js";
+export * from "./blocks.js";
+export * from "./generic.js";
+export * from "./KristError.js";
+export * from "./names.js";
+export * from "./sendErrors.js";
+export * from "./transactions.js";
+export * from "./webserver.js";
+export * from "./websockets.js";

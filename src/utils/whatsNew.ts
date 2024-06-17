@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import whatsNewData from "../../whats-new.json";
+import whatsNewData from "../../whats-new.json" with { type: "json" };
 
 export interface WhatsNewEntry {
   new?: boolean;

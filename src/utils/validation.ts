@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,12 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { db, Limit, Offset } from "../database";
-
-import { ErrorInvalidParameter } from "../errors";
-
-import { isNaN } from "lodash";
-import { Literal } from "sequelize/types/utils";
+import { Literal } from "@sequelize/core";
+import { isNaN } from "lodash-es";
+import { db, Limit, Offset } from "../database/index.js";
+import { ErrorInvalidParameter } from "../errors/index.js";
 
 /**
  * @apiDefine Limit
@@ -45,13 +43,17 @@ import { Literal } from "sequelize/types/utils";
  */
 
 export async function validateLimit(limit: Limit): Promise<void> {
-  if ((limit && isNaN(limit)) || (limit && limit <= 0)) {
+  if ((limit && isNaN(limit))
+    || (limit && ((typeof limit === "number" && limit <= 0)
+      || (typeof limit === "string" && parseInt(limit) <= 0)))) {
     throw new ErrorInvalidParameter("limit");
   }
 }
 
 export async function validateOffset(offset: Offset): Promise<void> {
-  if ((offset && isNaN(offset)) || (offset && offset < 0)) {
+  if ((offset && isNaN(offset))
+    || (offset && ((typeof offset === "number" && offset < 0)
+      || (typeof offset === "string" && parseInt(offset) < 0)))) {
     throw new ErrorInvalidParameter("offset");
   }
 }

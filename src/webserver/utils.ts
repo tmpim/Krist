@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,7 +20,7 @@
  */
 
 import { Request, Response } from "express";
-import { PaginatedResult } from "../database";
+import { PaginatedResult } from "../database/index.js";
 
 export type ReqQuery<T> = Request<any, any, any, T>;
 export type PaginatedQuery<T = unknown> = ReqQuery<{

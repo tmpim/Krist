@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,5 +19,6 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { WebSocketsManager } from "./WebSocketManager";
+import { WebSocketsManager } from "./WebSocketManager.js";
+
 export const wsManager = new WebSocketsManager();

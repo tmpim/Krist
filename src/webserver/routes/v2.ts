@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,11 +20,9 @@
  */
 
 import { Router } from "express";
-
-import { ReqQuery } from "..";
-
-import { ErrorInvalidParameter, ErrorMissingParameter } from "../../errors";
-import { makeV2Address } from "../../utils";
+import { ErrorInvalidParameter, ErrorMissingParameter } from "../../errors/index.js";
+import { makeV2Address } from "../../utils/index.js";
+import { ReqQuery } from "../index.js";
 
 export default (): Router => {
   const router = Router();

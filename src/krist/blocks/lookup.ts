@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Limit, Offset, Block, PaginatedResult, db } from "../../database";
-import { InferAttributes, Order } from "sequelize";
-
-import { sanitiseLimit, sanitiseOffset } from "../../utils";
+import { InferAttributes, Order, sql } from "@sequelize/core";
+import { Block, Limit, Offset, PaginatedResult } from "../../database/index.js";
+import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export async function lookupBlocks(
   limit: Limit,
@@ -36,7 +35,7 @@ export async function lookupBlocks(
   // they are still returned. As such, this pushes the nulls to the end of the
   // result set if sorting by hash ascending.
   const dbOrder: Order = orderBy === "hash" && order === "ASC"
-    ? [db.fn("isnull", db.col("hash")), ["hash", "ASC"]]
+    ? [sql`ISNULL(hash)`, ["hash", "ASC"]]
     : [[orderBy, order]];
 
   return Block.findAndCountAll({

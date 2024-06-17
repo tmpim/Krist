@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,23 +19,24 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import "./utils/setup";
+import "dotenv/config";
 
-import chalk from "chalk";
-import packageJson from "../package.json";
+import chalkT from "chalk-template";
+import whyIsNodeRunning from "why-is-node-running";
+import packageJson from "../package.json" with { type: "json" };
+import { initDatabase, shutdownDb } from "./database/index.js";
+import { initRedis, shutdownRedis } from "./database/redis.js";
+import { initAuthLogCleanup, shutdownAuthLogCleanup } from "./krist/authLog.js";
+import { initKrist } from "./krist/index.js";
+import { initWorkOverTime, shutdownWorkOverTime } from "./krist/work.js";
+import { initCriticalLogUpdater } from "./utils/criticalLog.js";
 
-import { checkEnvVars } from "./utils";
-import { initDatabase } from "./database";
-import { initRedis } from "./database/redis";
-import { initKrist } from "./krist";
-import { initWorkOverTime } from "./krist/work";
-import { initAuthLogCleanup } from "./krist/authLog";
-import { initDebug } from "./debug";
-import { initWebserver } from "./webserver";
-import { initWebSocketIpc } from "./websockets/ipc";
+import { checkEnvVars } from "./utils/index.js";
+import { initWebserver, shutdownWebserver } from "./webserver/index.js";
+import { initWebSocketIpc, shutdownWebSocketIpc } from "./websockets/ipc.js";
 
 async function main() {
-  console.log(chalk`Starting {bold ${packageJson.name}} {blue ${packageJson.version}}...`);
+  console.log(chalkT`Starting {bold ${packageJson.name}} {blue ${packageJson.version}}...`);
 
   checkEnvVars();
   await initRedis();
@@ -43,9 +44,30 @@ async function main() {
   await initKrist();
   initWorkOverTime();
   initAuthLogCleanup();
-  initDebug();
+  initCriticalLogUpdater();
   await initWebSocketIpc();
   await initWebserver();
+
+  console.log(chalkT`{bold ${packageJson.name}} {blue ${packageJson.version}} is ready!`);
 }
+
+function shutdown() {
+  (async () => {
+    shutdownWebserver();
+    await shutdownRedis();
+    await shutdownDb();
+    shutdownWorkOverTime();
+    shutdownAuthLogCleanup();
+    shutdownWebSocketIpc();
+  })().catch(console.error);
+
+  setTimeout(() => {
+    console.log("Still shutting down?");
+    whyIsNodeRunning();
+  }, 8000).unref();
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 main().catch(console.error);

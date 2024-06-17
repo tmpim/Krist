@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,12 +20,10 @@
  */
 
 import { Router } from "express";
-
-import { AddressJson, addressToJson } from "../../../krist/addresses";
-import { lookupAddresses } from "../../../krist/addresses/lookup";
-
-import { ErrorMissingParameter } from "../../../errors";
-import { validateAddressList } from "./utils";
+import { ErrorMissingParameter } from "../../../errors/index.js";
+import { AddressJson, addressToJson } from "../../../krist/addresses/index.js";
+import { lookupAddresses } from "../../../krist/addresses/lookup.js";
+import { validateAddressList } from "./utils.js";
 
 export default (): Router => {
   const router = Router();
@@ -36,26 +34,17 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
    *
-   * @apiDescription Return an object containing the given address(es). Any
-   * addresses that do not exist on the Krist server (i.e. they have not been
-   * logged in to, or have not received Krist) will be assigned `null` in the
-   * object.
+   * @apiDescription Return an object containing the given address(es). Any addresses that do not exist on the Krist
+   * server (i.e. they have not been logged in to, or have not received Krist) will be assigned `null` in the object.
    *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
+   * @apiParam {String[]} [addresses] A comma-separated list of addresses to filter transactions to/from.
    *
-   * @apiParam {String[]} [addresses] A comma-separated list of
-   *           addresses to filter transactions to/from.
+   * @apiQuery {Boolean} fetchNames When supplied, fetch the count of owned names for each address.
    *
-   * @apiQuery {Boolean} fetchNames When supplied, fetch the
-   *           count of owned names for each address.
-   *
-   * @apiSuccess {Number} found The amount of addresses that were successfully
-   *             returned.
-   * @apiSuccess {Number} notFound The amount of addresses that were not
-   *             returned.
-   * @apiSuccess {Object} addresses Object keyed by address containing their
-   *             data, or `null` if the address was not found.
+   * @apiSuccess {Number} found The amount of addresses that were successfully returned.
+   * @apiSuccess {Number} notFound The amount of addresses that were not returned.
+   * @apiSuccess {Object} addresses Object keyed by address containing their data, or `null` if the address was not
+   *   found.
    *
    * @apiSuccessExample {json} Success
    * {

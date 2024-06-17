@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,11 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { ADDRESS_LIST_LIMIT } from ".";
-import { Limit, Offset } from "../../../database";
-
-import { ErrorInvalidParameter } from "../../../errors";
-import { isValidKristAddressList } from "../../../utils";
+import { Limit, Offset } from "../../../database/index.js";
+import { ErrorInvalidParameter } from "../../../errors/index.js";
+import { isValidKristAddressList } from "../../../utils/index.js";
+import { ADDRESS_LIST_LIMIT } from "./index.js";
 
 /** Validate a comma-separated list of addresses, returning an array of them
  * if it is valid, or throwing an error if it is not. */

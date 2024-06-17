@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,25 +20,19 @@
  */
 
 import { Request } from "express";
-
-import { Block, Limit, Offset, PaginatedResult } from "../database";
-
+import { isNaN } from "lodash-es";
+import { Block, Limit, Offset, PaginatedResult } from "../database/index.js";
 import {
-  getBlock, getBlocks, getLastBlock, getLowestHashes
-} from "../krist/blocks";
-import {
-  submitBlock, SubmitBlockResponse
-} from "../krist/blocks/submit";
-
-import {
-  ErrorBlockNotFound, ErrorInvalidParameter, ErrorMiningDisabled,
+  ErrorBlockNotFound,
+  ErrorInvalidParameter,
+  ErrorMiningDisabled,
   ErrorMissingParameter
-} from "../errors";
-
-import { isValidKristAddress, validateLimitOffset } from "../utils";
-import { isNaN } from "lodash";
-import { isMiningEnabled } from "../krist/mining";
-import { NONCE_MAX_SIZE } from "../utils/constants";
+} from "../errors/index.js";
+import { getBlock, getBlocks, getLastBlock, getLowestHashes } from "../krist/blocks/index.js";
+import { submitBlock, SubmitBlockResponse } from "../krist/blocks/submit.js";
+import { isMiningEnabled } from "../krist/switches.js";
+import { isValidKristAddress, validateLimitOffset } from "../utils/index.js";
+import { NONCE_MAX_SIZE } from "../utils/vars.js";
 
 export async function ctrlGetBlocks(
   limit: Limit,

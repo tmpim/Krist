@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,11 +20,10 @@
  */
 
 import { expect } from "chai";
-
-import { seed } from "../seed";
-import { api } from "../api";
-import { Address, Name, Transaction } from "../../src/database";
-import { getBlockValue } from "../../src/krist/blocks";
+import { seed } from "../seed.js";
+import { api } from "../api.js";
+import { Address, Name, Transaction } from "../../src/database/index.js";
+import { getBlockValue } from "../../src/krist/blocks/index.js";
 
 describe("v1 routes: names", () => {
   before(seed);
@@ -312,8 +311,8 @@ describe("v2 routes: names", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
       expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
-      expect(res.body.name.updated).to.equal(oldUpdated.toISOString());
-      expect(res.body.name.transferred).to.equal(oldTransferred.toISOString());
+      expect(res.body.name.updated).to.equal(oldUpdated!.toISOString());
+      expect(res.body.name.transferred).to.equal(oldTransferred!.toISOString());
     });
 
     it("should not have created a transaction", async () => {
@@ -427,7 +426,7 @@ describe("v2 routes: names", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
       expect(res.body.name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
-      expect(res.body.name.updated).to.equal(oldUpdated.toISOString());
+      expect(res.body.name.updated).to.equal(oldUpdated!.toISOString());
     });
 
     it("should not have created a transaction", async () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,32 +19,30 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
-import { Address, Block, db } from "../src/database";
-import { redis, rKey } from "../src/database/redis";
-import { REDIS_PREFIX, TEST_DEBUG } from "../src/utils/constants";
+import chalkT from "chalk-template";
+import { Address, Block, db } from "../src/database/index.js";
+import { redis, rKey } from "../src/database/redis.js";
+import { REDIS_PREFIX, TEST_DEBUG } from "../src/utils/vars.js";
 
 export async function seed(): Promise<void> {
-  const debug = !!TEST_DEBUG;
+  const debug = TEST_DEBUG;
 
-  // Cowardly refuse to wipe the databases if the database name is 'krist'
-  // (production username)
-  if (db.getDatabaseName() === "krist")
+  // Cowardly refuse to wipe the databases if the database name is 'krist' (production username)
+  if ((db.options.replication.write as any).database === "krist")
     throw new Error("Refusing to wipe production databases in test runner. Check environment variables!!");
 
   // Clear the databases
-  if (debug) console.log(chalk`{red [Tests]} Clearing the database {bold ${db.getDatabaseName()}}`);
+  if (debug) console.log(chalkT`{red [Tests]} Clearing the database {bold ${db.getDatabaseName()}}`);
   await db.sync({ force: true });
 
-  if (debug) console.log(chalk`{red [Tests]} Seeding the database {bold ${db.getDatabaseName()}}`);
+  if (debug) console.log(chalkT`{red [Tests]} Seeding the database {bold ${db.getDatabaseName()}}`);
   await Promise.all([
     // Create the genesis block
     Block.create({
       value: 50,
       hash: "0000000000000000000000000000000000000000000000000000000000000000",
       address: "0000000000",
-      nonce: 0,
+      nonce: "0",
       difficulty: 4294967295,
       time: new Date()
     }),
@@ -61,9 +59,10 @@ export async function seed(): Promise<void> {
   // Reset the Redis database
   const redisKeys = await redis.keys(REDIS_PREFIX + "*");
 
-  if (debug) console.log(chalk`{red [Tests]} Clearing {bold ${redisKeys.length}} redis keys with prefix {bold ${REDIS_PREFIX}}`);
+  if (debug) console.log(chalkT`{red [Tests]} Clearing {bold ${redisKeys.length}} redis keys with prefix {bold ${REDIS_PREFIX}}`);
   await Promise.all(redisKeys.map(key => redis.del(key)));
 
   await redis.set(rKey("work"), 100000);
   await redis.set(rKey("mining-enabled"), "true");
+  await redis.set(rKey("transactions-enabled"), "true");
 }

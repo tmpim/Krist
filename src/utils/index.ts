@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,13 +19,13 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-export * from "./baseBlockValue";
-export * from "./checkEnv";
-export * from "./crypto";
-export * from "./fileExists";
-export * from "./format";
-export * from "./legacyWork";
-export * from "./log";
-export * from "./lut";
-export * from "./validation";
-export * from "./validationKrist";
+export * from "./baseBlockValue.js";
+export * from "./checkEnv.js";
+export * from "./crypto.js";
+export * from "./fileExists.js";
+export * from "./format.js";
+export * from "./legacyWork.js";
+export * from "./log.js";
+export * from "./lut.js";
+export * from "./validation.js";
+export * from "./validationKrist.js";

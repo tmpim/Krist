@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,15 +19,12 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
-import { addressToJson } from "../../krist/addresses";
-import { verifyAddress } from "../../krist/addresses/verify";
-
-import { WebSocketEventHandler } from "../types";
-
-import { ErrorMissingParameter } from "../../errors";
-import { getLogDetails } from "../../utils";
+import chalkT from "chalk-template";
+import { ErrorMissingParameter } from "../../errors/index.js";
+import { addressToJson } from "../../krist/addresses/index.js";
+import { verifyAddress } from "../../krist/addresses/verify.js";
+import { getLogDetails } from "../../utils/index.js";
+import { WebSocketEventHandler } from "../types.js";
 
 /**
  * @api {ws} /type/login Login to a wallet (upgrade connection)
@@ -51,7 +48,7 @@ export const wsLogin: WebSocketEventHandler<{
   const { address, authed } = await verifyAddress(ws.req, privatekey);
 
   if (authed) {
-    console.log(chalk`{cyan [Websockets]} Session {bold ${ws.address}} logging in as {bold ${address.address}} ${logDetails}`);
+    console.log(chalkT`{cyan [Websockets]} Session {bold ${ws.address}} logging in as {bold ${address.address}} ${logDetails}`);
 
     ws.address = address.address;
     ws.privatekey = privatekey;
@@ -63,7 +60,7 @@ export const wsLogin: WebSocketEventHandler<{
       address: addressToJson(address)
     };
   } else {
-    console.log(chalk`{red [Websockets]} Session {bold ${ws.address}} failed login as {bold ${address.address}} ${logDetails}`);
+    console.log(chalkT`{red [Websockets]} Session {bold ${ws.address}} failed login as {bold ${address.address}} ${logDetails}`);
 
     ws.address = "guest";
     ws.isGuest = true;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,27 +19,56 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Request } from "express";
-import axios from "axios";
-
-import { CRITICAL_LOG_URL } from "./constants";
-import { getLogDetails } from "./log";
-
+import chalkT from "chalk-template";
 import dayjs from "dayjs";
-import chalk from "chalk";
+import { APIMessage, WebhookClient } from "discord.js";
+import { Request } from "express";
+import PQueue from "p-queue";
+import { getLogDetails } from "./log.js";
+import { CRITICAL_LOG_URL } from "./vars.js";
 
-export async function criticalLog(
+const webhook = CRITICAL_LOG_URL
+  ? new WebhookClient({ url: CRITICAL_LOG_URL })
+  : null;
+
+const logQueue = new PQueue({ concurrency: 1 });
+
+interface CachedLog {
+  key: string;
+  hits: number;
+  startTime: Date;
+  endTime: Date;
+  message: APIMessage;
+  updatePending: boolean;
+}
+
+const cachedLogs: Record<string, CachedLog> = {};
+
+export function criticalLog(
+  key: string,
   req: Request,
   message: string,
-  urgent?: boolean
-): Promise<void> {
-  if (!CRITICAL_LOG_URL) return;
+  urgent?: boolean,
+) {
+  if (!webhook) return;
 
-  try {
-    const { ip, origin, userAgent, libraryAgent } = getLogDetails(req);
+  const { ip, origin, userAgent, libraryAgent } = getLogDetails(req);
+  const time = new Date();
+  const finalKey = `${key}-${ip}`;
 
-    axios.post(CRITICAL_LOG_URL, {
-      content: urgent ? `@everyone **[URGENT]**` : undefined,
+  logQueue.add(async () => {
+    // If we've already sent a message for this alert within the last 30 minutes, don't send another
+    const cached = cachedLogs[finalKey];
+    if (cached) {
+      cached.hits++;
+      cached.endTime = time;
+      cached.updatePending = true; // Queue an update to the message
+      return;
+    }
+
+    // Send a new message and store the message ID
+    const sent = await webhook.send({
+      content: urgent ? `**[URGENT]**` : undefined,
       embeds: [{
         description: message ?? "(null)",
         fields: [
@@ -49,13 +78,55 @@ export async function criticalLog(
           { name: "Origin", value: origin ?? "(null)", inline: true },
           { name: "User Agent", value: userAgent ?? "(null)", inline: true },
           { name: "Library Agent", value: libraryAgent ?? "(null)", inline: true },
-          { name: "Time",
-            value: dayjs().format("HH:mm:ss DD/MM/YYYY"),
-            inline: true },
+          { name: "Time", value: dayjs(time).format("YYYY-MM-DD HH:mm:ss"), inline: true },
         ]
-      }]
+      }],
+      allowedMentions: { parse: [] }
     });
-  } catch (err) {
-    console.error(chalk`{red [CRITICAL]} Error submitting critical log:`, err);
-  }
+
+    cachedLogs[finalKey] = {
+      key: finalKey,
+      hits: 1,
+      startTime: time,
+      endTime: time,
+      message: sent,
+      updatePending: false,
+    };
+  }).catch(err => {
+    console.error(chalkT`{red [CRITICAL]} Error submitting critical log:`, err);
+  });
+}
+
+export function initCriticalLogUpdater() {
+  if (!webhook) return;
+
+  setInterval(async () => {
+    for (const key in cachedLogs) {
+      const log = cachedLogs[key];
+      if (!log.updatePending) continue;
+
+      // Update the 'Time' field of the message with the new hit count and start - end time range
+      await webhook.editMessage(log.message.id, {
+        content: log.message.content,
+        embeds: [{
+          ...log.message.embeds[0],
+          fields: (log.message.embeds[0].fields ?? []).map(field =>
+            field.name === "Time" ? {
+              name: field.name,
+              value: `**${log.hits} hit${log.hits > 1 ? "s" : ""}** from `
+                + dayjs(log.startTime).format("YYYY-MM-DD HH:mm:ss")
+                + " to " + dayjs(log.endTime).format("YYYY-MM-DD HH:mm:ss")
+            } : field)
+        }],
+        allowedMentions: { parse: [] }
+      });
+
+      log.updatePending = false;
+
+      // If the message hasn't been hit in the last 30 minutes, delete it from the cache
+      if (log.endTime.getTime() < new Date().getTime() - 30 * 60 * 1000) {
+        delete cachedLogs[key];
+      }
+    }
+  }, 10 * 1000).unref();
 }

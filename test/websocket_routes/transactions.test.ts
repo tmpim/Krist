@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,11 +20,10 @@
  */
 
 import { expect } from "chai";
+import { seed } from "../seed.js";
+import { newConnection } from "../ws.js";
 
-import { seed } from "../seed";
-import { newConnection } from "../ws";
-
-import { Address, Name, Transaction } from "../../src/database";
+import { Address, Name, Transaction } from "../../src/database/index.js";
 
 const expectTransactionExist = (id: number, to?: string, metadata?: string) => async () => {
   const tx = await Transaction.findByPk(id);

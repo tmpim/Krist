@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,8 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { ErrorInvalidParameter, ErrorMissingParameter } from "../../errors";
-import {
-  VALID_SUBSCRIPTIONS, WebSocketEventHandler, WebSocketSubscription
-} from "../types";
+import { ErrorInvalidParameter, ErrorMissingParameter } from "../../errors/index.js";
+import { VALID_SUBSCRIPTIONS, WebSocketEventHandler, WebSocketSubscription } from "../types.js";
 
 /**
  * @api {ws} /type/subscribe Subscribe to an event

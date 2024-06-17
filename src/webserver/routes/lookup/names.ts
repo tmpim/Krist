@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,18 +20,12 @@
  */
 
 import { Router } from "express";
-
-import { LookupQuery, NAME_FIELDS, TRANSACTION_FIELDS } from ".";
-
-import { nameToJson } from "../../../krist/names";
-import { lookupNames } from "../../../krist/names/lookup";
-import { transactionToJson } from "../../../krist/transactions";
-import { lookupNameHistory, lookupTransactionsToName } from "../../../krist/transactions/lookup";
-
-import {
-  validateLimit, validateOffset, validateOrderBy, validateOrder,
-  validateAddressList
-} from "./utils";
+import { nameToJson } from "../../../krist/names/index.js";
+import { lookupNames } from "../../../krist/names/lookup.js";
+import { transactionToJson } from "../../../krist/transactions/index.js";
+import { lookupNameHistory, lookupTransactionsToName } from "../../../krist/transactions/lookup.js";
+import { LookupQuery, NAME_FIELDS, TRANSACTION_FIELDS } from "./index.js";
+import { validateAddressList, validateLimit, validateOffset, validateOrder, validateOrderBy } from "./utils.js";
 
 export default (): Router => {
   const router = Router();
@@ -42,23 +36,16 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.1.3
    *
-   * @apiDescription Return all the names owned by the given address(es),
-   *   or the whole network if no addresses are specified.
+   * @apiDescription Return all the names owned by the given address(es), or the whole network if no addresses are
+   *   specified.
    *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
-   *
-	 * @apiParam {String[]} [addresses] A comma-separated list of
-   *           addresses to filter name owners by. If not provided, the whole
-   *           network is queried.
+	 * @apiParam {String[]} [addresses] A comma-separated list of addresses to filter name owners by. If not provided, the
+   *   whole network is queried.
    *
 	 * @apiUse LimitOffset
-	 * @apiQuery {String} [orderBy=name] The field to order the
-   *           results by. Must be one of `name`, `owner`, `original_owner`,
-   *           `registered` `updated`, `transferred`, `transferredOrRegistered`,
-   *           `a` or `unpaid`.
-	 * @apiQuery {String} [order=ASC] The direction to order
-   *           the results in. Must be one of `ASC` or `DESC`.
+	 * @apiQuery {String} [orderBy=name] The field to order the results by. Must be one of `name`, `owner`,
+   *   `original_owner`, `registered` `updated`, `transferred`, `transferredOrRegistered`, `a` or `unpaid`.
+	 * @apiQuery {String} [order=ASC] The direction to order the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
@@ -122,21 +109,15 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.8.9
    *
-   * @apiDescription Return all the transactions directly involving the given
-   *   name. This is any transaction with the type `name_purchase`,
-   *   `name_a_record` or `name_transfer`.
-   *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
+   * @apiDescription Return all the transactions directly involving the given name. This is any transaction with the
+   *   type `name_purchase`, `name_a_record` or `name_transfer`.
    *
 	 * @apiParam {String} name The name to return history for.
    *
 	 * @apiUse LimitOffset
-	 * @apiQuery {String} [orderBy=id] The field to order the
-   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
-   *           `sent_name` or `sent_metaname`.
-	 * @apiQuery {String} [order=ASC] The direction to order
-   *           the results in. Must be one of `ASC` or `DESC`.
+	 * @apiQuery {String} [orderBy=id] The field to order the results by. Must be one of `id`, `from`, `to`, `value`,
+   *   `time`, `sent_name` or `sent_metaname`.
+	 * @apiQuery {String} [order=ASC] The direction to order the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
@@ -204,17 +185,12 @@ export default (): Router => {
    *
    * @apiDescription Return all the transactions sent to the given name.
    *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
-   *
 	 * @apiParam {String} name The name to return transactions for.
    *
 	 * @apiUse LimitOffset
-	 * @apiQuery {String} [orderBy=id] The field to order the
-   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
-   *           `sent_name` or `sent_metaname`.
-	 * @apiQuery {String} [order=ASC] The direction to order
-   *           the results in. Must be one of `ASC` or `DESC`.
+	 * @apiQuery {String} [orderBy=id] The field to order the results by. Must be one of `id`, `from`, `to`, `value`,
+   *   `time`, `sent_name` or `sent_metaname`.
+	 * @apiQuery {String} [order=ASC] The direction to order the results in. Must be one of `ASC` or `DESC`.
    *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,10 +21,7 @@
 
 import chalk from "chalk";
 
-export const REQUIRED_ENV_VARS = [
-  "DB_PASS",
-  "PUBLIC_URL"
-];
+export const REQUIRED_ENV_VARS = ["DB_PASS"];
 
 export function checkEnvVars(): void {
   const missing = REQUIRED_ENV_VARS.filter(e => !process.env[e]);

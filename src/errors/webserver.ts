@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,16 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { KristError } from "./KristError";
+import { KristError } from "./KristError.js";
 
-export class ErrorRouteNotFound extends KristError<never> {
+export class ErrorRouteNotFound extends KristError {
   constructor() {
     super("Route not found", "route_not_found", 404);
+  }
+}
+
+export class ErrorRateLimitHit extends KristError {
+  constructor() {
+    super("Rate limit hit", "rate_limit_hit", 429);
   }
 }

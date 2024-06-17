@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,27 +19,20 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
+import { InferAttributes } from "@sequelize/core";
 import { Router } from "express";
-
+import { Limit, Offset, PaginatedResult, Transaction } from "../../../database/index.js";
+import { ErrorInvalidParameter, ErrorNameNotFound } from "../../../errors/index.js";
+import { getName } from "../../../krist/names/index.js";
 import {
-  countTransactionsByAddress, getTransactionsByAddress, transactionToJson
-} from "../../../krist/transactions";
-import {
-  countByName, countMetadata, searchByName, searchMetadata
-} from "../../../krist/transactions/lookup";
-import { getName } from "../../../krist/names";
-
-import {
-  TRANSACTION_FIELDS, validateLimit, validateOffset, validateOrder,
-  validateOrderBy
-} from "../lookup";
-
-import { Limit, Offset, PaginatedResult, Transaction } from "../../../database";
-import { InferAttributes } from "sequelize";
-
-import { ReqSearchQuery, SearchExtendedResult } from ".";
-import { parseQuery, validateQuery } from "./utils";
-import { ErrorInvalidParameter, ErrorNameNotFound } from "../../../errors";
+  countTransactionsByAddress,
+  getTransactionsByAddress,
+  transactionToJson
+} from "../../../krist/transactions/index.js";
+import { countByName, countMetadata, searchByName, searchMetadata } from "../../../krist/transactions/lookup.js";
+import { TRANSACTION_FIELDS, validateLimit, validateOffset, validateOrder, validateOrderBy } from "../lookup/index.js";
+import { ReqSearchQuery, SearchExtendedResult } from "./index.js";
+import { parseQuery, validateQuery } from "./utils.js";
 
 async function performExtendedSearch(
   query: string
@@ -144,36 +137,26 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.8.0
    *
-   * @apiDescription Search the Krist network for transactions that match the
-   * given query. The search is more in-depth (and thus slower) than `/search`.
+   * @apiDescription Search the Krist network for transactions that match the given query. The search is more in-depth
+   * (and thus slower) than `/search`.
    *
    * - Transactions are searched by address involved (from, to)
-   * - Transactions are searched by name involved (either a name
-   *   transfer/update, or a transaction to a name)
-   * - Transactions are searched by raw metadata (exact query match anywhere in
-   *   the metadata)
-   *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
+   * - Transactions are searched by name involved (either a name transfer/update, or a transaction to a name)
+   * - Transactions are searched by raw metadata (exact query match anywhere in the metadata)
    *
 	 * @apiQuery {String} q The search query.
    *
    * @apiUse SearchQuery
    *
    * @apiSuccess {Object} matches The results of the search query.
-   * @apiSuccess {Object} matches.transactions Information about transaction
-   *   matches for the search query.
-   * @apiSuccess {Number|Boolean} matches.transactions.addressInvolved The
-   *   number of transactions that involve the query address (either in the
-   *   `from` field or the `to` field), or `false` if the query isn't a valid
-   *   Krist address.
-   * @apiSuccess {Number|Boolean} matches.transactions.nameInvolved The number
-   *   of transactions that involve the query name (either as a direct
-   *   transfer/update, or as a transaction sent to a name; the `name` and
-   *   `sent_name` fields respectively), or `false` if the query isn't a valid
-   *   Krist name.
-   * @apiSuccess {Number|Boolean} matches.transactions.metadata The number of
-   *   transactions with metadata containing the query string.
+   * @apiSuccess {Object} matches.transactions Information about transaction matches for the search query.
+   * @apiSuccess {Number|Boolean} matches.transactions.addressInvolved The number of transactions that involve the query
+   *   address (either in the `from` field or the `to` field), or `false` if the query isn't a valid Krist address.
+   * @apiSuccess {Number|Boolean} matches.transactions.nameInvolved The number of transactions that involve the query
+   *   name (either as a direct transfer/update, or as a transaction sent to a name; the `name` and `sent_name` fields
+   *   respectively), or `false` if the query isn't a valid Krist name.
+   * @apiSuccess {Number|Boolean} matches.transactions.metadata The number of transactions with metadata containing the
+   *   query string.
    *
    * @apiSuccessExample {json} Success
    * {
@@ -216,26 +199,18 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.8.11
    *
-   * @apiDescription Search the Krist network for transactions that match the
-   * given query and return the results. The type can be either `address`,
-   * `name` or `metadata`.
+   * @apiDescription Search the Krist network for transactions that match the given query and return the results. The
+   * type can be either `address`, `name` or `metadata`.
    *
    * - `address` - Transactions are searched by address involved (from, to)
-   * - `name` - Transactions are searched by name involved (either a name
-   *   transfer/update, or a transaction to a name)
-   * - `metadata` - Transactions are searched by raw metadata (exact query match
-   *   anywhere in the metadata)
+   * - `name` - Transactions are searched by name involved (either a name transfer/update, or a transaction to a name)
+   * - `metadata` - Transactions are searched by raw metadata (exact query match anywhere in the metadata)
    *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
-   *
-	 * @apiParam {String} type The type of search query to execute.
-   *   Must be either `address`, `name` or `metadata`.
+	 * @apiParam {String} type The type of search query to execute. Must be either `address`, `name` or `metadata`.
    *
 	 * @apiQuery {String} q The search query.
-	 * @apiQuery {Boolean} [includeMined] If supplied,
-   *           transactions from mining will be included (only for `address`
-   *           searches).
+	 * @apiQuery {Boolean} [includeMined] If supplied, transactions from mining will be included (only for `address`
+   *   searches).
    *
    * @apiUse Transactions
    *

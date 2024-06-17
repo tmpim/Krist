@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Limit, Offset, PaginatedResult, Transaction } from "../../database";
-import { InferAttributes, Op, WhereOptions } from "sequelize";
-
-import { sanitiseLimit, sanitiseOffset } from "../../utils";
+import { InferAttributes, Op, WhereOptions } from "@sequelize/core";
+import { Limit, Offset, PaginatedResult, Transaction } from "../../database/index.js";
+import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
+import { txAddressRateLimiter, txIpRateLimiter } from "../../utils/rateLimit.js";
+import { TEST } from "../../utils/vars.js";
 
 // Query operator to exclude mined transactions in the 'from' field
 export const OP_EXCLUDE_MINED = {
@@ -124,8 +125,8 @@ export function identifyTransactionType(tx: Transaction): TransactionType {
 
 export interface TransactionJson {
   id: number;
-  from: string;
-  to: string;
+  from: string | null;
+  to: string | null;
   value: number;
   time: string;
   name: string | null;
@@ -148,4 +149,24 @@ export function transactionToJson(transaction: Transaction): TransactionJson {
     sent_name: transaction.sent_name ?? null,
     type: identifyTransactionType(transaction)
   };
+}
+
+export async function checkTxRateLimits(
+  ip: string | undefined,
+  address: string,
+  cost = 1
+): Promise<boolean> {
+  if (TEST) return true;
+
+  try {
+    await Promise.all([
+      ip ? txIpRateLimiter.consume(ip, cost) : Promise.resolve(),
+      txAddressRateLimiter.consume(address, cost)
+    ]);
+
+    return true;
+  } catch (err) {
+    console.error("Rate limit exceeded", ip, address, err);
+    return false;
+  }
 }

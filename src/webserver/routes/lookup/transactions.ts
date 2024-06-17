@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,16 +20,10 @@
  */
 
 import { Router } from "express";
-
-import { LookupQuery, TRANSACTION_FIELDS } from ".";
-
-import { transactionToJson } from "../../../krist/transactions";
-import { lookupTransactions } from "../../../krist/transactions/lookup";
-
-import {
-  validateLimit, validateOffset, validateOrderBy, validateOrder,
-  validateAddressList
-} from "./utils";
+import { transactionToJson } from "../../../krist/transactions/index.js";
+import { lookupTransactions } from "../../../krist/transactions/lookup.js";
+import { LookupQuery, TRANSACTION_FIELDS } from "./index.js";
+import { validateAddressList, validateLimit, validateOffset, validateOrder, validateOrderBy } from "./utils.js";
 
 export default (): Router => {
   const router = Router();
@@ -40,24 +34,17 @@ export default (): Router => {
    * @apiGroup LookupGroup
    * @apiVersion 2.3.0
    *
-   * @apiDescription Return all the transactions to/from the given address(es),
-   *   or the whole network if no addresses are specified.
+   * @apiDescription Return all the transactions to/from the given address(es), or the whole network if no addresses
+   *   are specified.
    *
-   * **WARNING:** The Lookup API is in Beta, and is subject to change at any
-   * time without warning.
-   *
-	 * @apiParam {String[]} [addresses] A comma-separated list of
-   *           addresses to filter transactions to/from. If not provided, the
-   *           whole network is queried.
+	 * @apiParam {String[]} [addresses] A comma-separated list of addresses to filter transactions to/from. If not
+   *   provided, the whole network is queried.
    *
 	 * @apiUse LimitOffset
-	 * @apiQuery {String} [orderBy=id] The field to order the
-   *           results by. Must be one of `id`, `from`, `to`, `value`, `time`,
-   *           `sent_name` or `sent_metaname`.
-	 * @apiQuery {String} [order=ASC] The direction to order
-   *           the results in. Must be one of `ASC` or `DESC`.
-	 * @apiQuery {Boolean} [includeMined] If supplied,
-   *           transactions from mining will be included.
+	 * @apiQuery {String} [orderBy=id] The field to order the results by. Must be one of `id`, `from`, `to`, `value`,
+   *   `time`, `sent_name` or `sent_metaname`.
+	 * @apiQuery {String} [order=ASC] The direction to order the results in. Must be one of `ASC` or `DESC`.
+	 * @apiQuery {Boolean} [includeMined] If supplied, transactions from mining will be included.
    *
    * @apiSuccess {Number} count The count of results returned.
    * @apiSuccess {Number} total The total count of results available.
@@ -108,9 +95,8 @@ export default (): Router => {
     const includeMined = req.query.includeMined !== undefined;
 
     // Perform the query
-    // NOTE: `time` is replaced with `id` as `time` is typically not indexed.
-    //       While transactions are not _guaranteed_ to be monotonic, they
-    //       generally are, so this is a worthwhile performance tradeoff.
+    // NOTE: `time` is replaced with `id` as `time` is typically not indexed. While transactions are not _guaranteed_ to
+    //   be monotonic, they generally are, so this is a worthwhile performance tradeoff.
     const { rows, count } = await lookupTransactions(
       addressList,
       limit,

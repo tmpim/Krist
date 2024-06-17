@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { db, Address, Limit, Offset, PaginatedResult } from "../../database";
-import { QueryTypes } from "sequelize";
-
-import { sanitiseLimit, sanitiseOffset } from "../../utils";
+import { QueryTypes } from "@sequelize/core";
+import { Address, db, Limit, Offset, PaginatedResult } from "../../database/index.js";
+import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export interface AddressWithNames extends Address {
   names?: number;
@@ -43,12 +42,18 @@ export async function getAddress(
       WHERE \`addresses\`.\`address\` = :address
       LIMIT 1
     `, {
+      // model: Address, // does properly map dates, but doesn't properly include the name count
+      // mapToModel: true,
       replacements: { address },
       type: QueryTypes.SELECT
     });
 
-    // Only return the first result
-    return rows && rows.length ? rows[0] : null;
+    const result: AddressWithNames | null = rows && rows.length ? rows[0] : null;
+    if (result) {
+      result.firstseen = new Date(result.firstseen); // convert string to Date
+      result.names = Number(result.names); // convert string to number
+    }
+    return result;
   } else {
     // Perform the regular lookup
     return Address.findOne({ where: { address } });

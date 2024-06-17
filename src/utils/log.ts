@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import chalkT from "chalk-template";
 import { Request } from "express";
-
-import { sanitiseUserAgent, sanitiseOrigin } from "./validation";
+import { sanitiseOrigin, sanitiseUserAgent } from "./validation.js";
 
 export interface ReqDetails {
   origin?: string;
@@ -31,7 +30,7 @@ export interface ReqDetails {
 }
 
 export interface LogDetails extends ReqDetails {
-  ip: string;
+  ip: string | undefined;
   path: "WS" | string;
   logDetails: string;
 }
@@ -49,7 +48,7 @@ export function getLogDetails(req: Request): LogDetails {
   const ip = req.ip;
   const { userAgent, libraryAgent, origin } = getReqDetails(req);
   const path = req.path && req.path.startsWith("/.websocket//") ? "WS" : req.path;
-  const logDetails = chalk`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}} library agent: {bold ${libraryAgent}})`;
+  const logDetails = chalkT`(ip: {bold ${ip}} origin: {bold ${origin}} useragent: {bold ${userAgent}} library agent: {bold ${libraryAgent}})`;
 
   return { ip, origin, userAgent, libraryAgent, path, logDetails };
 }

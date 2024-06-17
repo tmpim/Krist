@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,15 +19,15 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Address, db } from "../../database";
-import { QueryTypes } from "sequelize";
+import { QueryTypes, sql } from "@sequelize/core";
+import { Address, db } from "../../database/index.js";
 
 export async function lookupAddresses(
   addressList: string[],
   fetchNames?: boolean
 ): Promise<Address[]> {
   if (fetchNames) {
-    return db.query(`
+    return db.query(sql`
       SELECT
         \`addresses\`.*,
         COUNT(\`names\`.\`id\`) AS \`names\`

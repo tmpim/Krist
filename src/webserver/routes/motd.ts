@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,7 +20,7 @@
  */
 
 import { Router } from "express";
-import { getDetailedMotd } from "../../krist/motd";
+import { getDetailedMotd } from "../../krist/motd.js";
 
 export default (): Router => {
   const router = Router();
@@ -124,9 +124,13 @@ export default (): Router => {
   router.all("/motd", async (req, res) => {
     // Stringify to prettify output
     res.header("Content-Type", "application/json");
+
+    const ip = typeof req.query.ip !== "undefined" ? { ip: req.ip } : {};
+
     return res.send(JSON.stringify({
       ok: true,
-      ...await getDetailedMotd()
+      ...await getDetailedMotd(),
+      ...ip
     }, null, 2));
   });
 

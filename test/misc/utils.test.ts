@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,12 +20,10 @@
  */
 
 import { expect } from "chai";
-
-import { seed } from "../seed";
-
+import { seed } from "../seed.js";
 import {
   sanitiseLimit, sanitiseOffset, sanitiseLike, sanitiseUserAgent, sanitiseOrigin
-} from "../../src/utils";
+} from "../../src/utils/index.js";
 
 describe("utils", () => {
   before(seed);
@@ -88,21 +86,19 @@ describe("utils", () => {
     it("should error with undefined", async () =>
       expect(() => sanitiseLike()).to.throw(Error));
     it("should pass through a regular string", async () =>
-      expect(sanitiseLike("foobar")).to.deep.equal({ val: "'%foobar%'" }));
+      expect(sanitiseLike("foobar")).to.deep.equal({ val: ["'%foobar%'"] }));
     it("should escape single quotes", async () =>
-      expect(sanitiseLike("foo'bar")).to.deep.equal({ val: "'%foo\\'bar%'" }));
+      expect(sanitiseLike("foo'bar")).to.deep.equal({ val: ["'%foo\\'bar%'"] }));
     it("should escape two single quotes", async () =>
-      expect(sanitiseLike("foo''bar")).to.deep.equal({ val: "'%foo\\'\\'bar%'" }));
-    it("should escape double quotes", async () =>
-      expect(sanitiseLike("foo\"bar")).to.deep.equal({ val: "'%foo\\\"bar%'" }));
+      expect(sanitiseLike("foo''bar")).to.deep.equal({ val: ["'%foo\\'\\'bar%'"] }));
     it("should ignore backticks", async () =>
-      expect(sanitiseLike("foo`bar")).to.deep.equal({ val: "'%foo`bar%'" }));
+      expect(sanitiseLike("foo`bar")).to.deep.equal({ val: ["'%foo`bar%'"] }));
     it("should escape backslashes", async () =>
-      expect(sanitiseLike("foo\\bar")).to.deep.equal({ val: "'%foo\\\\\\\\bar%'" }));
+      expect(sanitiseLike("foo\\bar")).to.deep.equal({ val: ["'%foo\\\\\\\\bar%'"] }));
     it("should escape underscores", async () =>
-      expect(sanitiseLike("foo_bar")).to.deep.equal({ val: "'%foo\\\\_bar%'" }));
+      expect(sanitiseLike("foo_bar")).to.deep.equal({ val: ["'%foo\\\\_bar%'"] }));
     it("should escape percent", async () =>
-      expect(sanitiseLike("foo%bar")).to.deep.equal({ val: "'%foo\\\\%bar%'" }));
+      expect(sanitiseLike("foo%bar")).to.deep.equal({ val: ["'%foo\\\\%bar%'"] }));
   });
 
   describe("sanitiseUserAgent", () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,11 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Transaction, Limit, Offset, PaginatedResult } from "../../database";
-import { InferAttributes, Op, WhereOptions } from "sequelize";
-
-import { sanitiseLimit, sanitiseOffset, sanitiseLike } from "../../utils";
-import { OP_EXCLUDE_MINED } from ".";
+import { InferAttributes, Op, WhereOptions } from "@sequelize/core";
+import { Limit, Offset, PaginatedResult, Transaction } from "../../database/index.js";
+import { sanitiseLike, sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
+import { OP_EXCLUDE_MINED } from "./index.js";
 
 export async function lookupTransactions(
   addressList: string[] | undefined,

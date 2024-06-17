@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,22 +20,28 @@
  */
 
 import { Request, Response, Router } from "express";
-
 import {
-  ctrlCheckName, ctrlGetName, ctrlGetNames, ctrlGetUnpaidNames,
-  ctrlRegisterName, ctrlTransferName, ctrlUpdateName
-} from "../../controllers/names";
-
-import { getAddress } from "../../krist/addresses";
-
+  ctrlCheckName,
+  ctrlGetName,
+  ctrlGetNames,
+  ctrlGetUnpaidNames,
+  ctrlRegisterName,
+  ctrlTransferName,
+  ctrlUpdateName
+} from "../../controllers/names.js";
+import { getAddress } from "../../krist/addresses/index.js";
 import {
-  getName, getNameCountByAddress, getNames, getNamesByAddress,
-  getUnpaidNameCount, getUnpaidNames, nameToJson
-} from "../../krist/names";
-
-import { isValidName } from "../../utils";
-import { NAME_COST } from "../../utils/constants";
-import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
+  getName,
+  getNameCountByAddress,
+  getNames,
+  getNamesByAddress,
+  getUnpaidNameCount,
+  getUnpaidNames,
+  nameToJson
+} from "../../krist/names/index.js";
+import { isValidName } from "../../utils/index.js";
+import { NAME_COST } from "../../utils/vars.js";
+import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils.js";
 
 /**
  * @apiDefine NameGroup Names
@@ -49,15 +55,11 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object} name
  * @apiSuccess {String} name.name The name, without the `.kst` suffix.
  * @apiSuccess {String} name.owner The address that currently owns this name.
- * @apiSuccess {String} name.original_owner The address that originally
- *   purchased this name.
- * @apiSuccess {Date} name.registered The time this name was registered, as an
- *   ISO-8601 string.
- * @apiSuccess {Date} name.updated The time this name was last updated - either
- *   the data changed, or it was transferred to a new owner, as an ISO-8601
- *   string.
- * @apiSuccess {Date} [name.transferred] The time this name was last transferred
+ * @apiSuccess {String} name.original_owner The address that originally purchased this name.
+ * @apiSuccess {Date} name.registered The time this name was registered, as an ISO-8601 string.
+ * @apiSuccess {Date} name.updated The time this name was last updated - either the data changed, or it was transferred
  *   to a new owner, as an ISO-8601 string.
+ * @apiSuccess {Date} [name.transferred] The time this name was last transferred to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} [name.a] The name's data.
  * @apiSuccess {Number} name.unpaid Currently unused.
  */
@@ -68,15 +70,11 @@ import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
  * @apiSuccess {Object[]} names
  * @apiSuccess {String} names.name The name, without the `.kst` suffix.
  * @apiSuccess {String} names.owner The address that currently owns this name.
- * @apiSuccess {String} [names.original_owner] The address that originally
- *   purchased this name.
- * @apiSuccess {Date} names.registered The time this name was registered, as an
- *   ISO-8601 string.
- * @apiSuccess {Date} names.updated The time this name was last updated - either
- *   the data changed, or it was transferred to a new owner, as an ISO-8601
- *   string.
- * @apiSuccess {Date} [names.transferred] The time this name was last
- *   transferred to a new owner, as an ISO-8601 string.
+ * @apiSuccess {String} [names.original_owner] The address that originally purchased this name.
+ * @apiSuccess {Date} names.registered The time this name was registered, as an ISO-8601 string.
+ * @apiSuccess {Date} names.updated The time this name was last updated - either the data changed, or it was transferred
+ *   to a new owner, as an ISO-8601 string.
+ * @apiSuccess {Date} [names.transferred] The time this name was last transferred to a new owner, as an ISO-8601 string.
  * @apiSuccess {String} names.a The name's data.
  * @apiSuccess {Number} names.unpaid Currently unused.
  */
@@ -90,10 +88,9 @@ export default (): Router => {
 	 * @apiGroup NameGroup
 	 * @apiVersion 3.0.0
    *
-	 * @apiParam name The name to check the availability of, without the `.kst`
-   *   suffix.
+	 * @apiParam name The name to check the availability of, without the `.kst` suffix.
 	 *
-	 * @apiSuccess {Boolean} available Whether or not the name is available
+	 * @apiSuccess {Boolean} available Whether the name is available
 	 *
 	 * @apiSuccessExample {json} Success
 	 * {

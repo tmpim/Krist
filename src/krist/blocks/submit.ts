@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,30 +19,22 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import { Op } from "@sequelize/core";
+import chalkT from "chalk-template";
 import dayjs from "dayjs";
 import { Request } from "express";
-
-import { Address, Block, db, Name } from "../../database";
-import { Op } from "sequelize";
-
-import { getLastBlock, getBlockValue, blockToJson } from ".";
-import { getAddress } from "../addresses";
-import { createTransaction } from "../transactions/create";
-import { logAuth } from "../authLog";
-
-import { wsManager } from "../../websockets";
-
-import { isMiningEnabled } from "../mining";
-import { getWork, setWork } from "../work";
-
-import { getLogDetails, sha256 } from "../../utils";
-import {
-  SECONDS_PER_BLOCK, WORK_FACTOR, MAX_WORK, MIN_WORK
-} from "../../utils/constants";
-
 import promClient from "prom-client";
-import { ErrorMiningDisabled, ErrorSolutionDuplicate, ErrorSolutionIncorrect } from "../../errors";
+import { Address, Block, db, Name } from "../../database/index.js";
+import { ErrorMiningDisabled, ErrorSolutionDuplicate, ErrorSolutionIncorrect } from "../../errors/index.js";
+import { getLogDetails, sha256 } from "../../utils/index.js";
+import { MAX_WORK, MIN_WORK, SECONDS_PER_BLOCK, WORK_FACTOR } from "../../utils/vars.js";
+import { wsManager } from "../../websockets/index.js";
+import { getAddress } from "../addresses/index.js";
+import { logAuth } from "../authLog.js";
+import { isMiningEnabled } from "../switches.js";
+import { createTransaction } from "../transactions/create.js";
+import { getWork, setWork } from "../work.js";
+import { blockToJson, getBlockValue, getLastBlock } from "./index.js";
 
 const promBlockCounter = new promClient.Counter({
   name: "krist_blocks_total",
@@ -102,7 +94,7 @@ export async function createBlock(
   if (!await isMiningEnabled()) throw new ErrorMiningDisabled();
 
   const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
-  logAuth(req, address, "mining");
+  logAuth(req, address, "mining").catch(console.error);
 
   const {
     block: retBlock,
@@ -126,7 +118,7 @@ export async function createBlock(
       MIN_WORK
     ));
 
-    console.log(chalk`{bold [Krist]} Submitting {bold ${value} KST} block by {bold ${address}} at {cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
+    console.log(chalkT`{bold [Krist]} Submitting {bold ${value} KST} block by {bold ${address}} at {cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
     promBlockCounter.inc();
 
     // Create the new block
@@ -149,7 +141,7 @@ export async function createBlock(
     await createTransaction(req, dbTx, address, null, value);
 
     // Decrement all unpaid name counters
-    Name.decrement(
+    await Name.decrement(
       { unpaid: 1 },
       {
         where: { unpaid: { [Op.gt]: 0 } },
@@ -185,7 +177,7 @@ export async function createBlock(
   await retAddress.reload();
 
   // Save the new work
-  console.log(chalk`        New work: {green ${retWork.toLocaleString()}} New balance: {green ${retAddress.balance}}`);
+  console.log(chalkT`        New work: {green ${retWork.toLocaleString()}} New balance: {green ${retAddress.balance}}`);
   await setWork(retWork);
 
   // Submit the new block event to all websockets (async)

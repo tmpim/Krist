@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,7 +20,7 @@
  */
 
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -40,16 +40,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import {
-  Block, PaginatedResult, Limit, Offset, SqTransaction
-} from "../../database";
-import { Op } from "sequelize";
-
-import { getUnpaidNameCount } from "../names";
-
-import {
-  getBaseBlockValue, getLegacyWork, sanitiseLimit, sanitiseOffset
-} from "../../utils";
+import { Op } from "@sequelize/core";
+import { Block, Limit, Offset, PaginatedResult, SqTransaction } from "../../database/index.js";
+import { getBaseBlockValue, getLegacyWork, sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
+import { getUnpaidNameCount } from "../names/index.js";
 
 export async function getBlock(id: number): Promise<Block | null> {
   return Block.findByPk(id);

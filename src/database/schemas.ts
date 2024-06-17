@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,37 +19,45 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Table, Model, Column, Index } from "sequelize-typescript";
-import { DataTypes } from "sequelize";
+import type { CreationOptional, InferAttributes, InferCreationAttributes } from "@sequelize/core";
+import { DataTypes, Model } from "@sequelize/core";
+import { Attribute, AutoIncrement, Default, Index, PrimaryKey, Table, Unique } from "@sequelize/core/decorators-legacy";
+import type { AuthLogType } from "../krist/authLog.js";
 
-import { NONCE_MAX_SIZE } from "../utils/constants";
-import { AuthLogType } from "../krist/authLog";
+import { NONCE_MAX_SIZE } from "../utils/vars.js";
 
 // =============================================================================
 // Address
 // =============================================================================
+
 @Table({ timestamps: false, tableName: "addresses" })
-export class Address extends Model {
-  @Column({ autoIncrement: true, primaryKey: true })
-    id!: number;
+export class Address extends Model<InferAttributes<Address>, InferCreationAttributes<Address>> {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
+  declare id: CreationOptional<number>;
 
-  @Column({ type: DataTypes.STRING(10), unique: true })
-    address!: string;
+  @Attribute(DataTypes.STRING(10))
+  @Unique
+  declare address: string;
 
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    balance!: number;
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    totalin!: number;
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    totalout!: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare balance: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare totalin: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare totalout: number;
 
-  @Column firstseen!: Date;
+  @Attribute(DataTypes.DATE)
+  declare firstseen: Date;
 
-  @Column(DataTypes.STRING(64))
-    privatekey?: string | null;
-  @Column(DataTypes.STRING(1024))
-    alert?: string | null;
-  @Column locked!: boolean;
+  @Attribute(DataTypes.STRING(64))
+  declare privatekey?: string | null;
+  @Attribute(DataTypes.STRING(1024))
+  declare alert?: string | null;
+  @Attribute(DataTypes.BOOLEAN)
+  @Default(false)
+  declare locked: CreationOptional<boolean>;
 }
 
 // =============================================================================
@@ -57,141 +65,154 @@ export class Address extends Model {
 // =============================================================================
 @Table({ timestamps: false, tableName: "blocks" })
 export class Block extends Model {
-  @Column({ autoIncrement: true, primaryKey: true })
-    id!: number;
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
+  declare id: number;
 
   @Index
-  @Column({ type: DataTypes.STRING(10) })
-    address!: string;
+  @Attribute(DataTypes.STRING(10))
+  declare address: string;
 
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    value!: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare value: number;
 
-  @Column({ type: DataTypes.STRING(64), unique: true })
-    hash!: string;
-  @Column({ type: DataTypes.STRING(NONCE_MAX_SIZE * 2) })
-    nonce!: string;
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    difficulty!: number;
+  @Attribute(DataTypes.STRING(64))
+  @Unique
+  declare hash: string;
+  @Attribute(DataTypes.STRING(NONCE_MAX_SIZE * 2))
+  declare nonce: string;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare difficulty: number;
 
-  @Column time!: Date;
+  @Attribute(DataTypes.DATE)
+  declare time: Date;
 
-  @Column({ type: DataTypes.STRING(255) })
-    useragent?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    library_agent?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    origin?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare useragent?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare library_agent?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare origin?: string | null;
 }
 
 // =============================================================================
 // Name
 // =============================================================================
 @Table({ timestamps: false, tableName: "names" })
-export class Name extends Model {
-  @Column({ autoIncrement: true, primaryKey: true })
-    id!: number;
+export class Name extends Model<InferAttributes<Name>, InferCreationAttributes<Name>> {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
+  declare id: CreationOptional<number>;
 
-  @Column({ type: DataTypes.STRING(64), unique: true })
-    name!: string;
+  @Attribute(DataTypes.STRING(64))
+  @Unique
+  declare name: string;
+  @Attribute(DataTypes.STRING(10))
+  @Index
+  declare owner: string;
+  @Attribute(DataTypes.STRING(10))
+  @Index
+  declare original_owner?: string | null;
+
+  @Attribute(DataTypes.DATE)
+  declare registered: Date;
+  @Attribute(DataTypes.DATE)
+  declare updated: Date | null;
+  @Attribute(DataTypes.DATE)
+  declare transferred: Date | null;
+
+  @Attribute(DataTypes.STRING(255))
+  declare a?: string | null;
 
   @Index
-  @Column(DataTypes.STRING(10))
-    owner!: string;
-
-  @Index
-  @Column(DataTypes.STRING(10))
-    original_owner?: string | null;
-
-  @Column registered!: Date;
-  @Column updated!: Date;
-  @Column transferred!: Date;
-
-  @Column({ type: DataTypes.STRING(64) })
-    a?: string;
-
-  @Index
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    unpaid!: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare unpaid: number;
 }
 
 // =============================================================================
 // Transaction
 // =============================================================================
 @Table({ timestamps: false, tableName: "transactions" })
-export class Transaction extends Model {
-  @Column({ autoIncrement: true, primaryKey: true })
-    id!: number;
+export class Transaction extends Model<InferAttributes<Transaction>, InferCreationAttributes<Transaction>> {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
+  declare id: CreationOptional<number>;
 
   @Index
-  @Column({ type: DataTypes.STRING(10) })
-    from!: string;
+  @Attribute(DataTypes.STRING(10))
+  declare from: string | null;
   @Index
-  @Column({ type: DataTypes.STRING(10) })
-    to!: string;
+  @Attribute(DataTypes.STRING(10))
+  declare to: string | null;
 
-  @Column(DataTypes.INTEGER.UNSIGNED)
-    value!: number;
+  @Attribute(DataTypes.INTEGER.UNSIGNED)
+  declare value: number;
 
-  @Column time!: Date;
-
-  @Index
-  @Column({ type: DataTypes.STRING(128) })
-    name?: string;
-
-  // This index is used not to actually search the metadata, but to optimize
-  // searching for it when it is NOT NULL
-  @Index
-  @Column({ type: DataTypes.STRING(512) })
-    op?: string | null;
-
-  @Column({ type: DataTypes.STRING(255) })
-    origin?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    useragent?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    library_agent?: string | null;
+  @Attribute(DataTypes.DATE)
+  declare time: Date;
 
   @Index
-  @Index("transactions_sent_metaname_sent_name")
-  @Column({ type: DataTypes.STRING(32) })
-    sent_metaname?: string | null;
+  @Attribute(DataTypes.STRING(128))
+  declare name?: string | null;
+
+  // This index is used not to actually search the metadata, but to optimize searching for it when it is NOT NULL
   @Index
-  @Index("transactions_sent_metaname_sent_name")
-  @Column({ type: DataTypes.STRING(64) })
-    sent_name?: string | null;
+  @Attribute(DataTypes.STRING(512))
+  declare op?: string | null;
+
+  @Attribute(DataTypes.STRING(255))
+  declare origin?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare useragent?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare library_agent?: string | null;
+
+  @Index
+  @Index({ name: "transactions_sent_metaname_sent_name" })
+  @Attribute(DataTypes.STRING(32))
+  declare sent_metaname?: string | null;
+  @Index
+  @Index({ name: "transactions_sent_metaname_sent_name" })
+  @Attribute(DataTypes.STRING(64))
+  declare sent_name?: string | null;
 }
 
 // =============================================================================
 // Auth Log
 // =============================================================================
 @Table({ timestamps: false, tableName: "authlogs" })
-export class AuthLog extends Model {
-  @Column({ autoIncrement: true, primaryKey: true })
-    id!: number;
+export class AuthLog extends Model<InferAttributes<AuthLog>, InferCreationAttributes<AuthLog>> {
+  @Attribute(DataTypes.INTEGER)
+  @AutoIncrement
+  @PrimaryKey
+  declare id: CreationOptional<number>;
 
   @Index
-  @Index("authlogs_address_ip")
-  @Column({ type: DataTypes.STRING(10) })
-    address!: string;
+  @Index({ name: "authlogs_address_ip" })
+  @Attribute(DataTypes.STRING(10))
+  declare address: string;
 
   @Index
-  @Index("authlogs_address_ip")
-  @Column({ type: DataTypes.STRING(47) })
-    ip!: string;
+  @Index({ name: "authlogs_address_ip" })
+  @Attribute(DataTypes.STRING(47))
+  declare ip: string | null;
 
   @Index
-  @Column time!: Date;
+  @Attribute(DataTypes.DATE)
+  declare time: Date;
 
-  @Column({ type: DataTypes.ENUM("auth", "mining") })
-    type!: AuthLogType;
+  @Attribute(DataTypes.ENUM("auth", "mining"))
+  declare type: AuthLogType;
 
-  @Column({ type: DataTypes.STRING(255) })
-    origin?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    useragent?: string | null;
-  @Column({ type: DataTypes.STRING(255) })
-    library_agent?: string | null;
+  @Attribute(DataTypes.STRING(255))
+  declare origin?: string;
+  @Attribute(DataTypes.STRING(255))
+  declare useragent?: string;
+  @Attribute(DataTypes.STRING(255))
+  declare library_agent?: string;
 }
 
 export const SCHEMAS = [Address, Block, Name, Transaction, AuthLog];

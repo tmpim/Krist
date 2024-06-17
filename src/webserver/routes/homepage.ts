@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,18 +20,17 @@
  */
 
 import { Router } from "express";
-
-import { SafeString } from "handlebars";
+import * as handlebars from "handlebars";
 import { marked } from "marked";
+import { baseUrl } from "marked-base-url";
 import sanitizeHtml from "sanitize-html";
+import { getCommits } from "../../utils/git.js";
+import { PUBLIC_URL } from "../../utils/vars.js";
+import { whatsNew } from "../../utils/whatsNew.js";
 
-import { getCommits } from "../../utils/git";
-import { whatsNew } from "../../utils/whatsNew";
-
-import { PUBLIC_URL } from "../../utils/constants";
-
-marked.setOptions({
-  baseUrl: PUBLIC_URL
+marked.use(baseUrl(PUBLIC_URL));
+marked.use({
+  async: false
 });
 
 export default (): Router => {
@@ -53,7 +52,7 @@ export default (): Router => {
       helpers: {
         // Render markdown (sanitised by sanitize-html)
         marked(data: any) {
-          return new SafeString(sanitizeHtml(marked(data)));
+          return new (handlebars as any).default.SafeString(sanitizeHtml(marked.parse(data) as string));
         }
       }
     });

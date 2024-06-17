@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,20 +19,16 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import chalkT from "chalk-template";
 import dayjs from "dayjs";
 import { Request } from "express";
-
-import { Address, SqTransaction, Transaction } from "../../database";
-
-import { identifyTransactionType, transactionToJson } from ".";
-
-import { getLogDetails } from "../../utils";
-
 import promClient from "prom-client";
-import { wsManager } from "../../websockets";
-import { ErrorAddressNotFound, ErrorInsufficientFunds } from "../../errors";
-import { criticalLog } from "../../utils/criticalLog";
+import { Address, SqTransaction, Transaction } from "../../database/index.js";
+import { ErrorAddressNotFound, ErrorInsufficientFunds } from "../../errors/index.js";
+import { criticalLog } from "../../utils/criticalLog.js";
+import { getLogDetails } from "../../utils/index.js";
+import { wsManager } from "../../websockets/index.js";
+import { identifyTransactionType, transactionToJson } from "./index.js";
 
 const promTransactionCounter = new promClient.Counter({
   name: "krist_transactions_total",
@@ -48,12 +44,10 @@ promTransactionCounter.inc({ type: "name_a_record" }, 0);
 promTransactionCounter.inc({ type: "name_transfer" }, 0);
 promTransactionCounter.inc({ type: "transfer" }, 0);
 
-/** Fully handles a transfer transaction; check the sender has sufficient funds,
- * decrements the sender's balance, increment's the recipient's balance, and
- * creates a transaction record by delegating to the createTransaction function.
- * Creates the recipient address if it does not exist. Most of the logic happens
- * in the innerPushTransaction function. This outer function is only responsible
- * for starting a database transaction if one wasn't already. */
+/** Fully handles a transfer transaction; check the sender has sufficient funds, decrements the sender's balance,
+ * increment's the recipient's balance, and creates a transaction record by delegating to the createTransaction
+ * function. Creates the recipient address if it does not exist. Most of the logic happens in the innerPushTransaction
+ * function. This outer function is only responsible for starting a database transaction if one wasn't already. */
 export async function pushTransaction(
   req: Request,
   dbTx: SqTransaction,
@@ -65,12 +59,10 @@ export async function pushTransaction(
   sentMetaname?: string | null,
   sentName?: string | null
 ): Promise<Transaction> {
-  // Fetch the sender from the database. This should also be checked by the
-  // caller anyway (name purchase/transfer, transaction sending, etc.), but it
-  // is important to re-fetch here so that the balance can be checked as part of
-  // the database transaction, otherwise a race may occur and Krist may be
-  // duplicated, leaving the sender with a negative balance. Therefore, we fetch
-  // as part of the transaction, and lock the row in the process.
+  // Fetch the sender from the database. This should also be checked by the caller anyway (name purchase/transfer,
+  // transaction sending, etc.), but it is important to re-fetch here so that the balance can be checked as part of the
+  // database transaction, otherwise a race may occur and Krist may be duplicated, leaving the sender with a negative
+  // balance. Therefore, we fetch as part of the transaction, and lock the row in the process.
   const sender = await Address.findOne({
     where: { address: senderAddress },
     transaction: dbTx,
@@ -82,13 +74,14 @@ export async function pushTransaction(
   if (sender.balance < amount) {
     const { logDetails } = getLogDetails(req);
 
-    console.log(chalk`{red.bold [URGENT]} Race condition attempted in `
-      + chalk`{bold ${amount} KST} transaction `
-      + chalk`from {bold ${senderAddress || "(null)"}} `
-      + chalk`to {bold ${recipientAddress || "(null)"}} at `
-      + chalk`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
+    console.log(chalkT`{red.bold [URGENT]} Race condition attempted in `
+      + chalkT`{bold ${amount} KST} transaction `
+      + chalkT`from {bold ${senderAddress || "(null)"}} `
+      + chalkT`to {bold ${recipientAddress || "(null)"}} at `
+      + chalkT`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
 
     criticalLog(
+      `raceCondition-${senderAddress}-${recipientAddress}-${amount}`,
       req,
       `Race condition attempted in **${amount} KST** `
       + `transaction from **${senderAddress}** to **${recipientAddress}**`,
@@ -155,9 +148,9 @@ export async function createTransaction(
 ): Promise<Transaction> {
   const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
 
-  console.log(chalk`{bold [Krist]} Creating {bold ${value} KST} transaction `
-    + chalk`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
-    + chalk`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
+  console.log(chalkT`{bold [Krist]} Creating {bold ${value} KST} transaction `
+    + chalkT`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
+    + chalkT`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
 
   // Create the new transaction object
   const newTransaction = await Transaction.create({
@@ -177,8 +170,9 @@ export async function createTransaction(
   // After the database transaction is committed, broadcast the new transaction
   // to the websockets and increment the Prometheus transaction counter.
   dbTx?.afterCommit(async () => {
-    // Make sure we have the latest transaction object
-    await newTransaction.reload();
+    // Make sure we have the latest transaction object. Escape the CLS transaction here, to prevent re-using the already
+    // committed dbTx.
+    await newTransaction.reload({ transaction: null });
 
     // Increment the Prometheus transaction counter
     promTransactionCounter.inc({

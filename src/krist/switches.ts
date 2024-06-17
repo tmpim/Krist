@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,9 +19,17 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import "dotenv/config";
-import consoleStamp from "console-stamp";
+import dayjs from "dayjs";
+import { redis, rKey } from "../database/redis.js";
+import { LAST_BLOCK } from "../utils/vars.js";
 
-consoleStamp(console, {
-  format: ":date(yyyy/mm/dd HH:MM:ss.l).yellow"
-});
+const cutoff = dayjs(LAST_BLOCK);
+
+export async function isMiningEnabled(): Promise<boolean> {
+  if (dayjs().isAfter(cutoff)) return false;
+  return (await redis.get(rKey("mining-enabled"))) === "true";
+}
+
+export async function areTransactionsEnabled(): Promise<boolean> {
+  return (await redis.get(rKey("transactions-enabled"))) === "true";
+}

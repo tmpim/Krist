@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,15 +20,10 @@
  */
 
 import { Router } from "express";
-
-import { BLOCK_FIELDS, LookupQuery } from ".";
-
-import { blockToJson } from "../../../krist/blocks";
-import { lookupBlocks } from "../../../krist/blocks/lookup";
-
-import {
-  validateLimit, validateOffset, validateOrderBy, validateOrder
-} from "./utils";
+import { blockToJson } from "../../../krist/blocks/index.js";
+import { lookupBlocks } from "../../../krist/blocks/lookup.js";
+import { BLOCK_FIELDS, LookupQuery } from "./index.js";
+import { validateLimit, validateOffset, validateOrder, validateOrderBy } from "./utils.js";
 
 export default (): Router => {
   const router = Router();
@@ -41,11 +36,10 @@ export default (): Router => {
     const order = validateOrder(req.query.order);
 
     // Perform the query
-    // NOTE: `height` is replaced with `id` to maintain compatibility with what
-    //       the API typically returns for block objects.
-    // NOTE: `time` is replaced with `id` as `time` is typically not indexed.
-    //       While blocks are not _guaranteed_ to be monotonic, they generally
-    //       are, so this is a worthwhile performance tradeoff.
+    // NOTE: `height` is replaced with `id` to maintain compatibility with what the API typically returns for block
+    //   objects.
+    // NOTE: `time` is replaced with `id` as `time` is typically not indexed. While blocks are not _guaranteed_ to be
+    //   monotonic, they generally are, so this is a worthwhile performance tradeoff.
     const { rows, count } = await lookupBlocks(
       limit,
       offset,

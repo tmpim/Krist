@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,13 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import path from "path";
-import { gitlogPromise as gitlog } from "gitlog";
 import { Octokit } from "@octokit/rest";
-
-import { redis, rKey } from "../database/redis";
-
-import { GITHUB_TOKEN } from "./constants";
+import gitlog from "gitlog";
+import path from "path";
+import { redis, rKey } from "../database/redis.js";
+import { GIT_PATH, GITHUB_TOKEN } from "./vars.js";
 
 const MESSAGE_TYPE_RE = /^(\w+): (.+)/;
 const EXCLUDE_COMMITS_RE = /block|submi/gi;
@@ -44,7 +42,7 @@ export interface FormattedCommit extends CommitBase {
 
 export async function getCommits(): Promise<FormattedCommit[]> {
   const commits = await gitlog({
-    repo: path.join(__dirname, "../../"),
+    repo: GIT_PATH ?? path.join(import.meta.dirname, "../../"),
     number: 20,
     fields: [
       "subject", "body", "hash",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Limit, Offset, Name, PaginatedResult, db } from "../../database";
-import { InferAttributes, Op } from "sequelize";
-
-import { sanitiseLimit, sanitiseOffset } from "../../utils";
+import { InferAttributes, Op, sql } from "@sequelize/core";
+import { Limit, Name, Offset, PaginatedResult } from "../../database/index.js";
+import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export async function lookupNames(
   addressList: string[] | undefined,
@@ -33,12 +32,10 @@ export async function lookupNames(
 ): Promise<PaginatedResult<Name>> {
   return Name.findAndCountAll({
     order: [[
-      // Ordering by `transferred` can return null results and may not be the
-      // desireable ordering for the user, so `transferredOrRegistered` is an
-      // alternative option that falls back to `registered` if `transferred` is
-      // null.
+      // Ordering by `transferred` can return null results and may not be the desirable ordering for the user, so
+      // `transferredOrRegistered` is an alternative option that falls back to `registered` if `transferred` is null.
       orderBy === "transferredOrRegistered"
-        ? db.fn("COALESCE", db.col("transferred"), db.col("registered"))
+        ? sql`COALESCE(transferred, registered)`
         : orderBy,
       order
     ]],

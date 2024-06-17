@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,19 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Address, Limit, Offset, PaginatedResult } from "../database";
-
-import {
-  getAddress, getAddresses, getRichAddresses
-} from "../krist/addresses";
-
-import {
-  ErrorAddressNotFound, ErrorInvalidParameter, ErrorMissingParameter
-} from "../errors";
-
-import {
-  isValidKristAddress, makeV2Address, validateLimitOffset
-} from "../utils";
+import { Address, Limit, Offset, PaginatedResult } from "../database/index.js";
+import { ErrorAddressNotFound, ErrorInvalidParameter, ErrorMissingParameter } from "../errors/index.js";
+import { getAddress, getAddresses, getRichAddresses } from "../krist/addresses/index.js";
+import { isValidKristAddress, makeV2Address, validateLimitOffset } from "../utils/index.js";
 
 export async function ctrlGetAddresses(
   limit: Limit,

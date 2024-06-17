@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,13 +20,11 @@
  */
 
 import { Router } from "express";
-
-import { getLastBlock } from "../../krist/blocks";
-import { getDetailedUnpaid, getUnpaidNameCount } from "../../krist/names";
-import { getWork, getWorkOverTime } from "../../krist/work";
-
-import { ErrorBlockNotFound } from "../../errors";
-import { getBaseBlockValue } from "../../utils";
+import { ErrorBlockNotFound } from "../../errors/index.js";
+import { getLastBlock } from "../../krist/blocks/index.js";
+import { getDetailedUnpaid, getUnpaidNameCount } from "../../krist/names/index.js";
+import { getWork, getWorkOverTime } from "../../krist/work.js";
+import { getBaseBlockValue } from "../../utils/index.js";
 
 export default (): Router => {
   const router = Router();

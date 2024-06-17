@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,13 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { WrappedWebSocket } from "./WrappedWebSocket";
-
-import { BlockJson } from "../krist/blocks";
-import { NameJson } from "../krist/names";
-import { TransactionJson } from "../krist/transactions";
-
-import { lut } from "../utils";
+import { BlockJson } from "../krist/blocks/index.js";
+import { NameJson } from "../krist/names/index.js";
+import { TransactionJson } from "../krist/transactions/index.js";
+import { lut } from "../utils/index.js";
+import { WrappedWebSocket } from "./WrappedWebSocket.js";
 
 export type WebSocketSubscription = "blocks" | "ownBlocks" | "transactions" |
   "ownTransactions" | "names" | "ownNames" | "motd";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,9 +19,8 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { getWork } from "../../krist/work";
-
-import { WebSocketEventHandler } from "../types";
+import { getWork } from "../../krist/work.js";
+import { WebSocketEventHandler } from "../types.js";
 
 /**
  * @api {ws} /type/work Get the current work

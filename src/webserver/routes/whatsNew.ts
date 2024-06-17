@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,9 +20,8 @@
  */
 
 import { Router } from "express";
-
-import { getCommits } from "../../utils/git";
-import { whatsNew } from "../../utils/whatsNew";
+import { getCommits } from "../../utils/git.js";
+import { whatsNew } from "../../utils/whatsNew.js";
 
 export default (): Router => {
   const router = Router();

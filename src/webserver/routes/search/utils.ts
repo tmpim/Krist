@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,12 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { ReqSearchQuery, SearchQueryMatch } from ".";
-import { ErrorInvalidParameter, ErrorMissingParameter } from "../../../errors";
-
-import {
-  isValidKristAddress, stripNameSuffix, isValidName
-} from "../../../utils";
+import { ErrorInvalidParameter, ErrorMissingParameter } from "../../../errors/index.js";
+import { isValidKristAddress, isValidName, stripNameSuffix } from "../../../utils/index.js";
+import { ReqSearchQuery, SearchQueryMatch } from "./index.js";
 
 export function parseQuery(query: string): SearchQueryMatch {
   const matchAddress = isValidKristAddress(query);
@@ -32,7 +29,7 @@ export function parseQuery(query: string): SearchQueryMatch {
   const strippedName = stripNameSuffix(query);
   const matchName = !!strippedName && isValidName(strippedName, true);
 
-  const cleanId = parseInt(query.replace(/[^\w]/g, ""));
+  const cleanId = parseInt(query.replace(/\W/g, ""));
   const hasId = !isNaN(cleanId);
   const matchBlock = hasId;
   const matchTransaction = hasId;

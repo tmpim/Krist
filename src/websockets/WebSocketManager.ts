@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,21 +21,22 @@
 
 import { Request } from "express";
 import { WebSocket } from "ws";
-
+import { ErrorInvalidWebsocketToken } from "../errors/index.js";
+import { generateWebSocketToken } from "../utils/index.js";
 import {
-  WebSocketBlockEvent, WebSocketEventMessage, WebSocketNameEvent,
-  WebSocketTokenData, WebSocketTransactionEvent
-} from "./types";
-import { WrappedWebSocket } from "./WrappedWebSocket";
-
-import {
-  promWebsocketConnectionsTotal, promWebsocketEventBroadcastsTotal,
+  promWebsocketConnectionsTotal,
+  promWebsocketEventBroadcastsTotal,
   promWebsocketTokensTotal
-} from "./prometheus";
-
-import { ErrorInvalidWebsocketToken } from "../errors";
-import { generateWebSocketToken } from "../utils";
-import { subscriptionCheck } from "./subscriptionCheck";
+} from "./prometheus.js";
+import { subscriptionCheck } from "./subscriptionCheck.js";
+import {
+  WebSocketBlockEvent,
+  WebSocketEventMessage,
+  WebSocketNameEvent,
+  WebSocketTokenData,
+  WebSocketTransactionEvent
+} from "./types.js";
+import { WrappedWebSocket } from "./WrappedWebSocket.js";
 
 export class WebSocketsManager {
   public sockets: WrappedWebSocket[] = [];
@@ -77,7 +78,7 @@ export class WebSocketsManager {
     // Expire the token after 30 seconds
     setTimeout(() => {
       delete this.pendingTokens[token];
-    }, 30000);
+    }, 30000).unref();
 
     return token;
   }

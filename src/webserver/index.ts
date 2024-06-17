@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,26 +19,19 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
-import express, { Express, NextFunction, Request, Response } from "express";
-import { Server } from "http";
 import bodyParser from "body-parser";
-import expressWs from "express-ws";
+import chalkT from "chalk-template";
+import cors from "cors";
+import express, { Express, NextFunction, Request, Response } from "express";
 import { engine } from "express-handlebars";
 import rateLimit from "express-rate-limit";
-import slowDown from "express-slow-down";
-import cors from "cors";
-
-import { initPrometheus } from "./prometheus";
-
-import apiRoutes from "./routes";
-
-import { errorToJson } from "../errors";
-import { ErrorRouteNotFound } from "../errors/webserver";
-
-import { TEST, WEB_LISTEN } from "../utils/constants";
-import { idempotency } from "./idempotency";
+import expressWs from "express-ws";
+import { Server } from "http";
+import { ErrorRouteNotFound, errorToJson } from "../errors/index.js";
+import { TEST, TRUST_PROXY_COUNT, WEB_LISTEN } from "../utils/vars.js";
+import { idempotency } from "./idempotency.js";
+import { initPrometheus } from "./prometheus.js";
+import apiRoutes from "./routes/index.js";
 
 export let app: Express;
 export let ws: expressWs.Instance;
@@ -48,7 +41,7 @@ export async function initWebserver(): Promise<void> {
   app = express();
   ws = expressWs(app);
 
-  app.enable("trust proxy");
+  app.set("trust proxy", TRUST_PROXY_COUNT);
   app.disable("x-powered-by");
   app.disable("etag");
 
@@ -84,15 +77,8 @@ export async function initWebserver(): Promise<void> {
 
   if (!TEST) {
     app.use(rateLimit({
-      windowMs: 60000, max: 320,
+      windowMs: 60000, max: 120,
       message: { ok: false, error: "rate_limit_hit" },
-    }));
-
-    app.use(slowDown({
-      windowMs: 60000,
-      delayAfter: 240,
-      delayMs: 100,
-      maxDelayMs: 2000
     }));
   }
 
@@ -125,16 +111,15 @@ export async function initWebserver(): Promise<void> {
     // Don't do anything if a response has already been sent
     if (res.headersSent) return next(err);
 
-    // TODO: Due to a long-standing bug in the Krist server, status codes do not
-    //       actually do anything, regardless of whether or not the `cc`
-    //       parameter is set. Sending correct status codes will likely break
-    //       many existing programs. Therefore, we always send 200 on error.
+    // TODO: Due to a long-standing bug in the Krist server, status codes do not actually do anything, regardless of
+    //       whether the `cc` parameter is set. Sending correct status codes will likely break many existing programs.
+    //       Therefore, we always send 200 on error.
     res.status(200).json(errorToJson(err));
   });
 
   await new Promise<void>((resolve, reject) => {
     server = app.listen(WEB_LISTEN, () => {
-      console.log(chalk`{green [Webserver]} Listening on {bold ${WEB_LISTEN}}`);
+      console.log(chalkT`{green [Webserver]} Listening on {bold ${WEB_LISTEN}}`);
       resolve();
     });
 
@@ -142,4 +127,15 @@ export async function initWebserver(): Promise<void> {
   });
 }
 
-export * from "./utils";
+export function shutdownWebserver(): void {
+  if (server) {
+    console.log(chalkT`{cyan [Webserver]} Stopping server`);
+    server.close(e => {
+      if (e) console.error(chalkT`{red [Webserver]} Error stopping server:`, e)
+    });
+  } else {
+    console.log(chalkT`{cyan [Webserver]} server not running, not shutting down`);
+  }
+}
+
+export * from "./utils.js";

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,18 +19,15 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import chalkT from "chalk-template";
 import { Router } from "express";
-
-import { ws as wsInstance } from "..";
-import { wsManager } from "../../websockets";
-import { promWebsocketConnectionsTotal } from "../../websockets/prometheus";
-
-import { verifyAddress } from "../../krist/addresses/verify";
-
-import { ErrorAuthFailed, errorToJson } from "../../errors";
-import { getLogDetails } from "../../utils";
-import { FORCE_INSECURE, PUBLIC_WS_URL } from "../../utils/constants";
+import { ErrorAuthFailed, errorToJson } from "../../errors/index.js";
+import { verifyAddress } from "../../krist/addresses/verify.js";
+import { getLogDetails } from "../../utils/index.js";
+import { FORCE_INSECURE, PUBLIC_WS_URL } from "../../utils/vars.js";
+import { wsManager } from "../../websockets/index.js";
+import { promWebsocketConnectionsTotal } from "../../websockets/prometheus.js";
+import { ws as wsInstance } from "../index.js";
 
 /**
  * @apiDefine WebsocketGroup Websockets
@@ -53,10 +50,10 @@ export default (): Router => {
       const { address, privatekey } = wsManager.useToken(token);
 
       // Wrap and add the socket to the manager, which will handle the rest
-      console.log(chalk`{cyan [Websockets]} Incoming connection for {bold ${address}} ${logDetails}`);
+      console.log(chalkT`{cyan [Websockets]} Incoming connection for {bold ${address}} ${logDetails}`);
       wsManager.addWebsocket(req, ws, token, address, privatekey);
     } catch (err) {
-      console.log(chalk`{red [Websockets]} Failed connection using token {bold ${token}} ${logDetails}`);
+      console.log(chalkT`{red [Websockets]} Failed connection using token {bold ${token}} ${logDetails}`);
       console.error(err);
 
       if (ws.readyState === ws.OPEN) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,16 +21,19 @@
 
 import dayjs from "dayjs";
 import { Router } from "express";
-
-import { ctrlGetAddress, ctrlGetAddressAlert, ctrlGetAddresses, ctrlGetRichAddresses } from "../../controllers/addresses";
-import { ctrlGetNamesByAddress } from "../../controllers/names";
-import { ctrlGetTransactionsByAddress } from "../../controllers/transactions";
-import { addressToJson, getAddress, getRichAddresses } from "../../krist/addresses";
-import { nameToJson } from "../../krist/names";
-import { getTransactionsByAddress, transactionToJson } from "../../krist/transactions";
-import { makeV2Address, padDigits } from "../../utils";
-
-import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
+import {
+  ctrlGetAddress,
+  ctrlGetAddressAlert,
+  ctrlGetAddresses,
+  ctrlGetRichAddresses
+} from "../../controllers/addresses.js";
+import { ctrlGetNamesByAddress } from "../../controllers/names.js";
+import { ctrlGetTransactionsByAddress } from "../../controllers/transactions.js";
+import { addressToJson, getAddress, getRichAddresses } from "../../krist/addresses/index.js";
+import { nameToJson } from "../../krist/names/index.js";
+import { getTransactionsByAddress, transactionToJson } from "../../krist/transactions/index.js";
+import { makeV2Address, padDigits } from "../../utils/index.js";
+import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils.js";
 
 /**
  * @apiDefine AddressGroup Addresses
@@ -156,8 +159,7 @@ export default (): Router => {
 	 *              ...
 	 */
   router.get("/addresses/rich", async (req: PaginatedQuery, res) => {
-    const results = await ctrlGetRichAddresses(req.query.limit,
-      req.query.offset);
+    const results = await ctrlGetRichAddresses(req.query.limit, req.query.offset);
     returnPaginatedResult(res, "addresses", addressToJson, results);
   });
 
@@ -371,7 +373,7 @@ export default (): Router => {
       const lines = rows.map(tx => {
         let out = dayjs(tx.time).format("MMM DD HH:mm");
 
-        let peer = "";
+        let peer: string | null = "";
         let sign = "";
 
         if (tx.to === address.address) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,12 +19,12 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-import { Sequelize } from "sequelize-typescript";
-import { Transaction } from "sequelize";
+import { Sequelize, Transaction } from "@sequelize/core";
+import { MariaDbDialect } from "@sequelize/mariadb";
+import chalkT from "chalk-template";
 
-import { DB_NAME, DB_USER, DB_PASS, DB_HOST, DB_PORT, TEST } from "../utils/constants";
-import { SCHEMAS } from "./schemas";
+import { DB_HOST, DB_LOGGING, DB_NAME, DB_PASS, DB_PORT, DB_USER, TEST } from "../utils/vars.js";
+import { SCHEMAS } from "./schemas.js";
 
 export let db: Sequelize;
 
@@ -32,30 +32,32 @@ export let db: Sequelize;
 // Init database
 // =============================================================================
 export async function initDatabase(): Promise<void> {
-  console.log(chalk`{cyan [DB]} Connecting to database {bold ${DB_NAME}} at {bold ${DB_HOST}}:{bold ${DB_PORT}} as user {bold ${DB_USER}} (env: ${process.env.NODE_ENV}, test: ${TEST ? "TRUE" : "false"})...`);
+  console.log(chalkT`{cyan [DB]} Connecting to database {bold ${DB_NAME}} at {bold ${DB_HOST}}:{bold ${DB_PORT}} as user {bold ${DB_USER}} (env: ${process.env.NODE_ENV}, test: ${TEST ? "TRUE" : "false"})...`);
 
   db = new Sequelize({
-    dialect: "mysql",
+    dialect: MariaDbDialect,
     database: DB_NAME,
-    username: DB_USER,
+    user: DB_USER,
     password: DB_PASS,
     host: DB_HOST,
     port: DB_PORT,
-    logging: false,
+    logging: DB_LOGGING ? console.log : false,
     models: SCHEMAS,
     pool: {
-      max: 6,
-      min: 2,
-      idle: 10000
+      max: 5,
+      min: 3,
+      idle: 300_000,
+      acquire: 30_000,
+      evict: 10_000,
     }
   });
 
   try {
     await db.authenticate();
-    console.log(chalk`{green [DB]} Connected`);
+    console.log(chalkT`{green [DB]} Connected`);
 
     await db.sync();
-    console.log(chalk`{green [DB]} Synced schemas`);
+    console.log(chalkT`{green [DB]} Synced schemas`);
   } catch (error) {
     console.error(error);
   }
@@ -68,4 +70,10 @@ export interface PaginatedResult<M> { rows: M[]; count: number }
 // Alias for Sequelize.Transaction as it conflicts with the Krist Transaction
 export type SqTransaction = Transaction;
 
-export * from "./schemas";
+export * from "./schemas.js";
+
+export async function shutdownDb() {
+  console.log(chalkT`{cyan [DB]} Disconnecting from database`);
+  await db.close();
+  console.log(chalkT`{green [DB]} Disconnected`);
+}

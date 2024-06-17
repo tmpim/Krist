@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,22 +21,17 @@
 
 import { Request } from "express";
 import WebSocket from "ws";
-
+import { ErrorInvalidParameter, ErrorMissingParameter, errorToJson, KristError } from "../errors/index.js";
+import { getDetailedMotd } from "../krist/motd.js";
+import { promWebsocketKeepalivesTotal, promWebsocketMessagesTotal } from "./prometheus.js";
+import { handleWebSocketMessage } from "./routes/index.js";
 import {
-  IncomingWebSocketMessage, OutgoingWebSocketMessage, VALID_MESSAGE_TYPES,
-  WebSocketMessageType, WebSocketSubscription
-} from "./types";
-
-import { handleWebSocketMessage } from "./routes";
-
-import {
-  promWebsocketKeepalivesTotal, promWebsocketMessagesTotal
-} from "./prometheus";
-
-import {
-  ErrorInvalidParameter, ErrorMissingParameter, errorToJson, KristError
-} from "../errors";
-import { getDetailedMotd } from "../krist/motd";
+  IncomingWebSocketMessage,
+  OutgoingWebSocketMessage,
+  VALID_MESSAGE_TYPES,
+  WebSocketMessageType,
+  WebSocketSubscription
+} from "./types.js";
 
 export class WrappedWebSocket {
   private keepaliveTimer?: NodeJS.Timeout;

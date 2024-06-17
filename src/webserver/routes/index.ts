@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,24 +21,24 @@
 
 import { Router } from "express";
 
-import routerAddresses from "./addresses";
-import routerBlocks from "./blocks";
-import routerLogin from "./login";
-import routerMotd from "./motd";
-import routerNames from "./names";
-import routerSubmission from "./submission";
-import routerSupply from "./supply";
-import routerTransactions from "./transactions";
-import routerV2 from "./v2";
-import routerWalletVersion from "./walletVersion";
-import routerWebsockets from "./websockets";
-import routerWhatsNew from "./whatsNew";
-import routerWork from "./work";
+import routerAddresses from "./addresses.js";
+import routerBlocks from "./blocks.js";
 
-import routerLookup from "./lookup";
-import routerSearch from "./search";
+import routerHomepage from "./homepage.js";
+import routerLogin from "./login.js";
 
-import routerHomepage from "./homepage";
+import routerLookup from "./lookup/index.js";
+import routerMotd from "./motd.js";
+import routerNames from "./names.js";
+import routerSearch from "./search/index.js";
+import routerSubmission from "./submission.js";
+import routerSupply from "./supply.js";
+import routerTransactions from "./transactions.js";
+import routerV2 from "./v2.js";
+import routerWalletVersion from "./walletVersion.js";
+import routerWebsockets from "./websockets.js";
+import routerWhatsNew from "./whatsNew.js";
+import routerWork from "./work.js";
 
 // Primary API router
 export default (): Router => {

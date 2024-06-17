@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,15 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { WebSocketEventHandler } from "../types";
-
-import { ctrlSubmitBlock } from "../../controllers/blocks";
-import { addressToJson } from "../../krist/addresses";
-import { blockToJson } from "../../krist/blocks";
-
-import {
-  ErrorMissingParameter, ErrorSolutionDuplicate, ErrorSolutionIncorrect
-} from "../../errors";
+import { ctrlSubmitBlock } from "../../controllers/blocks.js";
+import { ErrorMissingParameter, ErrorSolutionDuplicate, ErrorSolutionIncorrect } from "../../errors/index.js";
+import { addressToJson } from "../../krist/addresses/index.js";
+import { blockToJson } from "../../krist/blocks/index.js";
+import { WebSocketEventHandler } from "../types.js";
 
 export const wsSubmitBlock: WebSocketEventHandler<{
   address?: string;

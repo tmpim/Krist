@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,11 +21,10 @@
 
 import dayjs from "dayjs";
 import { Router } from "express";
-import { ctrlGetTransaction, ctrlGetTransactions, ctrlMakeTransaction } from "../../controllers/transactions";
-import { ErrorInvalidParameter, KristError } from "../../errors";
-import { getRecentTransactions, transactionToJson } from "../../krist/transactions";
-import { padDigits } from "../../utils";
-import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils";
+import { ctrlGetTransaction, ctrlGetTransactions, ctrlMakeTransaction } from "../../controllers/transactions.js";
+import { getRecentTransactions, transactionToJson } from "../../krist/transactions/index.js";
+import { padDigits } from "../../utils/index.js";
+import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../utils.js";
 
 /**
  * @apiDefine TransactionGroup Transactions
@@ -315,42 +314,7 @@ export default (): Router => {
     }
 
     if (req.query.pushtx2 !== undefined) {
-      try {
-        const privatekey = req.query.pkey;
-        const to = req.query.q;
-        const amount = req.query.amt;
-        const metadata = req.query.com;
-
-        await ctrlMakeTransaction(req, privatekey, to, amount, metadata);
-        res.send("Success");
-      } catch (err: unknown) {
-        if (err instanceof KristError) {
-          // Convert v2 errors to legacy API errors
-          if (err.errorString === "auth_failed")
-            return res.send("Access denied");
-          if (err.errorString === "insufficient_funds")
-            return res.send("Error1"); // "Insufficient funds available"
-
-          if (err instanceof ErrorInvalidParameter) {
-            if (err.parameter === "amount")
-              return res.send("Error2"); // "Not enough KST in transaction"
-            if (err.parameter === "to")
-              return res.send("Error4"); // "Invalid recipient address"
-            if (err.parameter === "privatekey")
-              return res.send("Missing privatekey");
-            if (err.parameter === "metadata")
-              return res.send("Invalid metadata");
-          }
-
-          if (err.errorString === "name_not_found")
-            return res.send("Name not found");
-        }
-
-        console.error(err);
-        return res.send("Unknown error");
-      }
-
-      return;
+      return res.send("Legacy transactions disabled. Contact Krist team");
     }
 
     next();

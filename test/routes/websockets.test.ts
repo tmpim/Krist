@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,10 +20,9 @@
  */
 
 import { expect } from "chai";
-
-import { seed } from "../seed";
-import { api } from "../api";
-import { newConnection } from "../ws";
+import { seed } from "../seed.js";
+import { api } from "../api.js";
+import { newConnection } from "../ws.js";
 
 describe("websocket connection", () => {
   before(seed);
@@ -96,6 +95,7 @@ describe("websocket connection", () => {
 
       expect(helloData.public_url).to.equal(process.env.PUBLIC_URL || "localhost:8080");
       expect(helloData.mining_enabled).to.be.false;
+      expect(helloData.transactions_enabled).to.be.true;
       expect(helloData.debug_mode).to.be.true;
 
       expect(helloData.work).to.equal(100000);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,18 +19,22 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import packageJson from "../../package.json";
-
-import { redis, rKey } from "../database/redis";
-
-import { isMiningEnabled } from "./mining";
-import { getWork } from "./work";
-import { BlockJson, blockToJson, getLastBlock } from "./blocks";
-
+import packageJson from "../../package.json" with { type: "json" };
+import { redis, rKey } from "../database/redis.js";
 import {
-  WALLET_VERSION, NONCE_MAX_SIZE, NAME_COST, MIN_WORK, MAX_WORK, WORK_FACTOR,
-  SECONDS_PER_BLOCK, PUBLIC_URL, PUBLIC_WS_URL
-} from "../utils/constants";
+  MAX_WORK,
+  MIN_WORK,
+  NAME_COST,
+  NONCE_MAX_SIZE,
+  PUBLIC_URL,
+  PUBLIC_WS_URL,
+  SECONDS_PER_BLOCK,
+  WALLET_VERSION,
+  WORK_FACTOR
+} from "../utils/vars.js";
+import { BlockJson, blockToJson, getLastBlock } from "./blocks/index.js";
+import { areTransactionsEnabled, isMiningEnabled } from "./switches.js";
+import { getWork } from "./work.js";
 
 export interface Motd {
   motd: string;
@@ -48,6 +52,7 @@ export interface DetailedMotd {
   public_url: string;
   public_ws_url: string;
   mining_enabled: boolean;
+  transactions_enabled: boolean;
   debug_mode: boolean;
 
   work: number;
@@ -108,6 +113,7 @@ export async function getDetailedMotd(): Promise<DetailedMotd> {
     public_url: PUBLIC_URL,
     public_ws_url: PUBLIC_WS_URL,
     mining_enabled: await isMiningEnabled(),
+    transactions_enabled: await areTransactionsEnabled(),
     debug_mode,
 
     work: await getWork(),

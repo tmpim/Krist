@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,13 +20,12 @@
  */
 
 import { expect } from "chai";
+import { seed } from "../seed.js";
+import { newConnection } from "../ws.js";
 
-import { seed } from "../seed";
-import { newConnection } from "../ws";
-
-import { redis, rKey } from "../../src/database/redis";
-import { Address, Block, Name } from "../../src/database";
-import { getWork } from "../../src/krist/work";
+import { redis, rKey } from "../../src/database/redis.js";
+import { Address, Block, Name } from "../../src/database/index.js";
+import { getWork } from "../../src/krist/work.js";
 
 describe("websocket routes: submission", function() {
   before(seed);

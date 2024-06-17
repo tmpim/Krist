@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,12 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { ctrlMakeTransaction } from "../../controllers/transactions";
-import { transactionToJson } from "../../krist/transactions";
-
-import { WebSocketEventHandler } from "../types";
-
-import { ErrorMissingParameter } from "../../errors";
+import { ctrlMakeTransaction } from "../../controllers/transactions.js";
+import { ErrorMissingParameter } from "../../errors/index.js";
+import { transactionToJson } from "../../krist/transactions/index.js";
+import { WebSocketEventHandler } from "../types.js";
 
 /**
  * @api {ws} /type/make_transaction Make a transaction

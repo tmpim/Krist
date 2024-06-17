@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -43,6 +43,7 @@ export const DB_USER = TEST ? TEST_DB_USER : MAIN_DB_USER;
 export const DB_PASS = TEST ? TEST_DB_PASS : MAIN_DB_PASS;
 export const DB_HOST = TEST ? TEST_DB_HOST : MAIN_DB_HOST;
 export const DB_PORT = parseInt(process.env.DB_PORT ?? "3306");
+export const DB_LOGGING = process.env.DB_LOGGING === "true";
 
 export const REDIS_HOST = process.env.REDIS_HOST as string | undefined || "127.0.0.1";
 export const REDIS_PORT = parseInt(process.env.REDIS_PORT as string | undefined || "6379");
@@ -58,6 +59,7 @@ export const WEB_LISTEN = parseInt(process.env.WEB_LISTEN as string | undefined 
 export const PUBLIC_URL = process.env.PUBLIC_URL || "localhost:8080";
 export const PUBLIC_WS_URL = process.env.PUBLIC_WS_URL || PUBLIC_URL;
 export const FORCE_INSECURE = process.env.FORCE_INSECURE === "true";
+export const TRUST_PROXY_COUNT = parseInt(process.env.TRUST_PROXY_COUNT || "0");
 
 export const USE_PROMETHEUS = process.env.USE_PROMETHEUS === "true";
 export const PROMETHEUS_PASSWORD = process.env.PROMETHEUS_PASSWORD as string | undefined;
@@ -65,6 +67,7 @@ export const PROMETHEUS_PASSWORD = process.env.PROMETHEUS_PASSWORD as string | u
 export const WS_IPC_PATH = process.env.WS_IPC_PATH as string | undefined;
 
 export const GITHUB_TOKEN = process.env.GITHUB_TOKEN as string | undefined;
+export const GIT_PATH = process.env.GIT_PATH as string | undefined;
 
 export const CRITICAL_LOG_URL = process.env.CRITICAL_LOG_URL as string | undefined;
 

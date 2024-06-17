@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,11 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
-import { WebSocketEventHandler } from "../types";
-
-import { getLogDetails } from "../../utils";
+import chalkT from "chalk-template";
+import { getLogDetails } from "../../utils/index.js";
+import { WebSocketEventHandler } from "../types.js";
 
 /**
  * @api {ws} /type/logout Log out back to guest (downgrade connection)
@@ -38,7 +36,7 @@ import { getLogDetails } from "../../utils";
  */
 export const wsLogout: WebSocketEventHandler = async ws => {
   const { logDetails } = getLogDetails(ws.req);
-  console.log(chalk`{cyan [Websockets]} Session {bold ${ws.address}} logged out ${logDetails}`);
+  console.log(chalkT`{cyan [Websockets]} Session {bold ${ws.address}} logged out ${logDetails}`);
 
   ws.address = "guest";
   ws.isGuest = true;

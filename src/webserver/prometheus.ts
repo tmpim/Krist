@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,26 +19,23 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
+import chalkT from "chalk-template";
 import { Express, Request } from "express";
 import basicAuth from "express-basic-auth";
-
 import client from "prom-client";
-
-import { USE_PROMETHEUS, PROMETHEUS_PASSWORD } from "./../utils/constants";
+import { PROMETHEUS_PASSWORD, USE_PROMETHEUS } from "../utils/vars.js";
 
 client.collectDefaultMetrics();
 
 const up = new client.Gauge({
   name: "krist_up",
-  help: "Whether or not the Krist server is running."
+  help: "Whether the Krist server is running."
 });
 up.set(1);
 
 const debug = new client.Gauge({
   name: "krist_debug",
-  help: "Whether or not the Krist server is in debug mode."
+  help: "Whether the Krist server is in debug mode."
 });
 debug.set(process.env.NODE_ENV !== "production" ? 1 : 0);
 
@@ -52,7 +49,7 @@ export function initPrometheus(app: Express): void {
       users: { "prometheus": PROMETHEUS_PASSWORD },
 
       unauthorizedResponse(req: Request) {
-        console.log(chalk`{red [Webserver]} Unauthorized access on Prometheus endpoint from {bold ${req.ip}}!`);
+        console.log(chalkT`{red [Webserver]} Unauthorized access on Prometheus endpoint from {bold ${req.ip}}!`);
         return "";
       }
     }));
@@ -67,5 +64,5 @@ export function initPrometheus(app: Express): void {
     }
   });
 
-  console.log(chalk`{cyan [Webserver]} Prometheus is enabled!`);
+  console.log(chalkT`{cyan [Webserver]} Prometheus is enabled!`);
 }

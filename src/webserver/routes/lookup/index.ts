@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,12 +20,11 @@
  */
 
 import { Router } from "express";
-import { ReqQuery } from "../..";
-
-import routerLookupAddresses from "./addresses";
-import routerLookupBlocks from "./blocks";
-import routerLookupNames from "./names";
-import routerLookupTransactions from "./transactions";
+import { ReqQuery } from "../../index.js";
+import routerLookupAddresses from "./addresses.js";
+import routerLookupBlocks from "./blocks.js";
+import routerLookupNames from "./names.js";
+import routerLookupTransactions from "./transactions.js";
 
 // Fair tradeoff between flexibility and parameter limitations
 export const ADDRESS_LIST_LIMIT = 128;
@@ -59,8 +58,6 @@ export type LookupQuery<T = unknown> = ReqQuery<{
  * @apiDefine LookupGroup Lookup API
  *
  * Advanced bulk lookup queries designed for KristWeb v2.
- *
- * **NOTE:** The Lookup API is in Beta, and may be subject to future amendments.
  */
 export default (): Router => {
   const router = Router();
@@ -73,4 +70,4 @@ export default (): Router => {
   return router;
 };
 
-export * from "./utils";
+export * from "./utils.js";

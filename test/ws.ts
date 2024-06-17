@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,14 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-
+import chalkT from "chalk-template";
 import WebSocketAsPromised from "websocket-as-promised";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
-
-import { api } from "./api";
-
-import { IncomingWebSocketMessage, OutgoingWebSocketMessage } from "../src/websockets/types";
+import * as websocket from "websocket";
+import { api } from "./api.js";
+import { IncomingWebSocketMessage, OutgoingWebSocketMessage } from "../src/websockets/types.js";
 import { Optional } from "utility-types";
 
 export interface TestWebSocketInitFn {
@@ -55,7 +52,7 @@ export class WrappedTestWebSocket {
     public init?: TestWebSocketInitFn
   ) {
     this.wsp = new WebSocketAsPromised(url, {
-      createWebSocket: u => new W3CWebSocket(u),
+      createWebSocket: u => new websocket.default.w3cwebsocket(u) as any,
       packMessage: data => JSON.stringify(data),
       unpackMessage: data => JSON.parse(data.toString())
     });
@@ -71,7 +68,7 @@ export class WrappedTestWebSocket {
     if (data.id) {
       const handler = this.messageResponses[data.id];
       if (!handler) {
-        console.error(chalk`{red [Tests]} Websocket message had id {bold ${data.id}} (type: {bold ${typeof data.id}}) which we did not have a handler for!`, data);
+        console.error(chalkT`{red [Tests]} Websocket message had id {bold ${data.id}} (type: {bold ${typeof data.id}}) which we did not have a handler for!`, data);
         return;
       }
 
@@ -104,7 +101,7 @@ export class WrappedTestWebSocket {
         this.wsp.close();
         this.finalClosed = true;
       }
-    }, 100);
+    }, 100).unref();
   }
 }
 

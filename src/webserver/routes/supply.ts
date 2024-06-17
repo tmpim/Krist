@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,8 +20,7 @@
  */
 
 import { Router } from "express";
-
-import { getKristSupply } from "../../krist/supply";
+import { getKristSupply } from "../../krist/supply.js";
 
 export default (): Router => {
   const router = Router();

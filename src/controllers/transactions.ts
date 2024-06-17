@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,28 +20,31 @@
  */
 
 import { Request } from "express";
-
-import { db, Limit, Offset, PaginatedResult, Transaction } from "../database";
-
-import { getAddress } from "../krist/addresses";
-import { verifyAddress } from "../krist/addresses/verify";
+import { isNaN } from "lodash-es";
+import { db, Limit, Offset, PaginatedResult, Transaction } from "../database/index.js";
 import {
-  getTransaction, getTransactions, getTransactionsByAddress
-} from "../krist/transactions";
-import { pushTransaction } from "../krist/transactions/create";
-import { getName } from "../krist/names";
-
+  ErrorAddressNotFound,
+  ErrorAuthFailed,
+  ErrorInsufficientFunds,
+  ErrorInvalidParameter,
+  ErrorMissingParameter,
+  ErrorNameNotFound,
+  ErrorRateLimitHit,
+  ErrorTransactionNotFound,
+  ErrorTransactionsDisabled
+} from "../errors/index.js";
+import { getAddress } from "../krist/addresses/index.js";
+import { verifyAddress } from "../krist/addresses/verify.js";
+import { getName } from "../krist/names/index.js";
+import { areTransactionsEnabled } from "../krist/switches.js";
+import { pushTransaction } from "../krist/transactions/create.js";
 import {
-  ErrorAddressNotFound, ErrorAuthFailed, ErrorInsufficientFunds,
-  ErrorInvalidParameter, ErrorMissingParameter, ErrorNameNotFound,
-  ErrorTransactionNotFound
-} from "../errors";
-
-import {
-  isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, validateLimitOffset
-} from "../utils";
-
-import { isNaN } from "lodash";
+  checkTxRateLimits,
+  getTransaction,
+  getTransactions,
+  getTransactionsByAddress
+} from "../krist/transactions/index.js";
+import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, validateLimitOffset } from "../utils/index.js";
 
 export async function ctrlGetTransactions(
   limit: Limit,
@@ -92,13 +95,15 @@ export async function ctrlMakeTransaction(
   req: Request,
   privatekey?: string,
   recipient?: string,
-  amount?: string | number,
+  rawAmount?: string | number,
   metadata?: string
 ): Promise<Transaction> {
+  if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
+
   // Input validation
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
   if (!recipient) throw new ErrorMissingParameter("to");
-  if (!amount) throw new ErrorMissingParameter("amount");
+  if (!rawAmount) throw new ErrorMissingParameter("amount");
 
   // Check if we're paying to a name
   const isName = NAME_META_RE.test(recipient.toLowerCase());
@@ -115,9 +120,11 @@ export async function ctrlMakeTransaction(
   if (!isName && !isValidKristAddress(recipient, true))
     throw new ErrorInvalidParameter("to");
 
-  const finalAmount = typeof amount === "string" ? parseInt(amount) : amount;
+  const amount = typeof rawAmount === "string"
+    ? Math.trunc(parseInt(rawAmount))
+    : Math.trunc(rawAmount);
 
-  if (isNaN(finalAmount) || finalAmount < 1)
+  if (isNaN(amount) || amount < 1)
     throw new ErrorInvalidParameter("amount");
 
   if (metadata && (!/^[\x20-\x7F\n]+$/i.test(metadata)
@@ -129,8 +136,12 @@ export async function ctrlMakeTransaction(
   const { authed, address: sender } = await verifyAddress(req, privatekey);
   if (!authed) throw new ErrorAuthFailed();
 
+  // Apply rate limits now that we know the source address
+  if (!await checkTxRateLimits(req.ip, sender.address))
+    throw new ErrorRateLimitHit();
+
   // Reject insufficient funds
-  if (!sender || sender.balance < finalAmount)
+  if (!sender || sender.balance < amount)
     throw new ErrorInsufficientFunds();
 
   // If this is a name, pay to the owner of the name
@@ -157,7 +168,7 @@ export async function ctrlMakeTransaction(
         dbTx,
         sender.address,
         dbName.owner,
-        finalAmount,
+        amount,
         metadata,
         undefined,
         metaname, dbName.name
@@ -171,7 +182,7 @@ export async function ctrlMakeTransaction(
         dbTx,
         sender.address,
         recipient,
-        finalAmount,
+        amount,
         metadata
       );
     });

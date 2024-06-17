@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,18 +21,14 @@
 
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-
-import { LookupQuery } from "../lookup";
-
-import { AddressJson } from "../../../krist/addresses";
-import { BlockJson } from "../../../krist/blocks";
-import { NameJson } from "../../../krist/names";
-import { TransactionJson } from "../../../krist/transactions";
-
-import { TEST } from "../../../utils/constants";
-
-import routerSearchBasic from "./search";
-import routerSearchExtended from "./searchExtended";
+import { AddressJson } from "../../../krist/addresses/index.js";
+import { BlockJson } from "../../../krist/blocks/index.js";
+import { NameJson } from "../../../krist/names/index.js";
+import { TransactionJson } from "../../../krist/transactions/index.js";
+import { TEST } from "../../../utils/vars.js";
+import { LookupQuery } from "../lookup/index.js";
+import routerSearchBasic from "./search.js";
+import routerSearchExtended from "./searchExtended.js";
 
 export type ReqSearchQuery = LookupQuery<{
   q?: string;
@@ -42,24 +38,17 @@ export type ReqSearchQuery = LookupQuery<{
 /**
  * @apiDefine SearchQuery
  *
- * @apiSuccess {Object} query Information about the way the search query was
- *   interpreted.
- * @apiSuccess {String} query.originalQuery The original (sanitised) query
- *   text.
- * @apiSuccess {Boolean} query.matchAddress Whether or not the query exactly
- *   matches the format of a Krist address.
- * @apiSuccess {Boolean} query.matchName Whether or not the query exactly
- *   matches the format of a Krist name (with or without the `.kst`) suffix.
+ * @apiSuccess {Object} query Information about the way the search query was interpreted.
+ * @apiSuccess {String} query.originalQuery The original (sanitised) query text.
+ * @apiSuccess {Boolean} query.matchAddress Whether the query exactly matches the format of a Krist address.
+ * @apiSuccess {Boolean} query.matchName Whether the query exactly matches the format of a Krist name (with or without
+ *   the `.kst`) suffix.
  * @apiSuccess {Boolean} query.matchBlock Currently unused.
- * @apiSuccess {Boolean} query.matchTransaction Whether or not the query
- *   exactly matches the format of a transaction ID (with all non-numbers
- *   removed).
- * @apiSuccess {String} query.strippedName The query with the `.kst` suffix
- *   stripped, if it was present.
- * @apiSuccess {Boolean} query.hasID Whether or not the query looks like an ID
- *   number (e.g. for transactions).
- * @apiSuccess {Number} [query.cleanID] If hasID is true, this is the query,
- *   sanitised and converted to a number.
+ * @apiSuccess {Boolean} query.matchTransaction Whether the query exactly matches the format of a transaction ID (with
+ *   all non-numbers removed).
+ * @apiSuccess {String} query.strippedName The query with the `.kst` suffix stripped, if it was present.
+ * @apiSuccess {Boolean} query.hasID Whether the query looks like an ID number (e.g. for transactions).
+ * @apiSuccess {Number} [query.cleanID] If hasID is true, this is the query, sanitised and converted to a number.
  */
 export interface SearchQueryMatch {
   originalQuery: string;
@@ -117,4 +106,4 @@ export default (): Router => {
   return router;
 };
 
-export * from "./utils";
+export * from "./utils.js";

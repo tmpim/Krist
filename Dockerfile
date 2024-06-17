@@ -1,18 +1,27 @@
-FROM node:16-alpine
-WORKDIR /usr/src/krist
+# Build
+FROM node:20-alpine AS base
 
-# Install packages
-COPY package*.json ./
-RUN apk add git ca-certificates
-RUN npm install --legacy-peer-deps
+RUN apk add git ca-certificates make g++
 
-# Install source
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+WORKDIR /app
 COPY . .
 
-# Generate docs
-RUN npm run docs
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
-# Run Krist
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run build
+RUN pnpm run docs
+RUN cp /app/static/docs.bundle.js /app/static/docs/assets/main.bundle.js
+
+FROM base
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
 EXPOSE 8080
 ENV NODE_ENV=production
-CMD ["npm", "start"]
+CMD ["node", "dist/src/index.js"]

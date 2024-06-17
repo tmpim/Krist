@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,28 +19,26 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-import { promises as fsp } from "fs";
-
-import express, { NextFunction, Request, Response } from "express";
 import bodyParser from "body-parser";
+import chalkT from "chalk-template";
+import express, { NextFunction, Request, Response } from "express";
+import { promises as fsp } from "fs";
+import { Server } from "http";
+import { ErrorInvalidParameter, ErrorMissingParameter, errorToJson } from "../errors/index.js";
+import { fileExists } from "../utils/index.js";
+import { TEST, WS_IPC_PATH } from "../utils/vars.js";
+import { wsManager } from "./index.js";
+import { WebSocketEventMessage } from "./types.js";
 
-import { wsManager } from ".";
-
-import {
-  ErrorInvalidParameter, ErrorMissingParameter, errorToJson
-} from "../errors";
-import { fileExists } from "../utils";
-import { TEST, WS_IPC_PATH } from "../utils/constants";
-import { WebSocketEventMessage } from "./types";
+let server: Server;
 
 export async function initWebSocketIpc(): Promise<void> {
   if (TEST || !WS_IPC_PATH) return;
 
-  console.log(chalk`{cyan [Websockets]} Starting IPC server`);
+  console.log(chalkT`{cyan [Websockets]} Starting IPC server`);
 
   if (await fileExists(WS_IPC_PATH)) {
-    console.log(chalk`{cyan [Websockets]} Cleaning up existing IPC socket`);
+    console.log(chalkT`{cyan [Websockets]} Cleaning up existing IPC socket`);
     await fsp.unlink(WS_IPC_PATH);
   }
 
@@ -80,7 +78,7 @@ export async function initWebSocketIpc(): Promise<void> {
     };
     const recipients = wsManager.broadcastEvent(rawEvent);
 
-    console.log(chalk`{yellow [Websockets]} Event {bold ${body.event}} broadcast via IPC to {bold ${recipients} recipients}. Raw event:\n`, rawEvent);
+    console.log(chalkT`{yellow [Websockets]} Event {bold ${body.event}} broadcast via IPC to {bold ${recipients} recipients}. Raw event:\n`, rawEvent);
 
     return res.json({
       ok: true,
@@ -95,12 +93,23 @@ export async function initWebSocketIpc(): Promise<void> {
     res.status(200).json(errorToJson(err));
   });
 
-  const server = app.listen(WS_IPC_PATH, () => {
-    console.log(chalk`{green [Websockets]} Started IPC server`);
+  server = app.listen(WS_IPC_PATH, () => {
+    console.log(chalkT`{green [Websockets]} Started IPC server`);
   });
 
   server.on("error", err => {
-    console.error(chalk`{red [Websockets]} Error starting IPC:`);
+    console.error(chalkT`{red [Websockets]} Error starting IPC:`);
     console.error(err);
   });
+}
+
+export function shutdownWebSocketIpc(): void {
+  if (server) {
+    console.log(chalkT`{cyan [Websockets]} Stopping IPC server`);
+    server.close(e => {
+      if (e) console.error(chalkT`{red [Websockets]} Error stopping IPC server:`, e)
+    });
+  } else {
+    console.log(chalkT`{cyan [Websockets]} IPC server not running, not shutting down`);
+  }
 }

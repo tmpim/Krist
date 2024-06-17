@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,15 +19,15 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { db, Limit, Name, Offset, PaginatedResult, SqTransaction } from "../../database";
-import { Op, QueryTypes } from "sequelize";
-
-import { wsManager } from "../../websockets";
-
-import { sanitiseLimit, sanitiseOffset } from "../../utils";
-import { NAME_COST } from "../../utils/constants";
+import { Op, QueryTypes, sql } from "@sequelize/core";
 
 import promClient from "prom-client";
+import { db, Limit, Name, Offset, PaginatedResult, SqTransaction } from "../../database/index.js";
+
+import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
+import { NAME_COST } from "../../utils/vars.js";
+
+import { wsManager } from "../../websockets/index.js";
 
 const promNamesPurchasedCounter = new promClient.Counter({
   name: "krist_names_purchased_total",
@@ -64,10 +64,10 @@ export interface DetailedUnpaidResponseRow {
 }
 
 export async function getDetailedUnpaid(): Promise<DetailedUnpaidResponseRow[]> {
-  return db.query(`
+  return db.query(sql`
     SELECT COUNT(*) AS \`count\`, \`unpaid\` FROM \`names\`
     GROUP BY \`unpaid\`
-    ORDER BY \`unpaid\` ASC;
+    ORDER BY \`unpaid\`;
   `, { type: QueryTypes.SELECT });
 }
 

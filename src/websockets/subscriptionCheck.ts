@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,14 +19,10 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { WrappedWebSocket } from "./WrappedWebSocket";
-import {
-  WebSocketBlockEvent, WebSocketEventMessage, WebSocketNameEvent,
-  WebSocketTransactionEvent
-} from "./types";
+import { WebSocketBlockEvent, WebSocketEventMessage, WebSocketNameEvent, WebSocketTransactionEvent } from "./types.js";
+import { WrappedWebSocket } from "./WrappedWebSocket.js";
 
-/** Returns a function, based on the event type, that checks whether or not a
- * given websocket should receive the event. */
+/** Returns a function, based on the event type, that checks whether a given websocket should receive the event. */
 export function subscriptionCheck(
   msg: WebSocketEventMessage
 ): (ws: WrappedWebSocket) => boolean {

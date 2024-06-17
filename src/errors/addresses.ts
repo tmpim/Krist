@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { KristError } from "./KristError";
+import { KristError } from "./KristError.js";
 
 export class ErrorAddressNotFound extends KristError<{ address?: string | null }> {
   constructor(address: string) {
@@ -32,7 +32,7 @@ export class ErrorAddressNotFound extends KristError<{ address?: string | null }
   }
 }
 
-export class ErrorAuthFailed extends KristError<never> {
+export class ErrorAuthFailed extends KristError {
   constructor() {
     super("Authentication failed", "auth_failed", 401);
   }

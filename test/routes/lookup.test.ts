@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,11 +20,10 @@
  */
 
 import { expect } from "chai";
+import { seed } from "../seed.js";
+import { api } from "../api.js";
 
-import { seed } from "../seed";
-import { api } from "../api";
-
-import { Name, Transaction } from "../../src/database";
+import { Name, Transaction } from "../../src/database/index.js";
 
 describe("v2 routes: lookup api", () => {
   before(seed);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,54 +20,52 @@
  */
 
 import "dotenv/config";
-
 import * as chai from "chai";
 import chaiHttp from "chai-http";
 import sinon, { SinonSandbox } from "sinon";
-
-import chalk from "chalk";
-
-import { initDatabase, db } from "../src/database";
-import { initRedis, redis, rKey } from "../src/database/redis";
-import { initWebserver, server } from "../src/webserver";
-import { initKrist } from "../src/krist";
-
-import { teardownWorkOverTime } from "../src/krist/work";
+import chalkT from "chalk-template";
+import { initDatabase, db } from "../src/database/index.js";
+import { initRedis, redis, rKey } from "../src/database/redis.js";
+import { initWebserver, server } from "../src/webserver/index.js";
+import { initKrist } from "../src/krist/index.js";
+import { shutdownWorkOverTime } from "../src/krist/work.js";
 import { RootHookObject } from "mocha";
 
-exports.mochaGlobalSetup = async function() {
+export async function mochaGlobalSetup() {
   chai.use(chaiHttp);
 
   await initRedis();
   await initDatabase();
   await initWebserver();
   await initKrist();
-};
+}
 
-exports.mochaGlobalTeardown = async function() {
-  console.log(chalk`{red [Tests]} Stopping web server and database`);
+export async function mochaGlobalTeardown() {
+  console.log(chalkT`{red [Tests]} Stopping web server and database`);
 
   // Undo some changes made by the test runner
   await redis.set(rKey("mining-enabled"), "false");
 
   server.close();
   await db.close();
-  teardownWorkOverTime();
-};
+  shutdownWorkOverTime();
+}
 
 let sandbox: SinonSandbox;
-export const mochaHooks = (): RootHookObject => ({
-  beforeEach(done) {
-    // Suppress Krist's rather verbose logging during tests
-    if (!process.env.TEST_DEBUG) {
-      sandbox = sinon.createSandbox();
-      sandbox.stub(console, "log");
-    }
-    done();
-  },
+export function mochaHooks(): RootHookObject {
+  return {
+    beforeEach(done) {
+      // Suppress Krist's rather verbose logging during tests
+      if (!process.env.TEST_DEBUG) {
+        sandbox = sinon.createSandbox();
+        sandbox.stub(console, "log");
+      }
+      done();
+    },
 
-  afterEach(done) {
-    if (!process.env.TEST_DEBUG) sandbox.restore();
-    done();
-  }
-});
+    afterEach(done) {
+      if (!process.env.TEST_DEBUG) sandbox.restore();
+      done();
+    }
+  };
+}

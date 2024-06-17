@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,10 +20,7 @@
  */
 
 import { expect } from "chai";
-
-import {
-  isValidKristAddress, isValidName, stripNameSuffix
-} from "../../src/utils";
+import { isValidKristAddress, isValidName, stripNameSuffix } from "../../src/utils/index.js";
 
 describe("krist functions", () => {
   describe("isValidKristAddress", () => {

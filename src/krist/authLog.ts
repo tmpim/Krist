@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,31 +19,36 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
-import cron from "node-cron";
+import { Op, sql } from "@sequelize/core";
+import chalkT from "chalk-template";
 import { Request } from "express";
-import { Op, Sequelize } from "sequelize";
-
-import { AuthLog } from "../database";
-
-import { getLogDetails } from "../utils";
+import cron from "node-cron";
+import { AuthLog } from "../database/index.js";
+import { getLogDetails } from "../utils/index.js";
 
 export type AuthLogType = "auth" | "mining";
 
+let job: cron.ScheduledTask | null = null;
+
 export function initAuthLogCleanup(): void {
   // Start the hourly auth log cleaner, and also run it immediately
-  cron.schedule("0 0 * * * *", () => cleanAuthLog().catch(console.error));
+  job = cron.schedule("0 0 * * * *", () => cleanAuthLog().catch(console.error));
   cleanAuthLog().catch(console.error);
+}
+
+export function shutdownAuthLogCleanup(): void {
+  console.log(chalkT`{cyan [Auth]} Stopping auth log cleaner`);
+  job?.stop();
 }
 
 /** For privacy reasons, purge entries from the auth log older than 30 days. */
 async function cleanAuthLog(): Promise<void> {
   const destroyed = await AuthLog.destroy({
     where: {
-      time: { [Op.lte]: Sequelize.literal("NOW() - INTERVAL 30 DAY")}
+      time: { [Op.lte]: sql`NOW() - INTERVAL 30 DAY` }
     }
   });
-  console.log(chalk`{cyan [Auth]} Purged {bold ${destroyed}} auth log entries`);
+  console.log(chalkT`{cyan [Auth]} Purged {bold ${destroyed}} auth log entries`);
 }
 
 export async function logAuth(
@@ -54,7 +59,7 @@ export async function logAuth(
   const { ip, path, userAgent, libraryAgent, origin, logDetails } = getLogDetails(req);
 
   if (type === "auth") {
-    console.log(chalk`{green [Auth]} ({bold ${path}}) Successful auth on address {bold ${address}} ${logDetails}`);
+    console.log(chalkT`{green [Auth]} ({bold ${path}}) Successful auth on address {bold ${address}} ${logDetails}`);
   }
 
   // Check if there's already a recent log entry with these details. If there
@@ -63,13 +68,13 @@ export async function logAuth(
     where: {
       ip,
       address,
-      time: { [Op.gte]: Sequelize.literal("NOW() - INTERVAL 30 MINUTE")},
+      time: { [Op.gte]: sql`NOW() - INTERVAL 30 MINUTE` },
       type
     }
   });
   if (existing) return;
 
-  AuthLog.create({
+  await AuthLog.create({
     ip,
     address,
     time: new Date(),

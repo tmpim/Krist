@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,13 +19,11 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { promisify } from "util";
-
 import { RequestHandler } from "express";
 import { OutgoingHttpHeaders } from "http2";
-
-import { redis, rKey } from "../database/redis";
-import { IDEMPOTENCY_TTL_SECS } from "../utils/constants";
+import { promisify } from "util";
+import { redis, rKey } from "../database/redis.js";
+import { IDEMPOTENCY_TTL_SECS } from "../utils/vars.js";
 
 const sleep = promisify(setTimeout);
 

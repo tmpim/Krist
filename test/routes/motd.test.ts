@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,9 +20,8 @@
  */
 
 import { expect } from "chai";
-
-import { seed } from "../seed";
-import { api } from "../api";
+import { seed } from "../seed.js";
+import { api } from "../api.js";
 
 describe("v2 routes: motd", () => {
   before(seed);
@@ -40,6 +39,7 @@ describe("v2 routes: motd", () => {
 
     expect(res.body.public_url).to.equal(process.env.PUBLIC_URL || "localhost:8080");
     expect(res.body.mining_enabled).to.be.false;
+    expect(res.body.transactions_enabled).to.be.true;
     expect(res.body.debug_mode).to.be.true;
 
     expect(res.body.work).to.equal(100000);

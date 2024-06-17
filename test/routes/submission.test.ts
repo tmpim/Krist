@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -20,14 +20,9 @@
  */
 
 import { expect } from "chai";
-
-import { seed } from "../seed";
-import { api } from "../api";
-
-import { Block, Address, Transaction, Name } from "../../src/database";
-import { redis, rKey } from "../../src/database/redis";
-
-import { getWork } from "../../src/krist/work";
+import { seed } from "../seed.js";
+import { api } from "../api.js";
+import { redis, rKey } from "../../src/database/redis.js";
 
 describe("v1 routes: submission", () => {
   before(seed);

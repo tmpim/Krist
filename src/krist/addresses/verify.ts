@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,17 +19,14 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import chalkT from "chalk-template";
 import { Request } from "express";
-
-import { Address } from "../../database";
-import { getAddress } from ".";
-import { logAuth } from "../authLog";
-
-import { getLogDetails, makeV2Address, sha256 } from "../../utils";
-
 import promClient from "prom-client";
-import { criticalLog } from "../../utils/criticalLog";
+import { Address } from "../../database/index.js";
+import { criticalLog } from "../../utils/criticalLog.js";
+import { getLogDetails, makeV2Address, sha256 } from "../../utils/index.js";
+import { logAuth } from "../authLog.js";
+import { getAddress } from "./index.js";
 
 const promAddressesVerifiedCounter = new promClient.Counter({
   name: "krist_addresses_verified_total",
@@ -54,7 +51,7 @@ export async function verifyAddress(
 
   const kristAddress = makeV2Address(privatekey);
 
-  console.log(chalk`{cyan [Auth]} ({bold ${path}}) Auth attempt on address {bold ${kristAddress}} ${logDetails}`);
+  console.log(chalkT`{cyan [Auth]} ({bold ${path}}) Auth attempt on address {bold ${kristAddress}} ${logDetails}`);
   promAddressesVerifiedCounter.inc({ type: "attempt" });
 
   const hash = sha256(kristAddress + privatekey);
@@ -67,7 +64,7 @@ export async function verifyAddress(
       privatekey: hash
     });
 
-    logAuth(req, kristAddress, "auth");
+    logAuth(req, kristAddress, "auth").catch(console.error);
     promAddressesVerifiedCounter.inc({ type: "authed" });
     return { authed: true, address: newAddress };
   }
@@ -76,16 +73,16 @@ export async function verifyAddress(
     const authed = !address.locked && address.privatekey === hash;
 
     if (authed) {
-      logAuth(req, kristAddress, "auth");
+      logAuth(req, kristAddress, "auth").catch(console.error);
     } else {
       const reason = address.locked
         ? `(locked, alert: ${address.alert ?? "none"})`
         : "(incorrect privatekey hash)";
-      console.log(chalk`{red [Auth]} ({bold ${path}}) Auth failed on address `
-        + chalk`{bold ${kristAddress}} for reason {bold ${reason}} `
-        + chalk`${logDetails}`);
-      criticalLog(req, `Auth failed on address **${kristAddress}**. Reason: `
-        + reason, false);
+      console.log(chalkT`{red [Auth]} ({bold ${path}}) Auth failed on address `
+        + chalkT`{bold ${kristAddress}} for reason {bold ${reason}} `
+        + chalkT`${logDetails}`);
+      criticalLog(`authFailed-${kristAddress}`, req, `Auth failed on address **${kristAddress}**. Reason: ${reason}`,
+        false);
     }
 
     promAddressesVerifiedCounter.inc({ type: authed ? "authed" : "failed" });
@@ -93,7 +90,7 @@ export async function verifyAddress(
   } else { // Address doesn't yet have a privatekey, claim it as the first
     const updatedAddress = await address.update({ privatekey: hash });
 
-    logAuth(req, kristAddress, "auth");
+    logAuth(req, kristAddress, "auth").catch(console.error);
     promAddressesVerifiedCounter.inc({ type: "authed" });
     return { authed: true, address: updatedAddress };
   }

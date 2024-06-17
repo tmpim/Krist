@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,16 +19,22 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { KristError } from "./KristError";
+import { KristError } from "./KristError.js";
 
-export class ErrorInsufficientFunds extends KristError<never> {
+export class ErrorInsufficientFunds extends KristError {
   constructor() {
     super("Insufficient funds", "insufficient_funds", 403);
   }
 }
 
-export class ErrorTransactionNotFound extends KristError<never> {
+export class ErrorTransactionNotFound extends KristError {
   constructor() {
     super("Transaction not found", "transaction_not_found", 404);
+  }
+}
+
+export class ErrorTransactionsDisabled extends KristError {
+  constructor() {
+    super("Transactions disabled", "transactions_disabled", 423);
   }
 }

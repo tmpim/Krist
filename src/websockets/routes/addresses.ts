@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,10 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { ctrlGetAddress } from "../../controllers/addresses";
-import { addressToJson } from "../../krist/addresses";
-
-import { WebSocketEventHandler } from "../types";
+import { ctrlGetAddress } from "../../controllers/addresses.js";
+import { addressToJson } from "../../krist/addresses/index.js";
+import { WebSocketEventHandler } from "../types.js";
 
 /**
  * @api {ws} /type/address Get an address

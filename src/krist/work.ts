@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,8 +19,8 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { redis, rKey } from "../database/redis";
-import { MAX_WORK } from "../utils/constants";
+import { redis, rKey } from "../database/redis.js";
+import { MAX_WORK } from "../utils/vars.js";
 
 export async function getWork(): Promise<number> {
   const rawWork = await redis.get(rKey("work"));
@@ -37,14 +37,14 @@ export async function setWork(work: number): Promise<void> {
   await redis.set(rKey("work"), work.toString());
 }
 
-let workOverTimeInterval: NodeJS.Timer;
+let workOverTimeInterval: NodeJS.Timeout;
 export function initWorkOverTime(): void {
   // Update the work over time every minute
   workOverTimeInterval = setInterval(async () => {
     await redis.lPush(rKey("work-over-time"), (await getWork()).toString());
     await redis.lTrim(rKey("work-over-time"), 0, 1440);
-  }, 60 * 1000);
+  }, 60 * 1000).unref();
 }
-export function teardownWorkOverTime(): void {
+export function shutdownWorkOverTime(): void {
   clearInterval(workOverTimeInterval);
 }

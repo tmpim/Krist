@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -21,10 +21,17 @@
 
 import dayjs from "dayjs";
 import { Router } from "express";
-import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "..";
-import { ctrlGetBlock, ctrlGetLastBlock } from "../../controllers/blocks";
-import { blockToJson, getBlock, getBlocks, getBlockValue, getLastBlock, getLowestHashes } from "../../krist/blocks";
-import { getBaseBlockValue, padDigits } from "../../utils";
+import { ctrlGetBlock, ctrlGetLastBlock } from "../../controllers/blocks.js";
+import {
+  blockToJson,
+  getBlock,
+  getBlocks,
+  getBlockValue,
+  getLastBlock,
+  getLowestHashes
+} from "../../krist/blocks/index.js";
+import { getBaseBlockValue, padDigits } from "../../utils/index.js";
+import { PaginatedQuery, ReqQuery, returnPaginatedResult } from "../index.js";
 
 export default (): Router => {
   const router = Router();

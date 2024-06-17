@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,9 +19,9 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import chalk from "chalk";
+import chalkT from "chalk-template";
 
-import { KristError } from "./KristError";
+import { KristError } from "./KristError.js";
 
 export interface ErrorResponse {
   ok: false;
@@ -39,7 +39,7 @@ export function errorToJson(err: unknown): ErrorResponse {
     };
   } else if (err instanceof Error
     && err.name === "SequelizeUniqueConstraintError") {
-    console.error(chalk`{red [Error]} Uncaught validation error.`);
+    console.error(chalkT`{red [Error]} Uncaught validation error.`);
     console.error(err.stack);
     console.error((err as any).errors);
 
@@ -48,7 +48,7 @@ export function errorToJson(err: unknown): ErrorResponse {
       error: "server_error"
     };
   } else {
-    console.error(chalk`{red [Error]} Uncaught error:`, err);
+    console.error(chalkT`{red [Error]} Uncaught error:`, err);
     if (err instanceof Error) console.error(err.stack);
 
     return {

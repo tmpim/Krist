@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 - 2022 Drew Edwards, tmpim
+ * Copyright 2016 - 2024 Drew Edwards, tmpim
  *
  * This file is part of Krist.
  *
@@ -19,23 +19,16 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { WebSocketEventHandler, WebSocketMessageType } from "../types";
-
-import { ErrorInvalidParameter } from "../../errors";
-
-import { wsGetAddress } from "./addresses";
-import { wsGetMe } from "./me";
-import { wsGetWork } from "./work";
-import { wsMakeTransaction } from "./transactions";
-import { wsSubmitBlock } from "./submission";
-
-import {
-  wsSubscribe, wsUnsubscribe,
-  wsGetSubscriptionLevel, wsGetValidSubscriptionLevels
-} from "./subscription";
-
-import { wsLogin } from "./login";
-import { wsLogout } from "./logout";
+import { ErrorInvalidParameter } from "../../errors/index.js";
+import { WebSocketEventHandler, WebSocketMessageType } from "../types.js";
+import { wsGetAddress } from "./addresses.js";
+import { wsLogin } from "./login.js";
+import { wsLogout } from "./logout.js";
+import { wsGetMe } from "./me.js";
+import { wsSubmitBlock } from "./submission.js";
+import { wsGetSubscriptionLevel, wsGetValidSubscriptionLevels, wsSubscribe, wsUnsubscribe } from "./subscription.js";
+import { wsMakeTransaction } from "./transactions.js";
+import { wsGetWork } from "./work.js";
 
 export const WEBSOCKET_HANDLERS: Record<WebSocketMessageType, WebSocketEventHandler<any>> = {
   "address": wsGetAddress,
