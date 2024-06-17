@@ -77,7 +77,7 @@ export async function initWebserver(): Promise<void> {
 
   if (!TEST) {
     app.use(rateLimit({
-      windowMs: 60000, max: 120,
+      windowMs: 60000, max: 180,
       message: { ok: false, error: "rate_limit_hit" },
     }));
   }
