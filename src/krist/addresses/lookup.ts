@@ -21,24 +21,31 @@
 
 import { QueryTypes, sql } from "@sequelize/core";
 import { Address, db } from "../../database/index.js";
+import { AddressWithNames } from "./index.js";
 
 export async function lookupAddresses(
   addressList: string[],
   fetchNames?: boolean
 ): Promise<Address[]> {
   if (fetchNames) {
-    return db.query(sql`
+    const rows: AddressWithNames[] = await db.query(sql`
       SELECT
         \`addresses\`.*,
         COUNT(\`names\`.\`id\`) AS \`names\`
       FROM \`addresses\`
       LEFT JOIN \`names\` ON \`addresses\`.\`address\` = \`names\`.\`owner\`
-      WHERE \`addresses\`.\`address\` IN (:addresses)
+      WHERE \`addresses\`.\`address\` IN :addresses
       GROUP BY \`addresses\`.\`address\`
       ORDER BY \`names\` DESC
     `, {
-      replacements: { addresses: addressList },
+      replacements: { addresses: sql.list(addressList) },
       type: QueryTypes.SELECT
+    });
+
+    return rows.map(row => {
+      row.firstseen = new Date(row.firstseen);
+      row.names = Number(row.names);
+      return row;
     });
   } else {
     return Address.findAll({ where: { address: addressList } });
