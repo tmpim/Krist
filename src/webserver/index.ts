@@ -24,10 +24,10 @@ import chalkT from "chalk-template";
 import cors from "cors";
 import express, { Express, NextFunction, Request, Response } from "express";
 import { engine } from "express-handlebars";
-import rateLimit from "express-rate-limit";
 import expressWs from "express-ws";
 import { Server } from "http";
 import { ErrorRouteNotFound, errorToJson } from "../errors/index.js";
+import { webserverRateLimiter } from "../utils/rateLimit.js";
 import { TEST, TRUST_PROXY_COUNT, WEB_LISTEN } from "../utils/vars.js";
 import { idempotency } from "./idempotency.js";
 import { initPrometheus } from "./prometheus.js";
@@ -59,11 +59,8 @@ export async function initWebserver(): Promise<void> {
   app.engine(".hbs", engine({
     extname: ".hbs",
     helpers: {
-      concat(str: string, suffix: string) {
-        if (typeof str === "string" && typeof suffix === "string") {
-          return str + suffix;
-        }
-        return str;
+      concat(str?: string, suffix?: string) {
+        return typeof str === "string" && typeof suffix === "string" ? str + suffix : str;
       }
     }
   }));
@@ -75,12 +72,7 @@ export async function initWebserver(): Promise<void> {
 
   app.use(idempotency());
 
-  if (!TEST) {
-    app.use(rateLimit({
-      windowMs: 60000, max: 180,
-      message: { ok: false, error: "rate_limit_hit" },
-    }));
-  }
+  if (!TEST) app.use(webserverRateLimiter());
 
   app.all("*", (req, res, next) => {
     res.header("X-Robots-Tag", "none");

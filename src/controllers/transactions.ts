@@ -38,13 +38,9 @@ import { verifyAddress } from "../krist/addresses/verify.js";
 import { getName } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
 import { pushTransaction } from "../krist/transactions/create.js";
-import {
-  checkTxRateLimits,
-  getTransaction,
-  getTransactions,
-  getTransactionsByAddress
-} from "../krist/transactions/index.js";
+import { getTransaction, getTransactions, getTransactionsByAddress } from "../krist/transactions/index.js";
 import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, validateLimitOffset } from "../utils/index.js";
+import { checkTxRateLimits } from "../utils/rateLimit.js";
 
 export async function ctrlGetTransactions(
   limit: Limit,

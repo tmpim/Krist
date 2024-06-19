@@ -38,8 +38,8 @@ import { verifyAddress } from "../krist/addresses/verify.js";
 import { createName, getName, getNames, getNamesByAddress, getUnpaidNames } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
 import { createTransaction, pushTransaction } from "../krist/transactions/create.js";
-import { checkTxRateLimits } from "../krist/transactions/index.js";
 import { isValidARecord, isValidKristAddress, isValidName, validateLimitOffset } from "../utils/index.js";
+import { checkTxRateLimits } from "../utils/rateLimit.js";
 import { NAME_COST } from "../utils/vars.js";
 
 function cleanNameInput(name: string): string {
@@ -227,7 +227,7 @@ export async function ctrlUpdateName(
   a?: string | null
 ): Promise<Name> {
   if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
-  
+
   // Clean name data
   if (typeof a === "string") a = a.trim();
   if (a === undefined || a === "") a = null;
