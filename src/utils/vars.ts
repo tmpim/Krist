@@ -45,6 +45,12 @@ export const DB_HOST = TEST ? TEST_DB_HOST : MAIN_DB_HOST;
 export const DB_PORT = parseInt(process.env.DB_PORT ?? "3306");
 export const DB_LOGGING = process.env.DB_LOGGING === "true";
 
+export const DB_POOL_MIN        = parseInt(process.env.DB_POOL_MIN || "3");
+export const DB_POOL_MAX        = parseInt(process.env.DB_POOL_MAX || "5");
+export const DB_POOL_IDLE_MS    = parseInt(process.env.DB_POOL_IDLE_MS || "300000");
+export const DB_POOL_ACQUIRE_MS = parseInt(process.env.DB_POOL_ACQUIRE_MS || "30000");
+export const DB_POOL_EVICT_MS   = parseInt(process.env.DB_POOL_EVICT_MS || "10000");
+
 export const REDIS_HOST = process.env.REDIS_HOST as string | undefined || "127.0.0.1";
 export const REDIS_PORT = parseInt(process.env.REDIS_PORT as string | undefined || "6379");
 export const REDIS_PASS = process.env.REDIS_PASS as string | undefined;

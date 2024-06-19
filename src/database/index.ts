@@ -22,11 +22,84 @@
 import { Sequelize, Transaction } from "@sequelize/core";
 import { MariaDbDialect } from "@sequelize/mariadb";
 import chalkT from "chalk-template";
+import client from "prom-client";
 
-import { DB_HOST, DB_LOGGING, DB_NAME, DB_PASS, DB_PORT, DB_USER, TEST } from "../utils/vars.js";
+import {
+  DB_HOST,
+  DB_LOGGING,
+  DB_NAME,
+  DB_PASS, DB_POOL_ACQUIRE_MS, DB_POOL_EVICT_MS, DB_POOL_IDLE_MS,
+  DB_POOL_MAX,
+  DB_POOL_MIN,
+  DB_PORT,
+  DB_USER,
+  TEST
+} from "../utils/vars.js";
 import { SCHEMAS } from "./schemas.js";
 
-export let db: Sequelize;
+export let db: Sequelize<MariaDbDialect>;
+
+new client.Gauge({
+  name: "krist_db_pool_read_size",
+  help: "sequelize.pool.read.size",
+  collect() { if (db.pool.read) this.set(db.pool.read.size); }
+});
+new client.Gauge({
+  name: "krist_db_pool_read_available",
+  help: "sequelize.pool.read.available",
+  collect() { if (db.pool.read) this.set(db.pool.read.available); }
+});
+new client.Gauge({
+  name: "krist_db_pool_read_using",
+  help: "sequelize.pool.read.using",
+  collect() { if (db.pool.read) this.set(db.pool.read.using); }
+});
+new client.Gauge({
+  name: "krist_db_pool_read_waiting",
+  help: "sequelize.pool.read.waiting",
+  collect() { if (db.pool.read) this.set(db.pool.read.waiting); }
+});
+new client.Gauge({
+  name: "krist_db_pool_read_min_size",
+  help: "sequelize.pool.read.minSize",
+  collect() { if (db.pool.read) this.set(db.pool.read.minSize); }
+});
+new client.Gauge({
+  name: "krist_db_pool_read_max_size",
+  help: "sequelize.pool.read.maxSize",
+  collect() { if (db.pool.read) this.set(db.pool.read.maxSize); }
+});
+
+new client.Gauge({
+  name: "krist_db_pool_write_size",
+  help: "sequelize.pool.write.size",
+  collect() { if (db.pool.write) this.set(db.pool.write.size); }
+});
+new client.Gauge({
+  name: "krist_db_pool_write_available",
+  help: "sequelize.pool.write.available",
+  collect() { if (db.pool.write) this.set(db.pool.write.available); }
+});
+new client.Gauge({
+  name: "krist_db_pool_write_using",
+  help: "sequelize.pool.write.using",
+  collect() { if (db.pool.write) this.set(db.pool.write.using); }
+});
+new client.Gauge({
+  name: "krist_db_pool_write_waiting",
+  help: "sequelize.pool.write.waiting",
+  collect() { if (db.pool.write) this.set(db.pool.write.waiting); }
+});
+new client.Gauge({
+  name: "krist_db_pool_write_min_size",
+  help: "sequelize.pool.write.minSize",
+  collect() { if (db.pool.write) this.set(db.pool.write.minSize); }
+});
+new client.Gauge({
+  name: "krist_db_pool_write_max_size",
+  help: "sequelize.pool.write.maxSize",
+  collect() { if (db.pool.write) this.set(db.pool.write.maxSize); }
+});
 
 // =============================================================================
 // Init database
@@ -44,11 +117,11 @@ export async function initDatabase(): Promise<void> {
     logging: DB_LOGGING ? console.log : false,
     models: SCHEMAS,
     pool: {
-      max: 5,
-      min: 3,
-      idle: 300_000,
-      acquire: 30_000,
-      evict: 10_000,
+      min: DB_POOL_MIN,
+      max: DB_POOL_MAX,
+      idle: DB_POOL_IDLE_MS,
+      acquire: DB_POOL_ACQUIRE_MS,
+      evict: DB_POOL_EVICT_MS
     }
   });
 
