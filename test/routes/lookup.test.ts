@@ -28,10 +28,71 @@ import { Name, Transaction } from "../../src/database/index.js";
 describe("v2 routes: lookup api", () => {
   before(seed);
 
-  // TODO: /lookup/addresses/:addresses
   // TODO: /lookup/transactions/:addresses
   // TODO: /lookup/blocks
   // TODO: /lookup/names
+
+  describe("GET /lookup/addresses/:addresses", () => {
+    it("should error with an invalid address", async () => {
+      const res = await api().get("/lookup/addresses/invalid");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
+    });
+
+    it("should error with multiple addresses, where one is invalid", async () => {
+      const res = await api().get("/lookup/addresses/k8juvewcui,invalid");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
+    });
+
+    it("should error with more than 128 addresses", async () => {
+      const mkAddress = (i: number) => `k${i.toString().padStart(9, "0")}`
+      const res = await api().get("/lookup/addresses/" + Array(129).fill(0).map((_, i) => mkAddress(i)).join(","));
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
+    });
+
+    it("should return null for a nonexistent address", async () => {
+      const res = await api().get("/lookup/addresses/knotfound0");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, found: 0, notFound: 1 });
+      expect(res.body.addresses).to.be.an("object");
+      expect(res.body.addresses).to.deep.include({ knotfound0: null });
+    });
+
+    it("should lookup an address", async () => {
+      const res = await api().get("/lookup/addresses/k8juvewcui");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, found: 1, notFound: 0 });
+      expect(res.body.addresses).to.be.an("object");
+      expect(res.body.addresses).to.have.all.keys("k8juvewcui");
+      expect(res.body.addresses.k8juvewcui).to.be.an("object");
+      expect(res.body.addresses.k8juvewcui).to.have.all.keys("address", "balance", "totalin", "totalout", "firstseen");
+      expect(res.body.addresses.k8juvewcui).to.not.have.key("names");
+    });
+
+    it("should lookup multiple addresses", async () => {
+      const res = await api().get("/lookup/addresses/k8juvewcui,k7oax47quv,knotfound0");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, found: 2, notFound: 1 });
+      expect(res.body.addresses).to.be.an("object");
+      expect(res.body.addresses).to.have.all.keys("k8juvewcui", "k7oax47quv", "knotfound0");
+      expect(res.body.addresses.k8juvewcui).to.be.an("object");
+      expect(res.body.addresses.k7oax47quv).to.be.an("object");
+      expect(res.body.addresses.knotfound0).to.be.null;
+    });
+
+    it("should fetch names for an address", async () => {
+      const res = await api().get("/lookup/addresses/k8juvewcui?fetchNames");
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, found: 1, notFound: 0 });
+      expect(res.body.addresses).to.be.an("object");
+      expect(res.body.addresses).to.have.all.keys("k8juvewcui");
+      expect(res.body.addresses.k8juvewcui).to.be.an("object");
+      expect(res.body.addresses.k8juvewcui).to.have.all.keys("address", "balance", "totalin", "totalout", "firstseen", "names");
+      expect(res.body.addresses.k8juvewcui.names).to.be.a("number");
+    });
+  });
 
   describe("GET /search", () => {
     it("should error with a missing query", async () => {
