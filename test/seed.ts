@@ -28,14 +28,15 @@ export async function seed(): Promise<void> {
   const debug = TEST_DEBUG;
 
   // Cowardly refuse to wipe the databases if the database name is 'krist' (production username)
-  if ((db.options.replication.write as any).database === "krist")
+  const dbName = (db.options.replication.write as any).database;
+  if (dbName === "krist")
     throw new Error("Refusing to wipe production databases in test runner. Check environment variables!!");
 
   // Clear the databases
-  if (debug) console.log(chalkT`{red [Tests]} Clearing the database {bold ${db.getDatabaseName()}}`);
+  if (debug) console.log(chalkT`{red [Tests]} Clearing the database {bold ${dbName}}`);
   await db.sync({ force: true });
 
-  if (debug) console.log(chalkT`{red [Tests]} Seeding the database {bold ${db.getDatabaseName()}}`);
+  if (debug) console.log(chalkT`{red [Tests]} Seeding the database {bold ${dbName}}`);
   await Promise.all([
     // Create the genesis block
     Block.create({

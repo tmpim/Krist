@@ -22,11 +22,13 @@
 import chalkT from "chalk-template";
 import dayjs from "dayjs";
 import { Request } from "express";
+import PQueue from "p-queue";
 import promClient from "prom-client";
 import { Address, SqTransaction, Transaction } from "../../database/index.js";
 import { ErrorAddressNotFound, ErrorInsufficientFunds } from "../../errors/index.js";
 import { criticalLog } from "../../utils/criticalLog.js";
 import { getLogDetails } from "../../utils/index.js";
+import { TRANSACTION_MAX_CONCURRENCY } from "../../utils/vars.js";
 import { wsManager } from "../../websockets/index.js";
 import { identifyTransactionType, transactionToJson } from "./index.js";
 
@@ -44,11 +46,34 @@ promTransactionCounter.inc({ type: "name_a_record" }, 0);
 promTransactionCounter.inc({ type: "name_transfer" }, 0);
 promTransactionCounter.inc({ type: "transfer" }, 0);
 
+const promTransactionRollbackCounter = new promClient.Counter({
+  name: "krist_transactions_rollback_total",
+  help: "Total number of transactions that were rolled back since the Krist server started."
+});
+
+// Queue for handling transactions, to prevent deadlocks when too many come in simultaneously
+const txQueue = new PQueue({ concurrency: TRANSACTION_MAX_CONCURRENCY });
+
 /** Fully handles a transfer transaction; check the sender has sufficient funds, decrements the sender's balance,
  * increment's the recipient's balance, and creates a transaction record by delegating to the createTransaction
  * function. Creates the recipient address if it does not exist. Most of the logic happens in the innerPushTransaction
  * function. This outer function is only responsible for starting a database transaction if one wasn't already. */
 export async function pushTransaction(
+  req: Request,
+  dbTx: SqTransaction,
+  senderAddress: string,
+  recipientAddress: string,
+  amount: number,
+  metadata?: string | null,
+  name?: string | null,
+  sentMetaname?: string | null,
+  sentName?: string | null
+): Promise<Transaction> {
+  return txQueue.add(() => pushTransactionInternal(req, dbTx, senderAddress, recipientAddress, amount, metadata, name,
+    sentMetaname, sentName), { throwOnTimeout: true });
+}
+
+async function pushTransactionInternal(
   req: Request,
   dbTx: SqTransaction,
   senderAddress: string,
@@ -148,7 +173,7 @@ export async function createTransaction(
 ): Promise<Transaction> {
   const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
 
-  console.log(chalkT`{bold [Krist]} Creating {bold ${value} KST} transaction `
+  console.log(chalkT`{bold [Transactions]} Creating {bold ${value} KST} transaction `
     + chalkT`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
     + chalkT`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
 
@@ -167,13 +192,9 @@ export async function createTransaction(
     origin
   }, { transaction: dbTx });
 
-  // After the database transaction is committed, broadcast the new transaction
-  // to the websockets and increment the Prometheus transaction counter.
+  // After the database transaction is committed, broadcast the new transaction to the websockets and increment the
+  // Prometheus transaction counter.
   dbTx?.afterCommit(async () => {
-    // Make sure we have the latest transaction object. Escape the CLS transaction here, to prevent re-using the already
-    // committed dbTx.
-    await newTransaction.reload({ transaction: null });
-
     // Increment the Prometheus transaction counter
     promTransactionCounter.inc({
       type: identifyTransactionType(newTransaction)
@@ -185,6 +206,11 @@ export async function createTransaction(
       event: "transaction",
       transaction: transactionToJson(newTransaction)
     });
+  });
+
+  dbTx?.afterRollback(async () => {
+    promTransactionRollbackCounter.inc();
+    console.log(chalkT`{red.bold [Transactions]} Rolled back transaction`, newTransaction.toJSON(), logDetails);
   });
 
   return newTransaction;

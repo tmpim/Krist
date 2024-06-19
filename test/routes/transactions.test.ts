@@ -20,10 +20,12 @@
  */
 
 import { expect } from "chai";
+import { TEST_DEBUG } from "../../src/utils/vars.js";
 import { seed } from "../seed.js";
 import { api } from "../api.js";
-import { Name, Address, Transaction } from "../../src/database/index.js";
+import { Name, Address, Transaction, db } from "../../src/database/index.js";
 import { redis, rKey } from "../../src/database/redis.js";
+import { pick } from "lodash-es";
 
 const expectTransactionExist = (
   id: number,
@@ -382,12 +384,10 @@ describe("transaction edge cases", () => {
     expect(res.body.transaction).to.deep.include({ from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
   });
 
-  it("should not allow multiple simultaneous transactions", async () => {
-    async function sendTx() {
-      return await api()
-        .post("/transactions")
-        .send({ amount: 25000, to: "kwsgj3x184", privatekey: "d" });
-    }
+  it("should handle large simultaneous transactions", async () => {
+    const sendTx = () => api()
+      .post("/transactions")
+      .send({ amount: 25000, to: "kwsgj3x184", privatekey: "d" });
 
     const results = await Promise.all([sendTx(), sendTx(), sendTx()]);
     let succeeded = 0, failed = 0;
@@ -408,5 +408,64 @@ describe("transaction edge cases", () => {
     const addr2 = await Address.findOne({ where: { address: "kwsgj3x184" }});
     expect(addr2).to.be.ok;
     expect(addr2!.balance).to.equal(25000);
+  });
+
+  async function bulkTransactionTest(count: number) {
+    const start = 25000;
+
+    // Reset the balances of the testing addresses
+    await Address.update({ balance: start }, { where: { address: "k0duvsr4qn" }});
+    await Address.update({ balance: 0 }, { where: { address: "kwsgj3x184" }});
+
+    const sendTx = () => api()
+      .post("/transactions")
+      .send({ amount: 1, to: "kwsgj3x184", privatekey: "d" });
+
+    // Continuously monitor the state of the DB pool until the test is complete
+    let poolCheckTimer: NodeJS.Timeout | null = null;
+    if (TEST_DEBUG) {
+      poolCheckTimer = setInterval(async () => {
+        const read = pick(db.pool.read, ["size", "available", "using", "waiting", "minSize", "maxSize"]);
+        const write = pick(db.pool.write, ["size", "available", "using", "waiting", "minSize", "maxSize"]);
+        console.log("bulkTransactionTest", count, "Read pool:", read, "Write pool:", write);
+      }, 250).unref();
+    }
+
+    const results = await Promise.all([...Array(count).keys()].map(sendTx));
+    let succeeded = 0, failed = 0;
+    for (const res of results) {
+      if (res.body.ok && !res.body.error) {
+        succeeded++;
+      } else {
+        failed++;
+      }
+    }
+
+    expect(succeeded).to.equal(count);
+    expect(failed).to.equal(0);
+
+    const addr1 = await Address.findOne({ where: { address: "k0duvsr4qn" }});
+    expect(addr1).to.be.ok;
+    expect(addr1!.balance).to.equal(start - count);
+    const addr2 = await Address.findOne({ where: { address: "kwsgj3x184" }});
+    expect(addr2).to.be.ok;
+    expect(addr2!.balance).to.equal(count);
+
+    if (poolCheckTimer) clearInterval(poolCheckTimer);
+  }
+
+  it("should not error when sending 5 transactions at once", function() {
+    this.timeout(5000);
+    return bulkTransactionTest(5);
+  });
+
+  it("should not error when sending 25 transactions at once", function() {
+    this.timeout(5000);
+    return bulkTransactionTest(25);
+  });
+
+  it("should not error when sending 100 transactions at once", function() {
+    this.timeout(15000);
+    return bulkTransactionTest(100);
   });
 });

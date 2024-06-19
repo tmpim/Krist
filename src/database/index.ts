@@ -19,7 +19,7 @@
  * For more project information, see <https://github.com/tmpim/krist>.
  */
 
-import { Sequelize, Transaction } from "@sequelize/core";
+import { AcquireConnectionOptions, Sequelize, Transaction } from "@sequelize/core";
 import { MariaDbDialect } from "@sequelize/mariadb";
 import chalkT from "chalk-template";
 import client from "prom-client";
@@ -28,9 +28,13 @@ import {
   DB_HOST,
   DB_LOGGING,
   DB_NAME,
-  DB_PASS, DB_POOL_ACQUIRE_MS, DB_POOL_EVICT_MS, DB_POOL_IDLE_MS,
+  DB_PASS,
+  DB_POOL_ACQUIRE_MS,
+  DB_POOL_EVICT_MS,
+  DB_POOL_IDLE_MS,
   DB_POOL_MAX,
   DB_POOL_MIN,
+  DB_POOL_MONITOR_ACQUIRE,
   DB_PORT,
   DB_USER,
   TEST
@@ -116,14 +120,60 @@ export async function initDatabase(): Promise<void> {
     port: DB_PORT,
     logging: DB_LOGGING ? console.log : false,
     models: SCHEMAS,
+
     pool: {
       min: DB_POOL_MIN,
       max: DB_POOL_MAX,
       idle: DB_POOL_IDLE_MS,
       acquire: DB_POOL_ACQUIRE_MS,
       evict: DB_POOL_EVICT_MS
-    }
+    },
+
+    // Try to handle deadlocks due to pool exhaustion
+    retry: {
+      match: [/Deadlock/i],
+      max: 3,
+      backoffBase: 200,
+      backoffExponent: 1.5,
+    },
+
+    // Manually pass around transactions ourselves, as the code already does
+    disableClsTransactions: true
   });
+
+  db.hooks.addListener("beforeConnect", () => console.log(chalkT`{yellow [DB]} Opening new connection`));
+  db.hooks.addListener("afterConnect", () => console.log(chalkT`{green [DB]} Connection opened`));
+  db.hooks.addListener("beforeDisconnect", () => console.log(chalkT`{yellow [DB]} Closing connection`));
+  db.hooks.addListener("afterDisconnect", () => console.log(chalkT`{green [DB]} Connection closed`));
+
+  if (DB_POOL_MONITOR_ACQUIRE) {
+    const acquireAttempts = new WeakMap<AcquireConnectionOptions, number>();
+
+    db.hooks.addListener("beforePoolAcquire", options => {
+      if (!options) {
+        console.log(chalkT`{red [DB]} Attempted to acquire connection without options, can't monitor`);
+        return;
+      }
+
+      acquireAttempts.set(options, Date.now());
+    });
+
+    db.hooks.addListener("afterPoolAcquire", (_connection, options) => {
+      if (!options) {
+        console.log(chalkT`{red [DB]} Acquired connection without options, can't monitor`);
+        return;
+      }
+
+      const startTime = acquireAttempts.get(options);
+      if (!startTime) {
+        console.log(chalkT`{red [DB]} Acquired connection without start time, can't monitor`);
+        return;
+      }
+
+      const elapsedTime = Date.now() - startTime;
+      console.log(chalkT`{yellow [DB]} Acquired connection in ${elapsedTime}ms`);
+    });
+  }
 
   try {
     await db.authenticate();

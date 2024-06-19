@@ -46,10 +46,15 @@ export const DB_PORT = parseInt(process.env.DB_PORT ?? "3306");
 export const DB_LOGGING = process.env.DB_LOGGING === "true";
 
 export const DB_POOL_MIN        = parseInt(process.env.DB_POOL_MIN || "3");
-export const DB_POOL_MAX        = parseInt(process.env.DB_POOL_MAX || "5");
+export const DB_POOL_MAX        = parseInt(process.env.DB_POOL_MAX || "12");
 export const DB_POOL_IDLE_MS    = parseInt(process.env.DB_POOL_IDLE_MS || "300000");
 export const DB_POOL_ACQUIRE_MS = parseInt(process.env.DB_POOL_ACQUIRE_MS || "30000");
 export const DB_POOL_EVICT_MS   = parseInt(process.env.DB_POOL_EVICT_MS || "10000");
+
+export const DB_POOL_MONITOR_ACQUIRE =
+  process.env.DB_POOL_MONITOR_ACQUIRE === "true";
+export const TRANSACTION_MAX_CONCURRENCY =
+  parseInt(process.env.TRANSACTION_MAX_CONCURRENCY || Math.min(1, DB_POOL_MAX - 3).toString());
 
 export const REDIS_HOST = process.env.REDIS_HOST as string | undefined || "127.0.0.1";
 export const REDIS_PORT = parseInt(process.env.REDIS_PORT as string | undefined || "6379");
