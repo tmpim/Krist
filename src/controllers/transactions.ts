@@ -41,7 +41,6 @@ import { pushTransaction } from "../krist/transactions/create.js";
 import { getTransaction, getTransactions, getTransactionsByAddress } from "../krist/transactions/index.js";
 import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, REQUEST_ID_RE, validateLimitOffset } from "../utils/index.js";
 import { checkTxRateLimits } from "../utils/rateLimit.js";
-import { v4 as uuidv4 } from "uuid";
 
 export async function ctrlGetTransactions(
   limit: Limit,
@@ -95,7 +94,6 @@ export async function ctrlMakeTransaction(
   rawAmount?: string | number,
   metadata?: string,
   requestId?: string
-
 ): Promise<Transaction> {
   if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
 
@@ -104,8 +102,7 @@ export async function ctrlMakeTransaction(
   if (!recipient) throw new ErrorMissingParameter("to");
   if (!rawAmount) throw new ErrorMissingParameter("amount");
 
-  if (!requestId) requestId = uuidv4();
-  if (!REQUEST_ID_RE.test(requestId))
+  if (requestId && !REQUEST_ID_RE.test(requestId))
     throw new ErrorInvalidParameter("requestId");
 
   // Check if we're paying to a name
