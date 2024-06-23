@@ -39,6 +39,9 @@ import { WebSocketEventHandler } from "../types.js";
  *   recipient.
  * @apiBody {String} [metadata] Optional metadata to
  *   include in the transaction.
+ * @apiBody {String} [requestId] Optional request ID to use
+ *   for this transaction. If not provided, a random UUID will
+ *   be generated. Must be a valid UUIDv4 if provided.
  *
  * @apiUse Transaction
  *
@@ -52,12 +55,20 @@ import { WebSocketEventHandler } from "../types.js";
  *     "ok": false,
  *     "error": "insufficient_funds"
  * }
+ *
+ * @apiErrorExample {json} Transaction Conflict
+ * {
+ *     "ok": false,
+ *     "error": "transaction_conflict",
+ *     "parameter": "amount"
+ * }
  */
 export const wsMakeTransaction: WebSocketEventHandler<{
   privatekey?: string;
   to?: string;
   amount?: string | number;
   metadata?: string;
+  requestId?: string;
 }> = async (ws, msg) => {
   if (ws.isGuest && !msg.privatekey)
     throw new ErrorMissingParameter("privatekey");
@@ -67,7 +78,8 @@ export const wsMakeTransaction: WebSocketEventHandler<{
     msg.privatekey || ws.privatekey,
     msg.to,
     msg.amount,
-    msg.metadata
+    msg.metadata,
+    msg.requestId
   );
 
   return {

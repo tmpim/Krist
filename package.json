@@ -53,6 +53,7 @@
     "reflect-metadata": "^0.2.2",
     "sanitize-html": "^2.13.0",
     "utility-types": "^3.11.0",
+    "uuid": "^10.0.0",
     "why-is-node-running": "^2.2.2"
   },
   "devDependencies": {
@@ -69,6 +70,7 @@
     "@types/node-cron": "^3.0.11",
     "@types/sanitize-html": "^2.11.0",
     "@types/sinon": "^17.0.3",
+    "@types/uuid": "^10.0.0",
     "@types/validator": "^13.12.0",
     "@types/websocket": "^1.0.10",
     "@types/ws": "^8.5.10",

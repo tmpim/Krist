@@ -178,6 +178,10 @@ export class Transaction extends Model<InferAttributes<Transaction>, InferCreati
   @Index({ name: "transactions_sent_metaname_sent_name" })
   @Attribute(DataTypes.STRING(64))
   declare sent_name?: string | null;
+
+  @Index({ unique: true })
+  @Attribute(DataTypes.UUID)
+  declare request_id?: string | null;
 }
 
 // =============================================================================

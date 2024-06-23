@@ -256,6 +256,9 @@ export default (): Router => {
 	 *   recipient.
 	 * @apiBody {String} [metadata] Optional metadata to include
 	 *   in the transaction.
+   * @apiBody {String} [requestId] Optional request ID to use
+   *   for this transaction. If not provided, a random UUID will
+   *   be generated. Must be a valid UUIDv4 if provided.
 	 *
 	 * @apiUse Transaction
 	 *
@@ -269,6 +272,13 @@ export default (): Router => {
    *     "ok": false,
    *     "error": "insufficient_funds"
    * }
+   *
+   * @apiErrorExample {json} Transaction Conflict
+   * {
+   *     "ok": false,
+   *     "error": "transaction_conflict",
+   *     "parameter": "amount"
+   * }
 	 */
   router.post("/transactions", async (req, res) => {
     const tx = await ctrlMakeTransaction(
@@ -276,7 +286,8 @@ export default (): Router => {
       req.body.privatekey,
       req.body.to,
       req.body.amount,
-      req.body.metadata
+      req.body.metadata,
+      req.body.requestId
     );
 
     res.json({
