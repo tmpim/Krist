@@ -42,6 +42,7 @@ export async function mochaGlobalSetup(): Promise<void> {
 
   await initRedis();
   await initDatabase(true);
+  await db.sync({ force: true });
   await initWebserver();
   await initKrist();
 }
