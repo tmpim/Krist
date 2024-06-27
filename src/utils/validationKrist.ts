@@ -27,6 +27,7 @@ export const NAME_FETCH_RE = /^(?:xn--)?[a-z0-9]{1,64}$/i;
 export const NAME_A_RECORD_RE = /^[^\s.?#].[^\s]*$/i;
 export const NAME_META_RE = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst$/i;
 export const METANAME_METADATA_RE = /^(?:([a-z0-9-_]{1,32})@)?([a-z0-9]{1,64})\.kst/i;
+export const REQUEST_ID_RE = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/;
 
 export function isValidKristAddress(address: string, v2Only?: boolean): boolean {
   return v2Only ? ADDRESS_RE_V2.test(address) : ADDRESS_RE.test(address);

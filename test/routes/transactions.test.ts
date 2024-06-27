@@ -26,6 +26,7 @@ import { api } from "../api.js";
 import { Name, Address, Transaction, db } from "../../src/database/index.js";
 import { redis, rKey } from "../../src/database/redis.js";
 import { pick } from "lodash-es";
+import { v4 as uuidv4 } from "uuid";
 
 const expectTransactionExist = (
   id: number,
@@ -206,6 +207,15 @@ describe("v2 routes: transactions", () => {
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
     });
+
+    it("should error when using an invalid request ID", async () => {
+      const res = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "k7oax47quv", privatekey: "a", requestId: "invalid" });
+
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "requestId" });
+    });
   });
 
   describe("POST /transactions", () => {
@@ -366,6 +376,73 @@ describe("v2 routes: transactions", () => {
       expect(res.body.transaction).to.deep.include({ id: 10, from: "k8juvewcui", to: "k7oax47quv", value: 1, type: "transfer" });
       expect(res.body.transaction.metadata).to.equal("test.kst;notfound.kst");
       expect(res.body.transaction.sent_name).to.equal("test");
+    });
+
+    it("should transact idempotently when using a request ID", async () => {
+      // Get previous balance
+      let from = await Address.findOne({ where: { address: "kvhccnbm95" }});
+      const priorBalance = from!.balance;
+      const expectedBalance = priorBalance - 1;
+
+      // Submit the transaction
+      const requestId = uuidv4();
+      const res1 = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "kkkkkkkkkk", privatekey: "z", requestId });
+
+      expect(res1).to.be.json;
+      expect(res1.body).to.deep.include({ ok: true });
+      expect(res1.body.transaction).to.be.an("object");
+      const txId = res1.body.transaction.id;
+
+      // Get new balance
+      from = await Address.findOne({ where: { address: "kvhccnbm95" }});
+      expect(from!.balance).to.equal(expectedBalance);
+
+      // Get transaction
+      const tx = await Transaction.findOne({ where: { request_id: requestId } });
+      expect(tx).to.exist;
+      expect(tx!.id).to.equal(txId);
+      expect(tx!.from).to.equal("kvhccnbm95");
+      expect(tx!.to).to.equal("kkkkkkkkkk");
+      expect(tx!.value).to.equal(1);
+      expect(tx!.request_id).to.equal(requestId);
+
+      // Re-submit the transaction
+      const res2 = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "kkkkkkkkkk", privatekey: "z", requestId });
+
+      expect(res2).to.be.json;
+      expect(res2.body).to.deep.include({ ok: true });
+
+      // Can't compare time since we lose precision after saving to the database
+      delete res1.body.transaction.time;
+      delete res2.body.transaction.time;
+      expect(res2.body).to.deep.equal(res1.body);
+
+      // Make sure the balance didn't change
+      from = await Address.findOne({ where: { address: "kvhccnbm95" }});
+      expect(from!.balance).to.equal(expectedBalance);
+    });
+
+    it("should fail to transact when using a request ID if different request details are used", async () => {
+      // Submit the transaction
+      const requestId = uuidv4();
+      const res1 = await api()
+        .post("/transactions")
+        .send({ amount: 1, to: "kkkkkkkkkk", privatekey: "z", requestId });
+
+      expect(res1).to.be.json;
+      expect(res1.body).to.deep.include({ ok: true });
+
+      // Re-submit the transaction
+      const res2 = await api()
+        .post("/transactions")
+        .send({ amount: 2, to: "kkkkkkkkkk", privatekey: "z", requestId });
+
+      expect(res2).to.be.json;
+      expect(res2.body).to.deep.include({ ok: false, error: "transaction_conflict" });
     });
   });
 });

@@ -39,7 +39,7 @@ import { getName } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
 import { pushTransaction } from "../krist/transactions/create.js";
 import { getTransaction, getTransactions, getTransactionsByAddress } from "../krist/transactions/index.js";
-import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, validateLimitOffset } from "../utils/index.js";
+import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, REQUEST_ID_RE, validateLimitOffset } from "../utils/index.js";
 import { checkTxRateLimits } from "../utils/rateLimit.js";
 
 export async function ctrlGetTransactions(
@@ -92,7 +92,8 @@ export async function ctrlMakeTransaction(
   privatekey?: string,
   recipient?: string,
   rawAmount?: string | number,
-  metadata?: string
+  metadata?: string,
+  requestId?: string
 ): Promise<Transaction> {
   if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
 
@@ -100,6 +101,9 @@ export async function ctrlMakeTransaction(
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
   if (!recipient) throw new ErrorMissingParameter("to");
   if (!rawAmount) throw new ErrorMissingParameter("amount");
+
+  if (requestId && !REQUEST_ID_RE.test(requestId))
+    throw new ErrorInvalidParameter("requestId");
 
   // Check if we're paying to a name
   const isName = NAME_META_RE.test(recipient.toLowerCase());
@@ -167,7 +171,8 @@ export async function ctrlMakeTransaction(
         amount,
         metadata,
         undefined,
-        metaname, dbName.name
+        metaname, dbName.name,
+        requestId
       );
     });
   } else {
@@ -179,7 +184,11 @@ export async function ctrlMakeTransaction(
         sender.address,
         recipient,
         amount,
-        metadata
+        metadata,
+        undefined,
+        undefined,
+        undefined,
+        requestId
       );
     });
   }

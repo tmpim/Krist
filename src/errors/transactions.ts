@@ -38,3 +38,15 @@ export class ErrorTransactionsDisabled extends KristError {
     super("Transactions disabled", "transactions_disabled", 423);
   }
 }
+
+export class ErrorTransactionConflict extends KristError<{
+  parameter: string;
+}> {
+  constructor(
+    public parameter: string,
+    public message = `Transaction conflict for parameter ${parameter}`,
+    public errorString = "transaction_conflict"
+  ) {
+    super(message, errorString, 409, { parameter });
+  }
+}

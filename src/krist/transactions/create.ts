@@ -25,7 +25,7 @@ import { Request } from "express";
 import PQueue from "p-queue";
 import promClient from "prom-client";
 import { Address, SqTransaction, Transaction } from "../../database/index.js";
-import { ErrorAddressNotFound, ErrorInsufficientFunds } from "../../errors/index.js";
+import { ErrorAddressNotFound, ErrorInsufficientFunds, ErrorTransactionConflict } from "../../errors/index.js";
 import { criticalLog } from "../../utils/criticalLog.js";
 import { getLogDetails } from "../../utils/index.js";
 import { TRANSACTION_MAX_CONCURRENCY } from "../../utils/vars.js";
@@ -67,10 +67,21 @@ export async function pushTransaction(
   metadata?: string | null,
   name?: string | null,
   sentMetaname?: string | null,
-  sentName?: string | null
+  sentName?: string | null,
+  requestId?: string | null
 ): Promise<Transaction> {
-  return txQueue.add(() => pushTransactionInternal(req, dbTx, senderAddress, recipientAddress, amount, metadata, name,
-    sentMetaname, sentName), { throwOnTimeout: true });
+  return txQueue.add(() => pushTransactionInternal(
+    req,
+    dbTx,
+    senderAddress,
+    recipientAddress,
+    amount,
+    metadata,
+    name,
+    sentMetaname,
+    sentName,
+    requestId
+  ), { throwOnTimeout: true });
 }
 
 async function pushTransactionInternal(
@@ -82,7 +93,8 @@ async function pushTransactionInternal(
   metadata?: string | null,
   name?: string | null,
   sentMetaname?: string | null,
-  sentName?: string | null
+  sentName?: string | null,
+  requestId?: string | null
 ): Promise<Transaction> {
   // Fetch the sender from the database. This should also be checked by the caller anyway (name purchase/transfer,
   // transaction sending, etc.), but it is important to re-fetch here so that the balance can be checked as part of the
@@ -116,6 +128,27 @@ async function pushTransactionInternal(
     throw new ErrorInsufficientFunds();
   }
 
+  // Check the request ID is either 1. not set, or 2. unused, or 3. idempotent with respect to the transaction details
+  if (requestId) {
+    const existingTx = await Transaction.findOne({
+      where: { request_id: requestId },
+      transaction: dbTx
+    });
+
+    if (existingTx) {
+      if (existingTx.from != senderAddress) throw new ErrorTransactionConflict("from");
+      if (existingTx.to != recipientAddress) throw new ErrorTransactionConflict("to");
+      if (existingTx.value != amount) throw new ErrorTransactionConflict("amount");
+      if (existingTx.name != name) throw new ErrorTransactionConflict("name");
+      if (existingTx.sent_metaname != sentMetaname) throw new ErrorTransactionConflict("sent_metaname");
+      if (existingTx.sent_name != sentName) throw new ErrorTransactionConflict("sent_name");
+      if (existingTx.op != metadata) throw new ErrorTransactionConflict("metadata");
+
+      // Existing transaction is idempotent, so return it
+      return existingTx;
+    }
+  }
+
   // Find the recipient. If it doesn't exist, it will be created later
   recipientAddress = recipientAddress.trim().toLowerCase();
   const recipient = await Address.findOne({
@@ -136,7 +169,8 @@ async function pushTransactionInternal(
     sender.address,
     amount,
     name, metadata,
-    sentMetaname, sentName
+    sentMetaname, sentName,
+    requestId
   );
 
   if (!recipient) {
@@ -169,7 +203,8 @@ export async function createTransaction(
   name?: string | null,
   op?: string | null,
   sentMetaname?: string | null,
-  sentName?: string | null
+  sentName?: string | null,
+  requestId?: string | null
 ): Promise<Transaction> {
   const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
 
@@ -187,6 +222,7 @@ export async function createTransaction(
     op,
     sent_metaname: sentMetaname,
     sent_name: sentName,
+    request_id: requestId,
     useragent: userAgent,
     library_agent: libraryAgent,
     origin
