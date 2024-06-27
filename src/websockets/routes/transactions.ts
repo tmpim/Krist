@@ -32,16 +32,11 @@ import { WebSocketEventHandler } from "../types.js";
  *
  * @apiBody {Number} id
  * @apiBody {String="make_transaction"} type
- * @apiBody {String} [privatekey] The privatekey of your
- *   address.
+ * @apiBody {String} [privatekey] The privatekey of your address.
  * @apiBody {String} to The recipient of the transaction.
- * @apiBody {Number} amount The amount to send to the
- *   recipient.
- * @apiBody {String} [metadata] Optional metadata to
- *   include in the transaction.
- * @apiBody {String} [requestId] Optional request ID to use
- *   for this transaction. If not provided, a random UUID will
- *   be generated. Must be a valid UUIDv4 if provided.
+ * @apiBody {Number} amount The amount to send to the recipient.
+ * @apiBody {String} [metadata] Optional metadata to include in the transaction.
+ * @apiBody {String} [requestId] Optional request ID to use for this transaction. Must be a valid UUIDv4 if provided.
  *
  * @apiUse Transaction
  *
