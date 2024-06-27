@@ -20,39 +20,39 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { api } from "../api.js";
 
 import { Name, Transaction } from "../../src/database/index.js";
+import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v2 routes: lookup api", () => {
+describe("v2 routes: lookup api", function() {
   before(seed);
 
   // TODO: /lookup/transactions/:addresses
   // TODO: /lookup/blocks
   // TODO: /lookup/names
 
-  describe("GET /lookup/addresses/:addresses", () => {
-    it("should error with an invalid address", async () => {
+  describe("GET /lookup/addresses/:addresses", function() {
+    it("should error with an invalid address", async function() {
       const res = await api().get("/lookup/addresses/invalid");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
     });
 
-    it("should error with multiple addresses, where one is invalid", async () => {
+    it("should error with multiple addresses, where one is invalid", async function() {
       const res = await api().get("/lookup/addresses/k8juvewcui,invalid");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
     });
 
-    it("should error with more than 128 addresses", async () => {
-      const mkAddress = (i: number) => `k${i.toString().padStart(9, "0")}`
+    it("should error with more than 128 addresses", async function() {
+      const mkAddress = (i: number) => `k${i.toString().padStart(9, "0")}`;
       const res = await api().get("/lookup/addresses/" + Array(129).fill(0).map((_, i) => mkAddress(i)).join(","));
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "addresses" });
     });
 
-    it("should return null for a nonexistent address", async () => {
+    it("should return null for a nonexistent address", async function() {
       const res = await api().get("/lookup/addresses/knotfound0");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, found: 0, notFound: 1 });
@@ -60,7 +60,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.addresses).to.deep.include({ knotfound0: null });
     });
 
-    it("should lookup an address", async () => {
+    it("should lookup an address", async function() {
       const res = await api().get("/lookup/addresses/k8juvewcui");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, found: 1, notFound: 0 });
@@ -71,7 +71,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.addresses.k8juvewcui).to.not.have.key("names");
     });
 
-    it("should lookup multiple addresses", async () => {
+    it("should lookup multiple addresses", async function() {
       const res = await api().get("/lookup/addresses/k8juvewcui,k7oax47quv,knotfound0");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, found: 2, notFound: 1 });
@@ -82,7 +82,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.addresses.knotfound0).to.be.null;
     });
 
-    it("should fetch names for an address", async () => {
+    it("should fetch names for an address", async function() {
       const res = await api().get("/lookup/addresses/k8juvewcui?fetchNames");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, found: 1, notFound: 0 });
@@ -94,20 +94,20 @@ describe("v2 routes: lookup api", () => {
     });
   });
 
-  describe("GET /search", () => {
-    it("should error with a missing query", async () => {
+  describe("GET /search", function() {
+    it("should error with a missing query", async function() {
       const res = await api().get("/search");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "q" });
     });
 
-    it("should error with a long query", async () => {
+    it("should error with a long query", async function() {
       const res = await api().get("/search").query({ q: "a".repeat(257) });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "q" });
     });
 
-    it("should search for an address", async () => {
+    it("should search for an address", async function() {
       const res = await api().get("/search").query({ q: "k8juvewcui" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -119,7 +119,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.matches.exactAddress).to.deep.include({ address: "k8juvewcui", balance: 10 });
     });
 
-    it("should strip spaces", async () => {
+    it("should strip spaces", async function() {
       const res = await api().get("/search").query({ q: "k8juvewcui " });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -127,13 +127,14 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.matches.exactAddress).to.deep.include({ address: "k8juvewcui", balance: 10 });
     });
 
-    it("should create a temporary name to test", async () => {
-      const name = await Name.create({ name: "test", owner: "k7oax47quv", registered: new Date(), unpaid: 0 });
+    it("should create a temporary name to test", async function() {
+      const name = await Name.create({ name: "test", owner: "k7oax47quv", original_owner: "k7oax47quv",
+        registered: new Date(), unpaid: 0 });
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k7oax47quv" });
     });
 
-    it("should search for a name", async () => {
+    it("should search for a name", async function() {
       const res = await api().get("/search").query({ q: "test" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -143,7 +144,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.matches.exactName).to.deep.include({ name: "test", owner: "k7oax47quv" });
     });
 
-    it("should search for a name with a .kst suffix", async () => {
+    it("should search for a name with a .kst suffix", async function() {
       const res = await api().get("/search").query({ q: "test.kst" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -152,7 +153,7 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.matches.exactName).to.deep.include({ name: "test", owner: "k7oax47quv" });
     });
 
-    it("should search for a block", async () => {
+    it("should search for a block", async function() {
       const res = await api().get("/search").query({ q: "1" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -162,13 +163,13 @@ describe("v2 routes: lookup api", () => {
       expect(res.body.matches.exactBlock).to.deep.include({ hash: "0000000000000000000000000000000000000000000000000000000000000000" });
     });
 
-    it("should create a transaction to test", async () => {
+    it("should create a transaction to test", async function() {
       const tx = await Transaction.create({ from: "k8juvewcui", to: "k7oax47quv", value: 1, time: new Date() });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "k7oax47quv", value: 1 });
     });
 
-    it("should search for a transaction", async () => {
+    it("should search for a transaction", async function() {
       const res = await api().get("/search").query({ q: "1" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -180,26 +181,26 @@ describe("v2 routes: lookup api", () => {
     });
   });
 
-  describe("GET /search/extended", () => {
-    it("should error with a missing query", async () => {
+  describe("GET /search/extended", function() {
+    it("should error with a missing query", async function() {
       const res = await api().get("/search/extended");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "q" });
     });
 
-    it("should error with a short query", async () => {
+    it("should error with a short query", async function() {
       const res = await api().get("/search/extended").query({ q: "aa" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "q" });
     });
 
-    it("should error with a long query", async () => {
+    it("should error with a long query", async function() {
       const res = await api().get("/search/extended").query({ q: "a".repeat(257) });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "q" });
     });
 
-    it("should search for a transaction by address", async () => {
+    it("should search for a transaction by address", async function() {
       const res = await api().get("/search/extended").query({ q: "k8juvewcui" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -214,13 +215,13 @@ describe("v2 routes: lookup api", () => {
       });
     });
 
-    it("should create a transaction to test", async () => {
+    it("should create a transaction to test", async function() {
       const tx = await Transaction.create({ from: "k7oax47quv", to: "a", value: 0, name: "test", op: "Hello, world!", time: new Date() });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k7oax47quv", to: "a", value: 0, name: "test", op: "Hello, world!" });
     });
 
-    it("should search for a transaction by name", async () => {
+    it("should search for a transaction by name", async function() {
       const res = await api().get("/search/extended").query({ q: "test" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -232,7 +233,7 @@ describe("v2 routes: lookup api", () => {
       });
     });
 
-    it("should more test transactions", async () => {
+    it("should more test transactions", async function() {
       await Transaction.bulkCreate([
         { from: "k8juvewcui", to: "k7oax47quv", value: 1, op: "test", time: new Date() },
         { from: "k8juvewcui", to: "k7oax47quv", value: 1, op: "test.kst", time: new Date() },
@@ -243,7 +244,7 @@ describe("v2 routes: lookup api", () => {
       ]);
     });
 
-    it("should search for transactions by name in metadata", async () => {
+    it("should search for transactions by name in metadata", async function() {
       const res = await api().get("/search/extended").query({ q: "test" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -255,7 +256,7 @@ describe("v2 routes: lookup api", () => {
       });
     });
 
-    it("should search for transactions by name in metadata with a .kst suffix", async () => {
+    it("should search for transactions by name in metadata with a .kst suffix", async function() {
       const res = await api().get("/search/extended").query({ q: "test.kst" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });
@@ -267,7 +268,7 @@ describe("v2 routes: lookup api", () => {
       });
     });
 
-    it("should search for transactions by metadata", async () => {
+    it("should search for transactions by metadata", async function() {
       const res = await api().get("/search/extended").query({ q: "Hello, world!" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true });

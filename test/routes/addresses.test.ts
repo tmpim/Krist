@@ -20,28 +20,28 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
 import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v1 routes: addresses", () => {
+describe("v1 routes: addresses", function() {
   before(seed);
 
-  describe("GET /?getbalance", () => {
-    it("should return the balance", async () => {
+  describe("GET /?getbalance", function() {
+    it("should return the balance", async function() {
       const res = await api().get("/?getbalance=k8juvewcui");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
       expect(res.text).to.equal("10");
     });
 
-    it("should return the balance", async () => {
+    it("should return the balance", async function() {
       const res = await api().get("/?getbalance=k7oax47quv");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
       expect(res.text).to.equal("0");
     });
 
-    it("should return 0 for a non-existent address", async () => {
+    it("should return 0 for a non-existent address", async function() {
       const res = await api().get("/?getbalance=knotfound0");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
@@ -49,15 +49,15 @@ describe("v1 routes: addresses", () => {
     });
   });
 
-  describe("GET /?alert", () => {
-    it("should return an alert", async () => {
+  describe("GET /?alert", function() {
+    it("should return an alert", async function() {
       const res = await api().get("/?alert=c");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
       expect(res.text).to.equal("Test alert");
     });
 
-    it("should return nothing for addresses with no alert", async () => {
+    it("should return nothing for addresses with no alert", async function() {
       const res = await api().get("/?alert=a");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
@@ -69,11 +69,11 @@ describe("v1 routes: addresses", () => {
   // TODO: GET /?listtx
 });
 
-describe("v2 routes: addresses", () => {
+describe("v2 routes: addresses", function() {
   // TODO: GET /addresses
 
-  describe("POST /addresses/alert", () => {
-    it("should return an alert", async () => {
+  describe("POST /addresses/alert", function() {
+    it("should return an alert", async function() {
       const res = await api()
         .post("/addresses/alert")
         .send({ privatekey: "c" });
@@ -83,7 +83,7 @@ describe("v2 routes: addresses", () => {
       expect(res.body).to.deep.equal({ ok: true, alert: "Test alert" });
     });
 
-    it("should return null for addresses with no alert", async () => {
+    it("should return null for addresses with no alert", async function() {
       const res = await api()
         .post("/addresses/alert")
         .send({ privatekey: "a" });
@@ -93,7 +93,7 @@ describe("v2 routes: addresses", () => {
       expect(res.body).to.deep.equal({ ok: true, alert: null });
     });
 
-    it("should return an error for addresses that doesn't exist", async () => {
+    it("should return an error for addresses that doesn't exist", async function() {
       const res = await api()
         .post("/addresses/alert")
         .send({ privatekey: "notfound" });
@@ -105,8 +105,8 @@ describe("v2 routes: addresses", () => {
 
   // TODO: GET /addresses/rich
 
-  describe("GET /addresses/:address", () => {
-    it("should get an address", async () => {
+  describe("GET /addresses/:address", function() {
+    it("should get an address", async function() {
       const res = await api().get("/addresses/k8juvewcui");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
@@ -116,7 +116,7 @@ describe("v2 routes: addresses", () => {
       expect(res.body.address).to.not.have.key("names");
     });
 
-    it("should get an address with names", async () => {
+    it("should get an address with names", async function() {
       const res = await api().get("/addresses/k8juvewcui?fetchNames");
       expect(res).to.be.json;
       expect(res.body).to.include({ ok: true });
@@ -124,7 +124,7 @@ describe("v2 routes: addresses", () => {
       expect(res.body.address.names).to.equal(0);
     });
 
-    it("should not contain private parts", async () => {
+    it("should not contain private parts", async function() {
       const res = await api().get("/addresses/kwsgj3x184");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
@@ -132,7 +132,7 @@ describe("v2 routes: addresses", () => {
       expect(res.body.address).to.not.have.any.keys("id", "privatekey", "alert", "locked");
     });
 
-    it("should return an error for addresses that doesn't exist", async () => {
+    it("should return an error for addresses that doesn't exist", async function() {
       const res = await api().get("/addresses/knotfound0");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "address_not_found" });

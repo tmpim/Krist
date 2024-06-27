@@ -1,6 +1,6 @@
 {
   "name": "krist",
-  "version": "3.4.3",
+  "version": "3.5.0",
   "description": "The new Krist node written in TypeScript.",
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "docs": "apidoc -v -t apidoc-template -i src -o static/docs",
     "test": "cross-env TS_NODE_PROJECT='./tsconfig.test.json' NODE_ENV=test mocha 'test/**/*.test.ts'",
     "test:coverage": "nyc pnpm run test",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "eslint src",
+    "lint:codegen": "eslint --fix src/database/migrations/barrel.ts || exit 0",
     "preinstall": "npx only-allow pnpm"
   },
   "repository": {
@@ -52,16 +53,19 @@
     "redis": "^4.6.14",
     "reflect-metadata": "^0.2.2",
     "sanitize-html": "^2.13.0",
+    "umzug": "^3.8.1",
     "utility-types": "^3.11.0",
     "uuid": "^10.0.0",
     "why-is-node-running": "^2.2.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.5.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/body-parser": "^1.19.5",
     "@types/chai": "^4.3.16",
     "@types/chai-http": "^4.2.0",
     "@types/cors": "^2.8.17",
+    "@types/eslint__js": "^8.42.3",
     "@types/express": "^4.17.21",
     "@types/express-ws": "^3.0.4",
     "@types/lodash-es": "^4.17.12",
@@ -81,12 +85,15 @@
     "chai-http": "^4.4.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.5.0",
+    "eslint-plugin-codegen": "^0.28.0",
+    "eslint-plugin-mocha": "^10.4.3",
     "mocha": "^10.4.0",
     "mochawesome": "^7.1.3",
     "nyc": "^17.0.0",
     "sinon": "^18.0.0",
     "tsx": "^4.15.6",
     "typescript": "^5.4.5",
+    "typescript-eslint": "^7.14.1",
     "websocket": "^1.0.35",
     "websocket-as-promised": "^2.0.1"
   },

@@ -76,11 +76,11 @@ export async function pushTransaction(
     senderAddress,
     recipientAddress,
     amount,
-    metadata,
-    name,
-    sentMetaname,
-    sentName,
-    requestId
+    metadata ?? null,
+    name ?? null,
+    sentMetaname ?? null,
+    sentName ?? null,
+    requestId ?? null
   ), { throwOnTimeout: true });
 }
 
@@ -90,11 +90,11 @@ async function pushTransactionInternal(
   senderAddress: string,
   recipientAddress: string,
   amount: number,
-  metadata?: string | null,
-  name?: string | null,
-  sentMetaname?: string | null,
-  sentName?: string | null,
-  requestId?: string | null
+  metadata: string | null,
+  name: string | null,
+  sentMetaname: string | null,
+  sentName: string | null,
+  requestId: string | null
 ): Promise<Transaction> {
   // Fetch the sender from the database. This should also be checked by the caller anyway (name purchase/transfer,
   // transaction sending, etc.), but it is important to re-fetch here so that the balance can be checked as part of the
@@ -136,13 +136,13 @@ async function pushTransactionInternal(
     });
 
     if (existingTx) {
-      if (existingTx.from != senderAddress) throw new ErrorTransactionConflict("from");
-      if (existingTx.to != recipientAddress) throw new ErrorTransactionConflict("to");
-      if (existingTx.value != amount) throw new ErrorTransactionConflict("amount");
-      if (existingTx.name != name) throw new ErrorTransactionConflict("name");
-      if (existingTx.sent_metaname != sentMetaname) throw new ErrorTransactionConflict("sent_metaname");
-      if (existingTx.sent_name != sentName) throw new ErrorTransactionConflict("sent_name");
-      if (existingTx.op != metadata) throw new ErrorTransactionConflict("metadata");
+      if (existingTx.from !== senderAddress) throw new ErrorTransactionConflict("from");
+      if (existingTx.to !== recipientAddress) throw new ErrorTransactionConflict("to");
+      if (existingTx.value !== amount) throw new ErrorTransactionConflict("amount");
+      if (existingTx.name !== name) throw new ErrorTransactionConflict("name");
+      if (existingTx.sent_metaname !== sentMetaname) throw new ErrorTransactionConflict("sent_metaname");
+      if (existingTx.sent_name !== sentName) throw new ErrorTransactionConflict("sent_name");
+      if (existingTx.op !== metadata) throw new ErrorTransactionConflict("metadata");
 
       // Existing transaction is idempotent, so return it
       return existingTx;
@@ -192,6 +192,27 @@ async function pushTransactionInternal(
   return newTransaction;
 }
 
+export function logTransaction(
+  req: Request,
+  to: string,
+  from: string | null,
+  value: number,
+  metadata: string | null | undefined,
+  requestId: string | null | undefined,
+  state: "Creating" | "REJECTED"
+): void {
+  const { logDetails } = getLogDetails(req);
+
+  let msg = chalkT`{bold [Transactions]} ${state} {bold ${value} KST} transaction `
+    + chalkT`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
+    + chalkT`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}}`;
+
+  if (metadata) msg += chalkT` with metadata: {bold ${metadata}}`;
+  if (requestId) msg += chalkT` with request ID: {bold ${requestId}}`;
+
+  console.log(msg + " " + logDetails);
+}
+
 /** Creates the Transaction object in the database and broadcasts the WebSocket
  * event to all subscribers. */
 export async function createTransaction(
@@ -201,16 +222,14 @@ export async function createTransaction(
   from: string | null,
   value: number,
   name?: string | null,
-  op?: string | null,
+  metadata?: string | null,
   sentMetaname?: string | null,
   sentName?: string | null,
   requestId?: string | null
 ): Promise<Transaction> {
   const { logDetails, userAgent, libraryAgent, origin } = getLogDetails(req);
 
-  console.log(chalkT`{bold [Transactions]} Creating {bold ${value} KST} transaction `
-    + chalkT`from {bold ${from || "(null)"}} to {bold ${to || "(null)"}} at `
-    + chalkT`{cyan ${dayjs().format("HH:mm:ss DD/MM/YYYY")}} ${logDetails}`);
+  logTransaction(req, to, from, value, metadata, requestId, "Creating");
 
   // Create the new transaction object
   const newTransaction = await Transaction.create({
@@ -219,7 +238,7 @@ export async function createTransaction(
     value,
     name,
     time: new Date(),
-    op,
+    op: metadata,
     sent_metaname: sentMetaname,
     sent_name: sentName,
     request_id: requestId,

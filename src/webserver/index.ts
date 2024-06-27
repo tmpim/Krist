@@ -123,7 +123,7 @@ export function shutdownWebserver(): void {
   if (server) {
     console.log(chalkT`{cyan [Webserver]} Stopping server`);
     server.close(e => {
-      if (e) console.error(chalkT`{red [Webserver]} Error stopping server:`, e)
+      if (e) console.error(chalkT`{red [Webserver]} Error stopping server:`, e);
     });
   } else {
     console.log(chalkT`{cyan [Webserver]} server not running, not shutting down`);

@@ -80,6 +80,7 @@ export async function verifyAddress(
         : "(incorrect privatekey hash)";
       console.log(chalkT`{red [Auth]} ({bold ${path}}) Auth failed on address `
         + chalkT`{bold ${kristAddress}} for reason {bold ${reason}} `
+        + chalkT`(failed match: {bold ${privatekey}}) `
         + chalkT`${logDetails}`);
       criticalLog(`authFailed-${kristAddress}`, req, `Auth failed on address **${kristAddress}**. Reason: ${reason}`,
         false);

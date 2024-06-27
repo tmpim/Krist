@@ -37,7 +37,7 @@ import { getAddress } from "../krist/addresses/index.js";
 import { verifyAddress } from "../krist/addresses/verify.js";
 import { createName, getName, getNames, getNamesByAddress, getUnpaidNames } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
-import { createTransaction, pushTransaction } from "../krist/transactions/create.js";
+import { createTransaction, logTransaction, pushTransaction } from "../krist/transactions/create.js";
 import { isValidARecord, isValidKristAddress, isValidName, validateLimitOffset } from "../utils/index.js";
 import { checkTxRateLimits } from "../utils/rateLimit.js";
 import { NAME_COST } from "../utils/vars.js";
@@ -120,7 +120,10 @@ export async function ctrlRegisterName(
 
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
-  if (!authed) throw new ErrorAuthFailed();
+  if (!authed) {
+    logTransaction(req, "name", dbAddress.address, NAME_COST, null, null, "REJECTED");
+    throw new ErrorAuthFailed();
+  }
 
   // Rate limit check - apply a 2x cost to name events
   if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))
@@ -156,24 +159,27 @@ export async function ctrlTransferName(
   req: Request,
   name?: string,
   privatekey?: string,
-  address?: string
+  recipient?: string
 ): Promise<Name> {
   if (!await areTransactionsEnabled()) throw new ErrorTransactionsDisabled();
 
   // Input validation
   if (!name) throw new ErrorMissingParameter("name");
   if (!privatekey) throw new ErrorMissingParameter("privatekey");
-  if (!address) throw new ErrorMissingParameter("address");
+  if (!recipient) throw new ErrorMissingParameter("address");
 
   if (!isValidName(name)) throw new ErrorInvalidParameter("name");
-  if (!isValidKristAddress(address, true))
+  if (!isValidKristAddress(recipient, true))
     throw new ErrorInvalidParameter("address");
 
   name = cleanNameInput(name);
 
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
-  if (!authed) throw new ErrorAuthFailed();
+  if (!authed) {
+    logTransaction(req, recipient, dbAddress.address, 0, name, null, "REJECTED");
+    throw new ErrorAuthFailed();
+  }
 
   // Rate limit check - apply a 2x cost to name events
   if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))
@@ -185,7 +191,7 @@ export async function ctrlTransferName(
   if (dbName.owner !== dbAddress.address) throw new ErrorNotNameOwner(name);
 
   // Disallow "bumping" names, don't change anything and respond as usual
-  if (dbName.owner === address) return dbName;
+  if (dbName.owner === recipient) return dbName;
 
   const date = new Date();
 
@@ -195,7 +201,7 @@ export async function ctrlTransferName(
     //       only a small number of names that the original owner couldn't be
     //       found for.
     await dbName.update({
-      owner: address,
+      owner: recipient,
       updated: date,
       transferred: date,
 
@@ -209,7 +215,7 @@ export async function ctrlTransferName(
       req,
       dbTx,
       dbAddress.address,
-      address,
+      recipient,
       0,
       null,
       dbName.name
@@ -245,7 +251,10 @@ export async function ctrlUpdateName(
 
   // Address auth validation
   const { authed, address: dbAddress } = await verifyAddress(req, privatekey);
-  if (!authed) throw new ErrorAuthFailed();
+  if (!authed) {
+    logTransaction(req, "a", dbAddress.address, 0, name, null, "REJECTED");
+    throw new ErrorAuthFailed();
+  }
 
   // Rate limit check - apply a 2x cost to name events
   if (!await checkTxRateLimits(req.ip, dbAddress.address, 2))

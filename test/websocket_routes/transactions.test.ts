@@ -20,10 +20,10 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { newConnection } from "../ws.js";
 
 import { Address, Name, Transaction } from "../../src/database/index.js";
+import { seed } from "../seed.js";
+import { newConnection } from "../ws.js";
 
 const expectTransactionExist = (id: number, to?: string, metadata?: string) => async () => {
   const tx = await Transaction.findByPk(id);
@@ -45,38 +45,38 @@ describe("websocket routes: transactions", function() {
     return [res, ws];
   }
 
-  describe("make_transaction - validation", () => {
-    it("should deny unauthed addresses", async () => {
+  describe("make_transaction - validation", function() {
+    it("should deny unauthed addresses", async function() {
       const [res, ws] = await send({ to: "k7oax47quv", amount: 1, privatekey: "c" });
       expect(res).to.deep.include({ ok: false, error: "auth_failed" });
       ws.close();
     });
 
-    it("should error with a missing 'privatekey' for guests", async () => {
+    it("should error with a missing 'privatekey' for guests", async function() {
       const [res, ws] = await send({});
       expect(res).to.deep.include({ ok: false, error: "missing_parameter", parameter: "privatekey" });
       ws.close();
     });
 
-    it("should not error with a missing 'privatekey' for authed users", async () => {
+    it("should not error with a missing 'privatekey' for authed users", async function() {
       const [res, ws] = await send({}, "a");
       expect(res).to.deep.include({ ok: false, error: "missing_parameter", parameter: "to" });
       ws.close();
     });
 
-    it("should error with a missing 'to'", async () => {
+    it("should error with a missing 'to'", async function() {
       const [res, ws] = await send({ privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "missing_parameter", parameter: "to" });
       ws.close();
     });
 
-    it("should error with a missing 'amount'", async () => {
+    it("should error with a missing 'amount'", async function() {
       const [res, ws] = await send({ to: "k7oax47quv", privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "missing_parameter", parameter: "amount" });
       ws.close();
     });
 
-    it("should error with an invalid 'amount'", async () => {
+    it("should error with an invalid 'amount'", async function() {
       const amounts = ["a", 0, -1, "0", "-1"];
       for (const amount of amounts) {
         const [res, ws] = await send({ amount, to: "k7oax47quv", privatekey: "a" });
@@ -85,7 +85,7 @@ describe("websocket routes: transactions", function() {
       }
     });
 
-    it("should error with an invalid 'metadata'", async () => {
+    it("should error with an invalid 'metadata'", async function() {
       const metadataList = ["\u0000", "\u0001", "a".repeat(256)];
       for (const metadata of metadataList) {
         const [res, ws] = await send({ amount: 1, to: "k7oax47quv", privatekey: "a", metadata });
@@ -94,39 +94,39 @@ describe("websocket routes: transactions", function() {
       }
     });
 
-    it("should error with a non-existent sender", async () => {
+    it("should error with a non-existent sender", async function() {
       const [res, ws] = await send({ amount: 1, to: "k7oax47quv", privatekey: "notfound" });
       expect(res).to.deep.include({ ok: false, error: "insufficient_funds" });
       ws.close();
     });
 
-    it("should error with insufficient funds", async () => {
+    it("should error with insufficient funds", async function() {
       const [res, ws] = await send({ amount: 11, to: "k7oax47quv", privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "insufficient_funds" });
       ws.close();
     });
 
-    it("should error when paying to an invalid address", async () => {
+    it("should error when paying to an invalid address", async function() {
       const [res, ws] = await send({ amount: 1, to: "kfartoolong", privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "to" });
       ws.close();
     });
 
-    it("should error when paying to a v1 address", async () => {
+    it("should error when paying to a v1 address", async function() {
       const [res, ws] = await send({ amount: 1, to: "a5dfb396d3", privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "to" });
       ws.close();
     });
 
-    it("should error when paying to a name that doesn't exist", async () => {
+    it("should error when paying to a name that doesn't exist", async function() {
       const [res, ws] = await send({ amount: 1, to: "notfound.kst", privatekey: "a" });
       expect(res).to.deep.include({ ok: false, error: "name_not_found" });
       ws.close();
     });
   });
 
-  describe("make_transaction", () => {
-    it("should make a transaction", async () => {
+  describe("make_transaction", function() {
+    it("should make a transaction", async function() {
       const [res, ws] = await send({ amount: 1, to: "k7oax47quv", privatekey: "a" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -136,9 +136,10 @@ describe("websocket routes: transactions", function() {
       expect(res.transaction.metadata).to.not.be.ok;
       ws.close();
     });
+
     it("should exist in the database", expectTransactionExist(1));
 
-    it("should have altered the balances", async () => {
+    it("should have altered the balances", async function() {
       const from = await Address.findOne({ where: { address: "k8juvewcui" }});
       expect(from).to.exist;
       expect(from!.balance).to.equal(9);
@@ -148,7 +149,7 @@ describe("websocket routes: transactions", function() {
       expect(to!.balance).to.equal(1);
     });
 
-    it("should support metadata", async () => {
+    it("should support metadata", async function() {
       const [res, ws] = await send({ amount: 1, to: "k7oax47quv", privatekey: "a", metadata: "Hello, world!" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -156,15 +157,17 @@ describe("websocket routes: transactions", function() {
       expect(res.transaction.metadata).to.equal("Hello, world!");
       ws.close();
     });
+
     it("should exist in the database", expectTransactionExist(2, undefined, "Hello, world!"));
 
-    it("should create a temporary name to test", async () => {
-      const name = await Name.create({ name: "test", owner: "k7oax47quv", registered: new Date(), unpaid: 0 });
+    it("should create a temporary name to test", async function() {
+      const name = await Name.create({ name: "test", owner: "k7oax47quv", original_owner: "k7oax47quv",
+        registered: new Date(), unpaid: 0 });
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k7oax47quv" });
     });
 
-    it("should transact to a name's owner", async () => {
+    it("should transact to a name's owner", async function() {
       const [res, ws] = await send({ amount: 1, to: "test.kst", privatekey: "a" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -173,7 +176,7 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should preserve existing metadata with a transaction to a name", async () => {
+    it("should preserve existing metadata with a transaction to a name", async function() {
       const [res, ws] = await send({ amount: 1, to: "test.kst", privatekey: "a", metadata: "Hello, world!" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -182,7 +185,7 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should support metanames", async () => {
+    it("should support metanames", async function() {
       const [res, ws] = await send({ amount: 1, to: "meta@test.kst", privatekey: "a" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -191,7 +194,7 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should support metanames and preserve metadata", async () => {
+    it("should support metanames and preserve metadata", async function() {
       const [res, ws] = await send({ amount: 1, to: "meta@test.kst", privatekey: "a", metadata: "Hello, world!" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -200,7 +203,7 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should transact to a new address", async () => {
+    it("should transact to a new address", async function() {
       const [res, ws] = await send({ amount: 1, to: "knotfound0", privatekey: "a" });
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -208,13 +211,13 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should have created that address", async () => {
+    it("should have created that address", async function() {
       const address = await Address.findOne({ where: { address: "knotfound0" }});
       expect(address).to.exist;
       expect(address!.balance).to.equal(1);
     });
 
-    it("should make a transaction when authed", async () => {
+    it("should make a transaction when authed", async function() {
       const [res, ws] = await send({ amount: 1, to: "k7oax47quv" }, "a");
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");
@@ -222,7 +225,7 @@ describe("websocket routes: transactions", function() {
       ws.close();
     });
 
-    it("should make a transaction as another address when authed", async () => {
+    it("should make a transaction as another address when authed", async function() {
       const [res, ws] = await send({ amount: 1, to: "k7oax47quv", privatekey: "d" }, "a");
       expect(res).to.deep.include({ ok: true });
       expect(res.transaction).to.be.an("object");

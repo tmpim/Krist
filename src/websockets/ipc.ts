@@ -107,7 +107,7 @@ export function shutdownWebSocketIpc(): void {
   if (server) {
     console.log(chalkT`{cyan [Websockets]} Stopping IPC server`);
     server.close(e => {
-      if (e) console.error(chalkT`{red [Websockets]} Error stopping IPC server:`, e)
+      if (e) console.error(chalkT`{red [Websockets]} Error stopping IPC server:`, e);
     });
   } else {
     console.log(chalkT`{cyan [Websockets]} IPC server not running, not shutting down`);

@@ -20,15 +20,15 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { api } from "../api.js";
 import { setWork } from "../../src/krist/work.js";
+import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v1 routes: work", () => {
+describe("v1 routes: work", function() {
   before(seed);
 
-  describe("GET /?getwork", () => {
-    it("should return the work", async () => {
+  describe("GET /?getwork", function() {
+    it("should return the work", async function() {
       const res = await api().get("/?getwork");
       expect(res).to.have.status(200);
       expect(res).to.be.text;
@@ -37,18 +37,18 @@ describe("v1 routes: work", () => {
   });
 });
 
-describe("v2 routes: work", () => {
+describe("v2 routes: work", function() {
   before(seed);
 
-  describe("GET /work", () => {
-    it("should return the work", async () => {
+  describe("GET /work", function() {
+    it("should return the work", async function() {
       const res = await api().get("/work");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
       expect(res.body).to.deep.equal({ ok: true, work: 100000 });
     });
 
-    it("should return the work when it changes", async () => {
+    it("should return the work when it changes", async function() {
       await setWork(5000);
 
       const res = await api().get("/work");
@@ -58,8 +58,8 @@ describe("v2 routes: work", () => {
     });
   });
 
-  describe("GET /work/day", () => {
-    it("should return the work over time", async () => {
+  describe("GET /work/day", function() {
+    it("should return the work over time", async function() {
       const res = await api().get("/work/day");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
@@ -67,8 +67,8 @@ describe("v2 routes: work", () => {
     });
   });
 
-  describe("GET /work/detailed", () => {
-    it("should return basic detailed work info", async () => {
+  describe("GET /work/detailed", function() {
+    it("should return basic detailed work info", async function() {
       const res = await api().get("/work/detailed");
       expect(res).to.have.status(200);
       expect(res).to.be.json;

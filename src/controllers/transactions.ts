@@ -37,7 +37,7 @@ import { getAddress } from "../krist/addresses/index.js";
 import { verifyAddress } from "../krist/addresses/verify.js";
 import { getName } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
-import { pushTransaction } from "../krist/transactions/create.js";
+import { logTransaction, pushTransaction } from "../krist/transactions/create.js";
 import { getTransaction, getTransactions, getTransactionsByAddress } from "../krist/transactions/index.js";
 import { isValidKristAddress, METANAME_METADATA_RE, NAME_META_RE, REQUEST_ID_RE, validateLimitOffset } from "../utils/index.js";
 import { checkTxRateLimits } from "../utils/rateLimit.js";
@@ -134,7 +134,10 @@ export async function ctrlMakeTransaction(
 
   // Address auth validation
   const { authed, address: sender } = await verifyAddress(req, privatekey);
-  if (!authed) throw new ErrorAuthFailed();
+  if (!authed) {
+    logTransaction(req, recipient, sender.address, amount, metadata, requestId, "REJECTED");
+    throw new ErrorAuthFailed();
+  }
 
   // Apply rate limits now that we know the source address
   if (!await checkTxRateLimits(req.ip, sender.address))

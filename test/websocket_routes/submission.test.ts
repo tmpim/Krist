@@ -20,12 +20,10 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { newConnection } from "../ws.js";
 
 import { redis, rKey } from "../../src/database/redis.js";
-import { Address, Block, Name } from "../../src/database/index.js";
-import { getWork } from "../../src/krist/work.js";
+import { seed } from "../seed.js";
+import { newConnection } from "../ws.js";
 
 describe("websocket routes: submission", function() {
   before(seed);
@@ -40,30 +38,30 @@ describe("websocket routes: submission", function() {
     return [res, ws];
   }
 
-  describe("submit_block - validation", () => {
-    it("should error with a missing address for guests", async () => {
+  describe("submit_block - validation", function() {
+    it("should error with a missing address for guests", async function() {
       const [res, ws] = await send({});
       expect(res).to.deep.include({ ok: false, error: "missing_parameter", parameter: "address" });
       ws.close();
     });
 
-    it("should not error with a missing address for authed users", async () => {
+    it("should not error with a missing address for authed users", async function() {
       const [res, ws] = await send({}, "a");
       expect(res).to.not.deep.include({ ok: false, error: "missing_parameter", parameter: "address" });
       ws.close();
     });
 
-    it("should disable mining temporarily", async () => {
+    it("should disable mining temporarily", async function() {
       await redis.set(rKey("mining-enabled"), "false");
     });
 
-    it("should fail if mining is disabled", async () => {
+    it("should fail if mining is disabled", async function() {
       const [res, ws] = await send({ address: "k8juvewcui" });
       expect(res).to.deep.include({ ok: false, error: "mining_disabled" });
       ws.close();
     });
 
-    it("should re-enable mining", async () => {
+    it("should re-enable mining", async function() {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
@@ -106,7 +104,7 @@ describe("websocket routes: submission", function() {
     */
   });
 
-  describe("submit_block", () => {
+  describe("submit_block", function() {
     /*
     it("should submit a block", async () => {
       const [res, ws] = await send({ address: "k8juvewcui", nonce: "%#DEQ'#+UX)" });

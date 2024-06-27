@@ -20,19 +20,19 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
 import { api } from "../api.js";
+import { seed } from "../seed.js";
 import { newConnection } from "../ws.js";
 
-describe("websocket connection", () => {
+describe("websocket connection", function() {
   before(seed);
 
-  describe("POST /ws/start", () => {
+  describe("POST /ws/start", function() {
     const wsRe = new RegExp("ws:\\/\\/"
       + (process.env.PUBLIC_WS_URL || process.env.PUBLIC_URL || "localhost:8080")
       + "\\/ws\\/gateway\\/[0-9a-f]{18}");
 
-    it("should return a guest token", async () => {
+    it("should return a guest token", async function() {
       const res = await api().post("/ws/start");
       expect(res).to.have.status(200);
       expect(res).to.be.json;
@@ -41,7 +41,7 @@ describe("websocket connection", () => {
       expect(res.body.url).to.match(wsRe);
     });
 
-    it("should return an authed token", async () => {
+    it("should return an authed token", async function() {
       const res = await api().post("/ws/start").send({ privatekey: "a" });
       expect(res).to.have.status(200);
       expect(res).to.be.json;
@@ -50,7 +50,7 @@ describe("websocket connection", () => {
       expect(res.body.url).to.match(wsRe);
     });
 
-    it("should return an error if auth fails", async () => {
+    it("should return an error if auth fails", async function() {
       const res = await api().post("/ws/start").send({ privatekey: "c" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "auth_failed" });
@@ -58,15 +58,15 @@ describe("websocket connection", () => {
     });
   });
 
-  describe("connection", () => {
-    it("should connect to the server", async () => {
+  describe("connection", function() {
+    it("should connect to the server", async function() {
       const ws = await newConnection();
       expect(ws).to.exist;
       expect(ws.wsp).to.exist;
       expect(ws.wsp.isOpened).to.be.true;
     });
 
-    it("should receive the hello message", async () => {
+    it("should receive the hello message", async function() {
       let resolveHello: any, helloData: any;
       const helloPromise = new Promise(resolve => { resolveHello = resolve; });
 

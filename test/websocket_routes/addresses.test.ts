@@ -27,8 +27,8 @@ describe("websocket routes: addresses", function() {
   before(seed);
   this.retries(4);
 
-  describe("address", () => {
-    it("should get an address", async () => {
+  describe("address", function() {
+    it("should get an address", async function() {
       const ws = await newConnection();
       expect(ws).to.nested.include({ "wsp.isOpened": true });
 
@@ -42,7 +42,7 @@ describe("websocket routes: addresses", function() {
       ws.close();
     });
 
-    it("should get an address with names", async () => {
+    it("should get an address with names", async function() {
       const ws = await newConnection();
       expect(ws).to.nested.include({ "wsp.isOpened": true });
 
@@ -54,7 +54,7 @@ describe("websocket routes: addresses", function() {
       ws.close();
     });
 
-    it("should error for missing addresses", async () => {
+    it("should error for missing addresses", async function() {
       const ws = await newConnection();
       expect(ws).to.nested.include({ "wsp.isOpened": true });
 

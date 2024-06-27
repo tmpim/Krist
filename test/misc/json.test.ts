@@ -21,16 +21,16 @@
 
 import { expect } from "chai";
 
-import { seed } from "../seed.js";
-
 import { Transaction } from "../../src/database/index.js";
 import { transactionToJson } from "../../src/krist/transactions/index.js";
 
-describe("schema to json", () => {
+import { seed } from "../seed.js";
+
+describe("schema to json", function() {
   before(seed);
 
-  describe("transactionToJSON", () => {
-    it("should convert a database transaction to json", async () => {
+  describe("transactionToJSON", function() {
+    it("should convert a database transaction to json", async function() {
       const time = new Date();
       const tx = await Transaction.create({
         id: 1, from: "k8juvewcui", to: "k7oax47quv", value: 1,

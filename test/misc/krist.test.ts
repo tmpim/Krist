@@ -22,51 +22,48 @@
 import { expect } from "chai";
 import { isValidKristAddress, isValidName, stripNameSuffix } from "../../src/utils/index.js";
 
-describe("krist functions", () => {
-  describe("isValidKristAddress", () => {
-    it("should work for a valid v1 address", async () =>
-      expect(isValidKristAddress("a5dfb396d3")).to.be.true);
-    it("should work for a valid v2 address", async () =>
-      expect(isValidKristAddress("k8juvewcui")).to.be.true);
-    it("should fail for an invalid address", async () =>
-      expect(isValidKristAddress("kfartoolong")).to.be.false);
-    it("should fail for a valid v1 address when v2Only", async () =>
-      expect(isValidKristAddress("a5dfb396d3", true)).to.be.false);
-    it("should work for a valid v2 address when v2Only", async () =>
-      expect(isValidKristAddress("k8juvewcui", true)).to.be.true);
-    it("should fail for an invalid address when v2Only", async () =>
-      expect(isValidKristAddress("kfartoolong", true)).to.be.false);
+describe("krist functions", function() {
+  describe("isValidKristAddress", function() {
+    it("should work for a valid v1 address", async function() { return expect(isValidKristAddress("a5dfb396d3")).to.be.true; });
+
+    it("should work for a valid v2 address", async function() { return expect(isValidKristAddress("k8juvewcui")).to.be.true; });
+
+    it("should fail for an invalid address", async function() { return expect(isValidKristAddress("kfartoolong")).to.be.false; });
+
+    it("should fail for a valid v1 address when v2Only", async function() { return expect(isValidKristAddress("a5dfb396d3", true)).to.be.false; });
+
+    it("should work for a valid v2 address when v2Only", async function() { return expect(isValidKristAddress("k8juvewcui", true)).to.be.true; });
+
+    it("should fail for an invalid address when v2Only", async function() { return expect(isValidKristAddress("kfartoolong", true)).to.be.false; });
   });
 
-  describe("isValidName", () => {
-    it("should work for a valid name", async () =>
-      expect(isValidName("test")).to.be.true);
-    it("should not allow symbols", async () =>
-      expect(isValidName("test[")).to.be.false);
-    it("should not allow spaces", async () =>
-      expect(isValidName("te st")).to.be.false);
-    it("should not trim", async () =>
-      expect(isValidName(" test ")).to.be.false);
-    it("should not allow empty names", async () =>
-      expect(isValidName("")).to.be.false);
-    it("should not allow long names", async () =>
-      expect(isValidName("a".repeat(65))).to.be.false);
-    it("should error with undefined", async () =>
-      expect(() => (isValidName as any)()).to.throw(TypeError));
-    it("should not allow punycode prefixes", async () =>
-      expect(isValidName("xn--test")).to.be.false);
-    it("should allow punycode prefixes with fetching=true", async () =>
-      expect(isValidName("xn--test", true)).to.be.true);
+  describe("isValidName", function() {
+    it("should work for a valid name", async function() { return expect(isValidName("test")).to.be.true; });
+
+    it("should not allow symbols", async function() { return expect(isValidName("test[")).to.be.false; });
+
+    it("should not allow spaces", async function() { return expect(isValidName("te st")).to.be.false; });
+
+    it("should not trim", async function() { return expect(isValidName(" test ")).to.be.false; });
+
+    it("should not allow empty names", async function() { return expect(isValidName("")).to.be.false; });
+
+    it("should not allow long names", async function() { return expect(isValidName("a".repeat(65))).to.be.false; });
+
+    it("should error with undefined", async function() { return expect(() => (isValidName as any)()).to.throw(TypeError); });
+
+    it("should not allow punycode prefixes", async function() { return expect(isValidName("xn--test")).to.be.false; });
+
+    it("should allow punycode prefixes with fetching=true", async function() { return expect(isValidName("xn--test", true)).to.be.true; });
   });
 
-  describe("stripNameSuffix", () => {
-    it("should strip a .kst suffix", async () =>
-      expect(stripNameSuffix("test.kst")).to.equal("test"));
-    it("not alter a name without a suffix", async () =>
-      expect(stripNameSuffix("test")).to.equal("test"));
-    it("should only strip the last suffix", async () =>
-      expect(stripNameSuffix("test.kst.kst")).to.equal("test.kst"));
-    it("should not error with an undefined input", async () =>
-      expect((stripNameSuffix as any)()).to.equal(""));
+  describe("stripNameSuffix", function() {
+    it("should strip a .kst suffix", async function() { return expect(stripNameSuffix("test.kst")).to.equal("test"); });
+
+    it("not alter a name without a suffix", async function() { return expect(stripNameSuffix("test")).to.equal("test"); });
+
+    it("should only strip the last suffix", async function() { return expect(stripNameSuffix("test.kst.kst")).to.equal("test.kst"); });
+
+    it("should not error with an undefined input", async function() { return expect((stripNameSuffix as any)()).to.equal(""); });
   });
 });

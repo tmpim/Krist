@@ -20,13 +20,13 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
 import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v2 routes: motd", () => {
+describe("v2 routes: motd", function() {
   before(seed);
 
-  it("should return the motd", async () => {
+  it("should return the motd", async function() {
     const res = await api().get("/motd");
     expect(res).to.have.status(200);
     expect(res).to.be.json;

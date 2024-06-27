@@ -22,25 +22,31 @@
 import "dotenv/config";
 import * as chai from "chai";
 import chaiHttp from "chai-http";
-import sinon, { SinonSandbox } from "sinon";
 import chalkT from "chalk-template";
-import { initDatabase, db } from "../src/database/index.js";
+import { RootHookObject } from "mocha";
+import { register } from "prom-client";
+import sinon, { SinonSandbox } from "sinon";
+import { db, initDatabase } from "../src/database/index.js";
 import { initRedis, redis, rKey } from "../src/database/redis.js";
-import { initWebserver, server } from "../src/webserver/index.js";
 import { initKrist } from "../src/krist/index.js";
 import { shutdownWorkOverTime } from "../src/krist/work.js";
-import { RootHookObject } from "mocha";
+import { initWebserver, server } from "../src/webserver/index.js";
 
-export async function mochaGlobalSetup() {
+register.clear();
+
+export async function mochaGlobalSetup(): Promise<void> {
+  console.log(chalkT`{red [Tests]} Global setup`);
+
   chai.use(chaiHttp);
+  chai.config.truncateThreshold = 0;
 
   await initRedis();
-  await initDatabase();
+  await initDatabase(true);
   await initWebserver();
   await initKrist();
 }
 
-export async function mochaGlobalTeardown() {
+export async function mochaGlobalTeardown(): Promise<void> {
   console.log(chalkT`{red [Tests]} Stopping web server and database`);
 
   // Undo some changes made by the test runner

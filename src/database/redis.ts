@@ -24,7 +24,7 @@ import { createClient } from "redis";
 
 import { REDIS_HOST, REDIS_PASS, REDIS_PORT, REDIS_PREFIX } from "../utils/vars.js";
 
-export let redis = createClient({
+export const redis = createClient({
   socket: {
     host: REDIS_HOST,
     port: REDIS_PORT

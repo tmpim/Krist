@@ -21,7 +21,7 @@
 
 import { seed } from "../seed.js";
 
-describe("v1 routes: blocks", () => {
+describe("v1 routes: blocks", function() {
   before(seed);
 
   // TODO: /?lastblock
@@ -30,7 +30,7 @@ describe("v1 routes: blocks", () => {
   // TODO: /?blocks
 });
 
-describe("v2 routes: blocks", () => {
+describe("v2 routes: blocks", function() {
   before(seed);
 
   // TODO: GET /blocks

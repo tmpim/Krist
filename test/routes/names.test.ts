@@ -20,12 +20,12 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { api } from "../api.js";
 import { Address, Name, Transaction } from "../../src/database/index.js";
 import { getBlockValue } from "../../src/krist/blocks/index.js";
+import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v1 routes: names", () => {
+describe("v1 routes: names", function() {
   before(seed);
 
   // TODO: /?dumpnames
@@ -38,24 +38,24 @@ describe("v1 routes: names", () => {
   // TODO: /?getnewdomains
   // TODO: /?name_check
 
-  describe("/?name_new", () => {
-    it("should be removed", async () => {
+  describe("/?name_new", function() {
+    it("should be removed", async function() {
       const res = await api().get("/?name_new");
       expect(res).to.be.text;
       expect(res.text).to.equal("Please use the new API");
     });
   });
 
-  describe("/?name_transfer", () => {
-    it("should be removed", async () => {
+  describe("/?name_transfer", function() {
+    it("should be removed", async function() {
       const res = await api().get("/?name_transfer");
       expect(res).to.be.text;
       expect(res.text).to.equal("Please use the new API");
     });
   });
 
-  describe("/?name_update", () => {
-    it("should be removed", async () => {
+  describe("/?name_update", function() {
+    it("should be removed", async function() {
       const res = await api().get("/?name_update");
       expect(res).to.be.text;
       expect(res.text).to.equal("Please use the new API");
@@ -63,7 +63,7 @@ describe("v1 routes: names", () => {
   });
 });
 
-describe("v2 routes: names", () => {
+describe("v2 routes: names", function() {
   before(seed);
 
   // TODO: GET /names/check/:name
@@ -74,14 +74,14 @@ describe("v2 routes: names", () => {
   // TODO: GET /names/:name
   // TODO: GET /names/:name
 
-  describe("POST /names/:name - validation", () => {
-    it("should require a privatekey", async () => {
+  describe("POST /names/:name - validation", function() {
+    it("should require a privatekey", async function() {
       const res = await api().post("/names/test");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "privatekey" });
     });
 
-    it("should reject long names", async () => {
+    it("should reject long names", async function() {
       const res = await api()
         .post("/names/" + "a".repeat(65))
         .send({ privatekey: "a" });
@@ -90,7 +90,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
     });
 
-    it("should reject names with invalid characters", async () => {
+    it("should reject names with invalid characters", async function() {
       const invalidNames = ["test.kst", " ", "te st", "_"];
       for (const name of invalidNames) {
         const res = await api()
@@ -102,7 +102,7 @@ describe("v2 routes: names", () => {
       }
     });
 
-    it("should not purchase a name when auth fails", async () => {
+    it("should not purchase a name when auth fails", async function() {
       const res = await api()
         .post("/names/test")
         .send({ privatekey: "c" });
@@ -111,8 +111,9 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "auth_failed" });
     });
 
-    it("should reject names that already exist", async () => {
-      const name = await Name.create({ name: "test2", owner: "k8juvewcui", registered: new Date(), unpaid: 0 });
+    it("should reject names that already exist", async function() {
+      const name = await Name.create({ name: "test2", owner: "k8juvewcui", original_owner: "k8juvewcui",
+        registered: new Date(), unpaid: 0 });
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test2", owner: "k8juvewcui" });
 
@@ -124,7 +125,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "name_taken" });
     });
 
-    it("should reject with insufficient funds", async () => {
+    it("should reject with insufficient funds", async function() {
       const res = await api()
         .post("/names/test")
         .send({ privatekey: "a" });
@@ -134,10 +135,10 @@ describe("v2 routes: names", () => {
     });
   });
 
-  describe("POST /names/:name", () => {
+  describe("POST /names/:name", function() {
     before(seed);
 
-    it("should purchase a name", async () => {
+    it("should purchase a name", async function() {
       const res = await api()
         .post("/names/test")
         .send({ privatekey: "d" });
@@ -146,7 +147,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: true });
     });
 
-    it("should exist in the database", async () => {
+    it("should exist in the database", async function() {
       const name = await Name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k0duvsr4qn", unpaid: 500, original_owner: "k0duvsr4qn" });
@@ -155,24 +156,24 @@ describe("v2 routes: names", () => {
       expect(name!.transferred).to.be.null;
     });
 
-    it("should have created a transaction", async () => {
+    it("should have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "name", name: "test", value: 500 });
     });
 
-    it("should have decreased the buyer's balance", async () => {
+    it("should have decreased the buyer's balance", async function() {
       const address = await Address.findOne({ where: { address: "k0duvsr4qn" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 24500 });
     });
 
-    it("should have increased the block value", async () => {
+    it("should have increased the block value", async function() {
       const value = await getBlockValue();
       expect(value).to.equal(26);
     });
 
-    it("should convert names to lowercase", async () => {
+    it("should convert names to lowercase", async function() {
       const res = await api()
         .post("/names/TestUppercase")
         .send({ privatekey: "d" });
@@ -188,14 +189,14 @@ describe("v2 routes: names", () => {
     });
   });
 
-  describe("POST /names/:name/transfer - validation", () => {
-    it("should require a privatekey", async () => {
+  describe("POST /names/:name/transfer - validation", function() {
+    it("should require a privatekey", async function() {
       const res = await api().post("/names/test/transfer");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "privatekey" });
     });
 
-    it("should require an address", async () => {
+    it("should require an address", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "d" });
@@ -204,7 +205,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "address" });
     });
 
-    it("should reject invalid names", async () => {
+    it("should reject invalid names", async function() {
       const res = await api()
         .post("/names/" + ("a".repeat(65)) + "/transfer")
         .send({ privatekey: "a", address: "k8juvewcui" });
@@ -213,7 +214,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
     });
 
-    it("should reject invalid addresses", async () => {
+    it("should reject invalid addresses", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "a", address: "kfartoolong" });
@@ -222,7 +223,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "address" });
     });
 
-    it("should reject v1 addresses", async () => {
+    it("should reject v1 addresses", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "a", address: "a5dfb396d3" });
@@ -231,7 +232,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "address" });
     });
 
-    it("should not transfer a name when auth fails", async () => {
+    it("should not transfer a name when auth fails", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "c", address: "k8juvewcui" });
@@ -240,7 +241,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "auth_failed" });
     });
 
-    it("should reject when the name does not exist", async () => {
+    it("should reject when the name does not exist", async function() {
       const res = await api()
         .post("/names/notfound/transfer")
         .send({ privatekey: "d", address: "k8juvewcui" });
@@ -249,7 +250,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
     });
 
-    it("should reject when not the owner of the name", async () => {
+    it("should reject when not the owner of the name", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "a", address: "k8juvewcui" });
@@ -259,8 +260,8 @@ describe("v2 routes: names", () => {
     });
   });
 
-  describe("POST /names/:name/transfer", () => {
-    it("should transfer a name", async () => {
+  describe("POST /names/:name/transfer", function() {
+    it("should transfer a name", async function() {
       const res = await api()
         .post("/names/test/transfer")
         .send({ privatekey: "d", address: "k8juvewcui" });
@@ -272,32 +273,32 @@ describe("v2 routes: names", () => {
       expect(res.body.name.transferred).to.be.ok;
     });
 
-    it("should have updated the database", async () => {
+    it("should have updated the database", async function() {
       const name = await Name.findOne({ where: { name: "test" }});
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", original_owner: "k0duvsr4qn" });
       expect(name!.updated).to.be.ok;
     });
 
-    it("should have created a transaction", async () => {
+    it("should have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "k8juvewcui", name: "test", value: 0 });
     });
 
-    it("should not have changed the old owner's balance", async () => {
+    it("should not have changed the old owner's balance", async function() {
       const address = await Address.findOne({ where: { address: "k0duvsr4qn" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 24000 });
     });
 
-    it("should not have changed the new owner's balance", async () => {
+    it("should not have changed the new owner's balance", async function() {
       const address = await Address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
     });
 
-    it("should not bump a name", async () => {
+    it("should not bump a name", async function() {
       const name = await Name.findOne({ where: { name: "test" }});
       const oldUpdated = name!.updated;
       const oldTransferred = name!.transferred;
@@ -315,7 +316,7 @@ describe("v2 routes: names", () => {
       expect(res.body.name.transferred).to.equal(oldTransferred!.toISOString());
     });
 
-    it("should not have created a transaction", async () => {
+    it("should not have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k0duvsr4qn", to: "k8juvewcui", name: "test", value: 0 });
@@ -323,13 +324,13 @@ describe("v2 routes: names", () => {
   });
 
   const nameUpdateValidation = (route: string, method: "post" | "put") => () => {
-    it("should require a privatekey", async () => {
+    it("should require a privatekey", async function() {
       const res = await api()[method]("/names/test" + route);
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "missing_parameter", parameter: "privatekey" });
     });
 
-    it("should reject long names", async () => {
+    it("should reject long names", async function() {
       const res = await api()[method]("/names/" + "a".repeat(65) + route)
         .send({ privatekey: "a" });
 
@@ -337,7 +338,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "invalid_parameter", parameter: "name" });
     });
 
-    it("should reject names with invalid characters", async () => {
+    it("should reject names with invalid characters", async function() {
       const invalidNames = ["test.kst", " ", "te st", "_"];
       for (const name of invalidNames) {
         const res = await api()[method]("/names/" + encodeURIComponent(name) + route)
@@ -350,7 +351,7 @@ describe("v2 routes: names", () => {
 
     const invalidRecords = ["#foo", "?foo", "foo bar", "a".repeat(256)];
     for (const record of invalidRecords) {
-      it(`should reject invalid name data - ${JSON.stringify(record)}`, async () => {
+      it(`should reject invalid name data - ${JSON.stringify(record)}`, async function() {
         const res = await api()[method]("/names/test" + route)
           .send({ privatekey: "a", a: record });
 
@@ -359,7 +360,7 @@ describe("v2 routes: names", () => {
       });
     }
 
-    it("should not update when auth fails", async () => {
+    it("should not update when auth fails", async function() {
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "c" });
 
@@ -367,7 +368,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "auth_failed" });
     });
 
-    it("should reject when the name does not exist", async () => {
+    it("should reject when the name does not exist", async function() {
       const res = await api()[method]("/names/notfound" + route)
         .send({ privatekey: "d", address: "k8juvewcui" });
 
@@ -375,7 +376,7 @@ describe("v2 routes: names", () => {
       expect(res.body).to.deep.include({ ok: false, error: "name_not_found" });
     });
 
-    it("should reject when not the owner of the name", async () => {
+    it("should reject when not the owner of the name", async function() {
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "b", address: "k8juvewcui" });
 
@@ -385,7 +386,7 @@ describe("v2 routes: names", () => {
   };
 
   const nameUpdate = (route: string, method: "post" | "put") => () => {
-    it("should update a name's data", async () => {
+    it("should update a name's data", async function() {
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "a", a: "example.com" });
 
@@ -395,27 +396,27 @@ describe("v2 routes: names", () => {
       expect(res.body.name.updated).to.be.ok;
     });
 
-    it("should exist in the database", async () => {
+    it("should exist in the database", async function() {
       const name = await Name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: "example.com", original_owner: "k0duvsr4qn" });
     });
 
     let tId = -1;
-    it("should have created a transaction", async () => {
+    it("should have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: "example.com", value: 0 });
       tId = tx!.id;
     });
 
-    it("should not have changed the owner's balance", async () => {
+    it("should not have changed the owner's balance", async function() {
       const address = await Address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
     });
 
-    it("should not bump a name", async () => {
+    it("should not bump a name", async function() {
       const name = await Name.findOne({ where: { name: "test" }});
       const oldUpdated = name!.updated;
       expect(oldUpdated).to.be.ok;
@@ -429,13 +430,13 @@ describe("v2 routes: names", () => {
       expect(res.body.name.updated).to.equal(oldUpdated!.toISOString());
     });
 
-    it("should not have created a transaction", async () => {
+    it("should not have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ id: tId, op: "example.com" });
     });
 
-    it("should remove a name's data", async () => {
+    it("should remove a name's data", async function() {
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "a" });
 
@@ -445,25 +446,25 @@ describe("v2 routes: names", () => {
       expect(res.body.name.updated).to.be.ok;
     });
 
-    it("should exist in the database", async () => {
+    it("should exist in the database", async function() {
       const name = await Name.findOne();
       expect(name).to.exist;
       expect(name).to.deep.include({ name: "test", owner: "k8juvewcui", a: null });
     });
 
-    it("should have created a transaction", async () => {
+    it("should have created a transaction", async function() {
       const tx = await Transaction.findOne({ order: [["id", "DESC"]] });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k8juvewcui", to: "a", name: "test", op: null, value: 0 });
     });
 
-    it("should not have changed the owner's balance", async () => {
+    it("should not have changed the owner's balance", async function() {
       const address = await Address.findOne({ where: { address: "k8juvewcui" }});
       expect(address).to.exist;
       expect(address).to.deep.include({ balance: 10 });
     });
 
-    it("should nullify the name data if it is an empty string", async () => {
+    it("should nullify the name data if it is an empty string", async function() {
       const res = await api()[method]("/names/test" + route)
         .send({ privatekey: "a", a: "" });
 
@@ -475,7 +476,7 @@ describe("v2 routes: names", () => {
 
     const trimRecords = [" foo", "foo ", " foo "];
     for (const record of trimRecords) {
-      it(`should trim name data - ${JSON.stringify(record)}`, async () => {
+      it(`should trim name data - ${JSON.stringify(record)}`, async function() {
         const res = await api()[method]("/names/test" + route)
           .send({ privatekey: "a", a: record });
 
@@ -487,7 +488,10 @@ describe("v2 routes: names", () => {
   };
 
   describe("POST /names/:name/update - validation", nameUpdateValidation("/update", "post"));
+
   describe("POST /names/:name/update", nameUpdate("/update", "post"));
+
   describe("PUT /names/:name - validation", nameUpdateValidation("", "put"));
+
   describe("PUT /names/:name", nameUpdate("", "put"));
 });

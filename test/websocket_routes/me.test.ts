@@ -27,8 +27,8 @@ describe("websocket routes: me", function() {
   before(seed);
   this.retries(4);
 
-  describe("me", () => {
-    it("should work for guests", async () => {
+  describe("me", function() {
+    it("should work for guests", async function() {
       const ws = await newConnection();
       expect(ws).to.nested.include({ "wsp.isOpened": true });
 
@@ -38,7 +38,7 @@ describe("websocket routes: me", function() {
       ws.close();
     });
 
-    it("should work for authed users", async () => {
+    it("should work for authed users", async function() {
       const ws = await newConnection("a");
       expect(ws).to.nested.include({ "wsp.isOpened": true });
 

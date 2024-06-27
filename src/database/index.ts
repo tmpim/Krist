@@ -21,8 +21,10 @@
 
 import { AcquireConnectionOptions, Sequelize, Transaction } from "@sequelize/core";
 import { MariaDbDialect } from "@sequelize/mariadb";
+import { MigrationFn, SequelizeStorage, Umzug } from "umzug";
 import chalkT from "chalk-template";
 import client from "prom-client";
+import { migrations } from "./migrations/barrel.js";
 
 import {
   DB_HOST,
@@ -37,7 +39,7 @@ import {
   DB_POOL_MONITOR_ACQUIRE,
   DB_PORT,
   DB_USER,
-  TEST
+  TEST, TEST_DEBUG
 } from "../utils/vars.js";
 import { SCHEMAS } from "./schemas.js";
 
@@ -108,7 +110,7 @@ new client.Gauge({
 // =============================================================================
 // Init database
 // =============================================================================
-export async function initDatabase(): Promise<void> {
+export async function initDatabase(skipMigrations: boolean = false): Promise<void> {
   console.log(chalkT`{cyan [DB]} Connecting to database {bold ${DB_NAME}} at {bold ${DB_HOST}}:{bold ${DB_PORT}} as user {bold ${DB_USER}} (env: ${process.env.NODE_ENV}, test: ${TEST ? "TRUE" : "false"})...`);
 
   db = new Sequelize({
@@ -179,11 +181,37 @@ export async function initDatabase(): Promise<void> {
     await db.authenticate();
     console.log(chalkT`{green [DB]} Connected`);
 
-    await db.sync();
-    console.log(chalkT`{green [DB]} Synced schemas`);
+    if (!skipMigrations) {
+      console.log(chalkT`{yellow [DB]} Checking pending migrations...`);
+      await runMigrations();
+      console.log(chalkT`{green [DB]} Synced schemas`);
+    }
   } catch (error) {
     console.error(error);
   }
+}
+
+export async function runMigrations(): Promise<void> {
+  const umzug = new Umzug({
+    migrations: Object.entries(migrations).map(([path, migration]) => {
+      path = path.replace(/\.js$/, ".ts");
+      const name = path.replace("./migrations/", "");
+      return {
+        name,
+        path,
+        up: migration.up as MigrationFn<Sequelize>,
+        down: migration.down as MigrationFn<Sequelize>
+      };
+    }),
+    context: db,
+    storage: new SequelizeStorage({
+      sequelize: db,
+      tableName: TEST ? "SequelizeMetaTest" : "SequelizeMeta",
+    }),
+    logger: !TEST ? console : undefined // suppress migration logging during tests
+  });
+
+  await umzug.up();
 }
 
 export type Limit = string | number | null | undefined;
@@ -195,7 +223,7 @@ export type SqTransaction = Transaction;
 
 export * from "./schemas.js";
 
-export async function shutdownDb() {
+export async function shutdownDb(): Promise<void> {
   console.log(chalkT`{cyan [DB]} Disconnecting from database`);
   await db.close();
   console.log(chalkT`{green [DB]} Disconnected`);

@@ -20,11 +20,11 @@
  */
 
 import chalkT from "chalk-template";
-import WebSocketAsPromised from "websocket-as-promised";
-import * as websocket from "websocket";
-import { api } from "./api.js";
-import { IncomingWebSocketMessage, OutgoingWebSocketMessage } from "../src/websockets/types.js";
 import { Optional } from "utility-types";
+import * as websocket from "websocket";
+import WebSocketAsPromised from "websocket-as-promised";
+import { IncomingWebSocketMessage, OutgoingWebSocketMessage } from "../src/websockets/types.js";
+import { api } from "./api.js";
 
 export interface TestWebSocketInitFn {
   (ws: WrappedTestWebSocket, wsp: WebSocketAsPromised): void;

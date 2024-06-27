@@ -1,8 +1,12 @@
 {
   "new": [{
+    "commitHash": "0882f0b1ea732b853c417ef7f1f78b312c45452a",
+    "date": "2024-06-27T17:03:28+01:00",
+    "new": true,
+    "body": "Transaction and name creation endpoints now support a `requestId` parameter, to allow for idempotent transaction submission. [More info](https://github.com/tmpim/Krist/pull/62)"
+  }, {
     "commitHash": "33d66ee55ef8f4eaa2b795faa34b244bc9727571",
     "date": "2023-03-22T21:30:30+00:00",
-    "new": true,
     "body": "The websocket gateway returned by `/ws/start` is now `wss://ws.krist.dev`. You should connect to the URL returned by `/ws/start` instead of hardcoding the URL."
   }, {
     "commitHash": "a7e1844f85ade36f5f7c8487713ed2e03caf0315",

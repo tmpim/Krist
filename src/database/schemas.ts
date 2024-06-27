@@ -21,7 +21,16 @@
 
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from "@sequelize/core";
 import { DataTypes, Model } from "@sequelize/core";
-import { Attribute, AutoIncrement, Default, Index, PrimaryKey, Table, Unique } from "@sequelize/core/decorators-legacy";
+import {
+  Attribute,
+  AutoIncrement,
+  Default,
+  Index,
+  NotNull,
+  PrimaryKey,
+  Table,
+  Unique
+} from "@sequelize/core/decorators-legacy";
 import type { AuthLogType } from "../krist/authLog.js";
 
 import { NONCE_MAX_SIZE } from "../utils/vars.js";
@@ -37,8 +46,9 @@ export class Address extends Model<InferAttributes<Address>, InferCreationAttrib
   @PrimaryKey
   declare id: CreationOptional<number>;
 
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.CHAR(10))
   @Unique
+  @NotNull
   declare address: string;
 
   @Attribute(DataTypes.INTEGER.UNSIGNED)
@@ -71,7 +81,8 @@ export class Block extends Model {
   declare id: number;
 
   @Index
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.CHAR(10))
+  @NotNull
   declare address: string;
 
   @Attribute(DataTypes.INTEGER.UNSIGNED)
@@ -79,6 +90,7 @@ export class Block extends Model {
 
   @Attribute(DataTypes.STRING(64))
   @Unique
+  @NotNull
   declare hash: string;
   @Attribute(DataTypes.STRING(NONCE_MAX_SIZE * 2))
   declare nonce: string;
@@ -108,12 +120,15 @@ export class Name extends Model<InferAttributes<Name>, InferCreationAttributes<N
 
   @Attribute(DataTypes.STRING(64))
   @Unique
+  @NotNull
   declare name: string;
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.CHAR(10))
   @Index
+  @NotNull
   declare owner: string;
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.CHAR(10))
   @Index
+  @NotNull
   declare original_owner?: string | null;
 
   @Attribute(DataTypes.DATE)
@@ -142,10 +157,10 @@ export class Transaction extends Model<InferAttributes<Transaction>, InferCreati
   declare id: CreationOptional<number>;
 
   @Index
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.STRING(10)) // string not char since it can be blank
   declare from: string | null;
   @Index
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.STRING(10)) // can be `a`, `name`, or a bunch of other errors
   declare to: string | null;
 
   @Attribute(DataTypes.INTEGER.UNSIGNED)
@@ -196,7 +211,8 @@ export class AuthLog extends Model<InferAttributes<AuthLog>, InferCreationAttrib
 
   @Index
   @Index({ name: "authlogs_address_ip" })
-  @Attribute(DataTypes.STRING(10))
+  @Attribute(DataTypes.CHAR(10))
+  @NotNull
   declare address: string;
 
   @Index

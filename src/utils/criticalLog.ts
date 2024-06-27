@@ -49,7 +49,7 @@ export function criticalLog(
   req: Request,
   message: string,
   urgent?: boolean,
-) {
+): void {
   if (!webhook) return;
 
   const { ip, origin, userAgent, libraryAgent } = getLogDetails(req);
@@ -97,7 +97,7 @@ export function criticalLog(
   });
 }
 
-export function initCriticalLogUpdater() {
+export function initCriticalLogUpdater(): void {
   if (!webhook) return;
 
   setInterval(async () => {

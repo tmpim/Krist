@@ -20,32 +20,32 @@
  */
 
 import { expect } from "chai";
-import { seed } from "../seed.js";
-import { api } from "../api.js";
 import { redis, rKey } from "../../src/database/redis.js";
+import { api } from "../api.js";
+import { seed } from "../seed.js";
 
-describe("v1 routes: submission", () => {
+describe("v1 routes: submission", function() {
   before(seed);
 
-  describe("/?submitblockold", () => {
-    it("should not exist", async () => {
+  describe("/?submitblockold", function() {
+    it("should not exist", async function() {
       const res = await api().get("/?submitblockold");
       expect(res).to.be.html;
     });
   });
 
-  describe("/?submitblock - validation", () => {
-    it("should disable mining temporarily", async () => {
+  describe("/?submitblock - validation", function() {
+    it("should disable mining temporarily", async function() {
       await redis.set(rKey("mining-enabled"), "false");
     });
 
-    it("should fail if mining is disabled", async () => {
+    it("should fail if mining is disabled", async function() {
       const res = await api().get("/?submitblock");
       expect(res).to.be.text;
       expect(res.text).to.equal("Mining disabled");
     });
 
-    it("should re-enable mining", async () => {
+    it("should re-enable mining", async function() {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
@@ -88,7 +88,7 @@ describe("v1 routes: submission", () => {
     */
   });
 
-  describe("/?submitblock", () => {
+  describe("/?submitblock", function() {
     /*
     it("should submit a block", async () => {
       const res = await api()
@@ -179,21 +179,21 @@ describe("v1 routes: submission", () => {
   });
 });
 
-describe("v2 routes: submission", () => {
+describe("v2 routes: submission", function() {
   before(seed);
 
-  describe("POST /submit - validation", () => {
-    it("should disable mining temporarily", async () => {
+  describe("POST /submit - validation", function() {
+    it("should disable mining temporarily", async function() {
       await redis.set(rKey("mining-enabled"), "false");
     });
 
-    it("should fail if mining is disabled", async () => {
+    it("should fail if mining is disabled", async function() {
       const res = await api().post("/submit");
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: false, error: "mining_disabled" });
     });
 
-    it("should re-enable mining", async () => {
+    it("should re-enable mining", async function() {
       await redis.set(rKey("mining-enabled"), "true");
     });
 
@@ -260,7 +260,7 @@ describe("v2 routes: submission", () => {
     */
   });
 
-  describe("POST /submit", () => {
+  describe("POST /submit", function() {
     /*
     it("should submit a block", async () => {
       const res = await api()

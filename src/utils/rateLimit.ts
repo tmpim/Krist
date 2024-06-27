@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { RateLimitRequestHandler } from "express-rate-limit";
 import promClient from "prom-client";
 import RedisStore from "rate-limit-redis";
 import { BurstyRateLimiter, RateLimiterRedis } from "rate-limiter-flexible";
@@ -14,7 +14,7 @@ const promTransactionRateLimit = new promClient.Counter({
   help: "Total number of transactions that were rate limited."
 });
 
-export const webserverRateLimiter = () => rateLimit({
+export const webserverRateLimiter = (): RateLimitRequestHandler => rateLimit({
   windowMs: 60000,
   limit: 180,
   standardHeaders: true,
