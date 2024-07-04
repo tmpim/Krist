@@ -20,6 +20,7 @@
  */
 
 import { expect } from "chai";
+import { Address } from "../../src/database/index.js";
 import { api } from "../api.js";
 import { seed } from "../seed.js";
 
@@ -55,6 +56,22 @@ describe("v2 routes: login", function() {
       const res = await api().post("/login").send({ privatekey: "a" });
       expect(res).to.be.json;
       expect(res.body).to.deep.include({ ok: true, authed: true, address: "k8juvewcui" });
+    });
+
+    it("should error for locked addresses even without a privatekey", async function() {
+      const address = await Address.findOne({ where: { address: "kwsgj3x184" } });
+      if (!address) throw new Error("Address not found");
+
+      const oldPrivatekey = address.privatekey;
+      address.privatekey = null;
+      await address.save();
+
+      const res = await api().post("/login").send({ privatekey: "c" });
+      expect(res).to.be.json;
+      expect(res.body).to.deep.include({ ok: true, authed: false });
+
+      address.privatekey = oldPrivatekey;
+      await address.save();
     });
   });
 });

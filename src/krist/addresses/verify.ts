@@ -69,7 +69,9 @@ export async function verifyAddress(
     return { authed: true, address: newAddress };
   }
 
-  if (address.privatekey) { // Address exists, auth if the privatekey is equal
+  // Address exists, auth if the privatekey is equal, or handle the locked flow if it's locked (even if there's no
+  // privatekey set)
+  if (address.privatekey || address.locked) {
     const authed = !address.locked && address.privatekey === hash;
 
     if (authed) {
