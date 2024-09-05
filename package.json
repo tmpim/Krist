@@ -1,12 +1,12 @@
 {
   "name": "krist",
-  "version": "3.5.2",
+  "version": "3.5.3",
   "description": "The new Krist node written in TypeScript.",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node dist/src/index.js",
-    "dev": "tsx src/index.ts",
+    "dev": "tsx --import why-is-node-running/include.js src/index.ts",
     "docs": "apidoc -v -t apidoc-template -i src -o static/docs",
     "test": "cross-env TS_NODE_PROJECT='./tsconfig.test.json' NODE_ENV=test mocha 'test/**/*.test.ts'",
     "test:coverage": "nyc pnpm run test",

@@ -22,7 +22,6 @@
 import "dotenv/config";
 
 import chalkT from "chalk-template";
-import whyIsNodeRunning from "why-is-node-running";
 import packageJson from "../package.json" with { type: "json" };
 import { initDatabase, shutdownDb } from "./database/index.js";
 import { initRedis, shutdownRedis } from "./database/redis.js";
@@ -60,11 +59,6 @@ function shutdown() {
     shutdownAuthLogCleanup();
     shutdownWebSocketIpc();
   })().catch(console.error);
-
-  setTimeout(() => {
-    console.log("Still shutting down?");
-    whyIsNodeRunning();
-  }, 8000).unref();
 }
 
 process.on("SIGINT", shutdown);
