@@ -74,12 +74,6 @@ export async function initWebserver(): Promise<void> {
 
   if (!TEST) app.use(webserverRateLimiter());
 
-  app.all("*", (req, res, next) => {
-    res.header("X-Robots-Tag", "none");
-    res.header("Content-Type", "application/json");
-    next();
-  });
-
   app.all("/", (req, res, next) => {
     res.header("Content-Type", "text/plain");
     next();

@@ -39,7 +39,7 @@ import {
   DB_POOL_MONITOR_ACQUIRE,
   DB_PORT,
   DB_USER,
-  TEST, TEST_DEBUG
+  TEST
 } from "../utils/vars.js";
 import { SCHEMAS } from "./schemas.js";
 

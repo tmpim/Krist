@@ -78,7 +78,7 @@ export default (): Router => {
    *     },
    *     ...
    */
-  router.get("/transactions/:addresses?", async (req: LookupQuery<{
+  router.get("/transactions/{:addresses}", async (req: LookupQuery<{
     includeMined?: string;
   }>, res) => {
     const { addresses: addressesParam } = req.params;

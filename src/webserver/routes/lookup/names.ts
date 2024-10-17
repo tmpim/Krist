@@ -77,7 +77,7 @@ export default (): Router => {
    *     },
    *     ...
    */
-  router.get("/names/:addresses?", async (req: LookupQuery, res) => {
+  router.get("/names/{:addresses}", async (req: LookupQuery, res) => {
     const { addresses: addressesParam } = req.params;
 
     // Validate address list
