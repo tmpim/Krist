@@ -28,7 +28,7 @@
     "@octokit/rest": "^20.1.1",
     "@sequelize/core": "7.0.0-alpha.41",
     "@sequelize/mariadb": "7.0.0-alpha.41",
-    "body-parser": "^1.20.2",
+    "body-parser": "^1.20.3",
     "chalk": "^5.3.0",
     "chalk-template": "^1.1.0",
     "cors": "^2.8.5",
