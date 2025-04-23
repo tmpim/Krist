@@ -78,10 +78,10 @@ export default (): Router => {
 	 * @apiSuccessExample {json} Success
    * {
    *    "ok": true,
-   *    "server_time": "2023-03-22T21:14:29.483Z",
-   *    "motd": "The API URL has changed to https://krist.dev\n\nBlock submission is disabled ([more info](https://discord.sc3.io))",
-   *    "set": "2023-03-22T21:14:06.000Z",
-   *    "motd_set": "2023-03-22T21:14:06.000Z",
+   *    "server_time": "2025-04-23T19:47:34.049Z",
+   *    "motd": "The API URL has changed to https://krist.dev\n\nBlock submission is disabled.",
+   *    "set": "2025-04-23T19:47:29.000Z",
+   *    "motd_set": "2025-04-23T19:47:29.000Z",
    *    "public_url": "krist.dev",
    *    "public_ws_url": "ws.krist.dev",
    *    "mining_enabled": false,
@@ -98,7 +98,7 @@ export default (): Router => {
    *    },
    *    "package": {
    *       "name": "krist",
-   *       "version": "3.3.0",
+   *       "version": "3.5.4",
    *       "author": "Lemmmy",
    *       "licence": "GPL-3.0",
    *       "repository": "https://github.com/tmpim/Krist"
