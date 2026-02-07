@@ -21,6 +21,7 @@
 
 import { InferAttributes, Order, sql } from "@sequelize/core";
 import { Block, Limit, Offset, PaginatedResult } from "../../database/index.js";
+import { cachedFindAndCountAll } from "../../utils/cache.js";
 import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export async function lookupBlocks(
@@ -38,7 +39,7 @@ export async function lookupBlocks(
     ? [sql`ISNULL(hash)`, ["hash", "ASC"]]
     : [[orderBy, order]];
 
-  return Block.findAndCountAll({
+  return cachedFindAndCountAll(Block, {
     order: dbOrder,
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),

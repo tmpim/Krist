@@ -42,6 +42,7 @@
 
 import { Op } from "@sequelize/core";
 import { Block, Limit, Offset, PaginatedResult, SqTransaction } from "../../database/index.js";
+import { cachedFindAndCountAll } from "../../utils/cache.js";
 import { getBaseBlockValue, getLegacyWork, sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 import { getUnpaidNameCount } from "../names/index.js";
 
@@ -54,7 +55,7 @@ export async function getBlocks(
   offset?: Offset,
   asc?: boolean
 ): Promise<PaginatedResult<Block>> {
-  return Block.findAndCountAll({
+  return cachedFindAndCountAll(Block, {
     order: [["id", asc ? "ASC" : "DESC"]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset)
@@ -74,10 +75,10 @@ export async function getLowestHashes(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Block>> {
-  return Block.findAndCountAll({
+  return cachedFindAndCountAll(Block, {
     where: {
       [Op.and]: [
-        { hash: { [Op.not]: null } },
+        { hash: { [Op.isNot]: null } },
         { id: { [Op.gt]: 10 } } // Ignore the genesis block
       ]
     },

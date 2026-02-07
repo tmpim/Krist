@@ -23,7 +23,7 @@ import { Op, QueryTypes, sql } from "@sequelize/core";
 
 import promClient from "prom-client";
 import { db, Limit, Name, Offset, PaginatedResult, SqTransaction } from "../../database/index.js";
-
+import { cachedFindAndCountAll, cachedCount, invalidateCountCache } from "../../utils/cache.js";
 import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 import { NAME_COST } from "../../utils/vars.js";
 
@@ -38,7 +38,7 @@ export async function getNames(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Name>> {
-  return Name.findAndCountAll({
+  return cachedFindAndCountAll(Name, {
     order: [["name", "ASC"]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset)
@@ -50,7 +50,7 @@ export async function getNamesByAddress(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Name>> {
-  return Name.findAndCountAll({
+  return cachedFindAndCountAll(Name, {
     order: [["name", "ASC"]],
     where: { owner: address },
     limit: sanitiseLimit(limit),
@@ -72,7 +72,7 @@ export async function getDetailedUnpaid(): Promise<DetailedUnpaidResponseRow[]> 
 }
 
 export async function getNameCountByAddress(address: string): Promise<number> {
-  return Name.count({ where: { owner: address }});
+  return cachedCount(Name, { where: { owner: address }});
 }
 
 export async function getName(name: string): Promise<Name | null> {
@@ -83,7 +83,7 @@ export async function getUnpaidNames(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Name>> {
-  return Name.findAndCountAll({
+  return cachedFindAndCountAll(Name, {
     order: [["id", "DESC"]],
     where: { unpaid: { [Op.gt]: 0 }},
     limit: sanitiseLimit(limit),
@@ -115,12 +115,17 @@ export async function createName(
     unpaid: NAME_COST
   }, { transaction: dbTx });
 
-  promNamesPurchasedCounter.inc();
+  dbTx.afterCommit(async () => {
+    promNamesPurchasedCounter.inc();
 
-  wsManager.broadcastEvent({
-    type: "event",
-    event: "name",
-    name: nameToJson(dbName)
+    // Invalidate name count caches
+    await invalidateCountCache(Name.name);
+
+    wsManager.broadcastEvent({
+      type: "event",
+      event: "name",
+      name: nameToJson(dbName)
+    });
   });
 
   return dbName;

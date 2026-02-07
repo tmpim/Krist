@@ -26,6 +26,7 @@ import { Request } from "express";
 import promClient from "prom-client";
 import { Address, Block, db, Name } from "../../database/index.js";
 import { ErrorMiningDisabled, ErrorSolutionDuplicate, ErrorSolutionIncorrect } from "../../errors/index.js";
+import { invalidateCountCache } from "../../utils/cache.js";
 import { getLogDetails, sha256 } from "../../utils/index.js";
 import { MAX_WORK, MIN_WORK, SECONDS_PER_BLOCK, WORK_FACTOR } from "../../utils/vars.js";
 import { wsManager } from "../../websockets/index.js";
@@ -164,6 +165,11 @@ export async function createBlock(
         totalin: value,
         totalout: 0
       }, { transaction: dbTx });
+
+      dbTx.afterCommit(async () => {
+        // Invalidate address count caches (new address created)
+        await invalidateCountCache(Address.name);
+      });
     }
 
     return {
@@ -179,6 +185,9 @@ export async function createBlock(
   // Save the new work
   console.log(chalkT`        New work: {green ${retWork.toLocaleString()}} New balance: {green ${retAddress.balance}}`);
   await setWork(retWork);
+
+  // Invalidate block count caches
+  await invalidateCountCache(Block.name);
 
   // Submit the new block event to all websockets (async)
   wsManager.broadcastEvent({

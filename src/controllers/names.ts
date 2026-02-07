@@ -38,6 +38,7 @@ import { verifyAddress } from "../krist/addresses/verify.js";
 import { createName, getName, getNames, getNamesByAddress, getUnpaidNames } from "../krist/names/index.js";
 import { areTransactionsEnabled } from "../krist/switches.js";
 import { createTransaction, logTransaction, pushTransaction } from "../krist/transactions/create.js";
+import { invalidateCountCache } from "../utils/cache.js";
 import { isValidARecord, isValidKristAddress, isValidName, validateLimitOffset } from "../utils/index.js";
 import { checkTxRateLimits } from "../utils/rateLimit.js";
 import { NAME_COST } from "../utils/vars.js";
@@ -220,6 +221,11 @@ export async function ctrlTransferName(
       null,
       dbName.name
     );
+
+    dbTx.afterCommit(async () => {
+      // Invalidate name count caches (owner changed)
+      await invalidateCountCache(Name.name);
+    });
   });
 
   // Return the updated name
@@ -285,6 +291,11 @@ export async function ctrlUpdateName(
       dbName.name,
       a
     );
+
+    dbTx.afterCommit(async () => {
+      // Invalidate name count caches (A-record changed)
+      await invalidateCountCache(Name.name);
+    });
   });
 
   // Return the updated name

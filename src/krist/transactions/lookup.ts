@@ -23,6 +23,7 @@ import { InferAttributes, Op, WhereOptions } from "@sequelize/core";
 import { Limit, Offset, PaginatedResult, Transaction } from "../../database/index.js";
 import { sanitiseLike, sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 import { OP_EXCLUDE_MINED } from "./index.js";
+import { cachedFindAndCountAll, cachedCount } from "../../utils/cache.js";
 
 export async function lookupTransactions(
   addressList: string[] | undefined,
@@ -32,7 +33,7 @@ export async function lookupTransactions(
   order: "ASC" | "DESC" = "ASC",
   includeMined?: boolean
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),
@@ -60,7 +61,7 @@ export async function lookupTransactionsToName(
   orderBy: keyof InferAttributes<Transaction> = "id",
   order: "ASC" | "DESC" = "ASC",
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),
@@ -75,7 +76,7 @@ export async function lookupNameHistory(
   orderBy: keyof InferAttributes<Transaction> = "id",
   order: "ASC" | "DESC" = "ASC",
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),
@@ -93,7 +94,7 @@ function getWhereSearchByName(query: string): WhereOptions<Transaction> {
 }
 
 export async function countByName(query: string): Promise<number> {
-  return Transaction.count({
+  return cachedCount(Transaction, {
     where: getWhereSearchByName(query)
   });
 }
@@ -105,7 +106,7 @@ export async function searchByName(
   orderBy: keyof InferAttributes<Transaction> = "id",
   order: "ASC" | "DESC" = "ASC"
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     where: getWhereSearchByName(query),
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),
@@ -124,7 +125,7 @@ function getWhereSearchByMetadata(query: string): WhereOptions<Transaction> {
 }
 
 export async function countMetadata(query: string): Promise<number> {
-  return Transaction.count({
+  return cachedCount(Transaction, {
     where: getWhereSearchByMetadata(query)
   });
 }
@@ -136,7 +137,7 @@ export async function searchMetadata(
   orderBy: keyof InferAttributes<Transaction> = "id",
   order: "ASC" | "DESC" = "ASC"
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     where: getWhereSearchByMetadata(query),
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),

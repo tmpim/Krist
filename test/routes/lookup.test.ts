@@ -22,6 +22,7 @@
 import { expect } from "chai";
 
 import { Name, Transaction } from "../../src/database/index.js";
+import { invalidateCountCache } from "../../src/utils/cache.js";
 import { api } from "../api.js";
 import { seed } from "../seed.js";
 
@@ -219,6 +220,8 @@ describe("v2 routes: lookup api", function() {
       const tx = await Transaction.create({ from: "k7oax47quv", to: "a", value: 0, name: "test", op: "Hello, world!", time: new Date() });
       expect(tx).to.exist;
       expect(tx).to.deep.include({ from: "k7oax47quv", to: "a", value: 0, name: "test", op: "Hello, world!" });
+      // Invalidate cache since Transaction.create bypasses createTransaction
+      await invalidateCountCache(Transaction.name);
     });
 
     it("should search for a transaction by name", async function() {
@@ -242,6 +245,8 @@ describe("v2 routes: lookup api", function() {
         { from: "k8juvewcui", to: "k7oax47quv", value: 1, sent_name: "test", op: "test.kst;Hello, world!", time: new Date() },
         { from: "k8juvewcui", to: "k7oax47quv", value: 1, sent_name: "test", sent_metaname: "meta@test.kst", op: "meta@test.kst;Hello, world!", time: new Date() }
       ]);
+      // Invalidate cache since bulkCreate bypasses createTransaction
+      await invalidateCountCache(Transaction.name);
     });
 
     it("should search for transactions by name in metadata", async function() {

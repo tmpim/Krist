@@ -27,6 +27,7 @@ import { initDatabase, shutdownDb } from "./database/index.js";
 import { initRedis, shutdownRedis } from "./database/redis.js";
 import { initAuthLogCleanup, shutdownAuthLogCleanup } from "./krist/authLog.js";
 import { initKrist } from "./krist/index.js";
+import { stopAllAutomaticCacheInvalidation } from "./utils/cache.js";
 import { initWorkOverTime, shutdownWorkOverTime } from "./krist/work.js";
 import { initCriticalLogUpdater } from "./utils/criticalLog.js";
 
@@ -53,6 +54,7 @@ async function main() {
 function shutdown() {
   (async () => {
     shutdownWebserver();
+    stopAllAutomaticCacheInvalidation();
     await shutdownRedis();
     await shutdownDb();
     shutdownWorkOverTime();

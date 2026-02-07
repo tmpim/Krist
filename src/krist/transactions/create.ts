@@ -27,6 +27,7 @@ import promClient from "prom-client";
 import { Address, SqTransaction, Transaction } from "../../database/index.js";
 import { ErrorAddressNotFound, ErrorInsufficientFunds, ErrorTransactionConflict } from "../../errors/index.js";
 import { criticalLog } from "../../utils/criticalLog.js";
+import { invalidateCountCache } from "../../utils/cache.js";
 import { getLogDetails } from "../../utils/index.js";
 import { TRANSACTION_MAX_CONCURRENCY } from "../../utils/vars.js";
 import { wsManager } from "../../websockets/index.js";
@@ -182,6 +183,11 @@ async function pushTransactionInternal(
       totalin: amount,
       totalout: 0
     }, { transaction: dbTx });
+
+    dbTx.afterCommit(async () => {
+      // Invalidate address count caches (new address created)
+      await invalidateCountCache(Address.name);
+    });
   } else {
     // Otherwise, increment their balance and totalin
     await recipient.increment({
@@ -254,6 +260,9 @@ export async function createTransaction(
     promTransactionCounter.inc({
       type: identifyTransactionType(newTransaction)
     });
+
+    // Invalidate all transaction count caches
+    await invalidateCountCache(Transaction.name);
 
     // Broadcast the transaction to websockets subscribed to transactions
     wsManager.broadcastEvent({

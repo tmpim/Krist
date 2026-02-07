@@ -21,6 +21,7 @@
 
 import { InferAttributes, Op, sql } from "@sequelize/core";
 import { Limit, Name, Offset, PaginatedResult } from "../../database/index.js";
+import { cachedFindAndCountAll } from "../../utils/cache.js";
 import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export async function lookupNames(
@@ -30,7 +31,7 @@ export async function lookupNames(
   orderBy: (keyof InferAttributes<Name>) | "transferredOrRegistered" = "name",
   order: "ASC" | "DESC" = "ASC"
 ): Promise<PaginatedResult<Name>> {
-  return Name.findAndCountAll({
+  return cachedFindAndCountAll(Name, {
     order: [[
       // Ordering by `transferred` can return null results and may not be the desirable ordering for the user, so
       // `transferredOrRegistered` is an alternative option that falls back to `registered` if `transferred` is null.

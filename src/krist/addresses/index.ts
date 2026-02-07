@@ -21,6 +21,7 @@
 
 import { QueryTypes } from "@sequelize/core";
 import { Address, db, Limit, Offset, PaginatedResult } from "../../database/index.js";
+import { cachedFindAndCountAll } from "../../utils/cache.js";
 import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 
 export interface AddressWithNames extends Address {
@@ -64,7 +65,7 @@ export async function getAddresses(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Address>> {
-  return Address.findAndCountAll({
+  return cachedFindAndCountAll(Address, {
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset)
   });
@@ -74,7 +75,7 @@ export async function getRichAddresses(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Address>> {
-  return Address.findAndCountAll({
+  return cachedFindAndCountAll(Address, {
     order: [["balance", "DESC"]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset)

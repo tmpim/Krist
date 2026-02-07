@@ -22,6 +22,7 @@
 import { InferAttributes, Op, WhereOptions } from "@sequelize/core";
 import { Limit, Offset, PaginatedResult, Transaction } from "../../database/index.js";
 import { sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
+import { cachedFindAndCountAll, cachedCount } from "../../utils/cache.js";
 
 // Query operator to exclude mined transactions in the 'from' field
 export const OP_EXCLUDE_MINED = {
@@ -39,7 +40,7 @@ export async function getTransactions(
   asc?: boolean,
   includeMined?: boolean
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     order: [["id", asc ? "ASC" : "DESC"]],
     limit: sanitiseLimit(limit),
     offset: sanitiseOffset(offset),
@@ -51,7 +52,7 @@ export async function getRecentTransactions(
   limit?: Limit,
   offset?: Offset
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     order: [["id", "DESC"]],
     limit: sanitiseLimit(limit, 100),
     offset: sanitiseOffset(offset),
@@ -85,7 +86,7 @@ export async function countTransactionsByAddress(
   address: string,
   includeMined?: boolean
 ): Promise<number> {
-  return Transaction.count({
+  return cachedCount(Transaction, {
     where: getWhereTransactionsByAddress(address, includeMined)
   });
 }
@@ -98,7 +99,7 @@ export async function getTransactionsByAddress(
   orderBy: keyof InferAttributes<Transaction> = "id",
   order: "ASC" | "DESC" = "DESC"
 ): Promise<PaginatedResult<Transaction>> {
-  return Transaction.findAndCountAll({
+  return cachedFindAndCountAll(Transaction, {
     where: getWhereTransactionsByAddress(address, includeMined),
     order: [[orderBy, order]],
     limit: sanitiseLimit(limit),

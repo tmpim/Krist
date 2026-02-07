@@ -23,6 +23,7 @@ import chalkT from "chalk-template";
 import { Request } from "express";
 import promClient from "prom-client";
 import { Address } from "../../database/index.js";
+import { invalidateCountCache } from "../../utils/cache.js";
 import { criticalLog } from "../../utils/criticalLog.js";
 import { getLogDetails, makeV2Address, sha256 } from "../../utils/index.js";
 import { logAuth } from "../authLog.js";
@@ -63,6 +64,9 @@ export async function verifyAddress(
       balance: 0, totalin: 0, totalout: 0,
       privatekey: hash
     });
+
+    // Invalidate address count caches (new address created)
+    await invalidateCountCache(Address.name);
 
     logAuth(req, kristAddress, "auth").catch(console.error);
     promAddressesVerifiedCounter.inc({ type: "authed" });
