@@ -25,6 +25,7 @@ import { Name, Transaction } from "../../src/database/index.js";
 import { invalidateCountCache } from "../../src/utils/cache.js";
 import { api } from "../api.js";
 import { seed } from "../seed.js";
+import { GENESIS_HASH } from "../../src/krist/blocks/index.js";
 
 describe("v2 routes: lookup api", function() {
   before(seed);
@@ -161,7 +162,7 @@ describe("v2 routes: lookup api", function() {
       expect(res.body.query).to.deep.include({ matchBlock: true, hasID: true, cleanID: 1 });
       expect(res.body.matches).to.deep.include({ exactAddress: false, exactName: false, exactTransaction: false });
       expect(res.body.matches.exactBlock).to.be.an("object");
-      expect(res.body.matches.exactBlock).to.deep.include({ hash: "0000000000000000000000000000000000000000000000000000000000000000" });
+      expect(res.body.matches.exactBlock).to.deep.include({ hash: GENESIS_HASH });
     });
 
     it("should create a transaction to test", async function() {

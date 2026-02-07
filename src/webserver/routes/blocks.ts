@@ -24,6 +24,7 @@ import { Router } from "express";
 import { ctrlGetBlock, ctrlGetLastBlock } from "../../controllers/blocks.js";
 import {
   blockToJson,
+  GENESIS_HASH,
   getBlock,
   getBlocks,
   getBlockValue,
@@ -90,8 +91,8 @@ export default (): Router => {
   }>, res, next) => {
     if (req.query.lastblock !== undefined) {
       const block = await getLastBlock();
-      if (!block) return res.send("000000000000");
-      return res.send(block.hash.substring(0, 12));
+      if (!block) return res.send(GENESIS_HASH.substring(0, 12));
+      return res.send((block.hash ?? GENESIS_HASH).substring(0, 12));
     }
 
     if (req.query.getbaseblockvalue !== undefined) {

@@ -28,7 +28,7 @@ import {
   KristError
 } from "../../errors/index.js";
 import { addressToJson } from "../../krist/addresses/index.js";
-import { blockToJson, getLastBlock } from "../../krist/blocks/index.js";
+import { blockToJson, GENESIS_HASH, getLastBlock } from "../../krist/blocks/index.js";
 import { ReqQuery } from "../index.js";
 
 export default (): Router => {
@@ -100,7 +100,7 @@ export default (): Router => {
             // solutions, not sure why
             const lastBlock = await getLastBlock();
             if (!lastBlock) return res.send("Mining disabled");
-            return res.send(address + lastBlock.hash.substring(0, 12) + nonce);
+            return res.send(address + (lastBlock.hash ?? GENESIS_HASH).substring(0, 12) + nonce);
           }
         }
 

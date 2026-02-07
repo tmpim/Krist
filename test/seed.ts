@@ -23,6 +23,7 @@ import chalkT from "chalk-template";
 import { Address, Block, db } from "../src/database/index.js";
 import { redis, rKey } from "../src/database/redis.js";
 import { REDIS_PREFIX, TEST_DEBUG } from "../src/utils/vars.js";
+import { GENESIS_HASH } from "../src/krist/blocks/index.js";
 
 export async function seed(): Promise<void> {
   const debug = TEST_DEBUG;
@@ -41,7 +42,7 @@ export async function seed(): Promise<void> {
     // Create the genesis block
     Block.create({
       value: 50,
-      hash: "0000000000000000000000000000000000000000000000000000000000000000",
+      hash: GENESIS_HASH,
       address: "0000000000",
       nonce: "0",
       difficulty: 4294967295,

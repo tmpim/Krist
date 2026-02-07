@@ -90,8 +90,7 @@ export class Block extends Model {
 
   @Attribute(DataTypes.STRING(64))
   @Unique
-  @NotNull
-  declare hash: string;
+  declare hash: string | null;
   @Attribute(DataTypes.STRING(NONCE_MAX_SIZE * 2))
   declare nonce: string;
   @Attribute(DataTypes.INTEGER.UNSIGNED)

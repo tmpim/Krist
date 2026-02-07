@@ -46,6 +46,8 @@ import { cachedFindAndCountAll } from "../../utils/cache.js";
 import { getBaseBlockValue, getLegacyWork, sanitiseLimit, sanitiseOffset } from "../../utils/index.js";
 import { getUnpaidNameCount } from "../names/index.js";
 
+export const GENESIS_HASH = "0".repeat(64);
+
 export async function getBlock(id: number): Promise<Block | null> {
   return Block.findByPk(id);
 }

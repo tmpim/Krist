@@ -36,6 +36,7 @@ import { isMiningEnabled } from "../switches.js";
 import { createTransaction } from "../transactions/create.js";
 import { getWork, setWork } from "../work.js";
 import { blockToJson, getBlockValue, getLastBlock } from "./index.js";
+import { GENESIS_HASH } from "./index.js";
 
 const promBlockCounter = new promClient.Counter({
   name: "krist_blocks_total",
@@ -60,7 +61,7 @@ export async function submitBlock(
   if (!lastBlock) throw new ErrorMiningDisabled();
 
   // Verify the provided nonce is a solution to the current block
-  const last = lastBlock.hash.substring(0, 12);
+  const last = (lastBlock.hash ?? GENESIS_HASH).substring(0, 12);
   const work = await getWork();
   const hash = sha256(address, last, nonce);
 
